@@ -38,7 +38,9 @@ fully-functional app a bit later on.
 Within the app/ directory is the following file structure:
 
 * controllers/
+* helpers/
 * models/
+* resources/
 * views/
 
 === config/
@@ -49,7 +51,7 @@ the files in this directory, but there's no need to do so.
 === public/
 
 This is a location for you to store static files such as images, CSS stylesheets, static HTML pages and supporting
-JavaScripts. The public/ directory is treated as a document root, so referencing a file called
+JavaScripts. This directory is treated as a document root, so referencing a file called
 <em>/javascripts/hello_world.js</em> will actually retrieve the file
 <em>[app_root]/public/javascripts/hello_world.js</em>.
 

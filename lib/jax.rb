@@ -1,3 +1,3 @@
 module Jax
-  # Your code goes here...
+  autoload :Generators, File.join(File.dirname(__FILE__), "jax/generators/commands")
 end
