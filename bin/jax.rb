@@ -1,15 +1,12 @@
 #!/usr/bin/env ruby
 require "rubygems"
 require "thor/group"
+require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/commands")
 
-case ARGV.shift
-  when nil
-    puts "Perhaps you should try specifying a command?"
-    puts
-  when 'new'
-    require File.join(File.expand_path(File.dirname(__FILE__)), "../generators/jax/app_generator")
-    Jax::AppGenerator.start
-  else
-    puts "Invalid command."
-    puts
+if which = Jax::COMMANDS[ARGV.shift]
+  Jax.const_get(which).start
+else
+  puts "Available commands:"
+  puts
+  puts Jax::COMMANDS.keys
 end
