@@ -12,6 +12,9 @@ Gem::Specification.new do |s|
   s.summary     = %q{TODO: Write a gem summary}
   s.description = %q{TODO: Write a gem description}
 
+  s.add_dependency "thor", "~> 0.14.6"
+  s.add_dependency 'jasmine', '~> 1.0.1.1'
+
   s.rubyforge_project = "jax"
 
   s.files         = `git ls-files`.split("\n")

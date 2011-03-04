@@ -35,6 +35,12 @@ should serve to emphasize this fact.
 No one file in this location will operate on its own. Instead, the files in app/ will be combined into a
 fully-functional app a bit later on.
 
+Within the app/ directory is the following file structure:
+
+* controllers/
+* models/
+* views/
+
 === config/
 
 This directory contains the default configuration setup that JAX will use. You can feel free to customize
@@ -46,4 +52,11 @@ This is a location for you to store static files such as images, CSS stylesheets
 JavaScripts. The public/ directory is treated as a document root, so referencing a file called
 <em>/javascripts/hello_world.js</em> will actually retrieve the file
 <em>[app_root]/public/javascripts/hello_world.js</em>.
+
+== Hello, World!
+
+Following the steps above will generate an application, but it will be empty. In order to fill it with content, we need
+to generate some more files. The simplest application is always a "Hello, World" app, so let's create one of those!
+
+  jax generate controller welcome index
 
