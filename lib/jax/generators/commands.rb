@@ -1,7 +1,5 @@
 module Jax
-  autoload :AppGenerator, File.join(File.dirname(__FILE__), "jax/app_generator")
-
-  COMMANDS = {
-      'new' => :AppGenerator
-  }
+  module Generators
+    autoload :App, File.join(File.dirname(__FILE__), "app/app_generator")
+  end
 end
