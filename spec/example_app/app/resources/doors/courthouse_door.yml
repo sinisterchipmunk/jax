@@ -1,0 +1,5 @@
+static: true
+indestructible: true
+model: "/res/door.json"
+destination:
+  controller: 'downtown'

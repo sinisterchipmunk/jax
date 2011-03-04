@@ -1,0 +1,7 @@
+type: point
+intensity: 10
+# color: yellow
+color:
+  red: 1
+  green: 1
+  blue: 0

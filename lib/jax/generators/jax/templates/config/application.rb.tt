@@ -1,0 +1,3 @@
+class <%=path_to_app%> < Jax::Application
+
+end
