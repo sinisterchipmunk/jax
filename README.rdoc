@@ -1,0 +1,49 @@
+== Important
+
+JAX is a working title and is subject to change.
+
+== JAX
+
+JAX is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
+
+== Requirements
+
+It requires ruby, which you can download at: http://www.ruby-lang.org
+
+Other than that, JAX requires a few ruby gems which will be retrieved automatically when installing.
+
+== Installation
+
+First, install ruby. Then, run the following command:
+
+  gem install jax
+  
+== Getting Started
+
+After installing the gem, you'll need to generate a new JAX project. This is simple:
+
+  jax new [project-name]
+  
+JAX will generate a whole bunch of files for you.
+
+=== app/
+
+The bulk of your WebGL application will be in the app/
+directory. JAX is designed around the MVC (Model-View-Controller) paradigm, and the subdirectories there
+should serve to emphasize this fact.
+
+No one file in this location will operate on its own. Instead, the files in app/ will be combined into a
+fully-functional app a bit later on.
+
+=== config/
+
+This directory contains the default configuration setup that JAX will use. You can feel free to customize
+the files in this directory, but there's no need to do so.
+
+=== public/
+
+This is a location for you to store static files such as images, CSS stylesheets, static HTML pages and supporting
+JavaScripts. The public/ directory is treated as a document root, so referencing a file called
+<em>/javascripts/hello_world.js</em> will actually retrieve the file
+<em>[app_root]/public/javascripts/hello_world.js</em>.
+
