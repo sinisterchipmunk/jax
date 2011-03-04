@@ -1,3 +1,6 @@
-var Door = Jax.Model.create({
-  after_initialize: function() { }
-});
+var Door = (function() {
+  return Jax.Model.create({
+    after_initialize: function() { }
+  });
+})();
+

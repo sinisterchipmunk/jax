@@ -1,5 +1,7 @@
-var LightSource = Jax.Model.create({
-  after_initialize: function() {
+var LightSource = (function() {
+  return Jax.Model.create({
+    after_initialize: function() {
 
-  }
-});
+    }
+  });
+})();

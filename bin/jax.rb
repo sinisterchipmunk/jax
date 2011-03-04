@@ -1,12 +1,15 @@
 #!/usr/bin/env ruby
 require "rubygems"
+require "thor"
 require "thor/group"
-require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/commands")
 
-if which = Jax::COMMANDS[ARGV.shift]
-  Jax.const_get(which).start
-else
-  puts "Available commands:"
-  puts
-  puts Jax::COMMANDS.keys
+class JaxGenerator < Thor
+  desc "new", "generates a new JAX application"
+  def new(*args)
+    ARGV.shift # we've already processed the command
+    Jax::Generators::App::AppGenerator.start
+  end
 end
+
+require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/commands")
+JaxGenerator.start
