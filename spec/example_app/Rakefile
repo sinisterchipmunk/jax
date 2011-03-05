@@ -1,4 +1,4 @@
 require 'rubygems'
-require 'jax/rake_tasks'
+require 'jax/tasks/jax.rake'
 require 'jasmine'
 load 'jasmine/tasks/jasmine.rake'
