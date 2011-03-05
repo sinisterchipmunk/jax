@@ -18,7 +18,7 @@ Other than that, JAX requires a few ruby gems which will be retrieved automatica
 
 == Installation
 
-First, install ruby. Then, run the following command:
+First, {install ruby}[http://ruby-lang.org]. Then, run the following command:
 
   gem install jax
   
@@ -32,7 +32,7 @@ JAX will generate a whole bunch of files for you.
 
 === app/
 
-The bulk of your WebGL application will be in the app/
+The bulk of your WebGL application will be located in the app/
 directory. JAX is designed around the MVC (Model-View-Controller) paradigm, and the subdirectories there
 should serve to emphasize this fact.
 
@@ -42,10 +42,19 @@ fully-functional app a bit later on.
 Within the app/ directory is the following file structure:
 
 * controllers/
+  * Contains controllers, which are in charge of setting up or manipulating the scene from a high level. Tasks include
+    finding models and adding them to the scene, processing input events, and making high-level changes to models.
 * helpers/
+  * Contains helper methods used by the views. This allows you to separate presentation logic, and makes the views
+    easier to maintain. 
 * models/
+  * Contains data structures. This is where most data will be stored and manipulated.
 * resources/
+  * Contains implementations of models. For instance, there may be a model type called PointLight, and a resource
+    that is an instance of PointLight called "Sun".
 * views/
+  * Contains code specific to rendering the current scene. The current view will be rendered repeatedly, at a target
+    (but platform-dependent) rate of 60 times per second.
 
 === config/
 
