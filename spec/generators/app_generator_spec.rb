@@ -8,12 +8,15 @@ EXPECTED_FILES = %w(
   app/resources/
   app/views/
   config/application.rb
-  config/routes.rb
-  public/
+  config/routes.rb 
+  config/boot.rb
+  public/       
+  script/jax
   spec/javascripts/helpers/SpecHelper.js
   spec/javascripts/support/jasmine.yml
   spec/javascripts/support/jasmine_runner.rb
-  Rakefile
+  Rakefile 
+  Gemfile
 )
 
 describe Jax::Generators::App::AppGenerator do
@@ -33,9 +36,9 @@ describe Jax::Generators::App::AppGenerator do
     Dir.chdir File.expand_path('..', pwd)
   end
 
-  it "should generate files" do
-    generate("test_app")
-    EXPECTED_FILES.each do |file|
+  EXPECTED_FILES.each do |file|
+    it "should generate '#{file}'" do
+      generate("test_app")
       File.should exist(File.expand_path(File.join("test_app", file), pwd))
     end
   end

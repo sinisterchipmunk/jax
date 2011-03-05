@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), "../../../jax")
+
 module Jax
   module Generators
     module App
@@ -39,7 +41,15 @@ module Jax
         def script_jax
           copy_file "script/jax", "script/jax"
         end
-
+        
+        def script_permissions
+          chmod("script/*", 0755)
+        end
+        
+        def gemfile
+          template 'Gemfile.tt', 'Gemfile'
+        end
+        
         def git
           if File.exist? '.git'
             say_status :exist, 'git', :blue

@@ -7,13 +7,5 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generato
 
 Jax::Generators::ScriptJaxLoader.exec_script_jax! # this uses exec so, if found, the rest of this file won't load
 
-require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/commands")
-
-class JaxGenerator < Thor
-  desc "new", "generates a new JAX application"
-  def new(*args)
-    Jax::Generators::App::AppGenerator.start(args)
-  end
-end
-
+require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/app")
 JaxGenerator.start
