@@ -9,6 +9,14 @@ class JaxGenerator < Thor
     ARGV.shift # we've already processed the command
     Jax::Generators::App::AppGenerator.start
   end
+
+  def generate(*args)
+    ARGV.shift
+    case ARGV.shift
+      when 'controller' then Jax::Generators::Controller::ControllerGenerator.start
+      else raise "not understood"
+    end
+  end
 end
 
 require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generators/commands")
