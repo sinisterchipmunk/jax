@@ -12,8 +12,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/jax/generato
 class JaxGenerator < Thor
   desc "new", "generates a new JAX application"
   def new(*args)
-    ARGV.shift # we've already processed the command
-    Jax::Generators::App::AppGenerator.start
+    Jax::Generators::App::AppGenerator.start(args)
   end
 end
 
