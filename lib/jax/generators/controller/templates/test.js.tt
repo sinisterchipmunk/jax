@@ -1,0 +1,11 @@
+describe("<%=class_name%>Controller", function() {
+  var controller;
+
+  beforeEach(function() {
+    controller = new <%=class_name%>Controller();
+  });
+
+  it("fails", function() {
+    expect(player).toEqual(null);
+  });
+});

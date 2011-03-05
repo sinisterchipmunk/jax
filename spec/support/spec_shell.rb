@@ -1,6 +1,8 @@
 require 'thor/shell/basic'
 
 class SpecShell < Thor::Shell::Basic
+  attr_reader :stdin, :stdout, :stderr
+  
   def initialize(options = { })
     super()
     @stdin  = StringIO.new(options[:in ] || '')
