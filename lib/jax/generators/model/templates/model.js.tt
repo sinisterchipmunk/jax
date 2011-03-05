@@ -1,0 +1,10 @@
+var <%=class_name%> = (function() {
+  after_initialize: function() {
+    /* model-specific initialization */
+  },
+
+  /* other model-specific methods */
+  sayHello: function() {
+    alert("Hi!");
+  }
+})();
