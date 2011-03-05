@@ -11,46 +11,17 @@ module Jax
           File.expand_path("templates", File.dirname(__FILE__))
         end
 
-        def controller_source_file
-          template 'controller_source.js.tt', File.join("app/controllers", "#{file_name}.js")
+        def source
+          template 'controller_source.js.tt', File.join("app/controllers", "#{file_name}_controller.js")
         end
-
-#        def create_root
-#          self.destination_root = File.expand_path(path_to_app, destination_root)
-#          empty_directory '.'
-#          FileUtils.cd destination_root
-#        end
-#
-#        def app
-#          directory 'app'
-#        end
-#
-#        def config
-#          directory 'config'
-#        end
-#
-#        def public
-#          directory 'public'
-#        end
-#
-#        def jasmine
-#          say_status :init, 'jasmine', :green
-#          `jasmine init`
-#        end
-#
-#        def rakefile
-#          insert_into_file 'Rakefile', "require 'rubygems'\nrequire 'jax/rake_tasks'", :before => /\A/
-#        end
-#
-#        def git
-#          if File.exist? '.git'
-#            say_status :exist, 'git', :blue
-#          else
-#            `git init`
-#            `git add *`
-#            say_status :init, 'git', :green
-#          end
-#        end
+        
+        def helper
+          template 'helper.js.tt', File.join("app/helpers", "#{file_name}_helper.js")
+        end
+        
+        def test
+          template 'test.js.tt', File.join('spec/javascripts/controllers', "#{file_name}_controller_spec.js")
+        end
 
         protected
         def self.banner
@@ -59,6 +30,10 @@ module Jax
 
         def file_name
           controller_name.underscore
+        end
+        
+        def class_name
+          controller_name.camelize
         end
       end
     end

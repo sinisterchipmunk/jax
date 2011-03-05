@@ -1,0 +1,23 @@
+var <%=class_name%>Controller = (function() {
+  return Jax.Controller.create(ApplicationController, {
+    /* 'index' action. Sets up the scene. 'index' is called by default when first
+       switching to this controller, unless another action name is given.
+     */
+    index: function() {
+      
+    },
+
+    /* Some special actions are fired whenever the corresponding input is
+       received from the user.
+     */
+    mouse_clicked: function(event) {
+      
+    },
+
+    /* clean up the scene. Special function which is called when switching
+       to a new controller. Generally, World will clean up sufficiently on
+       its own.
+     */
+    destroy: function($super) { $super(); }
+  });
+})();
