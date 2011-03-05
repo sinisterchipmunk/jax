@@ -25,7 +25,7 @@ describe Jax::Generators::Controller::ControllerGenerator do
     Dir.chdir File.expand_path('..', pwd)
   end
 
-  context "generating a welcome controller with no arguments" do
+  context "with no arguments" do
     before(:each) { generate 'welcome' }
 
     it "should generate controller source file" do
@@ -43,6 +43,22 @@ describe Jax::Generators::Controller::ControllerGenerator do
   
     it "should generate controller test file" do
       File.should exist('spec/javascripts/controllers/welcome_controller_spec.js')
+    end
+  end
+  
+  context "with arguments" do
+    before(:each) { generate "welcome", "index" }
+    
+    it "should generate controller source file" do
+      File.should exist("app/controllers/welcome_controller.js")
+    end
+    
+    it "should add action to controller source" do
+      File.read(File.join(pwd, "test_app/app/controllers/welcome_controller.js")).should =~ /^\s*index: function\(\)\s*\{/
+    end
+    
+    it "should generate view file" do
+      File.should exist("app/views/welcome/index.js")
     end
   end
 end
