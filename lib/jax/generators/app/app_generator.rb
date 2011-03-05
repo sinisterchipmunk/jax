@@ -43,7 +43,7 @@ module Jax
         end
         
         def script_permissions
-          chmod("script/*", 0755)
+          chmod("script/jax", 0755)
         end
         
         def gemfile
