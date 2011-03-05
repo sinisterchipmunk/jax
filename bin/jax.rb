@@ -10,6 +10,7 @@ class JaxGenerator < Thor
     Jax::Generators::App::AppGenerator.start
   end
 
+  desc "generate", "generates a new controller or model"
   def generate(*args)
     ARGV.shift
     case ARGV.shift
