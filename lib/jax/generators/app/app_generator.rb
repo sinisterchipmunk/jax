@@ -35,6 +35,10 @@ module Jax
         def rakefile
           insert_into_file 'Rakefile', "require 'rubygems'\nrequire 'jax/rake_tasks'", :before => /\A/
         end
+        
+        def script_jax
+          copy_file "script/jax", "script/jax"
+        end
 
         def git
           if File.exist? '.git'
