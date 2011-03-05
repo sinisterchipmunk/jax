@@ -1,6 +1,10 @@
 == Important
 
-JAX is a working title and is subject to change.
+JAX is a working title and is subject to change. Also, it is under heavy development and is largely incomplete.
+Keep in mind that this README represents how JAX is _meant_ to work upon completion, not necessarily how it would
+work if you were to clone the git repository right now.
+
+I reserve the right to commit broken code until version 0.0.1 is officially released.
 
 == JAX
 
