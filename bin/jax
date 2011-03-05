@@ -3,6 +3,17 @@ require "rubygems"
 require "thor"
 require "thor/group"
 
+class JaxGeneratorInvoker < Thor
+  def self.basename
+    "jax generate"
+  end
+
+  desc "controller", "generates a new JAX controller"
+  def controller(*args)
+    Jax::Generators::Controller::ControllerGenerator.start
+  end
+end
+  
 class JaxGenerator < Thor
   desc "new", "generates a new JAX application"
   def new(*args)
@@ -13,10 +24,7 @@ class JaxGenerator < Thor
   desc "generate", "generates a new controller or model"
   def generate(*args)
     ARGV.shift
-    case ARGV.shift
-      when 'controller' then Jax::Generators::Controller::ControllerGenerator.start
-      else raise "not understood"
-    end
+    JaxGeneratorInvoker.start
   end
 end
 
