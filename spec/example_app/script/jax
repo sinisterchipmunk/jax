@@ -11,15 +11,19 @@ class JaxGeneratorInvoker < Thor
 
   desc "controller", "generates a new JAX controller"
   def controller(*args)
-    Jax::Generators::Controller::ControllerGenerator.start
+    Jax::Generators::Controller::ControllerGenerator.start(args)
+  end
+  
+  desc "model", "generates a new JAX model"
+  def model(*args)
+    Jax::Generators::Model::ModelGenerator.start(args)
   end
 end
 
 class JaxGenerator < Thor
   desc "generate", "generates a new controller or model"
   def generate(*args)
-    ARGV.shift
-    JaxGeneratorInvoker.start
+    JaxGeneratorInvoker.start(args)
   end
 end
 
