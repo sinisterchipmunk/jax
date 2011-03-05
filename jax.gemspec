@@ -6,11 +6,11 @@ Gem::Specification.new do |s|
   s.name        = "jax"
   s.version     = Jax::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
+  s.authors     = ["Colin MacKenzie IV"]
+  s.email       = ["sinisterchipmunk@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
+  s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
   s.add_dependency "thor", "~> 0.14.6"
   s.add_dependency 'jasmine', '~> 1.0.1.1'

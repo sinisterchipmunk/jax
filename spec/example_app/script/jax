@@ -1,30 +1,7 @@
 #!/usr/bin/env ruby
 require "rubygems"
-require "thor"
-require "thor/group"
-require 'jax'
 
-class JaxGeneratorInvoker < Thor
-  def self.basename
-    "jax generate"
-  end
-
-  desc "controller", "generates a new JAX controller"
-  def controller(*args)
-    Jax::Generators::Controller::ControllerGenerator.start(args)
-  end
-  
-  desc "model", "generates a new JAX model"
-  def model(*args)
-    Jax::Generators::Model::ModelGenerator.start(args)
-  end
-end
-
-class JaxGenerator < Thor
-  desc "generate", "generates a new controller or model"
-  def generate(*args)
-    JaxGeneratorInvoker.start(args)
-  end
-end
-
+APP_PATH = File.expand_path('../../config/application',  __FILE__)
+require File.expand_path("../../config/boot", __FILE__)
+require 'jax/generators/commands'
 JaxGenerator.start
