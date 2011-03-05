@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "thor"
+require "thor/group"
+require 'jax'
+
+class JaxGeneratorInvoker < Thor
+  def self.basename
+    "jax generate"
+  end
+
+  desc "controller", "generates a new JAX controller"
+  def controller(*args)
+    Jax::Generators::Controller::ControllerGenerator.start
+  end
+end
+
+class JaxGenerator < Thor
+  desc "generate", "generates a new controller or model"
+  def generate(*args)
+    ARGV.shift
+    JaxGeneratorInvoker.start
+  end
+end
+
+JaxGenerator.start
