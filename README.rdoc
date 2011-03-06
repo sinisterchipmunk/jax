@@ -6,6 +6,10 @@ work if you were to clone the git repository right now.
 
 I reserve the right to commit broken code until version 0.0.1 is officially released.
 
+This project includes an {example application}[http://github.com/sinisterchipmunk/tree/master/spec/example_app/],
+which is meant to represent a very common Jax application. I'm using it as a guide. Once Jax is able to turn the example
+code into a fully-functional, self-contained Web app, I hope to be ready for a first release.
+
 == JAX
 
 JAX is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
@@ -75,3 +79,15 @@ to generate some more files. The simplest application is always a "Hello, World"
 
   jax generate controller welcome index
 
+Once again, several files will be automatically generated for you:
+ 
+* app/controllers/welcome_controller.js
+  * Contains the controller itself. You should set up the scene in a controller action.
+* app/helpers/welcome_helper.js
+  * Contains helper methods which will be added to this controller's views.
+* app/views/welcome/index.js
+  * The view for the welcome controller's _index_ action.
+* spec/javascripts/controllers/welcome_controller_spec.js
+  * This is a test file. You should use it to test your controller.
+
+= incomplete
