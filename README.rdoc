@@ -6,7 +6,7 @@ work if you were to clone the git repository right now.
 
 I reserve the right to commit broken code until version 0.0.1 is officially released.
 
-This project includes an {example application}[http://github.com/sinisterchipmunk/tree/master/spec/example_app/],
+This project includes an {example application}[https://github.com/sinisterchipmunk/jax/tree/master/spec/example_app],
 which is meant to represent a very common Jax application. I'm using it as a guide. Once Jax is able to turn the example
 code into a fully-functional, self-contained Web app, I hope to be ready for a first release.
 
