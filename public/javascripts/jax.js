@@ -89,25 +89,16 @@ var Jax = (function() {
     require("jax/model");
   }
   
-/* don't load Prototype if it already exists, or we might replace a newer or customized version */
-  if (typeof(Prototype) == "undefined")
-  {
-    require("prototype", requireJaxDependencies);
-  }
-  else
-    requireJaxDependencies();
+  /* don't load Prototype if it already exists, or we might replace a newer or customized version */
+  if (typeof(Prototype) == "undefined") require("prototype", requireJaxDependencies);
+  else                                  requireJaxDependencies();
 
 
   return {
-    require: function(path) {
-      require(path);
-    },
-  
-    loaded: function() {
-      /* not used any more but kept here just-in-case */
-    }
+    require: function(path, callback) { require(path, callback); }
   }
 })();
 
-if (window && window.attachEvent) window.attachEvent("load", Jax.loaded);             /* IE */
-else                              window.addEventListener("load", Jax.loaded, false); /* W3 */
+/* not being used but kept here for future reference */
+//if (window && window.attachEvent) window.attachEvent("load", Jax.requireDependencies);             /* IE */
+//else                              window.addEventListener("load", Jax.requireDependencies, false); /* W3 */
