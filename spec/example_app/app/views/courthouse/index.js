@@ -1,4 +1,4 @@
-Jax.views.courthouse.index = function() {
+Jax.views.push('courthouse/index', function() {
   Player.camera.look();
   World.render();
-};
+});

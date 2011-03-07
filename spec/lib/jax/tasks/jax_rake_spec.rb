@@ -34,9 +34,28 @@ describe "Rake Tasks:" do
   context "package" do
     before(:each) { rake('jax:package') }
     
-    it "should produce javascript for building views" do
-      pending "a view builder"
-  #    Jax::ViewBuilder.new
+    context "javascript" do
+      subject { File.read(File.expand_path('pkg/test_app.js')) }
+      
+      it "should contain views" do
+        subject.should =~ /Jax.views.push\('welcome\/index'/
+      end
+      
+      it "should contain welcome controller" do
+        subject.should =~ /var WelcomeController = /
+      end
+      
+      it "should contain application controller" do
+        subject.should =~ /var ApplicationController = /
+      end
+      
+      it "should contain welcome helper" do
+        subject.should =~ /var WelcomeHelper = /
+      end
+      
+      it "should contain application helper" do
+        subject.should =~ /var ApplicationHelper = /
+      end
     end
   end
 end
