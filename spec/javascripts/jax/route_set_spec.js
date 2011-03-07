@@ -19,6 +19,11 @@ describe("Jax.RouteSet", function() {
       map.dispatch("/");
       expect(controller_class.invoke).toHaveBeenCalledWith("index");
     });
+    
+    it("should set the current Jax.controller", function() {
+      map.dispatch("/");
+      expect(Jax.current_controller).toBeKindOf(controller_class);
+    });
   });
   
   describe("with no root", function() {

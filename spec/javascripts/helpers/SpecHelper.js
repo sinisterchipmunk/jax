@@ -7,8 +7,8 @@ beforeEach(function() {
     },
     
     toBeKindOf: function(expectedKlass) {
-      var klass = this.actual;
-      return klass.isKindOf(expectedKlass);
+      var instance = this.actual;
+      return instance.isKindOf(expectedKlass);
     },
     
     toBeTrue: function() {

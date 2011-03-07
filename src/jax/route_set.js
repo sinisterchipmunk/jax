@@ -18,7 +18,7 @@ Jax.RouteSet = (function() {
     
     dispatch: function(path) {
       var route = this.recognize_route(path);
-      return route.controller.invoke(route.action);
+      return Jax.current_controller = route.controller.invoke(route.action);
     }
   });
 })();
