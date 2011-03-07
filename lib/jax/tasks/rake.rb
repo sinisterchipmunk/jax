@@ -7,4 +7,8 @@ namespace :jax do
   task :package do
     Jax::Packager.invoke
   end
+  
+  task :gather_resources do
+    Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
+  end
 end

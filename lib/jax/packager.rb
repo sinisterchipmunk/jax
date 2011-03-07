@@ -21,6 +21,7 @@ class Jax::Packager
     compile 'models'
     compile 'controllers'
     compile 'views'
+    Jax::ResourceCompiler.new.save(@file)
     file.close
   end
   
