@@ -8,6 +8,7 @@ var Jax = { };
 //= require "jax/controller"
 //= require "jax/view_manager"
 //= require "jax/route_set"
+//= require "jax/view"
 
 Jax.views = new Jax.ViewManager();
 Jax.routes = new Jax.RouteSet();

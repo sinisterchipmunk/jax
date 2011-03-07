@@ -15,6 +15,7 @@ module Jax
         def initialize(args=[], options={}, config={})
           super
           @actions = args[1..-1].collect { |c| c.underscore }
+          @controller_name = controller_name.underscore
         end
         
         def source

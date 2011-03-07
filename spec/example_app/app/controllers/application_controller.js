@@ -1,5 +1,5 @@
 var ApplicationController = (function() {
-  return Jax.Controller.create(Jax.Controller, {
+  return Jax.Controller.create("application", Jax.Controller, {
 
   });
 })();

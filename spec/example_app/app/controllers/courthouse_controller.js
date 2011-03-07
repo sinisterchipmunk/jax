@@ -1,5 +1,5 @@
 var CourthouseController = (function() {
-  return Jax.Controller.create(ApplicationController, {
+  return Jax.Controller.create("courthouse", ApplicationController, {
     /* 'index' action. Sets up the scene. 'index' is called by default when first
        switching to this controller, unless another action name is given.
      */
