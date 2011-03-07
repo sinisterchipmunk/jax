@@ -1,8 +1,10 @@
 require 'rake'
 
+include FileUtils
+
 namespace :jax do
-  desc "generate a standalone Web app"
+  desc "Generate a standalone Web app"
   task :package do
-    
+    Jax::Packager.invoke
   end
 end

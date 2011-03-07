@@ -1,1 +1,1 @@
-gem 'jax', :git => File.expand_path("../../../", __FILE__)
+gem 'jax', :path => File.expand_path("../../../", __FILE__)
