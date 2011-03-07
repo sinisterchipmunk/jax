@@ -17,6 +17,11 @@ describe("Jax.Model", function() {
     
       expect(model.find("name").fired).toBeTrue();
     });
+    
+    it("should raise an error when searching for a missing ID", function() {
+      model.addResources({"one": { } });
+      expect(function() { model.find("two") }).toThrow(new Error("Resource 'two' not found!"));
+    });
 
     it("should assign attribute values", function() {
       model.addResources({
@@ -29,7 +34,7 @@ describe("Jax.Model", function() {
     });
   
     it("should instantiate a model without default attributes", function() {
-      expect(function() { new model(); }).not.toThrow(Error);
+      expect(function() { new model(); }).not.toThrow();
     });
   });
   
