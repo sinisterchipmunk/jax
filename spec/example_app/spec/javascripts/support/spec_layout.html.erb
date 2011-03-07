@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+  <title>Jax test suite</title>
+  <% css_files.each do |css_file| %>
+  <link rel="stylesheet" href="<%= css_file %>" type="text/css" media="screen"/>
+  <% end %>
+
+  <% jasmine_files.each do |jasmine_file| %>
+  <script src="<%= jasmine_file %>" type="text/javascript"></script>
+  <% end %>
+
+  <script type="text/javascript">
+    var jsApiReporter;
+    (function() {
+      var jasmineEnv = jasmine.getEnv();
+
+      jsApiReporter = new jasmine.JsApiReporter();
+      var trivialReporter = new jasmine.TrivialReporter();
+
+      jasmineEnv.addReporter(jsApiReporter);
+      jasmineEnv.addReporter(trivialReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return trivialReporter.specFilter(spec);
+      };
+
+      window.onload = function() {
+        jasmineEnv.execute();
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("id", "webgl-canvas");
+        canvas.setAttribute("width", "600");
+        canvas.setAttribute("height", "400");
+        document.body.appendChild(canvas);
+      };
+    })();
+  </script>
+  
+  <% js_files.each do |js_file| %>
+  <script src="<%= js_file %>" type="text/javascript"></script>
+  <% end %>
+
+  <style type="text/css">
+    canvas { border:1px solid #000; }
+    #jax_banner {
+      margin: 0.25em;
+      padding: 0.5em;
+      padding-left:1em;
+      background-color: #fff0f0;
+      font-size:14pt;
+    }
+  </style>
+</head>
+<body>
+<div id="jax_banner">
+  Jax
+</div>
+<div id="jasmine_content"></div>
+</body>
+</html>
