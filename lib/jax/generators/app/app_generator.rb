@@ -38,6 +38,17 @@ module Jax
         def rakefile
           insert_into_file 'Rakefile', File.read(File.expand_path("../templates/Rakefile", __FILE__)), :before => /\A/
         end
+        
+        def jasmine_yml
+          source_files = %w(
+            public/javascripts/jax/prototype
+            public/javascripts/jax/jax
+            app/**/*
+            tmp/resources
+          )
+          source = source_files.collect { |s| "    - #{s}.js" }.join("\n")
+          insert_into_file 'spec/javascripts/support/jasmine.yml', source+"\n", :after => /^src_files\:\n/
+        end
 
         def script_jax
           copy_file "script/jax", "script/jax"
