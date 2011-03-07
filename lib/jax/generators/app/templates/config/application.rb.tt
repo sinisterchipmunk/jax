@@ -1,6 +1,6 @@
 require File.expand_path("../boot", __FILE__)
 require 'jax'
 
-class <%=path_to_app%> < Jax::Application
+class <%=class_name%> < Jax::Application
 
 end
