@@ -13,6 +13,14 @@ beforeEach(function() {
     
     toBeTrue: function() {
       return !!this.actual;
+    },
+    
+    toBeUndefined: function() {
+      return typeof(this.actual) == "undefined";
+    },
+    
+    toBeAFunction: function() {
+      return typeof(this.actual) == "function";
     }
   });
 });
