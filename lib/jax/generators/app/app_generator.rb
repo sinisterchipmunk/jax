@@ -1,3 +1,4 @@
+require 'active_support/core_ext'
 require File.join(File.dirname(__FILE__), "../../../jax")
 
 module Jax
@@ -33,11 +34,11 @@ module Jax
           say_status :init, 'jasmine', :green
           `jasmine init`
         end
-
-        def rakefile
-          insert_into_file 'Rakefile', "require 'rubygems'\nrequire 'jax/rake_tasks'", :before => /\A/
-        end
         
+        def rakefile
+          insert_into_file 'Rakefile', File.read(File.expand_path("../templates/Rakefile", __FILE__)), :before => /\A/
+        end
+
         def script_jax
           copy_file "script/jax", "script/jax"
         end
@@ -63,6 +64,10 @@ module Jax
         protected
         def self.banner
           "jax new #{self.arguments.map { |a| a.usage }.join(' ')}"
+        end
+        
+        def class_name
+          path_to_app.camelize
         end
       end
     end
