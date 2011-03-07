@@ -5,7 +5,7 @@ Jax.ViewManager = (function() {
     },
     
     push: function(path, view) {
-      this.views[path] = view;
+      this.views[path] = new Jax.View(view);
     },
     
     get: function(path) {

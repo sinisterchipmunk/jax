@@ -1,6 +1,7 @@
 describe("Jax.RouteSet", function() {
   var map;
-  var controller_class = Jax.Controller.create({});
+  var controller_class = Jax.Controller.create({index: function() { }});
+  Jax.views.push("generic/index", function() { });
   
   beforeEach(function() { map = new Jax.RouteSet(); });
   
@@ -15,14 +16,19 @@ describe("Jax.RouteSet", function() {
     });
     
     it("should dispatch to the root controller", function() {
-      spyOn(controller_class, 'invoke');
+      spyOn(controller_class, 'invoke').andCallThrough();
       map.dispatch("/");
       expect(controller_class.invoke).toHaveBeenCalledWith("index");
     });
     
-    it("should set the current Jax.controller", function() {
+    it("should set the Jax.current_controller", function() {
       map.dispatch("/");
       expect(Jax.current_controller).toBeKindOf(controller_class);
+    });
+    
+    it("should set the Jax.current_view", function() {
+      map.dispatch("/");
+      expect(Jax.current_view).toBeKindOf(Jax.View);
     });
   });
   
