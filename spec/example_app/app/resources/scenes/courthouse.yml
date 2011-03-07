@@ -1,4 +1,4 @@
 static: true
 indestructible: true
 model: "/res/courthouse.json"
-door: <%=door('courthouse_door')%>
+door: courthouse_door
