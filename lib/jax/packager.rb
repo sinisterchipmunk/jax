@@ -1,39 +1,40 @@
 class Jax::Packager
-  attr_reader :pkg_path
+  attr_reader :pkg_path, :path, :file
   
   class << self
     def invoke
       pkg_dir = Jax.root.join("pkg")
       rm_rf pkg_dir
-      mkdir_p pkg_dir
-      Jax::Packager.new(pkg_dir)
+      new pkg_dir
     end
   end
   
   def initialize(pkg_path)
     @pkg_path = pkg_path
-    compile_views
+    @manifest = []
+    
+    @path = File.join(@pkg_path, "#{Jax.application.class.name.underscore}.js")
+    
+    mkdir_p File.dirname(@path)
+    @file = File.open(@path, "w")
+    compile 'helpers'
+    compile 'models'
+    compile 'controllers'
+    compile 'views'
+    file.close
   end
   
   protected
-  def compile_views
-    lines = []
-    
-    Dir[Jax.root.join("app/views/**")].each do |dir|
-      next unless File.directory?(dir)
-      compiled_path = dir.gsub(/^#{Regexp::escape Jax.root.to_s}([\/\\]?)app[\/\\]views[\/\\]/, '')
-      compiled_path.split(/\/\\/).inject("") do |current, segment|
-        current.concat "." unless current.blank?
-        current.concat segment
-
-        compiled_view = "Jax.views.#{current}=(Jax.views.#{current}||{});"
-        lines.push compiled_view unless lines.include?(compiled_view)
-      end
+  def compile(path)
+    Dir[Jax.root.join("app", path, "**/*")].each do |fi|
+      next if File.directory?(fi)
+      file.puts File.read(fi)
+      file.puts ''
     end
-    
-    lines.uniq!
-    File.open(pkg_path.join("views.js"), "w") do |f|
-      f.puts lines
-    end
+  end
+  
+  private
+  def localized_path(fi)
+    fi.gsub(/^#{Regexp::escape Jax.root.to_s}[\/\\]?/, '')
   end
 end
