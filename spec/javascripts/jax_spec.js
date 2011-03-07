@@ -7,4 +7,8 @@ describe("Jax", function() {
   it("should create the top-level view container", function() {
     expect(Jax.views).not.toBeUndefined();
   });
+  
+  it("should initialize the route set", function() {
+    expect(Jax.routes).not.toBeUndefined();
+  });
 });
