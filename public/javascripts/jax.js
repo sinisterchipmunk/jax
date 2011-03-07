@@ -86,6 +86,7 @@ var Jax = (function() {
   }
   
   function requireJaxDependencies() {
+    require("jax/prototype_extensions");
     require("jax/model");
   }
   
