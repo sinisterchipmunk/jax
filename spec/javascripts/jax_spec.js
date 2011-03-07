@@ -3,4 +3,8 @@ describe("Jax", function() {
     /* if false, then it didn't load all of the Jax libraries successfully */
     expect(Jax.loaded).toBeTrue();
   });
+  
+  it("should create the top-level view container", function() {
+    expect(Jax.views).not.toBeUndefined();
+  });
 });
