@@ -1,15 +1,17 @@
 (function() {
   Jax.Controller = (function() {
     return Class.create({
-      initialize: function() {
-        
+      initialize: function(action_name) {
+        alert(this.action_name);
+        this.action_name = action_name;
+        this[action_name].call(this, []);
       }
     });
   })();
-  
+
   var controller_class_methods = {
     invoke: function(action_name) {
-      
+      return new this(action_name);
     }
   };
   
