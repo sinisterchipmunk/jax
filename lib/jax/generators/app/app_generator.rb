@@ -62,6 +62,10 @@ module Jax
           template 'Gemfile.tt', 'Gemfile'
         end
         
+        def spec_layout
+          copy_file "spec/javascripts/support/spec_layout.html.erb"
+        end
+        
         def git
           if File.exist? '.git'
             say_status :exist, 'git', :blue
