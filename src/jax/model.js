@@ -29,10 +29,8 @@
   
   Jax.Model.create = function(superclass, inner) {
     var klass;
-    if (inner)
-      klass = Class.create(superclass, inner);
-    else
-      klass = Class.create(Jax.Model, superclass);
+    if (inner) klass = Class.create(superclass, inner);
+    else       klass = Class.create(Jax.Model, superclass);
     
     Object.extend(klass, model_class_methods);
     return klass;
