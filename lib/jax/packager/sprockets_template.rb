@@ -18,6 +18,8 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
   end
   
   def source_lines
+    # basically the same as super but with a string instead of a file
+    # TODO would templating be a worthy addition to Sprockets itself?
     @lines ||= begin
       lines = []
       comments = []
