@@ -22,7 +22,7 @@
  * and WebGL methods can be called directly on this context by prefixing
  * the name of the method with "gl". For example:
  * 
- *     context.glClearBuffer(GL_DEPTH_BUFFER);
+ *     context.glClear(GL_COLOR_BIT | GL_DEPTH_BUFFER_BIT);
  * 
  **/
 Jax.Context = (function() {
@@ -70,17 +70,17 @@ Jax.Context = (function() {
       this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       this.checkForRenderErrors();
       if (Jax.routes.isRouted("/"))
-        this.redirect_to("/");
+        this.redirectTo("/");
     },
 
     /**
-     * Jax.Context#redirect_to(path) -> Controller
+     * Jax.Context#redirectTo(path) -> Controller
      * - path (String): the path to redirect to
      * 
      * Redirects to the specified route, and then returns the Jax.Controller that
      * was just redirected to.
-     */
-    redirect_to: function(path) {
+     **/
+    redirectTo: function(path) {
       this.current_controller = Jax.routes.dispatch(path);
       if (!this.current_controller.view_key)
         throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
@@ -95,13 +95,13 @@ Jax.Context = (function() {
      * This will be false by default if there is no root route; otherwise
      * it will be true. It is also enabled automatically upon the first
      * valid redirect.
-     */
+     **/
     isRendering: function() {
       return this.render_interval != null;
     },
 
     /**
-     * Jax.Context#dispose()
+     * Jax.Context#dispose() -> undefined
      *
      * Permanently disposes of this context, freeing the resources it is using.
      * This stops actions from running, closes any open rendering contexts, and

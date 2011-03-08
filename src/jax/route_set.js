@@ -19,12 +19,13 @@
  * can do this by calling Jax.RouteSet#dispatch.
  **/
 Jax.RouteSet = (function() {
-  function find_route(set, path) {
-    if (path == "/") {
-      return set.map.root;
-    }
-    
-    return null;
+  function set_route(self, path, controller, action_name) {
+    action_name = action_name || "index";
+    return self._map[path] = { 'controller': controller, 'action': action_name };
+  }
+  
+  function find_route(self, path) {
+    return self._map[path] || null;
   }
   
   return Class.create({
@@ -33,7 +34,7 @@ Jax.RouteSet = (function() {
     },
     
     clear: function() {
-      this.map = {};
+      this._map = {};
     },
 
     /**
@@ -49,8 +50,7 @@ Jax.RouteSet = (function() {
      * 
      **/
     root: function(controller, action_name) {
-      action_name = action_name || "index";
-      return this.map.root = { 'controller': controller, 'action': action_name };
+      set_route(this, "/", controller, action_name);
     },
 
     /**
@@ -72,7 +72,7 @@ Jax.RouteSet = (function() {
      * - path (String): the route path to be recognized
      * 
      * Returns true if the specified path can be routed, false otherwise.
-     */
+     **/
     isRouted: function(path) {
       return !!find_route(this, path);
     },

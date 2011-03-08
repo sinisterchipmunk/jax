@@ -13,7 +13,7 @@ var Scene = (function() {
     
     after_added_to_world: function(world) {
       if (this.door)
-        this.world.addObject(this.door);
+        world.addObject(this.door);
     }
   });
 })();

@@ -17,7 +17,7 @@ var CourthouseController = (function() {
     mouse_clicked: function(event) {
       if (event.target.isKindOf(Door)) {
         /* user clicks on the door, so they need to go to the next scene */
-        this.redirect_to(event.target.destination);
+        this.redirectTo(event.target.destination);
       }
     },
 
