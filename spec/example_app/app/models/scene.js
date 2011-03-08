@@ -1,3 +1,7 @@
+/**
+ * class Scene < Jax.Model
+ * 
+ */
 var Scene = (function() {
   return Jax.Model.create({
     after_initialize: function() {

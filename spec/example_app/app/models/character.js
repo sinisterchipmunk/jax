@@ -1,3 +1,7 @@
+/**
+ * class Character < Jax.Model
+ * 
+ */
 var Character = (function() {
   return Jax.Model.create({
     after_initialize: function() {
