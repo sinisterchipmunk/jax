@@ -19,9 +19,8 @@
  * can do this by calling Jax.RouteSet#dispatch.
  **/
 Jax.RouteSet = (function() {
-  function set_route(self, path, controller, action_name) {
-    action_name = action_name || "index";
-    return self._map[path] = { 'controller': controller, 'action': action_name };
+  function set_route(self, path, route_descriptor) {
+    return self._map[path] = route_descriptor;
   }
   
   function find_route(self, path) {
@@ -49,10 +48,41 @@ Jax.RouteSet = (function() {
      *     Jax.routes.root(WelcomeController, "index");
      * 
      **/
-    root: function(controller, action_name) {
-      set_route(this, "/", controller, action_name);
+    root: function() {
+      var args = [];
+      for (var i = 0; i < arguments.length; i++) args.push(arguments[i]);
+      set_route(this, "/", this.getRouteDescriptor.apply(this, args));
     },
-
+    
+    /**
+     **/
+    map: function(path) {
+      var args = [];
+      for (var i = 1; i < arguments.length; i++) args.push(arguments[i]);
+      set_route(this, path, this.getRouteDescriptor.apply(this, args));
+    },
+    
+    getRouteDescriptor: function() {
+      var route_descriptor;
+      switch(arguments.length) {
+        case 1:
+          if (typeof(arguments[0]) == "object")
+          {
+            route_descriptor = arguments[0];
+            if (!route_descriptor.action) route_descriptor.action = "index";
+            return arguments[0];
+          }
+          else return { controller: arguments[0], action: "index" };
+        case 2: return { controller: arguments[0], action: arguments[1] };
+        case 3:
+          route_descriptor = arguments[3];
+          route_descriptor.controller = arguments[0];
+          route_descriptor.action = arguments[1];
+          return route_descriptor;
+        default: throw new Error("Invalid arguments");
+      };
+    },
+    
     /**
      * Jax.RouteSet#recognize_route(path) -> Object
      * - path (String): the route path to be recognized
