@@ -1,5 +1,8 @@
+require 'sprockets'
+
 class Jax::Packager
   attr_reader :pkg_path, :path, :file
+  autoload :SprocketsTemplate, File.join(File.dirname(__FILE__), "packager/sprockets_template")
   
   class << self
     def invoke
@@ -14,24 +17,20 @@ class Jax::Packager
     @manifest = []
     
     @path = File.join(@pkg_path, "#{Jax.application.class.name.underscore}.js")
+    secretary = Sprockets::Secretary.new(
+            :root => Jax.root,
+#            :asset_root => "public",
+            :load_path => [Jax.root.to_s],
+            :source_files => []
+    )
+    secretary.preprocessor.require(Jax::Packager::SprocketsTemplate.new(secretary.environment))
     
     mkdir_p File.dirname(@path)
-    @file = File.open(@path, "w")
-    compile 'helpers'
-    compile 'models'
-    compile 'controllers'
-    compile 'views'
+    secretary.concatenation.save_to @path
+    
+    @file = File.open(@path, "a")
     Jax::ResourceCompiler.new.save(@file)
     file.close
-  end
-  
-  protected
-  def compile(path)
-    Dir[Jax.root.join("app", path, "**/*")].each do |fi|
-      next if File.directory?(fi)
-      file.puts File.read(fi)
-      file.puts ''
-    end
   end
   
   private
