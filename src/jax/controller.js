@@ -47,6 +47,7 @@
   Jax.Controller = (function() {
     function setViewKey(self) {
       self.view_key = self.getControllerName()+"/"+self.action_name;
+      self.rendered_or_redirected = true;
     }
     
     return Class.create({
