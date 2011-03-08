@@ -1,3 +1,5 @@
+//= require "application_controller"
+
 var <%=class_name%>Controller = (function() {
   return Jax.Controller.create("<%=controller_name%>", ApplicationController, {
     <%actions.each do |action|%><%=action%>: function() {

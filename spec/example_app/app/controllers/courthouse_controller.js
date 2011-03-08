@@ -1,3 +1,5 @@
+//= require "application_controller"
+
 var CourthouseController = (function() {
   return Jax.Controller.create("courthouse", ApplicationController, {
     /* 'index' action. Sets up the scene. 'index' is called by default when first
