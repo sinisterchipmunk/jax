@@ -13,6 +13,18 @@ var Jax = { };
 //= require "jax/route_set"
 //= require "jax/view"
 
+/**
+ * Jax.views -> Jax.ViewManager
+ **/
 Jax.views = new Jax.ViewManager();
+
+/**
+ * Jax.routes -> Jax.RouteSet
+ **/
 Jax.routes = new Jax.RouteSet();
+
+/**
+ * Jax.loaded -> Boolean
+ * True after Jax has been loaded.
+ **/
 Jax.loaded = true;
