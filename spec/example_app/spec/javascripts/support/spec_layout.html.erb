@@ -28,11 +28,29 @@
 
       window.onload = function() {
         jasmineEnv.execute();
+        
+        /*
+          Create a canvas element and add it to the document. 
+          There's nothing special about this element.
+         */
         var canvas = document.createElement("canvas");
         canvas.setAttribute("id", "webgl-canvas");
         canvas.setAttribute("width", "600");
         canvas.setAttribute("height", "400");
         document.body.appendChild(canvas);
+        
+        /*
+          Instantiate a Jax context.
+          Note that you can have more than one, though you usually won't need to do so.
+          Each context should be initialized with its own canvas element.
+         */
+        var context = new Jax.Context(canvas);
+        
+        /*
+          That's all there is to initializing a Jax context, if you have a root route.
+          If not, you'll need to point it at a Jax controller manually:
+         */
+        // context.redirect_to("controller_name/action_name");
       };
     })();
   </script>

@@ -12,6 +12,7 @@ var Jax = { };
 //= require "jax/view_manager"
 //= require "jax/route_set"
 //= require "jax/view"
+//= require "jax/context"
 
 /**
  * Jax.views -> Jax.ViewManager

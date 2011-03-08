@@ -9,7 +9,7 @@ describe("Jax.Controller", function() {
     });
     
     it("should produce the view named after the controller and action names", function() {
-      instance.fire_action("index");
+      instance.fireAction("index");
       expect(instance.view_key).toEqual("welcome/index");
     });
   });

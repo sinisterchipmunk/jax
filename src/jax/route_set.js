@@ -19,8 +19,20 @@
  * can do this by calling Jax.RouteSet#dispatch.
  **/
 Jax.RouteSet = (function() {
+  function find_route(set, path) {
+    if (path == "/") {
+      return set.map.root;
+    }
+    
+    return null;
+  }
+  
   return Class.create({
     initialize: function() {
+      this.clear();
+    },
+    
+    clear: function() {
       this.map = {};
     },
 
@@ -50,10 +62,19 @@ Jax.RouteSet = (function() {
      * error is thrown.
      **/
     recognize_route: function(path) {
-      if (path == "/") {
-        if (!this.map.root) throw new Error("Route not recognized: '/'");
-        return this.map.root;
-      }
+      var route = find_route(this, path);
+      if (!route) throw new Error("Route not recognized: '"+path+"'");
+      return route;
+    },
+
+    /**
+     * Jax.RouteSet#isRouted(path) -> Boolean
+     * - path (String): the route path to be recognized
+     * 
+     * Returns true if the specified path can be routed, false otherwise.
+     */
+    isRouted: function(path) {
+      return !!find_route(this, path);
     },
 
     /**
@@ -61,18 +82,13 @@ Jax.RouteSet = (function() {
      * - path (String): the route path to be recognized
      * 
      * Recognizes the given path as a route and invokes its controller and action.
-     * After the controller has been invoked, Jax.current_controller and
-     * Jax.current_view are replaced with the result. Finally, the controller
-     * instance itself is returned.
+     * After the controller has been invoked, the controller instance itself is
+     * returned.
      **/
     dispatch: function(path) {
       var route = this.recognize_route(path);
       
-      Jax.current_controller = route.controller.invoke(route.action);
-      if (Jax.current_controller.view_key)
-        Jax.current_view = Jax.views.get(Jax.current_controller.view_key);
-      
-      return Jax.current_controller;
+      return route.controller.invoke(route.action);
     }
   });
 })();
