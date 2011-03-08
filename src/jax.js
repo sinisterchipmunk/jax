@@ -7,6 +7,7 @@
 var Jax = { };
 
 //= require "jax/prototype_extensions"
+//= require "jax/view_helper"
 //= require "jax/model"
 //= require "jax/controller"
 //= require "jax/view_manager"
