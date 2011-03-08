@@ -52,7 +52,31 @@ end
 namespace :doc do
   desc "build the Jax JavaScript documentation"
   task :js do
-    puts "TODO use pdoc to generate the JS dox"
+    require File.join(File.dirname(__FILE__), "lib/jax")
+    FileUtils.rm_rf 'doc'
+    
+    PDoc.run({
+      :source_files => [File.join('src', 'jax.js')] + Dir[File.join('src', 'jax', '**', '*.js')],
+      :destination  => "doc",
+#      :index_page   => 'src/README.markdown',
+      :syntax_highlighter => 'coderay',
+      :markdown_parser    => :bluecloth,
+      :src_code_text => "View source on GitHub &rarr;",
+      :src_code_href => proc { |obj|
+        "https://github.com/sinisterchipmunk/jax/tree/master/#{obj.file}#L#{obj.line_number}"
+      },
+      :pretty_urls => false,
+      :bust_cache  => false,
+      :name => 'Jax WebGL Framework',
+      :short_name => 'Jax',
+      :home_url => 'http://jax.thoughtsincomputation.com',
+      :version => Jax::VERSION,
+#      :index_header => "",
+#      :footer => '',
+#      :assets => 'doc_assets'
+    })
+
+    Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
   end
 end
 
