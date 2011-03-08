@@ -13,7 +13,6 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
           template << "//= require \"#{relative_path}\""
         end
       end
-      puts template
       template
     end
   end
