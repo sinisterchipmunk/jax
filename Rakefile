@@ -41,8 +41,7 @@ module Jasmine
     def run(focused_suite = nil)
       # overridden method so that we can run the Jax compile task before each request
       # this way we don't have to regenerate every time we make a development change
-      Rake::Task['compile'].invoke
-      Rake::Task['compile'].reenable
+      Rake::Task['compile'].execute
       _run(focused_suite)
     end
   end

@@ -1,4 +1,5 @@
 Jax.views.push('<%=file_name%>/<%=action_name%>') = function() {
-  Player.camera.look();
-  World.render();
+  this.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  this.player.camera.look();
+  this.world.render();
 };

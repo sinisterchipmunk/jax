@@ -21,14 +21,8 @@ describe("Jax.RouteSet", function() {
       expect(controller_class.invoke).toHaveBeenCalledWith("index");
     });
     
-    it("should set the Jax.current_controller", function() {
-      map.dispatch("/");
-      expect(Jax.current_controller).toBeKindOf(controller_class);
-    });
-    
-    it("should set the Jax.current_view", function() {
-      map.dispatch("/");
-      expect(Jax.current_view).toBeKindOf(Jax.View);
+    it("should return the controller instance", function() {
+      expect(map.dispatch("/")).toBeKindOf(controller_class);
     });
   });
   
