@@ -1,3 +1,3 @@
-var ApplicationHelper = {
+var ApplicationHelper = Jax.ViewHelper.create({
 
-};
+});

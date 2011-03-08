@@ -1,3 +1,3 @@
-var <%=class_name%>Helper = {
-  
-};
+var <%=class_name%>Helper = Jax.ViewHelper.create({
+
+});

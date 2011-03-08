@@ -23,7 +23,6 @@
  *                 about the human user.
  *   * *context* - the instance of Jax.Context that this view is associated with.
  * 
- * Additionally, all Helpers are mixed in with this View.
  **/
 Jax.View = (function() {
   return Class.create({
