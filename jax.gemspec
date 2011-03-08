@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'activesupport', '~> 3.0'
   s.add_dependency "i18n", "~> 0.5.0" # FIXME Jax doesn't really require this but ActiveSupport won't load without it!
   s.add_development_dependency 'rspec', '~> 2.0'
-  s.add_development_dependency 'sprockets', "~> 1.0.10"
+  s.add_development_dependency 'sprockets', "~> 1.0.2"
 
   s.rubyforge_project = "jax"
 
