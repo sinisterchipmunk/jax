@@ -5,6 +5,29 @@ describe("Jax.RouteSet", function() {
   
   beforeEach(function() { map = new Jax.RouteSet(); });
   
+  describe("route descriptor", function() {
+    var descriptor;
+    
+    it("from descriptor", function() {
+      descriptor = map.getRouteDescriptor({controller:controller_class, id: 1});
+      expect(descriptor.controller).toEqual(controller_class);
+      expect(descriptor.action).toEqual("index");
+      expect(descriptor.id).toEqual(1);
+    });
+    
+    it("from controller (klass)", function() {
+      descriptor = map.getRouteDescriptor(controller_class);
+      expect(descriptor.controller).toEqual(controller_class);
+      expect(descriptor.action).toEqual("index");
+    });
+    
+    it("from controller (klass) and action name (string)", function() {
+      descriptor = map.getRouteDescriptor(controller_class, "action_name");
+      expect(descriptor.controller).toEqual(controller_class);
+      expect(descriptor.action).toEqual("action_name");
+    });
+  });
+  
   describe("with a root", function() {
     beforeEach(function() { map.root(controller_class, "index"); });
     

@@ -12,5 +12,9 @@ describe("Jax.Controller", function() {
       instance.fireAction("index");
       expect(instance.view_key).toEqual("welcome/index");
     });
+    
+    it("should map the route automatically", function() {
+      expect(function() { Jax.routes.recognize_route("welcome/index") }).not.toThrow();
+    });
   });
 });
