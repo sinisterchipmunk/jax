@@ -34,6 +34,19 @@ end
 
 load 'jasmine/tasks/jasmine.rake'
 
+module Jasmine
+  class RunAdapter
+    alias _run run
+    #noinspection RubyUnusedLocalVariable
+    def run(focused_suite = nil)
+      # overridden method so that we can run the Jax compile task before each request
+      # this way we don't have to regenerate every time we make a development change
+      Rake::Task['compile'].invoke
+      _run(focused_suite)
+    end
+  end
+end
+
 desc "compile Jax"
 task :compile do
 
