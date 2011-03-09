@@ -37,7 +37,7 @@ Jax.RouteSet = (function() {
     },
 
     /**
-     * Jax.RouteSet#root(controller, actionName) -> Object
+     * Jax.RouteSet#root(controller, actionName) -> undefined
      * - controller (Jax.Controller): the controller that will be routed to
      * - actionName (String): the name of the action to be invoked by this route
      * 
@@ -55,6 +55,7 @@ Jax.RouteSet = (function() {
     },
     
     /**
+     * Jax.RouteSet#map(path, controller, actionName) -> undefined
      **/
     map: function(path) {
       var args = [];
