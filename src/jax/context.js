@@ -1,4 +1,5 @@
 //= require "webgl"
+//= require "events"
 
 /**
  * class Jax.Context
@@ -61,6 +62,7 @@ Jax.Context = (function() {
     initialize: function(canvas) {
       this.canvas = canvas;
       setupContext(this);
+      this.setupEventListeners();
       this.render_interval = null;
       this.glClearColor(0.0, 0.0, 0.0, 1.0);
       this.glClearDepth(1.0);
@@ -149,3 +151,4 @@ Jax.Context = (function() {
 })();
 
 Jax.Context.addMethods(GL_METHODS);
+Jax.Context.addMethods(Jax.EVENT_METHODS);

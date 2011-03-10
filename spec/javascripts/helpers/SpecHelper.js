@@ -21,6 +21,18 @@ beforeEach(function() {
     
     toBeAFunction: function() {
       return typeof(this.actual) == "function";
+    },
+
+    toBeAMethod: function() {
+      return typeof(this.actual) == "function";
+    },
+
+    toHaveFunction: function(name) {
+      return typeof(this.actual[name]) == "function";
+    },
+
+    toHaveMethod: function(name) {
+      return typeof(this.actual[name]) == "function";
     }
   });
 });

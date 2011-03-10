@@ -1,11 +1,3 @@
-window.addEventListener("load", function() {
-  var canvas = document.createElement("canvas");
-  canvas.setAttribute("width", "600");
-  canvas.setAttribute("height", "400");
-  canvas.setAttribute("id", "canvas-element");
-  document.body.appendChild(canvas);
-}, false);
-
 describe("Jax.Canvas", function() {
   var context;
   
