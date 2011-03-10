@@ -9,7 +9,7 @@ rescue LoadError
   exit
 end
 
-DEPENDENCIES = %w(jasmine sprockets)
+DEPENDENCIES = %w(jasmine sprockets treetop bluecloth)
 DEPENDENCIES.each do |dep|
   begin
     require dep
@@ -55,11 +55,13 @@ task :compile do
           :load_path => ["src"],
           :source_files => ["src/jax.js"]
   )
-  FileUtils.rm_rf "dist"
-  FileUtils.mkdir_p "dist"
+  rm_rf "dist"
+  mkdir_p "dist"
   secretary.concatenation.save_to "dist/jax.js"
+  puts "generated #{File.expand_path "dist/jax.js", '.'}"
   
-  FileUtils.cp File.join(File.dirname(__FILE__), "src/prototype.js"), File.join(File.dirname(__FILE__), "dist/prototype.js")
+  cp File.join(File.dirname(__FILE__), "src/prototype.js"), File.join(File.dirname(__FILE__), "dist/prototype.js")
+  puts "(project built)"
 end
 
 namespace :doc do
