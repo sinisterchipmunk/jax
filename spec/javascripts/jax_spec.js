@@ -1,3 +1,11 @@
+window.addEventListener("load", function() {
+  var canvas = document.createElement("canvas");
+  canvas.setAttribute("width", "600");
+  canvas.setAttribute("height", "400");
+  canvas.setAttribute("id", "canvas-element");
+  document.body.appendChild(canvas);
+}, false);
+
 describe("Jax", function() {
   it("should be loaded", function() {
     /* if false, then it didn't load all of the Jax libraries successfully */
