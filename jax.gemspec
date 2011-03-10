@@ -20,6 +20,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec',     '~> 2.0'
   s.add_development_dependency 'coderay',   '~> 0.9.7'
 
+  # required by pdoc
+  s.add_development_dependency 'treetop',   '~> 1.4.9'
+  s.add_development_dependency 'bluecloth', '~> 2.0.11'
+
   s.rubyforge_project = "jax"
 
   s.files         = `git ls-files`.split("\n")
