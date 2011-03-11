@@ -60,6 +60,7 @@ Jax.Context = (function() {
 
   return Class.create({
     initialize: function(canvas) {
+      this.id = ++Jax.Context.identifier;
       this.canvas = canvas;
       setupContext(this);
       this.setupEventListeners();
@@ -150,5 +151,6 @@ Jax.Context = (function() {
   });
 })();
 
+Jax.Context.identifier = 0;
 Jax.Context.addMethods(GL_METHODS);
 Jax.Context.addMethods(Jax.EVENT_METHODS);

@@ -71,4 +71,4 @@ window['GL_METHODS'] = {};
 
 /* import other webgl files */
 //= require "webgl/buffer"
-//= require "webgl/material"
+//= require "webgl/materials/material"
