@@ -5,6 +5,7 @@ module Jax
   autoload :Application,      File.join(File.dirname(__FILE__), "jax/application")
   autoload :Packager,         File.join(File.dirname(__FILE__), "jax/packager")
   autoload :ResourceCompiler, File.join(File.dirname(__FILE__), "jax/resource_compiler")
+  autoload :Routes,           File.join(File.dirname(__FILE__), "jax/routes")
   
   class << self
     def application

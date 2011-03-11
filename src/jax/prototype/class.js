@@ -1,5 +1,3 @@
-/* Everything in this file came from Prototype. */
-
 //= require "core"
 
 Jax.Class = (function() {

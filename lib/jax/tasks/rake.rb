@@ -8,6 +8,9 @@ module Jasmine
     alias _run run
     #noinspection RubyUnusedLocalVariable
     def run(focused_suite = nil)
+      # regenerate volatile files
+      Rake::Task['jax:generated_files'].execute
+      
       custom_file = Jax.root.join("spec/javascripts/support/spec_layout.html.erb")
       return _run(focused_suite) if !File.file?(custom_file)
       
@@ -31,10 +34,16 @@ namespace :jax do
     Jax::Packager.invoke
   end
   
-  task :gather_resources do
+  task :generated_files do
+    # resources
     Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
+    
+    # routes
+    File.open(Jax.root.join("tmp/routes.js"), 'w') do |f|
+      Jax.application.config.routes.compile(f)
+    end
   end
 end
 
 # make jasmine call gather_resources first, so that resources can be tested
-task :jasmine => 'jax:gather_resources'
+task :jasmine => 'jax:generated_files'

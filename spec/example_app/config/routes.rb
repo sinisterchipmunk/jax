@@ -1,3 +1,3 @@
-Jax::Routing.map do
+ExampleApp.routes.map do
   root 'courthouse'
 end

@@ -15,7 +15,7 @@ src_files:
     - public/javascripts/jax/jax.js
     - public/javascripts/**/*.js
     - app/**/*.js
-    - tmp/resources.js
+    - tmp/*.js
 
 # stylesheets
 #

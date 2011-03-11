@@ -29,6 +29,7 @@ class Jax::Packager
     
     file = File.open(@path, "a")
     Jax::ResourceCompiler.new.save(file)
+    Jax.application.routes.compile(file)
     file.close
   end
   
