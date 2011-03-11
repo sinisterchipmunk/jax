@@ -19,14 +19,6 @@ var CourthouseController = (function() {
         /* user clicks on the door, so they need to go to the next scene */
         this.redirectTo(event.target.destination);
       }
-    },
-
-    /* clean up the scene. Special function which is called when switching
-       to a new controller. Generally, World will clean up sufficiently on
-       its own.
-     */
-    destroy: function($super) {
-      $super();
     }
   });
 })();

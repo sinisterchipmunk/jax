@@ -20,7 +20,8 @@ module Jax
         end
         
         def resources
-          empty_directory File.join("app", "resources", plural_name)
+#          empty_directory File.join("app", "resources", plural_name)
+          create_file File.join("app", "resources", plural_name, "default.yml"), "# default attribute values\n# (these will apply to all #{plural_name})"
         end
         
         protected

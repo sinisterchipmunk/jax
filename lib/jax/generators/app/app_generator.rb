@@ -58,7 +58,12 @@ module Jax
         end
         
         def gemfile
-          template 'Gemfile.tt', 'Gemfile'
+          if ENV['gemdev']
+            create_file "Gemfile", "gem 'jax', :path => '../'"
+          else
+            template 'Gemfile.tt', 'Gemfile'
+          end
+          `bundle install`
         end
         
         def spec_layout
