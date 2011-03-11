@@ -4,8 +4,8 @@ describe("Prototype extensions:", function() {
     var subklass;
       
     beforeEach(function() {
-      klass = Class.create({ });
-      subklass = Class.create(klass, {});
+      klass = Jax.Class.create({ });
+      subklass = Jax.Class.create(klass, {});
     });
 
     it("should be a kind of itself", function() {

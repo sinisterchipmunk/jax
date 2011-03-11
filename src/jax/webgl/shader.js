@@ -40,7 +40,7 @@ Jax.Shader = (function() {
     self.valid[context.id] = true;
   }
   
-  return Class.create({
+  return Jax.Class.create({
     initialize: function() {
       this.compiled_program = {};
       this.valid = {};

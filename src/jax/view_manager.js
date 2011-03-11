@@ -3,7 +3,7 @@
  * 
  **/
 Jax.ViewManager = (function() {
-  return Class.create({
+  return Jax.Class.create({
     initialize: function() {
       this.views = {};
     },

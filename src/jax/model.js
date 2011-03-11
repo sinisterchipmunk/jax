@@ -1,6 +1,6 @@
 (function() {
   Jax.Model = (function() {
-    return Class.create({
+    return Jax.Class.create({
       initialize: function(data) {
         for (var attribute in data)
           this[attribute] = data[attribute];
@@ -29,8 +29,8 @@
   
   Jax.Model.create = function(superclass, inner) {
     var klass;
-    if (inner) klass = Class.create(superclass, inner);
-    else       klass = Class.create(Jax.Model, superclass);
+    if (inner) klass = Jax.Class.create(superclass, inner);
+    else       klass = Jax.Class.create(Jax.Model, superclass);
     
     Object.extend(klass, model_class_methods);
     return klass;

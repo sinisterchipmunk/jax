@@ -62,7 +62,7 @@
       self.rendered_or_redirected = true;
     }
     
-    return Class.create({
+    return Jax.Class.create({
       fireAction: function(action_name) {
         this.eraseResult();
         this.action_name = action_name;
@@ -126,8 +126,8 @@
     }
     
     var klass;
-    if (inner) klass = Class.create(superclass,     inner);
-    else       klass = Class.create(Jax.Controller, superclass);
+    if (inner) klass = Jax.Class.create(superclass,     inner);
+    else       klass = Jax.Class.create(Jax.Controller, superclass);
     
     Object.extend(klass, controller_class_methods);
     Object.extend(klass, { getControllerName: function() { return controller_name; } });

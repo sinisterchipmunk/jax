@@ -58,7 +58,7 @@ Jax.Context = (function() {
     /* TODO we should set up helpers, etc. here too */
   }
 
-  return Class.create({
+  return Jax.Class.create({
     initialize: function(canvas) {
       this.id = ++Jax.Context.identifier;
       this.canvas = canvas;

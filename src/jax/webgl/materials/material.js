@@ -38,7 +38,7 @@ Jax.Material = (function() {
     updatePrevious(self);
   }
   
-  return Class.create({
+  return Jax.Class.create({
     initialize: function(options) {
       options = options || {};
       options.colors = options.colors || {};

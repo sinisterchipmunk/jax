@@ -25,7 +25,7 @@
  * 
  **/
 Jax.View = (function() {
-  return Class.create({
+  return Jax.Class.create({
     initialize: function(view_func) {
       this.view_func = view_func;
     },

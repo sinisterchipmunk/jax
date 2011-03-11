@@ -60,7 +60,7 @@ task :compile do
   secretary.concatenation.save_to "dist/jax.js"
   puts "generated #{File.expand_path "dist/jax.js", '.'}"
   
-  cp File.join(File.dirname(__FILE__), "src/prototype.js"), File.join(File.dirname(__FILE__), "dist/prototype.js")
+#  cp File.join(File.dirname(__FILE__), "src/prototype.js"), File.join(File.dirname(__FILE__), "dist/prototype.js")
   puts "(project built)"
 end
 
