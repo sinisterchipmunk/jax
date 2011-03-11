@@ -5,12 +5,7 @@
 var <%=class_name%> = (function() {
   return Jax.Model.create({
     after_initialize: function() {
-      /* model-specific initialization */
+      
     },
-  
-    /* other model-specific methods */
-    sayHello: function() {
-      alert("Hi!");
-    }
   });
 })();

@@ -5,7 +5,7 @@ describe("<%=class_name%>Controller", function() {
     controller = new <%=class_name%>Controller();
   });
 
-  it("fails", function() {
-    expect(player).toEqual(null);
+  it("does something", function() {
+    expect(1).toEqual(1);
   });
 });
