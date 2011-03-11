@@ -41,7 +41,6 @@ module Jax
         
         def jasmine_yml
           source_files = %w(
-            public/javascripts/jax/prototype
             public/javascripts/jax/jax
             app/**/*
             tmp/resources

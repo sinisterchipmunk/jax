@@ -15,7 +15,7 @@ Jax.Buffer = (function() {
       func(self.gl[id].context, self.gl[id].buffer);
   }
 
-  return Class.create({
+  return Jax.Class.create({
     initialize: function(bufferType, classType, drawType, jsarr, itemSize) {
       if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
       if (!itemSize) throw new Error("Expected an itemSize - how many JS array elements represent a single buffered element?");
@@ -86,7 +86,7 @@ Jax.Buffer = (function() {
  * Example:
  *     var buf = new Jax.ElementArrayBuffer([...]);
  **/
-Jax.ElementArrayBuffer = Class.create(Jax.Buffer, {
+Jax.ElementArrayBuffer = Jax.Class.create(Jax.Buffer, {
   initialize: function($super, jsarr) {
     $super(GL_ELEMENT_ARRAY_BUFFER, Uint16Array, GL_STREAM_DRAW, jsarr, 1);
   }
@@ -105,7 +105,7 @@ Jax.ElementArrayBuffer = Class.create(Jax.Buffer, {
  * Example:
  *     var buf = new Jax.FloatArrayBuffer([...], 3);
  **/
-Jax.FloatArrayBuffer = Class.create(Jax.Buffer, {
+Jax.FloatArrayBuffer = Jax.Class.create(Jax.Buffer, {
   initialize: function($super, jsarr, itemSize) {
     $super(GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, jsarr, itemSize);
   }
@@ -119,7 +119,7 @@ Jax.FloatArrayBuffer = Class.create(Jax.Buffer, {
  * Example:
  *     var buf = new Jax.VertexBuffer([...]);
  **/
-Jax.VertexBuffer = Class.create(Jax.FloatArrayBuffer, {
+Jax.VertexBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
   initialize: function($super, jsarr) { $super(jsarr, 3); }
 });
 
@@ -131,7 +131,7 @@ Jax.VertexBuffer = Class.create(Jax.FloatArrayBuffer, {
  * Example:
  *     var buf = new Jax.ColorBuffer([...]);
  **/
-Jax.ColorBuffer = Class.create(Jax.FloatArrayBuffer, {
+Jax.ColorBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
   initialize: function($super, jsarr) { $super(jsarr, 4); }
 });
 
@@ -143,7 +143,7 @@ Jax.ColorBuffer = Class.create(Jax.FloatArrayBuffer, {
  * Example:
  *     var buf = new Jax.TextureCoordsBuffer([...]);
  **/
-Jax.TextureCoordsBuffer = Class.create(Jax.FloatArrayBuffer, {
+Jax.TextureCoordsBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
   initialize: function($super, jsarr) { $super(jsarr, 2); }
 });
 
@@ -155,6 +155,6 @@ Jax.TextureCoordsBuffer = Class.create(Jax.FloatArrayBuffer, {
  * Example:
  *     var buf = new Jax.NormalBuffer([...]);
  **/
-Jax.NormalBuffer = Class.create(Jax.FloatArrayBuffer, {
+Jax.NormalBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
   initialize: function($super, jsarr) { $super(jsarr, 3); }
 });

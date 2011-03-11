@@ -1,12 +1,10 @@
-//= provide "prototype"
-
 /**
  * Jax
  * Root namespace containing all Jax data
  **/
 var Jax = { };
 
-//= require "jax/prototype_extensions"
+//= require "jax/prototype/extensions"
 //= require "jax/view_helper"
 //= require "jax/model"
 //= require "jax/controller"

@@ -27,7 +27,7 @@ Jax.RouteSet = (function() {
     return self._map[path] || null;
   }
   
-  return Class.create({
+  return Jax.Class.create({
     initialize: function() {
       this.clear();
     },

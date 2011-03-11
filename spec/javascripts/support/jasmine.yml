@@ -11,7 +11,7 @@
 #   - dist/**/*.js
 #
 src_files:
-    - dist/prototype.js
+#    - dist/prototype.js
     - dist/jax.js
 #    - public/javascripts/**/*.js
 
