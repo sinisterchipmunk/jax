@@ -1,4 +1,56 @@
 Jax.Shader = (function() {
+  function getNormalizedAttribute(self, name) {
+    if (!self.attributes) throw new Error("Attributes are undefined!");
+    if (!self.attributes[name]) throw new Error("Attribute '"+name+"' is not registered!");
+    
+    switch(typeof(self.attributes[name])) {
+      case 'object':
+//        if (!self.attributes[name].name) self.attributes[name] = { value: self.attributes[name] };
+        break;
+      default:
+        self.attributes[name] = { value: self.attributes[name] };
+    }
+    self.attributes[name].name = self.attributes[name].name || name;
+    self.attributes[name].locations = self.attributes[name].locations || {};
+    
+    return self.attributes[name];
+  }
+  
+  function getNormalizedUniform(self, name) {
+    if (!self.uniforms) throw new Error("Uniforms are undefined!");
+    if (!self.uniforms[name]) throw new Error("Uniform '"+name+"' is not registered!");
+    
+    switch(typeof(self.uniforms[name])) {
+      case 'object':
+//        if (!self.uniforms[name].name) self.uniforms[name] = { value: self.uniforms[name] };
+        break;
+      default:
+        self.uniforms[name] = { value: self.uniforms[name] };
+    }
+    self.uniforms[name].name = self.uniforms[name].name || name;
+    self.uniforms[name].locations = self.uniforms[name].locations || {};
+    
+    return self.uniforms[name];
+  }
+  
+  function getUniformLocation(self, context, uniform) {
+    if (typeof(uniform.locations[context.id]) != "undefined") return uniform.locations[context.id];
+    var program = self.compiled_program[context.id];
+    if (!program) throw new Error("Shader program is not compiled!");
+    var location = context.glGetUniformLocation(program, uniform.name);
+    if (location == -1 || location == null) throw new Error("Uniform location for uniform '"+uniform.name+"' could not be found!");
+    return uniform.locations[context.id] = location;
+  }
+  
+  function getAttributeLocation(self, context, attribute) {
+    if (typeof(attribute.locations[context.id]) != "undefined") return attribute.locations[context.id];
+    var program = self.compiled_program[context.id];
+    if (!program) throw new Error("Shader program is not compiled!");
+    var location = context.glGetAttribLocation(program, attribute.name);
+    if (location == -1 || location == null) throw new Error("Attribute location for attribute '"+attribute.name+"' could not be found!");
+    return attribute.locations[context.id] = location;
+  }
+  
   function compile(self, context) {
     var shaderType = self.options.shaderType;
     
@@ -51,10 +103,49 @@ Jax.Shader = (function() {
       for (var i in this.valid) this.valid[i] = false; // invalidate all contexts
     },
     
-    render: function(context, mesh) {
+    render: function(context, mesh, options) {
       if (!this.options) throw new Error("Can't compile shader without shader options");
       if (!this.isCompiledFor(context))
         compile(this, context);
+      
+      var id;
+      context.glUseProgram(this.compiled_program[context.id]);
+      for (id in this.attributes) this.setAttribute(context, mesh, getNormalizedAttribute(this, id));
+      for (id in this.uniforms)   this.setUniform(  context, mesh, getNormalizedUniform(this, id));
+      
+      var buffer;
+      if (buffer = mesh.getIndexBuffer())
+        context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
+      else if (buffer = mesh.getVertexBuffer())
+        context.glDrawArrays(options.draw_mode, 0, buffer);
+    },
+    
+    setAttribute: function(context, mesh, attribute) {
+      var value = attribute.value;
+      if (typeof(value) == "function") value = value(context, mesh);
+      if (value == null || typeof(value) == "undefined") return this.disableAttribute(context, attribute);
+      var location = getAttributeLocation(this, context, attribute);
+      
+      value.bind(context);
+      context.glEnableVertexAttribArray(location);
+      context.glVertexAttribPointer(location, value.itemSize, attribute.type || value.type, false, 0, 0);
+    },
+    
+    setUniform: function(context, mesh, uniform) {
+      var value = uniform.value;
+      if (typeof(value) == "function") value = value(context, mesh);
+      var location = getUniformLocation(this, context, uniform);
+      
+      if (!context[uniform.type]) throw new Error("Invalid uniform type: "+uniform.type);
+      if (uniform.type.indexOf("glUniformMatrix") != -1) {
+        context[uniform.type](location, false, value);
+      } else {
+        context[uniform.type](location, value);
+      }
+    },
+    
+    disableAttribute: function(context, attribute) {
+      context.glDisableVertexAttribArray(getAttributeLocation(this, context, attribute));
     },
     
     isCompiledFor: function(context) {

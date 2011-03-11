@@ -54,9 +54,18 @@ Jax.shader_program_builders['phong'] = (function() {
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       uniforms: {
-        mvMatrix: function(context) { return context.player.camera.getModelviewMatrix(); },
-        pMatrix:  function(context) { return context.player.camera.getProjectionMatrix(); },
-        nMatrix:  function(context) { return context.player.camera.getNormalMatrix(); }
+        mvMatrix: {
+          type: "glUniformMatrix4fv",
+          value: function(context) { return context.getModelViewMatrix(); }
+        },
+        pMatrix: {
+          type: "glUniformMatrix4fv",
+          value: function(context) { return context.getProjectionMatrix(); }
+        },
+        nMatrix: {
+          type: "glUniformMatrix4fv",
+          value: function(context) { return context.getNormalMatrix(); }
+        }
       }
     };
   }

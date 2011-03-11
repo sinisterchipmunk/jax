@@ -27,12 +27,18 @@ Jax.shader_program_builders['color_without_texture'] = (function() {
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       uniforms: {
-        mvMatrix: function(context) { return context.player.camera.getModelviewMatrix(); },
-        pMatrix:  function(context) { return context.player.camera.getProjectionMatrix(); }
+        mvMatrix: {
+          type: "glUniformMatrix4fv",
+          value: function(context, mesh) { return context.getModelViewMatrix(); }
+        },
+        pMatrix: {
+          type: "glUniformMatrix4fv",
+          value: function(context, mesh) { return context.getProjectionMatrix(); }
+        }
       },
       attributes: {
-        vertexPosition: function(mesh) { return mesh.getVertexBuffer(); },
-        color:          function(mesh) { return mesh.getColorBuffer();  }
+        vertexPosition: function(context, mesh) { return mesh.getVertexBuffer(); },
+        vertexColor   : function(context, mesh) { return mesh.getColorBuffer();  }
       }
     };
   }
