@@ -10,7 +10,7 @@ describe("Built-in Shader Builder:", function() {
       var shader_name = shaders[i];
       it("should compile", function() {
         var matr = new Jax.Material({shaderType: shader_name});
-        matr.render(context, {});
+        matr.render(context, new Jax.Mesh());
       });
     });
   }

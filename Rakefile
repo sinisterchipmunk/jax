@@ -32,6 +32,15 @@ rescue LoadError
   require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
 end
 
+# get projects that aren't gems or git repos
+#gl_matrix = File.expand_path("vendor/glMatrix-0.9.5.js", File.dirname(__FILE__))
+#if !File.file?(gl_matrix)
+#  require 'open-uri'
+#  open("http://glmatrix.googlecode.com/files/glMatrix-0.9.5.min.js") do |i|
+#    File.open(gl_matrix, "w") { |o| o.print i.read }
+#  end
+#end
+
 load 'jasmine/tasks/jasmine.rake'
 
 module Jasmine

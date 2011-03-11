@@ -124,6 +124,54 @@ Jax.Context = (function() {
       return !!this.disposed;
     },
 
+    /**
+     * Jax.Context#getModelViewMatrix() -> Matrix
+     * Returns the current modelview matrix. Note that this is equivalent to calling:
+     * 
+     *     context.player.camera.getModelViewMatrix();
+     *     
+     **/
+    getModelViewMatrix: function() {
+      /* TODO replace this after implementing player and camera */
+      return this.mvMatrix = this.mvMatrix || (function() {
+        var mv = mat4.create();
+        mat4.identity(mv);
+        return mv;
+      })();
+    },
+    
+    /**
+     * Jax.Context#getProjectionMatrix() -> Matrix
+     * Returns the current projection matrix. Note that this is equivalent to calling:
+     * 
+     *     context.player.camera.getProjectionMatrix();
+     *     
+     **/
+    getProjectionMatrix: function() {
+      /* TODO replace this after implementing player and camera */
+      return this.pMatrix = this.pMatrix || (function() {
+        var persp = mat4.create();
+        mat4.perspective(45, 4/3, 1, 100, persp);
+        return persp;
+      })();
+    },
+    
+    /**
+     * Jax.Context#getNormalMatrix() -> Matrix
+     * Returns the current projection matrix. Note that this is equivalent to calling:
+     * 
+     *     context.player.camera.getNormalMatrix();
+     *     
+     **/
+    getNormalMatrix: function() {
+      /* TODO replace this after implementing player and camera */
+      return this.nMatrix = this.nMatrix || (function() {
+        var mv = mat4.create();
+        mat4.identity(mv);
+        return mv;
+      })();
+    },
+
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */
       if (Jax.environment == "production") return; /* TODO expose Jax.environment to application */
@@ -133,10 +181,10 @@ Jax.Context = (function() {
       {
         var str = "GL error in "+this.canvas.id+": "+error;
         error = new Error(str);
-        var message = err;
-        if (err.stack)
+        var message = error;
+        if (error.stack)
         {
-          var stack = err.stack.split("\n");
+          var stack = error.stack.split("\n");
           stack.shift();
           message += "\n\n"+stack.join("\n");
         }

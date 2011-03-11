@@ -6,6 +6,7 @@
  * Represents a single material, which has its own color, lighting and texture properties.
  * 
  * Example:
+ * 
  *     var material = new Jax.Material({ specular:    0,
  *                                       softness:    0.1,
  *                                       glossiness: 10,
@@ -63,9 +64,9 @@ Jax.Material = (function() {
      *
      * This action will build and compile the shader for the given context if necessary.
      **/
-    render: function(context, mesh) {
+    render: function(context, mesh, options) {
       if (this.isChanged()) compile(this, context);
-      this.shader.render(context, mesh);
+      this.shader.render(context, mesh, options);
     },
 
     /**
@@ -93,3 +94,43 @@ Jax.Material = (function() {
     }
   });
 })();
+
+Jax.Material.instances = {};
+
+/**
+ * Jax.Material.find(name) -> Jax.Material
+ * - name (String): the unique name of the material you're looking for
+ * 
+ * Returns the instance of Jax.Material matching the specified name, or throws
+ * an error if the material can't be found.
+ **/
+Jax.Material.find = function(name) {
+  var result;
+  if (result = Jax.Material.instances[name])
+    return result;
+  throw new Error("Material not found: '"+name+"'!");
+};
+
+/**
+ * Jax.Material.create(name, options) -> Jax.Material
+ * - name (String): the unique name of this material
+ * - options (Object): a set of options to be passed to the material constructor
+ * 
+ * Creates a material and adds it to the material registry. This way,
+ * the material can be later retrieved using:
+ * 
+ *     var matr = Jax.Material.find(name);
+ *     
+ * Note that unlike instances of Jax.Model, specifying a name for a material that
+ * already exists will not raise an error. Instead, the previous material will be
+ * replaced with a new material constructed using the new options. This allows you
+ * to override Jax defaults like so:
+ * 
+ *     Jax.Material.create("default", {...});
+ *     
+ **/
+Jax.Material.create = function(name, options) {
+  return Jax.Material.instances[name] = new Jax.Material(options);
+};
+
+Jax.Material.create('default');

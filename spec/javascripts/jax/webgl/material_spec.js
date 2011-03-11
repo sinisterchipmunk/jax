@@ -15,4 +15,8 @@ describe("Jax.Material", function() {
     it("should have opacity 1.0",        function() { expect(material.opacity).toEqual(1.0);                  });
     it("should use phong shader",        function() { expect(material.shaderType).toEqual('phong');           });
   });
+  
+  it("should have a default material", function() {
+    expect(Jax.Material.find('default')).not.toBeUndefined();
+  });
 });

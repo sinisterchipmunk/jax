@@ -4,6 +4,8 @@ a new global called GL_METHODS. This will later be used for method delegation
 within Jax.Context.
  */
 
+//= require "vendor/glMatrix-0.9.5"
+
 window['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
 window['GL_METHODS'] = {};
 
@@ -40,8 +42,9 @@ window['GL_METHODS'] = {};
                  + "  } catch(e) { "
                  + "    var args = [], i;"
                  + "    for (i = 0; i < arguments.length; i++) args.push(arguments[i]);"
-                 + "    args = JSON.stringify(args);"
+                 + "    try { args = JSON.stringify(args); } catch(jsonErr) { args = args.toString(); }"
                  + "    if (!e.stack) e = new Error(e.toString());"
+                 + (Jax.environment == "production" ? "" : "    alert(e+\"\\n\\n\"+e.stack);")
                  + "    this.handleRenderError('"+method_name+"', args, e);"
                  + "  }"
                  + "  return result;"
@@ -70,5 +73,6 @@ window['GL_METHODS'] = {};
 })();
 
 /* import other webgl files */
-//= require "webgl/buffer"
+
 //= require "webgl/materials/material"
+//= require "webgl/mesh"
