@@ -33,8 +33,8 @@ describe Jax::Generators::Controller::ControllerGenerator do
     end
   
     it "should use controller class name" do
-      File.read(File.expand_path("test_app/app/controllers/welcome_controller.js", pwd)).lines.first.
-              should =~ /WelcomeController/
+      File.read(File.expand_path("test_app/app/controllers/welcome_controller.js", pwd)).
+              should =~ /^var WelcomeController \=/
     end
   
     it "should generate controller helper file" do

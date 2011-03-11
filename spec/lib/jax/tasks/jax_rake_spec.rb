@@ -24,6 +24,9 @@ describe "Rake Tasks:" do
     File.open("Gemfile", "w") { |f| f.print "gem 'jax', :path => '#{File.join(File.dirname(__FILE__), "../../../..")}'"}
     `bundle install`
     Jax::Generators::Controller::ControllerGenerator.start(['welcome', 'index'], :shell => shell)
+    File.open("config/routes.rb", "w") do |f|
+      f.puts "TestApp.routes.map do\n  root 'welcome'\nend"
+    end
   end
 
   after :all do
@@ -55,6 +58,10 @@ describe "Rake Tasks:" do
       
       it "should contain application helper" do
         subject.should =~ /var ApplicationHelper = /
+      end
+      
+      it "should contain routes" do
+        subject.should =~ /Jax.routes.root\(WelcomeController, "index"\)/
       end
     end
   end

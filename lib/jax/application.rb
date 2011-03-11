@@ -35,10 +35,14 @@ module Jax
         @called_from = where
       end
       
+      def routes
+        Jax.application.config.routes
+      end
     end
 
     delegate :config, :to => "self.class"
     delegate :root, :to => :config
+    delegate :routes, :to => :config
 
     def find_root_with_flag(flag, default=nil)
       root_path = self.class.called_from

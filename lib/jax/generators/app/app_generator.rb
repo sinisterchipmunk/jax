@@ -41,9 +41,9 @@ module Jax
         
         def jasmine_yml
           source_files = %w(
-            public/javascripts/jax/jax
+            public/javascripts/jax
             app/**/*
-            tmp/resources
+            tmp/**/*
           )
           source = source_files.collect { |s| "    - #{s}.js" }.join("\n")
           insert_into_file 'spec/javascripts/support/jasmine.yml', source+"\n", :after => /^src_files\:\n/
@@ -81,7 +81,7 @@ module Jax
         end
         
         def class_name
-          path_to_app.camelize
+          path_to_app.gsub(/\-/, '_').camelize
         end
       end
     end
