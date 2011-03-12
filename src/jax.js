@@ -83,3 +83,12 @@ Jax.routes = new Jax.RouteSet();
  * True after Jax has been loaded.
  **/
 Jax.loaded = true;
+
+/**
+ * Jax.render_speed -> Number
+ * Target number of milliseconds to wait between frames.
+ * This is not a guaranteed number in JavaScript, just a target. Most notably,
+ * system performance issues can drive the framerate down regardless of the
+ * target refresh rate.
+ **/
+Jax.render_speed = 15;
