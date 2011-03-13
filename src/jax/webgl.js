@@ -76,3 +76,4 @@ window['GL_METHODS'] = {};
 
 //= require "webgl/materials/material"
 //= require "webgl/mesh"
+//= require "webgl/camera"
