@@ -60,6 +60,7 @@ desc "compile Jax"
 task :compile do
 
   secretary = Sprockets::Secretary.new(
+          :root => File.dirname(__FILE__),
           :asset_root => "public",
           :load_path => ["src"],
           :source_files => ["src/jax.js"]
