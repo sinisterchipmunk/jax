@@ -4,10 +4,10 @@ describe("Jax.Material", function() {
   beforeEach(function() { material = new Jax.Material(); });
 
   describe("by default", function() {
-    it("should have light-gray diffuse", function() { expect(material.colors.diffuse).toEqual([0.8,0.8,0.8]); });
-    it("should have light-gray ambient", function() { expect(material.colors.ambient).toEqual([0.8,0.8,0.8]); });
-    it("should have white specular",     function() { expect(material.colors.specular).toEqual([1,1,1]);      });
-    it("should have light-gray emissive",function() { expect(material.colors.emissive).toEqual([0,0,0]);      });
+    it("should have light-gray diffuse", function() { expect(material.colors.diffuse).toEqual([0.8,0.8,0.8, 1.0]); });
+    it("should have light-gray ambient", function() { expect(material.colors.ambient).toEqual([0.8,0.8,0.8, 1.0]); });
+    it("should have white specular",     function() { expect(material.colors.specular).toEqual([1,1,1, 1.0]);      });
+    it("should have light-gray emissive",function() { expect(material.colors.emissive).toEqual([0,0,0, 1.0]);      });
     
     it("should have specular level 0",   function() { expect(material.specular).toEqual(0);                   });
     it("should have glossiness 10",      function() { expect(material.glossiness).toEqual(10);                });

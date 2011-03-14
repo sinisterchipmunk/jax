@@ -15,6 +15,7 @@ Jax.$A = function(iterable) {
 /* TODO find a way to avoid polluting Object. */
 Object.isFunction = function(arg) { return Object.prototype.toString.call(arg) === '[object Function]'; };
 Object.isUndefined = function(object) { return typeof object === "undefined"; };
+Object.isArray = function(object) { return Object.prototype.toString.call(object) === '[object Array]'; };
 Object.extend = function(destination, source) {
   for (var property in source)
     destination[property] = source[property];

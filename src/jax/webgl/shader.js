@@ -134,7 +134,17 @@ Jax.Shader = (function() {
     setUniform: function(context, mesh, uniform) {
       var value = uniform.value;
       if (typeof(value) == "function") value = value(context, mesh);
+
       var location = getUniformLocation(this, context, uniform);
+      
+      /* TODO perhaps we should only do this matching in development mode. Can it happen in prod? */
+      var match;
+      if (Object.isArray(value) && (match = /([0-9]+)fv$/.exec(uniform.type)) && (match = match[1]))
+      {
+        // make sure array matches item count
+        if (match != (value.itemSize ? value.length / value.itemSize : value.length))
+          throw new Error("Value "+JSON.stringify(value)+" has "+value.length+" elements (expected "+match+")");
+      }
       
       if (!context[uniform.type]) throw new Error("Invalid uniform type: "+uniform.type);
       if (uniform.type.indexOf("glUniformMatrix") != -1) context[uniform.type](location, false, value);
