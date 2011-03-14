@@ -35,6 +35,7 @@ Jax.Context = (function() {
   function startRendering(self) {
     function render() {
       if (self.current_view) {
+        mat4.identity(self.getModelViewMatrix());
         self.glViewport(0, 0, self.canvas.width, self.canvas.height);
         self.current_view.render();
         self.render_interval = setTimeout(render, Jax.render_speed);

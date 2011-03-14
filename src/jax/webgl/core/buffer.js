@@ -36,9 +36,11 @@ Jax.Buffer = (function() {
       else
         self.classTypeInstance = new self.classType(self.js);
 
+      self.numItems = self.length = self.js.length / self.itemSize;
       if (!self.gl) return;
 
       each_gl_buffer(self, function(context, buffer) {
+        buffer.numItems = buffer.length = self.js.length;
         context.glBindBuffer(self.bufferType, buffer);
         context.glBufferData(self.bufferType, self.classTypeInstance, self.drawType);
       });
@@ -66,7 +68,6 @@ Jax.Buffer = (function() {
       {
         var buffer = context.glCreateBuffer();
         buffer.itemSize = this.itemSize;
-        buffer.numItems = buffer.length = this.js.length;
         this.gl[context.id] = {context:context,buffer:buffer};
         this.refresh();
       }
