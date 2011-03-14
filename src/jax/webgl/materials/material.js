@@ -13,10 +13,10 @@
  *                                       opacity:     1.0,
  *                                       shaderType: "phong",
  *                                       colors: {
- *                                         diffuse:  [0.8, 0.8, 0.8],
- *                                         ambient:  [0.8, 0.8, 0.8],
- *                                         specular: [1.0, 1.0, 1.0],
- *                                         emissive: [0.0, 0.0, 0.0]
+ *                                         diffuse:  [0.8, 0.8, 0.8, 1.0],
+ *                                         ambient:  [0.8, 0.8, 0.8, 1.0],
+ *                                         specular: [1.0, 1.0, 1.0, 1.0],
+ *                                         emissive: [0.0, 0.0, 0.0, 1.0]
  *                                       }
  *                                     });
  *     material.shaderType = "blinn";
@@ -45,10 +45,10 @@ Jax.Material = (function() {
       options.colors = options.colors || {};
       
       this.colors = {
-        diffuse:  options.colors.diffuse  || [0.8, 0.8, 0.8],
-        ambient:  options.colors.ambient  || [0.8, 0.8, 0.8],
-        specular: options.colors.specular || [1.0, 1.0, 1.0],
-        emissive: options.colors.emissive || [0.0, 0.0, 0.0]
+        diffuse:  options.colors.diffuse  || [0.8, 0.8, 0.8, 1.0],
+        ambient:  options.colors.ambient  || [0.8, 0.8, 0.8, 1.0],
+        specular: options.colors.specular || [1.0, 1.0, 1.0, 1.0],
+        emissive: options.colors.emissive || [0.0, 0.0, 0.0, 1.0]
       };
       
       this.specular   = typeof(options.specular)   == "undefined" ?    0    : options.specular;

@@ -41,7 +41,7 @@ describe("Jax.RouteSet", function() {
     it("should dispatch to the root controller", function() {
       spyOn(controller_class, 'invoke').andCallThrough();
       map.dispatch("/");
-      expect(controller_class.invoke).toHaveBeenCalledWith("index");
+      expect(controller_class.invoke).toHaveBeenCalledWith("index", undefined);
     });
     
     it("should return the controller instance", function() {

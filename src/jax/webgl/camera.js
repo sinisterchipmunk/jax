@@ -41,6 +41,11 @@ Jax.Camera = (function() {
     return self._vecbuf;
   }
   
+  function matrixUpdated(self) {
+    // update the normal matrix
+    mat4.transpose(mat4.inverse(self.matrices.mv, self.matrices.n), self.matrices.n);
+  }
+  
   /*
     m[0]  m[4]  m[ 8]  m[12]
     m[1]  m[5]  m[ 9]  m[13]
@@ -52,6 +57,7 @@ Jax.Camera = (function() {
       /* used for temporary storage, just to avoid repeatedly allocating temporary vectors */
       this._vecbuf = vec3.create();
       this.matrices = { mv: mat4.create(), p : mat4.create(), n : mat4.create() };
+      this.addEventListener('matrixUpdated', function() { matrixUpdated(this); });
       this.reset();
     },
 
@@ -196,12 +202,10 @@ Jax.Camera = (function() {
     /**
      * Jax.Camera#getModelViewMatrix() -> mat4
      * 
-     * Returns the modelview matrix. This matrix represents the camera's position and
+     * Returns the ModelView matrix. This matrix represents the camera's position and
      * orientation in the world.
      **/
-    getModelViewMatrix: function() {
-      return this.matrices.mv;
-    },
+    getModelViewMatrix: function() { return this.matrices.mv; },
 
     /**
      * Jax.Camera#getProjectionMatrix() -> mat4
@@ -209,9 +213,17 @@ Jax.Camera = (function() {
      * Returns the projection matrix. This matrix represents the projection of the world
      * onto a screen.
      **/
-    getProjectionMatrix: function() {
-      return this.matrices.p;
-    },
+    getProjectionMatrix: function() { return this.matrices.p; },
+
+    /**
+     * Jax.Camera#getNormalMatrix() -> mat4
+     * 
+     * Returns the normal matrix, which is defined as the transpose of the inverse of the
+     * ModelView matrix.
+     * 
+     * This matrix is commonly used in lighting calculations.
+     **/
+    getNormalMatrix: function() { return this.matrices.n; },
 
     /**
      * Jax.Camera#unproject(x, y[, z]) -> [[nearx, neary, nearz], [farx, fary, farz]]

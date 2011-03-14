@@ -90,6 +90,6 @@ Jax.loaded = true;
  **/
 Jax.render_speed = 15;
 
-
+Jax.max_lights = 1;
 
 //= require "jax/builtin/all.js"

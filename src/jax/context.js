@@ -74,6 +74,7 @@ Jax.Context = (function() {
       this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       this.checkForRenderErrors();
       
+      this.world = new Jax.World(this);
       this.player = {camera: new Jax.Camera()};
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
       
@@ -136,9 +137,7 @@ Jax.Context = (function() {
      *     context.player.camera.getModelViewMatrix();
      *     
      **/
-    getModelViewMatrix: function() {
-      return this.player.camera.getModelViewMatrix();
-    },
+    getModelViewMatrix: function() { return this.player.camera.getModelViewMatrix(); },
     
     /**
      * Jax.Context#getProjectionMatrix() -> Matrix
@@ -147,9 +146,7 @@ Jax.Context = (function() {
      *     context.player.camera.getProjectionMatrix();
      *     
      **/
-    getProjectionMatrix: function() {
-      return this.player.camera.getProjectionMatrix();
-    },
+    getProjectionMatrix: function() { return this.player.camera.getProjectionMatrix(); },
 
     /**
      * Jax.Context#getNormalMatrix() -> Matrix
@@ -158,14 +155,7 @@ Jax.Context = (function() {
      *     context.player.camera.getNormalMatrix();
      *     
      **/
-    getNormalMatrix: function() {
-      /* TODO replace this after implementing player and camera */
-      return this.nMatrix = this.nMatrix || (function() {
-        var mv = mat4.create();
-        mat4.identity(mv);
-        return mv;
-      })();
-    },
+    getNormalMatrix: function() { return this.player.camera.getNormalMatrix(); },
 
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */
