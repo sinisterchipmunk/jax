@@ -37,6 +37,7 @@ Jax.Context = (function() {
       if (self.current_view) {
         self.glViewport(0, 0, self.canvas.width, self.canvas.height);
         self.current_view.render();
+        self.render_interval = setTimeout(render, Jax.render_speed);
       }
       else {
         clearTimeout(self.render_interval);
