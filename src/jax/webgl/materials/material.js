@@ -108,6 +108,8 @@ Jax.Material.find = function(name) {
   var result;
   if (result = Jax.Material.instances[name])
     return result;
+  if (Jax.shader_program_builders[name])
+    return Jax.Material.create(name, {shaderType:name});
   throw new Error("Material not found: '"+name+"'!");
 };
 
@@ -133,4 +135,5 @@ Jax.Material.create = function(name, options) {
   return Jax.Material.instances[name] = new Jax.Material(options);
 };
 
-Jax.Material.create('default');
+Jax.Material.create('failsafe', {shaderType: 'failsafe'});
+Jax.Material.create('default' , {shaderType: 'color_without_texture'});

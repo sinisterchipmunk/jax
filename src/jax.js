@@ -65,6 +65,7 @@ var Jax = { };
  **/
 Jax.shader_program_builders = {};
 
+//= require "jax/builtin/shader_builders/failsafe"
 //= require "jax/builtin/shader_builders/color_without_texture"
 //= require "jax/builtin/shader_builders/phong"
 

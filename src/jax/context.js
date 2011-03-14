@@ -150,9 +150,10 @@ Jax.Context = (function() {
      **/
     getProjectionMatrix: function() {
       /* TODO replace this after implementing player and camera */
+      var self = this;
       return this.pMatrix = this.pMatrix || (function() {
         var persp = mat4.create();
-        mat4.perspective(45, 4/3, 1, 100, persp);
+        mat4.perspective(45, self.canvas.width/self.canvas.height, 0.01, 200, persp);
         return persp;
       })();
     },

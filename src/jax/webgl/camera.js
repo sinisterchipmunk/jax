@@ -268,7 +268,7 @@ Jax.Camera = (function() {
     },
 
     /**
-     * Jax.Camera.rotate(amount, x, y, z) -> rotated camera
+     * Jax.Camera#rotate(amount, x, y, z) -> rotated camera
      * - amount (Number): amount to rotate, in radians
      * - x (Number): X coordinate of the axis around which to rotate
      * - y (Number): Y coordinate of the axis around which to rotate
