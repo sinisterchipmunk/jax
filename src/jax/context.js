@@ -35,7 +35,6 @@ Jax.Context = (function() {
   function startRendering(self) {
     function render() {
       if (self.current_view) {
-        mat4.identity(self.getModelViewMatrix());
         self.glViewport(0, 0, self.canvas.width, self.canvas.height);
         self.current_view.render();
         self.render_interval = setTimeout(render, Jax.render_speed);
@@ -74,6 +73,10 @@ Jax.Context = (function() {
       this.glEnable(GL_BLEND);
       this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       this.checkForRenderErrors();
+      
+      this.player = {camera: new Jax.Camera()};
+      this.player.camera.perspective({width:canvas.width, height:canvas.height});
+      
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
     },
@@ -86,7 +89,7 @@ Jax.Context = (function() {
      * was just redirected to.
      **/
     redirectTo: function(path) {
-      this.current_controller = Jax.routes.dispatch(path);
+      this.current_controller = Jax.routes.dispatch(path, this);
       if (!this.current_controller.view_key)
         throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
       this.current_view = Jax.views.find(this.current_controller.view_key);
@@ -134,12 +137,7 @@ Jax.Context = (function() {
      *     
      **/
     getModelViewMatrix: function() {
-      /* TODO replace this after implementing player and camera */
-      return this.mvMatrix = this.mvMatrix || (function() {
-        var mv = mat4.create();
-        mat4.identity(mv);
-        return mv;
-      })();
+      return this.player.camera.getModelViewMatrix();
     },
     
     /**
@@ -150,15 +148,9 @@ Jax.Context = (function() {
      *     
      **/
     getProjectionMatrix: function() {
-      /* TODO replace this after implementing player and camera */
-      var self = this;
-      return this.pMatrix = this.pMatrix || (function() {
-        var persp = mat4.create();
-        mat4.perspective(45, self.canvas.width/self.canvas.height, 0.01, 200, persp);
-        return persp;
-      })();
+      return this.player.camera.getProjectionMatrix();
     },
-    
+
     /**
      * Jax.Context#getNormalMatrix() -> Matrix
      * Returns the current projection matrix. Note that this is equivalent to calling:

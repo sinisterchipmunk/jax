@@ -116,10 +116,10 @@ Jax.RouteSet = (function() {
      * After the controller has been invoked, the controller instance itself is
      * returned.
      **/
-    dispatch: function(path) {
+    dispatch: function(path, context) {
       var route = this.recognize_route(path);
       
-      return route.controller.invoke(route.action);
+      return route.controller.invoke(route.action, context);
     }
   });
 })();

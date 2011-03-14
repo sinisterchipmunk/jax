@@ -83,8 +83,9 @@
   })();
 
   var controller_class_methods = {
-    invoke: function(action_name) {
+    invoke: function(action_name, context) {
       var instance = new this();
+      instance.context = context;
       instance.fireAction(action_name);
       return instance;
     }
