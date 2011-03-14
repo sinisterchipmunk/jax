@@ -86,6 +86,8 @@
     invoke: function(action_name, context) {
       var instance = new this();
       instance.context = context;
+      instance.world = context.world;
+      instance.player = context.player;
       instance.fireAction(action_name);
       return instance;
     }
