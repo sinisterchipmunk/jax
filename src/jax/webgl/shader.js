@@ -117,7 +117,7 @@ Jax.Shader = (function() {
       if (buffer = mesh.getIndexBuffer())
         context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
       else if (buffer = mesh.getVertexBuffer())
-        context.glDrawArrays(options.draw_mode, 0, buffer);
+        context.glDrawArrays(options.draw_mode, 0, buffer.length);
     },
     
     setAttribute: function(context, mesh, attribute) {
@@ -128,7 +128,7 @@ Jax.Shader = (function() {
       
       value.bind(context);
       context.glEnableVertexAttribArray(location);
-      context.glVertexAttribPointer(location, value.itemSize, attribute.type || value.type, false, 0, 0);
+      context.glVertexAttribPointer(location, value.itemSize, attribute.type || value.type || GL_FLOAT, false, 0, 0);
     },
     
     setUniform: function(context, mesh, uniform) {
@@ -137,11 +137,8 @@ Jax.Shader = (function() {
       var location = getUniformLocation(this, context, uniform);
       
       if (!context[uniform.type]) throw new Error("Invalid uniform type: "+uniform.type);
-      if (uniform.type.indexOf("glUniformMatrix") != -1) {
-        context[uniform.type](location, false, value);
-      } else {
-        context[uniform.type](location, value);
-      }
+      if (uniform.type.indexOf("glUniformMatrix") != -1) context[uniform.type](location, false, value);
+      else                                               context[uniform.type](location,        value);
     },
     
     disableAttribute: function(context, attribute) {

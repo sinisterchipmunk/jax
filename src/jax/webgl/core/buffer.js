@@ -23,7 +23,7 @@ Jax.Buffer = (function() {
       this.itemSize = itemSize;
       this.js = jsarr;
       this.gl = {};
-      this.numItems = jsarr.length / itemSize;
+      this.numItems = this.length = jsarr.length / itemSize;
       this.bufferType = bufferType;
       this.drawType = drawType;
     },
@@ -39,15 +39,15 @@ Jax.Buffer = (function() {
       if (!self.gl) return;
 
       each_gl_buffer(self, function(context, buffer) {
-        context.bindBuffer(self.bufferType, buffer);
-        context.bufferData(self.bufferType, self.classTypeInstance, self.drawType);
+        context.glBindBuffer(self.bufferType, buffer);
+        context.glBufferData(self.bufferType, self.classTypeInstance, self.drawType);
       });
     },
 
     dispose: function() {
       var self = this;
       each_gl_buffer(this, function(context, buffer) {
-        context.deleteBuffer(buffer);
+        context.glDeleteBuffer(buffer);
         self.gl[context.id] = null;
       });
       self.gl = {};
@@ -55,7 +55,7 @@ Jax.Buffer = (function() {
 
     isDisposed: function() { return !this.gl; },
 
-    bind: function(context) { context.bindBuffer(this.bufferType, this.getGLBuffer(context)); },
+    bind: function(context) { context.glBindBuffer(this.bufferType, this.getGLBuffer(context)); },
 
     getGLBuffer: function(context)
     {
@@ -64,9 +64,9 @@ Jax.Buffer = (function() {
 
       if (!this.gl[context.id])
       {
-        var buffer = context.createBuffer();
+        var buffer = context.glCreateBuffer();
         buffer.itemSize = this.itemSize;
-        buffer.numItems = this.js.length;
+        buffer.numItems = buffer.length = this.js.length;
         this.gl[context.id] = {context:context,buffer:buffer};
         this.refresh();
       }
