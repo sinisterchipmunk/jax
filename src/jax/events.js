@@ -37,6 +37,9 @@ Jax.EVENT_METHODS = (function() {
     evt.offsetx = mouse.x;
     evt.offsety = mouse.y;
     evt.mouse = mouse;
+    
+    mouse.offsetx = evt.offsetx || 0;
+    mouse.offsety = evt.offsety || 0;
 
     var cumulativeOffset = getCumulativeOffset(self.canvas);
     mouse.x = evt.clientX - cumulativeOffset[0];
@@ -61,7 +64,7 @@ Jax.EVENT_METHODS = (function() {
       mouse.down = mouse.down || {count:0};
       mouse.down["button"+evt.which] = {at:[mouse.x,mouse.y]};
     } else if (evt.type == "mouseup" || evt.type == "onmouseup") {
-      if (mouse.down && mouse.down.count)
+      if (mouse.down)
       {
         mouse.down.count--;
         if (mouse.down.count <= 0) mouse.down = null;
