@@ -1,3 +1,3 @@
 hit_points: 50
 damage: 5
-model: "/res/judge.json"
+mesh: "/res/judge.json"

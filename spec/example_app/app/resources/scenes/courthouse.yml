@@ -1,4 +1,4 @@
 static: true
 indestructible: true
-model: "/res/courthouse.json"
+mesh: "/res/courthouse.json"
 door: courthouse_door

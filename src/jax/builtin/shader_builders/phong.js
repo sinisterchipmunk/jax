@@ -1,10 +1,8 @@
 Jax.shader_program_builders['phong'] = (function() {
-  var MAX_LIGHTS = Jax.max_lights;
-  
-  function defLights() {
+  function defLights(options) {
     var result = ["uniform bool lightingEnabled;"];
     
-    for (var i = 0; i < MAX_LIGHTS; i++) {
+    for (var i = 0; i < options.light_count; i++) {
       result.push(
               'uniform float lightConstantAttenuation'+i+',                    ',
               '              lightLinearAttenuation'+i+',                      ',
@@ -12,10 +10,10 @@ Jax.shader_program_builders['phong'] = (function() {
               'uniform vec3 lightPosition'+i+';                                ',
               'varying vec3 lightDirection'+i+';                               ',
               'varying float lightAtt'+i+';                                    ',
-              'uniform bool lightEnabled'+i+';                                              ',
-              'uniform vec4 lightAmbient'+i+',   // [0.0,0.0,0.0,1.0]                       ',
-              '             lightDiffuse'+i+',   // [1.0,1.0,1.0,1.0]                       ',
-              '             lightSpecular'+i+';  // [1.0,1.0,1.0,1.0]                       ',
+              'uniform bool lightEnabled'+i+';                                 ',
+              'uniform vec4 lightAmbient'+i+',                                 ',
+              '             lightDiffuse'+i+',                                 ',
+              '             lightSpecular'+i+';                                ',
               ''
       )
     }
@@ -24,10 +22,12 @@ Jax.shader_program_builders['phong'] = (function() {
   }
   
   function buildVertexSource(options) {
-    function calculateLights() {
-      var result = [
-        'if (lightingEnabled == true) {'];
-      for (var i = 0; i < MAX_LIGHTS; i++) result.push(
+    function calculateLights(options) {
+      if (!options.light_count) return [];
+      
+      var result = [ '',
+        'if (lightingEnabled) {'];
+      for (var i = 0; i < options.light_count; i++) result.push(
         '  if (lightEnabled'+i+' == true) {',
         '    lightDirection'+i+' = vec3(lightPosition'+i+' - vVertex);       ',
         '    d = length(lightDirection'+i+');                            ',
@@ -37,12 +37,12 @@ Jax.shader_program_builders['phong'] = (function() {
         '  }',
         ''
       )
-      result.push('}');
+      result.push('}', '');
       return result.join("\n");
     }
     
-    return [
-      defLights(),
+    var s = [
+      defLights(options),
       'varying vec3 normal, eyeVec;                                ',
       'varying vec4 color;                                         ',
       'attribute vec3 vertexPosition, vertexNormal;                ',
@@ -57,22 +57,27 @@ Jax.shader_program_builders['phong'] = (function() {
       '    eyeVec = -vVertex;                                      ',
       '    color = vertexColor;                                    ',
       
-      calculateLights(),
+      calculateLights(options),
       
-      '    gl_Position = pMatrix * vec4(vertexPosition,1);         ',
+      '    gl_Position = pMatrix * mvMatrix * vec4(vertexPosition,1);         ',
       '}'
     ];
+//    alert(s.join("\n").replace("    ", ""));
+
+    return s;
   }
   
   function buildFragmentSource(options) {
     function calculateLights() {
-      var result = [
+      if (!options.light_count) return [];
+      
+      var result = [ '',
         '  if (lightingEnabled) {                                                 ',
         '    final_color = final_color * matr_ambient;                            '
       ];
       
-      for (var i = 0; i < MAX_LIGHTS; i++) result.push(
-        '    if (lightEnabled'+i+' == true) {                                         ',
+      for (var i = 0; i < options.light_count; i++) result.push(
+        '    if (lightEnabled'+i+') {                                         ',
         '      final_color = final_color + (lightAmbient'+i+'*matr_ambient)*lightAtt'+i+';',
         '      L = normalize(lightDirection'+i+');                                    ',
         '      lambertTerm = dot(N,L);                                            ',
@@ -87,16 +92,16 @@ Jax.shader_program_builders['phong'] = (function() {
         ''
       );
       
-      result.push('}');
+      result.push('}', '');
       return result.join("\n");
     }
     
-    return [
-      defLights(),
-      'uniform vec4 matr_ambient,    // [0.3,0.3,0.3,1.0]                       ',
-      '             matr_diffuse,    // [0.9,0.5,0.5,1.0]                       ',
-      '             matr_specular;   // [0.6,0.6,0.6,1.0]                       ',
-      'uniform float matr_shininess; // 60                                      ',
+    var s = [
+      defLights(options),
+      'uniform vec4 matr_ambient,                                               ',
+      '             matr_diffuse,                                               ',
+      '             matr_specular;                                              ',
+      'uniform float matr_shininess;                                            ',
       'varying vec3 normal, eyeVec;                                             ',
       'varying vec4 color;                                                      ',
 
@@ -106,14 +111,15 @@ Jax.shader_program_builders['phong'] = (function() {
       '  float lambertTerm, specular;                                           ',
 
       '  vec4 final_color = color;                                              ',
-      '  // texture, colorcoords, etc                                           ',
 	
-      calculateLights(),
+      calculateLights(options),
 
       '  gl_FragColor = final_color;			                                ',
       '}                                                                        '
             
     ];
+//    alert(s.join("\n").replace("    ", ""));
+    return s;
   }
   
   return function(options) {
@@ -129,7 +135,7 @@ Jax.shader_program_builders['phong'] = (function() {
         mvMatrix: { type: "glUniformMatrix4fv", value: function(context) { return context.getModelViewMatrix();  } },
         pMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getProjectionMatrix(); } },
         nMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getNormalMatrix();     } },
-        lightingEnabled: { type: "glUniform1i", value: function(context) { return context.world.lighting.isEnabled() ? 1 : 0 } },
+        lightingEnabled: { type: "glUniform1i", value: function(context) { return context.world.lighting.isEnabled(); } },
         matr_ambient: { type: "glUniform4fv", value: function(context) { return options.colors.ambient || [0.2,0.2,0.2,1]; } },
         matr_diffuse: { type: "glUniform4fv", value: function(context) { return options.colors.diffuse || [1,1,1,1]; } },
         matr_specular: { type: "glUniform4fv", value: function(context) { return options.colors.specular || [1,1,1,1]; } },
@@ -137,39 +143,38 @@ Jax.shader_program_builders['phong'] = (function() {
       }
     };
     
-    for (var i = 0; i < MAX_LIGHTS; i++)
+    for (var i = 0; i < options.light_count; i++)
     {
-      var j = i;
-      result.uniforms['lightDiffuse'+i] = { type: "glUniform4fv", value: function(ctx) {
-        return ctx.world.lighting.getDiffuseColor(j);
+      result.uniforms['lightDiffuse'+i] = { index: i, type: "glUniform4fv", value: function(ctx) {
+        return ctx.world.lighting.getDiffuseColor(this.index);
       } };
       
-      result.uniforms['lightSpecular'+i] = { type: "glUniform4fv", value: function(ctx) {
-        return ctx.world.lighting.getSpecularColor(j);
+      result.uniforms['lightSpecular'+i] = { index: i, type: "glUniform4fv", value: function(ctx) {
+        return ctx.world.lighting.getSpecularColor(this.index);
       } };
       
-      result.uniforms['lightAmbient'+i] = { type: "glUniform4fv", value: function(ctx) {
-        return ctx.world.lighting.getAmbientColor(j);
+      result.uniforms['lightAmbient'+i] = { index: i, type: "glUniform4fv", value: function(ctx) {
+        return ctx.world.lighting.getAmbientColor(this.index);
       } };
       
-      result.uniforms['lightEnabled'+i] = { type: "glUniform1i", value: function(ctx) {
-        return ctx.world.lighting.isEnabled(j) ? 1 : 0;
+      result.uniforms['lightEnabled'+i] = { index: i, type: "glUniform1i", value: function(ctx) {
+        return ctx.world.lighting.isEnabled(this.index);
       } };
       
-      result.uniforms['lightPosition'+i] = { type: "glUniform3fv", value: function(ctx) {
-        return ctx.world.lighting.getPosition(j);
+      result.uniforms['lightPosition'+i] = { index: i, type: "glUniform3fv", value: function(ctx) {
+        return ctx.world.lighting.getPosition(this.index);
       } };
       
-      result.uniforms['lightConstantAttenuation'+i] = { type: "glUniform1f", value: function(ctx) {
-        return ctx.world.lighting.getConstantAttenuation(j);
+      result.uniforms['lightConstantAttenuation'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
+        return ctx.world.lighting.getConstantAttenuation(this.index);
       } };
 
-      result.uniforms['lightLinearAttenuation'+i] = { type: "glUniform1f", value: function(ctx) {
-        return ctx.world.lighting.getLinearAttenuation(j);
+      result.uniforms['lightLinearAttenuation'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
+        return ctx.world.lighting.getLinearAttenuation(this.index);
       } };
 
-      result.uniforms['lightQuadraticAttenuation'+i] = { type: "glUniform1f", value: function(ctx) {
-        return ctx.world.lighting.getQuadraticAttenuation(j);
+      result.uniforms['lightQuadraticAttenuation'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
+        return ctx.world.lighting.getQuadraticAttenuation(this.index);
       } };
     }
     

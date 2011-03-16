@@ -38,6 +38,10 @@ module Jax
       @root
     end
     
+    def reload!
+      load File.join(Jax.root, "config/routes.rb")
+    end
+    
     private
     def controller_name_for(str)
       ctrlr = str.to_s.camelize

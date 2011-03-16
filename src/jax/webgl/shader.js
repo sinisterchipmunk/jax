@@ -38,7 +38,9 @@ Jax.Shader = (function() {
     var program = self.compiled_program[context.id];
     if (!program) throw new Error("Shader program is not compiled!");
     var location = context.glGetUniformLocation(program, uniform.name);
-    if (location == -1 || location == null) throw new Error("Uniform location for uniform '"+uniform.name+"' could not be found!");
+    if (location == -1 || location == null)
+      return null;
+//      throw new Error("Uniform location for uniform '"+uniform.name+"' could not be found!");
     return uniform.locations[context.id] = location;
   }
   
@@ -133,9 +135,10 @@ Jax.Shader = (function() {
     
     setUniform: function(context, mesh, uniform) {
       var value = uniform.value;
-      if (typeof(value) == "function") value = value(context, mesh);
+      if (typeof(value) == "function") value = value.call(uniform, context, mesh);
 
       var location = getUniformLocation(this, context, uniform);
+      if (!location) return;
       
       /* TODO perhaps we should only do this matching in development mode. Can it happen in prod? */
       var match;
@@ -145,6 +148,9 @@ Jax.Shader = (function() {
         if (match != (value.itemSize ? value.length / value.itemSize : value.length))
           throw new Error("Value "+JSON.stringify(value)+" has "+value.length+" elements (expected "+match+")");
       }
+      
+      if (value == null || typeof(value) == "undefined")
+        throw new Error("Value is undefined or null for uniform '"+uniform.name+"'!");
       
       if (!context[uniform.type]) throw new Error("Invalid uniform type: "+uniform.type);
       if (uniform.type.indexOf("glUniformMatrix") != -1) context[uniform.type](location, false, value);

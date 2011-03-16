@@ -5,3 +5,4 @@
 
 /* meshes */
 //= require "meshes/quad"
+//= require "meshes/torus"

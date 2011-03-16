@@ -35,9 +35,10 @@ Jax.Context = (function() {
   function startRendering(self) {
     function render() {
       if (self.current_view) {
+        reloadMatrices(self);
         self.glViewport(0, 0, self.canvas.width, self.canvas.height);
         self.current_view.render();
-        self.render_interval = setTimeout(render, Jax.render_speed);
+        self.render_interval = requestAnimFrame(render, self.canvas);
       }
       else {
         clearTimeout(self.render_interval);
@@ -50,6 +51,8 @@ Jax.Context = (function() {
   
   function setupView(self, view) {
     view.context = self;
+    view.world = self.world;
+    view.player = self.player;
     for (var i in self) {
       if (i.indexOf("gl") == 0) {
         /* it's a WebGL method */
@@ -58,7 +61,14 @@ Jax.Context = (function() {
     }
     /* TODO we should set up helpers, etc. here too */
   }
+  
+  function reloadMatrices(self) {
+    mat4.set(self.player.camera.getModelViewMatrix(), self.getModelViewMatrix());
 
+    // in case someone wiser than I reads this, let me know: WHY do I have to invert the camera matrix???
+    mat4.inverse(self.matrices[self.matrix_depth]);
+  }
+  
   return Jax.Class.create({
     initialize: function(canvas) {
       this.id = ++Jax.Context.identifier;
@@ -73,10 +83,13 @@ Jax.Context = (function() {
       this.glEnable(GL_BLEND);
       this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       this.checkForRenderErrors();
-      
       this.world = new Jax.World(this);
       this.player = {camera: new Jax.Camera()};
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
+      
+      this.matrices = [mat4.create()];
+      mat4.set(this.player.camera.getModelViewMatrix(), this.matrices[0]);
+      this.matrix_depth = 0;
       
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
@@ -129,33 +142,44 @@ Jax.Context = (function() {
     isDisposed: function() {
       return !!this.disposed;
     },
+    
+    pushMatrix: function(yield_to) {
+      var current = this.getModelViewMatrix();
+      this.matrix_depth++;
+      if (!this.matrices[this.matrix_depth]) this.matrices[this.matrix_depth] = mat4.create();
+      mat4.set(current, this.matrices[this.matrix_depth]);
+      yield_to();
+      this.matrix_depth--;
+    },
+    
+    multMatrix: function(matr) {
+      mat4.multiply(this.getModelViewMatrix(), matr);
+      updateNormalMatrix(this);
+    },
 
     /**
      * Jax.Context#getModelViewMatrix() -> Matrix
-     * Returns the current modelview matrix. Note that this is equivalent to calling:
-     * 
-     *     context.player.camera.getModelViewMatrix();
-     *     
+     * Returns the current modelview matrix.
      **/
-    getModelViewMatrix: function() { return this.player.camera.getModelViewMatrix(); },
+    getModelViewMatrix: function() { return this.matrices[this.matrix_depth]; },
     
     /**
      * Jax.Context#getProjectionMatrix() -> Matrix
-     * Returns the current projection matrix. Note that this is equivalent to calling:
-     * 
-     *     context.player.camera.getProjectionMatrix();
-     *     
+     * Returns the current projection matrix.
      **/
     getProjectionMatrix: function() { return this.player.camera.getProjectionMatrix(); },
 
     /**
      * Jax.Context#getNormalMatrix() -> Matrix
-     * Returns the current projection matrix. Note that this is equivalent to calling:
-     * 
-     *     context.player.camera.getNormalMatrix();
-     *     
+     * Returns the current projection matrix.
      **/
-    getNormalMatrix: function() { return this.player.camera.getNormalMatrix(); },
+    getNormalMatrix: function() {
+      var mat = mat4.create();
+      mat4.inverse(this.getModelViewMatrix(), mat);
+      mat4.transpose(mat);
+      return mat;
+      //return this.player.camera.getNormalMatrix(); },
+    },
 
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */

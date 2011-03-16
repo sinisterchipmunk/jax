@@ -10,7 +10,7 @@ var CourthouseController = (function() {
       this.world.addObject(Scene.find('courthouse'));
       this.world.addObject(Character.find('judge'));
     },
-
+    
     /* Some special actions are fired whenever the corresponding input is
        received from the user.
      */

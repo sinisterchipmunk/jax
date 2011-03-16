@@ -39,6 +39,7 @@ namespace :jax do
     Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
     
     # routes
+    Jax.application.config.routes.reload!
     File.open(Jax.root.join("tmp/routes.js"), 'w') do |f|
       Jax.application.config.routes.compile(f)
     end

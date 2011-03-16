@@ -150,17 +150,20 @@ Jax.Camera = (function() {
      * Optionally, repositions this camera.
      **/
     orient: function() {
+      this._vecbuf2 = this._vecbuf2 || vec3.create();
       switch(arguments.length) {
-        case 2: mat4.lookAt(storeVecBuf(this, POSITION), arguments[0], arguments[1], this.matrices.mv); break;
-        case 3: mat4.lookAt(arguments[2], arguments[0], arguments[1], this.matrices.mv); break;
+        case 2: mat4.lookAt(storeVecBuf(this, POSITION), vec3.add(this._vecbuf, arguments[0], this._vecbuf2), arguments[1], this.matrices.mv); break;
+        case 3: mat4.lookAt(arguments[2], vec3.add(arguments[0], arguments[2], this._vecbuf), arguments[1], this.matrices.mv); break;
         case 6: mat4.lookAt(storeVecBuf(this, POSITION),
-                            [arguments[0], arguments[1], arguments[2]],
+                            [arguments[0]+this._vecbuf[0], arguments[1]+this._vecbuf[1], arguments[2]+this._vecbuf[2]],
                             [arguments[3], arguments[4], arguments[5]],
                             this.matrices.mv); break;
-        case 9: mat4.lookAt([arguments[6], arguments[7], arguments[8]],
-                            [arguments[0], arguments[1], arguments[2]],
-                            [arguments[3], arguments[4], arguments[5]],
-                            this.matrices.mv); break;
+        case 9:
+          vec3.set([arguments[6], arguments[7], arguments[8]], this._vecbuf);
+          mat4.lookAt(this._vecbuf,
+                      vec3.add(this._vecbuf, [arguments[0], arguments[1], arguments[2]], this._vecbuf2),
+                      [arguments[3], arguments[4], arguments[5]],
+                      this.matrices.mv); break;
         default: throw new Error("Invalid arguments for Camera#orient");
       }
       this.fireEvent('matrixUpdated');
@@ -292,11 +295,11 @@ Jax.Camera = (function() {
      * Rotates the camera by the specified amount around some axis.
      **/
     rotate: function() {
-      var amount = arguments.shift();
+      var amount = arguments[0];
       var vec;
       switch(arguments.length) {
         case 2: vec = arguments[1]; break;
-        case 4: vec = vec3.create(arguments); break;
+        case 4: vec = this._vecbuf; vec[0] = arguments[1]; vec[1] = arguments[2]; vec[2] = arguments[3];  break;
         default: throw new Error("Invalid arguments");
       }
       
@@ -304,6 +307,7 @@ Jax.Camera = (function() {
       else if (vec[0] == 0 && vec[2] == 0) mat4.rotateY(this.matrices.mv, amount*vec[1], this.matrices.mv);
       else if (vec[0] == 0 && vec[1] == 0) mat4.rotateZ(this.matrices.mv, amount*vec[2], this.matrices.mv);
       else                                 mat4.rotate (this.matrices.mv, amount,   vec, this.matrices.mv);
+      
       this.fireEvent('updatedMatrix');
       return this;
     },

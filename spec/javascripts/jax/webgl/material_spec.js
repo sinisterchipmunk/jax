@@ -5,7 +5,7 @@ describe("Jax.Material", function() {
 
   describe("by default", function() {
     it("should have light-gray diffuse", function() { expect(material.colors.diffuse).toEqual([0.8,0.8,0.8, 1.0]); });
-    it("should have light-gray ambient", function() { expect(material.colors.ambient).toEqual([0.8,0.8,0.8, 1.0]); });
+    it("should have dark-gray ambient",  function() { expect(material.colors.ambient).toEqual([0.02,0.02,0.02, 1.0]); });
     it("should have white specular",     function() { expect(material.colors.specular).toEqual([1,1,1, 1.0]);      });
     it("should have light-gray emissive",function() { expect(material.colors.emissive).toEqual([0,0,0, 1.0]);      });
     

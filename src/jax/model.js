@@ -3,20 +3,48 @@
  * 
  **/
 (function() {
+  function initProperties(self, data) {
+    var attribute;
+        
+    if (data) {
+      for (attribute in data) {
+        switch(attribute) {
+          case 'position':    self.camera.setPosition(data[attribute]); break;
+//          case 'mesh':        self.mesh = Jax.Mesh
+          default:
+            self[attribute] = data[attribute];
+        }
+      }
+    }
+  }
+  
   Jax.Model = (function() {
     return Jax.Class.create({
       initialize: function(data) {
-        var attribute, defs;
+        this.camera = new Jax.Camera();
         
-        if (this._klass && this._klass.resources && (defs = this._klass.resources['default']))
-          for (attribute in defs)
-            this[attribute] = defs[attribute];
-        
-        if (data)
-          for (attribute in data)
-            this[attribute] = data[attribute];
+        if (this._klass && this._klass.resources)
+          initProperties(this, this._klass.resources['default']);
+        initProperties(this, data);
         
         if (this.after_initialize) this.after_initialize();
+      },
+
+      /**
+       * Jax.Model#render(context) -> undefined
+       * 
+       * Renders this model with the given context. If the model doesn't have a mesh,
+       * nothing is rendered.
+       **/
+      render: function(context) {
+        if (this.mesh)
+        {
+          var self = this;
+          context.pushMatrix(function() {
+            context.multMatrix(self.camera.getModelViewMatrix());
+            self.mesh.render(context);
+          });
+        }
       },
 
       /**
