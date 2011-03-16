@@ -154,7 +154,6 @@ Jax.Context = (function() {
     
     multMatrix: function(matr) {
       mat4.multiply(this.getModelViewMatrix(), matr);
-      updateNormalMatrix(this);
     },
 
     /**
