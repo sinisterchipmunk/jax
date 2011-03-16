@@ -4,6 +4,7 @@
  **/
 var Jax = { };
 
+//= require "jax/anim_frame"
 //= require "jax/prototype/extensions"
 //= require "jax/view_helper"
 //= require "jax/model"
@@ -90,6 +91,6 @@ Jax.loaded = true;
  **/
 Jax.render_speed = 15;
 
-Jax.max_lights = 1;
+Jax.max_lights = 32;
 
 //= require "jax/builtin/all.js"

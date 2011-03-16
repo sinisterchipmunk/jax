@@ -47,7 +47,7 @@ Jax.Mesh.Quad = (function() {
       this.rebuild();
     },
     
-    init: function(verts, colors, textureCoords) {
+    init: function(verts, colors, textureCoords, normals) {
       var width = this.width/2, height = this.height/2;
       
       verts.push(-width, -height, 0);
@@ -64,6 +64,11 @@ Jax.Mesh.Quad = (function() {
       textureCoords.push(0, 0);
       textureCoords.push(1, 1);
       textureCoords.push(1, 0);
+      
+      normals.push(0,0,1);
+      normals.push(0,0,1);
+      normals.push(0,0,1);
+      normals.push(0,0,1);
     }
   });
 })();

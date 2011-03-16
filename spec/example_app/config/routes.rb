@@ -1,3 +1,3 @@
 ExampleApp.routes.map do
-  root 'courthouse'
+  root 'phong'
 end

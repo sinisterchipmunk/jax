@@ -15,6 +15,15 @@ describe("Camera", function() {
     expect(camera.getPosition()).toEqualVector([1,2,3]);
   });
   
+  it("should set view relative to position", function() {
+    var matr = mat4.create();
+    mat4.lookAt([10, 10, 10], [9, 10, 10], [0, 1, 0], matr);
+    camera.setPosition(10, 10, 10);
+    camera.orient([-1, 0, 0], [0, 1, 0]);
+    
+    expect(camera.getModelViewMatrix()).toEqualMatrix(matr);
+  });
+  
   describe("looking", function() {
     beforeEach(function() { mat4.lookAt([0,0,0], [0,0,-1], [0,1,0], camera.getModelViewMatrix()); });
     

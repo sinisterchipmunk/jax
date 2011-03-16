@@ -31,6 +31,7 @@ Jax.Material = (function() {
     self.previous.softness    = self.softness;
     self.previous.shaderType  = self.shaderType;
     self.previous.opacity     = self.opacity;
+    self.previous.light_count = self.light_count;
   }
   
   function compile(self, context) {
@@ -46,7 +47,7 @@ Jax.Material = (function() {
       
       this.colors = {
         diffuse:  options.colors.diffuse  || [0.8, 0.8, 0.8, 1.0],
-        ambient:  options.colors.ambient  || [0.8, 0.8, 0.8, 1.0],
+        ambient:  options.colors.ambient  || [0.02, 0.02, 0.02, 1.0],
         specular: options.colors.specular || [1.0, 1.0, 1.0, 1.0],
         emissive: options.colors.emissive || [0.0, 0.0, 0.0, 1.0]
       };
@@ -65,7 +66,13 @@ Jax.Material = (function() {
      * This action will build and compile the shader for the given context if necessary.
      **/
     render: function(context, mesh, options) {
-      if (this.isChanged()) compile(this, context);
+      this.lights = context.world.lighting._lights;
+      this.light_count = context.world.lighting._lights.length;
+      
+      if (this.isChanged())
+      {
+        compile(this, context);
+      }
       this.shader.render(context, mesh, options);
     },
 
@@ -89,6 +96,8 @@ Jax.Material = (function() {
       if (this.glossiness != this.previous.glossiness) return true;
       if (this.shaderType != this.previous.shaderType) return true;
       if (this.opacity    != this.previous.opacity)    return true;
+      if (this.lights && this.lights.length != this.previous.light_count) return true;
+      if (!this.lights && this.previous.light_count) return true;
       
       return false;
     }
@@ -136,4 +145,4 @@ Jax.Material.create = function(name, options) {
 };
 
 Jax.Material.create('failsafe', {shaderType: 'failsafe'});
-Jax.Material.create('default' , {shaderType: 'color_without_texture'});
+Jax.Material.create('default' , {shaderType: 'phong'});

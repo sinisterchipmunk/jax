@@ -1,6 +1,6 @@
 /*
   Failsafe shader - useful for debugging. Renders an object using vertex data only. The object's
-  color is hard-coded to pure white.
+  color is hard-coded to pure red.
  */
 Jax.shader_program_builders['failsafe'] = (function() {
   function buildVertexSource(options) {
@@ -16,7 +16,7 @@ Jax.shader_program_builders['failsafe'] = (function() {
   
   function buildFragmentSource(options) {
     return ["void main(void) {",
-            "  gl_FragColor = vec4(1,1,1,1);",
+            "  gl_FragColor = vec4(1,0,0,1);",
             "}"]
   }
   
