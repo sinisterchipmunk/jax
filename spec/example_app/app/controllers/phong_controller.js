@@ -17,7 +17,8 @@ var PhongController = (function() {
       window.marker = new Jax.Mesh.Quad(0.5);
       window.marker.material = "color_without_texture";
       
-      this.world.addObject(window.mesh);
+      this.world.addObject(new Jax.Model({mesh: window.mesh}));
+      
       this.world.addLightSource(window.light = new Jax.Scene.LightSource({
         enabled:true,
         position:[0,0,1],
