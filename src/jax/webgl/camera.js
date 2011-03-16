@@ -1,4 +1,5 @@
 //= require "core/events"
+//= require "scene"
 
 /**
  * class Jax.Camera
@@ -42,8 +43,15 @@ Jax.Camera = (function() {
   }
   
   function matrixUpdated(self) {
+    // Callback fires whenever one of the camera's matrices has changed.
+    // We need to use this to update other variables like normal matrix, frustum, etc,
+    // but we don't actually update them here because the user may be making several
+    // changes to the camera in sequence (and those updates would be useless).
+    // Instead we'll mark them as out-of-date and let their respective getters do the
+    // work.
     // update the normal matrix
-    mat4.transpose(mat4.inverse(self.matrices.mv, self.matrices.n), self.matrices.n);
+    self.normal_matrix_up_to_date = false;
+    self.frustum_up_to_date       = false;
   }
   
   /*
@@ -56,9 +64,22 @@ Jax.Camera = (function() {
     initialize: function() {
       /* used for temporary storage, just to avoid repeatedly allocating temporary vectors */
       this._vecbuf = vec3.create();
-      this.matrices = { mv: mat4.create(), p : mat4.create(), n : mat4.create() };
+      this.matrices = { mv: mat4.create(), p : mat4.identity(mat4.create()), n : mat4.create() };
+      this.frustum = new Jax.Scene.Frustum(this.matrices.mv, this.matrices.p);
+      
       this.addEventListener('matrixUpdated', function() { matrixUpdated(this); });
       this.reset();
+    },
+
+    /**
+     * Jax.Camera#getFrustum() -> Jax.Scene.Frustum
+     * Returns the frustum for the camera. If the frustum is out of date, it will
+     * be refreshed.
+     **/
+    getFrustum: function() {
+      if (!this.frustum_up_to_date) this.frustum.update();
+      this.frustum_up_to_date = true;
+      return this.frustum;
     },
 
     /**
@@ -226,7 +247,12 @@ Jax.Camera = (function() {
      * 
      * This matrix is commonly used in lighting calculations.
      **/
-    getNormalMatrix: function() { return this.matrices.n; },
+    getNormalMatrix: function() {
+      if (!this.normal_matrix_up_to_date)
+        mat4.transpose(mat4.inverse(this.matrices.mv, this.matrices.n), this.matrices.n);
+      this.normal_matrix_up_to_date = true;
+      return this.matrices.n;
+    },
 
     /**
      * Jax.Camera#unproject(x, y[, z]) -> [[nearx, neary, nearz], [farx, fary, farz]]
@@ -259,9 +285,11 @@ Jax.Camera = (function() {
         var viewport = [0, 0, pm.width, pm.height];
     
         //Calculation for inverting a matrix, compute projection x modelview; then compute the inverse
+        var m = mat4.set(mm, mat4.create());
         
-        var m = mat4.multiply(pm, mm, mat4.create());
-        mat4.inverse(m);
+        mat4.inverse(m, m); // WHY do I have to do this? --see Jax.Context#reloadMatrices
+        mat4.multiply(pm, m, m);
+        mat4.inverse(m, m);
     
         // Transformation of normalized coordinates between -1 and 1
         inf[0]=(winx-viewport[0])/viewport[2]*2.0-1.0;
@@ -308,7 +336,7 @@ Jax.Camera = (function() {
       else if (vec[0] == 0 && vec[1] == 0) mat4.rotateZ(this.matrices.mv, amount*vec[2], this.matrices.mv);
       else                                 mat4.rotate (this.matrices.mv, amount,   vec, this.matrices.mv);
       
-      this.fireEvent('updatedMatrix');
+      this.fireEvent('matrixUpdated');
       return this;
     },
 
@@ -321,6 +349,7 @@ Jax.Camera = (function() {
      **/
     strafe: function(distance) {
       mat4.translate(this.matrices.mv, vec3.scale(storeVecBuf(this, RIGHT), distance), this.matrices.mv);
+      this.fireEvent('matrixUpdated');
       return this;
     },
 
@@ -335,6 +364,8 @@ Jax.Camera = (function() {
     move: function(distance, direction) {
       direction = direction || storeVecBuf(this, VIEW);
       mat4.translate(this.matrices.mv, vec3.scale(direction, distance), this.matrices.mv);
+      this.fireEvent('matrixUpdated');
+      return this;
     },
 
     /**

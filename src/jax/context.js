@@ -155,7 +155,18 @@ Jax.Context = (function() {
     multMatrix: function(matr) {
       mat4.multiply(this.getModelViewMatrix(), matr);
     },
-
+    
+    /**
+     * Jax.Context#getFrustum() -> Jax.Scene.Frustum
+     * Returns the frustum for the player's camera. Equivalent to calling
+     * 
+     *     context.player.camera.getFrustum()
+     *     
+     * Note that changes to the matrix via #multMatrix will not be represented
+     * in this Jax.Scene.Frustum.
+     **/
+    getFrustum: function() { return this.player.camera.frustum; },
+  
     /**
      * Jax.Context#getModelViewMatrix() -> Matrix
      * Returns the current modelview matrix.

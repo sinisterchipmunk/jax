@@ -6,7 +6,7 @@
  */
 
 var PhongController = (function() {
-  return Jax.Controller.create("courthouse", ApplicationController, {
+  return Jax.Controller.create("phong", ApplicationController, {
     /* 'index' action. Sets up the scene. 'index' is called by default when first
        switching to this controller, unless another action name is given.
      */
@@ -61,7 +61,10 @@ var PhongController = (function() {
     
     mouse_moved: function(event) {
       var obj = this.context.world.lighting.getLight(0);
-      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
+//      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
+//      document.getElementById('jax_banner').innerHTML = (this.context.mouse.diffx+" "+this.context.mouse.diffy);
+      this.context.player.camera.rotate(this.context.mouse.diffy/50, 1, 0, 0);
+      this.context.player.camera.rotate(this.context.mouse.diffx/50, 0, 1, 0);
     },
     
     mouse_dragged: function(event) {
