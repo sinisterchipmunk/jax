@@ -53,6 +53,41 @@ beforeEach(function() {
       for (var i = 0; i < this.actual.length; i++)
         if (this.actual[i] != mat[i]) return false;
       return true;
+    },
+    
+    toHaveFace: function(v1, v2, v3) {
+      var actual = this.actual;
+      this.actual = {faces: actual.faces, vertices: actual.getVertexBuffer().js};
+      for (var i = 0; i < actual.faces.length; i++) {
+        var f = actual.getFaceVertices(actual.faces[i]);
+        
+        var match = true;
+        for (var j = 0; j < 3; j++) {
+          for (var k = 0; k < 3; k++) {
+            if (f[j][k] != arguments[j][k])
+              match = false;
+          }
+        }
+        if (match) return true;
+      }
+      return false;
+    },
+    
+    toHaveEdge: function(v1, v2) {
+      var actual = this.actual;
+      this.actual = actual.edges;
+      for (var i = 0; i < actual.edges.length; i++) {
+        var e = actual.getEdgeVertices(actual.edges[i]);
+        var match = true;
+        for (var j = 0; j < 2; j++) {
+          for (var k = 0; k < 3; k++) {
+            if (e[j][k] != arguments[j][k])
+              match = false;
+          }
+        }
+        if (match) return true;
+      }
+      return false;
     }
   });
 });

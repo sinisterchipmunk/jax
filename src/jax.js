@@ -1,3 +1,9 @@
+window.debugAssert = function(expr, msg) {
+  if (Jax.environment != "production" && !expr) throw new Error(msg || "debugAssert failed");
+};
+
+Math.EPSILON = Math.EPSILON || 0.00001;
+
 /**
  * Jax
  * Root namespace containing all Jax data
