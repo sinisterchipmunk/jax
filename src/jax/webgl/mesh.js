@@ -141,7 +141,7 @@ Jax.Mesh = (function() {
     }
     
     debugAssert(self.edges.length == 0);
-    computeEdges(0, self.faces.length);
+//    computeEdges(0, self.faces.length);
   }
   
   function calculateBounds(self, vertices) {
