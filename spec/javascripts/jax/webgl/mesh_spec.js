@@ -6,15 +6,7 @@ describe("Mesh:", function() {
   
   describe("a simple quad", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh({
-        init: function(vertices, colors, textureCoords, normals, indices) {
-          // a simple quad
-          vertices.push(-1, -1, -1);
-          vertices.push(-1,  1, -1);
-          vertices.push( 1,  1, -1);
-          vertices.push( 1, -1, -1);
-        }
-      });
+      mesh = new Jax.Mesh.Quad(2);
     });
     
     it("should be renderable", function() {
@@ -29,13 +21,25 @@ describe("Mesh:", function() {
     describe("that has been built", function() {
       beforeEach(function() { mesh.rebuild(); });
       
+      it("should have 2 faces", function() { expect(mesh.faces.length).toEqual(2); });
+      it("should have 5 edges", function() { expect(mesh.edges.length).toEqual(5); });
+      
+      it("should have faces", function() {
+        expect(mesh).toHaveFace([-1, -1, 0], [-1, 1, 0], [1, -1, 0]);
+        expect(mesh).toHaveFace([-1,  1, 0], [ 1,-1, 0], [1,  1, 0]);
+      });
+      
+      it("should have edges", function() {
+        expect(mesh).toHaveEdge([-1,  1, 0], [ 1,-1, 0]);
+      });
+      
       it("should have appropriate boundaries", function() {
         expect(mesh.bounds.left).toEqual(-1);
         expect(mesh.bounds.right).toEqual(1);
         expect(mesh.bounds.top).toEqual(1);
         expect(mesh.bounds.bottom).toEqual(-1);
-        expect(mesh.bounds.front).toEqual(-1);
-        expect(mesh.bounds.back).toEqual(-1);
+        expect(mesh.bounds.front).toEqual(0);
+        expect(mesh.bounds.back).toEqual(0);
         expect(mesh.bounds.width).toEqual(2);
         expect(mesh.bounds.height).toEqual(2);
         expect(mesh.bounds.depth).toEqual(0);
