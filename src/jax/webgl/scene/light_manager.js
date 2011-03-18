@@ -17,12 +17,22 @@ Jax.Scene.LightManager = (function() {
     disable: function() { this.enabled = false; },
     
     isEnabled: function() {
-      if (typeof(this.enabled) != "undefined") return this.enabled;
+      if (typeof(this.enabled) != "undefined")
+        return this.enabled;
       if (arguments.length == 1) {
-        if (this._lights.length > arguments[0]) return this._lights[arguments[0]].isEnabled();
+        if (this._lights.length > arguments[0])
+          return this._lights[arguments[0]].isEnabled();
         return false;
       }
       return this._lights.length > 0;
+    },
+    
+    count: function() { return this._lights.length; },
+    
+    remove: function(index) {
+      var result = this._lights.splice(index, 1);
+      if (this._lights.length == 0) delete this.enabled;
+      return result;
     },
     
     getLight: function(index) { return this._lights[index]; },

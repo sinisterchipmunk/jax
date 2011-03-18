@@ -44,7 +44,7 @@
           Note that you can have more than one, though you usually won't need to do so.
           Each context should be initialized with its own canvas element.
          */
-        var context = new Jax.Context(canvas);
+        window.context = new Jax.Context(canvas);
         
         /*
           That's all there is to initializing a Jax context, if you have a root route.
@@ -73,6 +73,10 @@
 <body>
 <div id="jax_banner">
   Jax
+</div>
+<div id="jax_nav">
+  <a href="#" onclick="context.redirectTo('/');return false;">Phong Shading w/3 Lights</a> |
+  <a href="#" onclick="context.redirectTo('shadows');return false;">Shadows</a>
 </div>
 <div id="jasmine_content"></div>
 </body>

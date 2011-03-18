@@ -127,11 +127,11 @@ Jax.Shader = (function() {
       context.glUseProgram(this.compiled_program[context.id]);
       if (this.supports_shadows && context.world.lighting.isEnabled()) {
         // ambient pass
-        context.world.lighting.disable();
-        doRenderPass(this, context, mesh, options);
+//        context.world.lighting.disable();
+//        doRenderPass(this, context, mesh, options);
         
         // illumination pass
-        context.world.lighting.enable();
+//        context.world.lighting.enable();
         doRenderPass(this, context, mesh, options);
       } else {
         doRenderPass(this, context, mesh, options);

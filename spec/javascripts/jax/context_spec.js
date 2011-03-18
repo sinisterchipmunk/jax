@@ -17,6 +17,30 @@ describe("Jax.Canvas", function() {
     });
   });
   
+  describe("when redirecting", function() {
+    beforeEach(function() {
+      Jax.routes.clear();
+      
+      Jax.views.push('one/index', function() { });
+      Jax.views.push('two/index', function() { });
+
+      var one = Jax.Controller.create("one", {index:function() {}});
+      var two = Jax.Controller.create("two", {index:function() {}});
+      
+      Jax.routes.map("/", one);
+      Jax.routes.map("two", two);
+      
+      context = new Jax.Context(document.getElementById("canvas-element"));
+      spyOn(context.world, 'dispose').andCallThrough();
+      
+      context.redirectTo("two");
+    });
+    
+    it("should dispose the world", function() {
+      expect(context.world.dispose).toHaveBeenCalled();
+    });
+  });
+  
   describe("with routes", function() {
     var controller;
     var action_called = 0, view_called = 0;

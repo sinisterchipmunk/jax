@@ -34,7 +34,7 @@ window['GL_METHODS'] = {};
         camelized_method_name = "gl" + method_name.substring(0, 1).toUpperCase() + camelized_method_name;
 
         /* we'll add a layer here to check for render errors */
-        var func = "function() {"
+        var func = "(function "+camelized_method_name+"() {"
                  + "  var result;"
                  + "  try { "
                  + "    result = this.gl."+method_name+".apply(this.gl, arguments);"
@@ -48,7 +48,7 @@ window['GL_METHODS'] = {};
                  + "    this.handleRenderError('"+method_name+"', args, e);"
                  + "  }"
                  + "  return result;"
-                 + "}";
+                 + "})";
 
         GL_METHODS[camelized_method_name] = eval("("+func+")");
       }

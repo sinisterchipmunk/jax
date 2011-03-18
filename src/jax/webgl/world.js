@@ -10,11 +10,24 @@ Jax.World = (function() {
     
     addLightSource: function(light)   { this.lighting.add(light); },
     
-    addObject: function(object) { this.objects.push(object); },
+    addObject: function(object) { this.objects.push(object); return object; },
     
     render: function() {
       for (var i = 0; i < this.objects.length; i++)
         this.objects[i].render(this.context);
+    },
+      
+    dispose: function() {
+      var i, o;
+      
+      for (i = this.objects.length; i >= 0; i--)
+      /*
+        actually, we may not want to dispose the objects just yet. What if the user has a handle to them?
+        Maybe better to let JS GC take care of this one.
+      */
+        (o = this.objects.pop());// && o.dispose();
+      
+      this.lighting = new Jax.Scene.LightManager();
     }
   });
 })();
