@@ -12,6 +12,10 @@ Jax.Scene.LightManager = (function() {
       this._lights.push(light);
     },
     
+    enable: function() { this.enabled = true; },
+    
+    disable: function() { this.enabled = false; },
+    
     isEnabled: function() {
       if (typeof(this.enabled) != "undefined") return this.enabled;
       if (arguments.length == 1) {

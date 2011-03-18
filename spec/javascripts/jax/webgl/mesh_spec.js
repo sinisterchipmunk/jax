@@ -4,6 +4,11 @@ describe("Mesh:", function() {
   beforeEach(function() { context = new Jax.Context(document.getElementById('canvas-element')); });
   afterEach(function() { context.dispose(); });
   
+  describe("a torus", function() {
+    beforeEach(function() { mesh = new Jax.Mesh.Torus(); mesh.rebuild(); });
+    
+  });
+  
   describe("a simple quad", function() {
     beforeEach(function() {
       mesh = new Jax.Mesh.Quad(2);
@@ -20,18 +25,6 @@ describe("Mesh:", function() {
     
     describe("that has been built", function() {
       beforeEach(function() { mesh.rebuild(); });
-      
-      it("should have 2 faces", function() { expect(mesh.faces.length).toEqual(2); });
-      it("should have 5 edges", function() { expect(mesh.edges.length).toEqual(5); });
-      
-      it("should have faces", function() {
-        expect(mesh).toHaveFace([-1, -1, 0], [-1, 1, 0], [1, -1, 0]);
-        expect(mesh).toHaveFace([-1,  1, 0], [ 1,-1, 0], [1,  1, 0]);
-      });
-      
-      it("should have edges", function() {
-        expect(mesh).toHaveEdge([-1,  1, 0], [ 1,-1, 0]);
-      });
       
       it("should have appropriate boundaries", function() {
         expect(mesh.bounds.left).toEqual(-1);

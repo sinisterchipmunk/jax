@@ -124,6 +124,7 @@ Jax.shader_program_builders['phong'] = (function() {
   
   return function(options) {
     var result = {
+      supports_shadows: true,
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       attributes: {

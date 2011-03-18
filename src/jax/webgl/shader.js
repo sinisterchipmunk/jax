@@ -67,6 +67,7 @@ Jax.Shader = (function() {
     
     sources.fragment_source = "#ifdef GL_ES\nprecision highp float;\n#endif\n" + sources.fragment_source;
     
+    self.supports_shadows = sources.supports_shadows;
     self.uniforms   = sources.uniforms;
     self.attributes = sources.attributes;
     
@@ -94,6 +95,19 @@ Jax.Shader = (function() {
     self.valid[context.id] = true;
   }
   
+  function doRenderPass(self, context, mesh, options) {
+    var id;
+    
+    for (id in self.attributes) self.setAttribute(context, mesh, getNormalizedAttribute(self, id));
+    for (id in self.uniforms)   self.setUniform(  context, mesh, getNormalizedUniform(self, id));
+      
+    var buffer;
+    if (buffer = mesh.getIndexBuffer())
+      context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
+    else if (buffer = mesh.getVertexBuffer())
+      context.glDrawArrays(options.draw_mode, 0, buffer.length);
+  }
+  
   return Jax.Class.create({
     initialize: function() {
       this.compiled_program = {};
@@ -110,16 +124,18 @@ Jax.Shader = (function() {
       if (!this.isCompiledFor(context))
         compile(this, context);
       
-      var id;
       context.glUseProgram(this.compiled_program[context.id]);
-      for (id in this.attributes) this.setAttribute(context, mesh, getNormalizedAttribute(this, id));
-      for (id in this.uniforms)   this.setUniform(  context, mesh, getNormalizedUniform(this, id));
-      
-      var buffer;
-      if (buffer = mesh.getIndexBuffer())
-        context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
-      else if (buffer = mesh.getVertexBuffer())
-        context.glDrawArrays(options.draw_mode, 0, buffer.length);
+      if (this.supports_shadows && context.world.lighting.isEnabled()) {
+        // ambient pass
+        context.world.lighting.disable();
+        doRenderPass(this, context, mesh, options);
+        
+        // illumination pass
+        context.world.lighting.enable();
+        doRenderPass(this, context, mesh, options);
+      } else {
+        doRenderPass(this, context, mesh, options);
+      }
     },
     
     setAttribute: function(context, mesh, attribute) {
