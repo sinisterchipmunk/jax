@@ -1,14 +1,15 @@
 Jax.Mesh.Torus = Jax.Class.create(Jax.Mesh, {
   initialize: function($super, options) {
+    options = options || {};
     this.inner_radius = typeof(options.inner_radius) == "undefined" ? 0.6 : options.inner_radius;
     this.outer_radius = typeof(options.outer_radius) == "undefined" ? 1.8 : options.inner_radius;
     this.sides        = typeof(options.sides       ) == "undefined" ? 128 : options.inner_radius;
     this.rings        = typeof(options.rings       ) == "undefined" ? 256 : options.inner_radius;
+    this.draw_mode = GL_TRIANGLE_STRIP;
     $super(options);
   },
   
   init: function(vertices, colors, texes, normals) {
-    this.draw_mode = GL_TRIANGLE_STRIP;
     var tube_radius = this.inner_radius, radius = this.outer_radius, sides = this.sides, rings = this.rings;
     
     var i, j, theta, phi, theta1, costheta, sintheta, costheta1, sintheta1, ringdelta, sidedelta, cosphi, sinphi,

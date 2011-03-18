@@ -56,94 +56,6 @@ Jax.Mesh = (function() {
     return options;
   }
   
-  function buildFaces(self) {
-    self.faces = self.faces || [];
-    var verts = self.getVertexBuffer();
-    if (!verts) return;
-    var vert_count = verts.length;
-    
-    for (var i = 0; i < vert_count; i++)
-    {
-      var face = null;
-      switch(self.draw_mode) {
-        case GL_TRIANGLES:
-          face = new Jax.Core.Face(i, ++i, ++i);
-          break;
-        case GL_TRIANGLE_STRIP:
-          if (i >= 2)
-            face = new Jax.Core.Face(i-2, i-1, i);
-          break;
-        default:
-          throw new Error("Unrecognized draw mode: "+self.draw_mode);
-      }
-
-      if (face) {
-        self.faces.push(face);
-      }
-    }
-  }
-  
-  function buildEdges(self) {
-    self.edges = self.edges || [];
-    
-    function fuzzyEq(a, b) {
-      var difx = a[0] - b[0], dify = a[1] - b[1], difz = a[2] - b[2];
-      return (difx*difx + dify*dify + difz*difz) < Math.EPSILON;
-    }
-    
-    function addEdge(vertex0index, vertex1index, vertex0, vertex1, face, edgeArray, vertexArray) {
-      var edge, x;
-      
-      for (x = 0; x < edgeArray.length; x++) {
-        edge = edgeArray[x];
-        var everts = self.getEdgeVertices(edge);
-        if ((fuzzyEq(everts[1], vertex0) && fuzzyEq(everts[0], vertex1)) ||
-            (fuzzyEq(everts[0], vertex0) && fuzzyEq(everts[1], vertex1))
-           )
-        {
-          // if this is the second face referencing this edge
-          
-          // make sure this is only the second face to reference this edge
-          debugAssert(edge.faceIndices[0] >= 0);
-          debugAssert(edge.faceIndices[0] != face);
-          debugAssert(edge.faceIndices[1] == -1);
-          
-          // set second face
-          edge.faceIndices[1] = face;
-          return;
-        }  
-      }
-      
-      // if this is the first face referencing this edge
-      edge = new Jax.Core.Edge();
-      edge.vertexIndices[0] = vertex0index;
-      edge.vertexIndices[1] = vertex1index;
-      edge.faceIndices[0] = face;
-      edge.faceIndices[1] = -1;
-      edgeArray.push(edge);
-    }
-    
-    function computeEdges(startFace, endFace) {
-      var i;
-      for (i = startFace; i < endFace; i++) {
-        // make sure this is not a degenerate triangle
-        // (ie the vertices are so close the triangle is extremely small)
-        var fvert = self.getFaceVertices(self.faces[i]);
-        debugAssert(!fuzzyEq(fvert[0], fvert[1]));
-        debugAssert(!fuzzyEq(fvert[1], fvert[2]));
-        debugAssert(!fuzzyEq(fvert[2], fvert[0]));
-        
-        // add 3 edges for each face
-        addEdge(self.faces[i].vertexIndices[0], self.faces[i].vertexIndices[1], fvert[0], fvert[1], i, self.edges, self.getVertexBuffer().js);
-        addEdge(self.faces[i].vertexIndices[1], self.faces[i].vertexIndices[2], fvert[1], fvert[2], i, self.edges, self.getVertexBuffer().js);
-        addEdge(self.faces[i].vertexIndices[2], self.faces[i].vertexIndices[0], fvert[2], fvert[0], i, self.edges, self.getVertexBuffer().js);
-      }
-    }
-    
-    debugAssert(self.edges.length == 0);
-//    computeEdges(0, self.faces.length);
-  }
-  
   function calculateBounds(self, vertices) {
     self.bounds = {left:null,right:null,top:null,bottom:null,front:null,back:null,width:null,height:null,depth:null};
     var i, v;
@@ -335,8 +247,6 @@ Jax.Mesh = (function() {
       
       this.built = true;
 
-      buildFaces(this);
-      buildEdges(this);
       if (this.after_initialize) this.after_initialize();
     }
   });

@@ -1,5 +1,10 @@
 window.debugAssert = function(expr, msg) {
-  if (Jax.environment != "production" && !expr) throw new Error(msg || "debugAssert failed");
+  if (Jax.environment != "production" && !expr)
+  {
+    var error = new Error(msg || "debugAssert failed");
+    if (error.stack) error = new Error((msg || "debugAssert failed")+"\n\n"+error.stack);
+    throw error;
+  }
 };
 
 Math.EPSILON = Math.EPSILON || 0.00001;
