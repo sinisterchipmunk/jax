@@ -18,7 +18,7 @@ Jax.Mesh.Quad = (function() {
       this.draw_mode = GL_TRIANGLE_STRIP;
       $super(options);
       
-      this.setSize(options && options.width || 1, options && options.height || 1)
+      this.setSize(options && options.width || options.size || 1, options && options.height || options.size || 1)
     },
 
     /**

@@ -9,6 +9,7 @@ module Jax
         if !args.empty?
           @map ||= []
           case args.length
+            when 1 then args.push(args[0], "index")
             when 2 then args.push("index")
             when 3 then ;
             else raise ArgumentError, "expected #map(path, controller_name[, action_name]), got #{args.inspect}"

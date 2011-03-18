@@ -49,6 +49,10 @@ Jax.Context = (function() {
     self.render_interval = setTimeout(render, Jax.render_speed);
   }
   
+  function stopRendering(self) {
+    clearTimeout(self.render_interval);
+  }
+  
   function setupView(self, view) {
     view.context = self;
     view.world = self.world;
@@ -100,9 +104,13 @@ Jax.Context = (function() {
      * - path (String): the path to redirect to
      * 
      * Redirects to the specified route, and then returns the Jax.Controller that
-     * was just redirected to.
+     * was just redirected to. The act of redirecting will dispose of the current
+     * World, so be prepared to initialize a new scene.
      **/
     redirectTo: function(path) {
+      stopRendering(this);
+      this.world.dispose();
+      this.player.camera.reset();
       this.current_controller = Jax.routes.dispatch(path, this);
       if (!this.current_controller.view_key)
         throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");

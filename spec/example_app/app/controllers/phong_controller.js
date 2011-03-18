@@ -7,16 +7,11 @@
 
 var PhongController = (function() {
   return Jax.Controller.create("phong", ApplicationController, {
-    /* 'index' action. Sets up the scene. 'index' is called by default when first
-       switching to this controller, unless another action name is given.
-     */
     index: function() {
+      window.marker =
+              this.world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad({size:0.5, material:"color_without_texture"})}));
+      
       window.mesh = new Jax.Mesh.Torus({inner_radius:0.6, outer_radius:1.8, rings:128, sides:256});
-      window.mesh.material = "phong";
-      
-      window.marker = new Jax.Mesh.Quad(0.5);
-      window.marker.material = "color_without_texture";
-      
       this.world.addObject(new Jax.Model({mesh: window.mesh}));
       
       this.world.addLightSource(window.light = new Jax.Scene.LightSource({
@@ -60,11 +55,13 @@ var PhongController = (function() {
     },
     
     mouse_moved: function(event) {
-      var obj = this.context.world.lighting.getLight(0);
-//      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
-//      document.getElementById('jax_banner').innerHTML = (this.context.mouse.diffx+" "+this.context.mouse.diffy);
-      this.context.player.camera.rotate(this.context.mouse.diffy/50, 1, 0, 0);
-      this.context.player.camera.rotate(this.context.mouse.diffx/50, 0, 1, 0);
+      var obj = window.light;
+      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
+      window.marker.camera.setPosition(obj.camera.getPosition());
+
+      /* to set up 'mouselook' instead of moving the light */
+//      this.context.player.camera.rotate( this.context.mouse.diffy/50, 1, 0, 0);
+//      this.context.player.camera.rotate(-this.context.mouse.diffx/50, 0, 1, 0);
     },
     
     mouse_dragged: function(event) {

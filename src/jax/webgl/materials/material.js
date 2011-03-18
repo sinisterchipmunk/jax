@@ -32,6 +32,7 @@ Jax.Material = (function() {
     self.previous.shaderType  = self.shaderType;
     self.previous.opacity     = self.opacity;
     self.previous.light_count = self.light_count;
+    self.previous.lights      = self.lights;
   }
   
   function compile(self, context) {
@@ -70,9 +71,8 @@ Jax.Material = (function() {
       this.light_count = context.world.lighting._lights.length;
       
       if (this.isChanged())
-      {
         compile(this, context);
-      }
+
       this.shader.render(context, mesh, options);
     },
 
@@ -97,7 +97,7 @@ Jax.Material = (function() {
       if (this.shaderType != this.previous.shaderType) return true;
       if (this.opacity    != this.previous.opacity)    return true;
       if (this.lights && this.lights.length != this.previous.light_count) return true;
-      if (!this.lights && this.previous.light_count) return true;
+      if (!this.lights && this.previous.light_count)   return true;
       
       return false;
     }

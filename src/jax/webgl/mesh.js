@@ -103,6 +103,9 @@ Jax.Mesh = (function() {
       
       for (var i in options)
         this[i] = options[i];
+
+      if (!this.draw_mode)
+        this.draw_mode = GL_TRIANGLES;
     },
 
     /**
@@ -110,14 +113,12 @@ Jax.Mesh = (function() {
      * Frees the various buffers used by this mesh.
      **/
     dispose: function() {
-      var buf;
-      if (buf = this.buffers.vertex_buffer) buf.dispose();
-      if (buf = this.buffers.color_buffer)  buf.dispose();
-      if (buf = this.buffers.index_buffer)  buf.dispose();
-      if (buf = this.buffers.normal_buffer) buf.dispose();
       while (this.faces && this.faces.length) this.faces.pop();
       while (this.edges && this.edges.length) this.edges.pop();
-      this.buffers = {};
+      for (var i in this.buffers) {
+        this.buffers[i].dispose();
+        delete this.buffers[i];
+      }
       this.built = false;
     },
 
@@ -223,12 +224,11 @@ Jax.Mesh = (function() {
      **/
     rebuild: function() {
       this.dispose();
-      if (!this.draw_mode)
-        this.draw_mode = GL_TRIANGLES;
-      
+
       var vertices = [], colors = [], textureCoords = [], normals = [], indices = [];
       if (this.init)
         this.init(vertices, colors, textureCoords, normals, indices);
+      
       if (this.color)
         setColorCoords(this, vertices.length / 3, this.color, colors);
       

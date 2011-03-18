@@ -10,7 +10,10 @@
       for (attribute in data) {
         switch(attribute) {
           case 'position':    self.camera.setPosition(data[attribute]); break;
-//          case 'mesh':        self.mesh = Jax.Mesh
+          case 'mesh':
+            if (data[attribute].isKindOf(Jax.Mesh)) self.mesh = data[attribute];
+            else throw new Error("Unexpected value for mesh:\n\n"+JSON.stringify(data[attribute]));
+            break;
           default:
             self[attribute] = data[attribute];
         }
@@ -45,6 +48,11 @@
             self.mesh.render(context);
           });
         }
+      },
+      
+      dispose: function() {
+        if (this.mesh)
+          this.mesh.dispose();
       },
 
       /**
