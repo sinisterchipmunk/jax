@@ -44,14 +44,14 @@ beforeEach(function() {
       }
       if (this.actual.length != vec.length) return false;
       for (var i = 0; i < this.actual.length; i++)
-        if (this.actual[i] != vec[i]) return false;
+        if (Math.abs(this.actual[i] - vec[i]) > Math.EPSILON) return false;
       return true;
     },
     
     toEqualMatrix: function(mat) {
       if (this.actual.length != mat.length) return false;
       for (var i = 0; i < this.actual.length; i++)
-        if (this.actual[i] != mat[i]) return false;
+        if (Math.abs(this.actual[i] - mat[i]) > Math.EPSILON) return false;
       return true;
     },
     

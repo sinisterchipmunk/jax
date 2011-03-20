@@ -10,22 +10,39 @@ describe("Camera", function() {
     it("should have up [0,1,0]", function() { expect(camera.getUpVector()).toEqualVector([0,1,0]); });
   });
   
-  it("should return position accurately", function() {
-    mat4.translate(mat4.identity(mat4.create()), [1,2,3], camera.getModelViewMatrix());
-    expect(camera.getPosition()).toEqualVector([1,2,3]);
+  it("should set and get position accurately", function() {
+    camera.setPosition(20, 0, 20);
+    expect(camera.getPosition()).toEqualVector([20,0,20]);
+  });
+  
+  it("should lookAt the origin without losing position", function() {
+    camera.setPosition(20, 0, 20);
+    expect(camera.getPosition()).toEqualVector([20,0,20]);
+    camera.lookAt([0,0,0], [0,1,0]);
+    expect(camera.getPosition()).toEqualVector([20,0,20]);
   });
   
   it("should set view relative to position", function() {
-    var matr = mat4.create();
-    mat4.lookAt([10, 10, 10], [9, 10, 10], [0, 1, 0], matr);
     camera.setPosition(10, 10, 10);
     camera.orient([-1, 0, 0], [0, 1, 0]);
     
-    expect(camera.getModelViewMatrix()).toEqualMatrix(matr);
+    expect(camera.getPosition()).toEqualVector([10,10,10]);
+    expect(camera.getViewVector()).toEqualVector([-1,0,0]);
+    expect(camera.getUpVector()).toEqualVector([0,1,0]);
   });
   
+  describe("orienting the camera after translation", function() {
+    beforeEach(function() {
+      camera.setPosition(100, 100, 100);
+      camera.orient([0, 0, -1], [0, 1, 0]);
+    });
+    
+    it("should not change its position", function() { expect(camera.getPosition()).toEqualVector([100,100,100]); });
+    
+  });
+
   describe("looking", function() {
-    beforeEach(function() { mat4.lookAt([0,0,0], [0,0,-1], [0,1,0], camera.getModelViewMatrix()); });
+    beforeEach(function() { camera.lookAt([0,0,-1], [0,1,0], [0,0,0]); });
     
     it("should return position accurately", function() {
       expect(camera.getPosition()).toEqualVector([0,0,0]);
@@ -56,12 +73,7 @@ describe("Camera", function() {
   
   describe("orienting the camera with numeric arguments and no position", function() {
     beforeEach(function() {
-      control = mat4.lookAt(vec3.create([0,0,0]), vec3.create([0,0,1]), vec3.create([0,-1,0]));
       camera.orient(0, 0, 1,  0, -1, 0);
-    });
-    
-    it("should orient the camera with numeric arguments and no position", function() {
-      expect(camera.getModelViewMatrix()).toEqualMatrix(control);
     });
     
     it("position should be 0,0,0", function() { expect(camera.getPosition()).toEqualVector([0,0,0]);      });

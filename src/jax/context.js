@@ -53,6 +53,23 @@ Jax.Context = (function() {
     clearTimeout(self.render_interval);
   }
   
+  function startUpdating(self) {
+    function updateFunc() {
+      if (!self.lastUpdate) self.lastUpdate = new Date();
+      var now = new Date();
+      var timechange = (now - self.lastUpdate) / 1000.0;
+      self.lastUpdate = now;
+        
+      self.update(timechange);
+      self.update_interval = setTimeout(updateFunc, Jax.update_speed);
+    }
+    updateFunc();
+  }
+  
+  function stopUpdating(self) {
+    clearTimeout(self.update_interval);
+  }
+  
   function setupView(self, view) {
     view.context = self;
     view.world = self.world;
@@ -69,7 +86,8 @@ Jax.Context = (function() {
   function reloadMatrices(self) {
     mat4.set(self.player.camera.getModelViewMatrix(), self.getModelViewMatrix());
 
-    // in case someone wiser than I reads this, let me know: WHY do I have to invert the camera matrix???
+    // the modelview matrix is actually the inverse of the model (world space transform) matrix.
+    // TODO rename the modelview functions accordingly, since they're really just model matrices
     mat4.inverse(self.matrices[self.matrix_depth]);
   }
   
@@ -97,6 +115,8 @@ Jax.Context = (function() {
       
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
+      
+      startUpdating(this);
     },
 
     /**
@@ -117,6 +137,14 @@ Jax.Context = (function() {
       this.current_view = Jax.views.find(this.current_controller.view_key);
       setupView(this, this.current_view);
       if (!this.isRendering()) startRendering(this);
+      
+      return this.current_controller;
+    },
+    
+    update: function(timechange) {
+      if (this.current_controller && this.current_controller.update)
+        this.current_controller.update(timechange);
+      this.world.update(timechange);
     },
 
     /**
@@ -141,6 +169,8 @@ Jax.Context = (function() {
      **/
     dispose: function() {
       this.disposed = true;
+      stopRendering(this);
+      stopUpdating(this);
     },
 
     /**

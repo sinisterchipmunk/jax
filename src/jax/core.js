@@ -1,0 +1,36 @@
+// a global debugAssert method that will do nothing in production, and fail if expr is false
+// in any other run mode. If msg is given, an error with that message is raised. Otherwise,
+// a more generic error is raised.
+window.debugAssert = function(expr, msg) {
+  if (Jax.environment != "production" && !expr)
+  {
+    var error = new Error(msg || "debugAssert failed");
+    if (error.stack) error = new Error((msg || "debugAssert failed")+"\n\n"+error.stack);
+    throw error;
+  }
+};
+
+// If an epsilon isn't defined, define it. This is used for fuzzy equality with floats,
+// because of floating point imprecision.
+Math.EPSILON = Math.EPSILON || 0.00001;
+
+// If glMatrixArrayType isn't simply Array, then most browsers (FF, Chrome) have a pretty
+// crappy implementation of toString() that actually tells you nothing about the array's
+// contents. This makes the #toString method a little more Array-like.
+//
+// Ex: "[Float32Array: -100,-100,-100]"
+if (glMatrixArrayType.prototype.toString != Array.prototype.toString) {
+  glMatrixArrayType.prototype.toString = function() {
+    var s = "["+glMatrixArrayType.name+": ";
+    var d = false;
+    for (var i in this) {
+      if (parseInt(i) == i) {
+        if (d) s += ",";
+        s += this[i];
+        d = true;
+      }
+    }
+    s += "]";
+    return s;
+  }
+}
