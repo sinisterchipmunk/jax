@@ -102,8 +102,10 @@ Jax.Shader = (function() {
     for (id in self.uniforms)   self.setUniform(  context, mesh, getNormalizedUniform(self, id));
       
     var buffer;
-    if (buffer = mesh.getIndexBuffer())
+    if (buffer = mesh.getIndexBuffer()) {
+      buffer.bind(context);
       context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
+    }
     else if (buffer = mesh.getVertexBuffer())
       context.glDrawArrays(options.draw_mode, 0, buffer.length);
   }

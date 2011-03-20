@@ -1,6 +1,28 @@
 describe("Jax.Controller", function() {
   var klass;
   var instance;
+  
+  describe("with an update method", function() {
+    var context;
+    
+    beforeEach(function() {
+      klass = Jax.Controller.create("welcome", { index: function() { }, update: function(tc) { } });
+      Jax.views.push("welcome/index", function() { });
+      Jax.routes.map("welcome", klass);
+      context = new Jax.Context(document.getElementById('canvas-element'));
+      instance = context.redirectTo("welcome");
+      spyOn(instance, 'update');
+    });
+    
+    it("should be called when the context is updated", function() {
+      /*
+        we can't really register a callback to setTimeout and check that it was called automatically,
+        so we'll have to simulate it by calling Context#update() directly.
+       */
+      context.update();
+      expect(instance.update).toHaveBeenCalled();
+    });
+  });
 
   describe("which does not render or redirect", function() {
     beforeEach(function() {

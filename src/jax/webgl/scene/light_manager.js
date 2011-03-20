@@ -37,6 +37,10 @@ Jax.Scene.LightManager = (function() {
     
     getLight: function(index) { return this._lights[index]; },
     
+    getType: function(index) { return this._lights[index] ? this._lights[index].getType() : Jax.SPOT_LIGHT; },
+    
+    getDirection: function(index) { return this._lights[index] ? this._lights[index].getDirection() : [0,0,0]; },
+    
     getDiffuseColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getDiffuseColor() : [1,1,1,1]; },
     
     getSpecularColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getSpecularColor() : [1,1,1,1]; },

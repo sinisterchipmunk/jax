@@ -1,20 +1,11 @@
-window.debugAssert = function(expr, msg) {
-  if (Jax.environment != "production" && !expr)
-  {
-    var error = new Error(msg || "debugAssert failed");
-    if (error.stack) error = new Error((msg || "debugAssert failed")+"\n\n"+error.stack);
-    throw error;
-  }
-};
-
-Math.EPSILON = Math.EPSILON || 0.00001;
-
 /**
  * Jax
  * Root namespace containing all Jax data
  **/
 var Jax = { };
 
+//= require "jax/vendor/glMatrix-0.9.5"
+//= require "jax/core"
 //= require "jax/anim_frame"
 //= require "jax/prototype/extensions"
 //= require "jax/view_helper"
@@ -102,6 +93,17 @@ Jax.loaded = true;
  **/
 Jax.render_speed = 15;
 
+/**
+ * Jax.update_speed -> Number
+ * Target number of milliseconds to wait between updates.
+ * This is not a guaranteed number in JavaScript, just a target. Most notably,
+ * system performance issues can drive the framerate down regardless of the
+ * target refresh rate.
+ **/
+Jax.update_speed = 15;
+
+// should this really exist? technically, the phong shader supports any number
+// of lights, so this is really down to client limitations.
 Jax.max_lights = 32;
 
 //= require "jax/builtin/all.js"

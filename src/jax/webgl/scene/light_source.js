@@ -1,3 +1,7 @@
+Jax.POINT_LIGHT       = 1;
+Jax.SPOT_LIGHT        = 2;
+Jax.DIRECTIONAL_LIGHT = 3;
+
 Jax.Scene.LightSource = (function() {
   return Jax.Model.create({
     initialize: function($super, data) {
@@ -11,10 +15,13 @@ Jax.Scene.LightSource = (function() {
       data.ambient  = data.ambient  || [0,0,0,1];
       data.diffuse  = data.diffuse  || [1,1,1,1];
       data.specular = data.specular || [1,1,1,1];
+      data.type = data.type || Jax.POINT_LIGHT;
       
       $super(data);
     },
     
+    getType: function() { return this.type; },
+    getDirection: function() { return this.camera.getViewVector(); },
     getDiffuseColor: function() { return this.diffuse; },
     getAmbientColor: function() { return this.ambient; },
     getSpecularColor: function() { return this.specular; },

@@ -7,13 +7,15 @@ Jax.shader_program_builders['phong'] = (function() {
               'uniform float lightConstantAttenuation'+i+',                    ',
               '              lightLinearAttenuation'+i+',                      ',
               '              lightQuadraticAttenuation'+i+';                   ',
-              'uniform vec3 lightPosition'+i+';                                ',
-              'varying vec3 lightDirection'+i+';                               ',
+              'uniform vec3 lightPosition'+i+', lightDirection'+i+';           ',
+              'varying vec3 lightVertexDir'+i+';                            ',
               'varying float lightAtt'+i+';                                    ',
               'uniform bool lightEnabled'+i+';                                 ',
               'uniform vec4 lightAmbient'+i+',                                 ',
               '             lightDiffuse'+i+',                                 ',
               '             lightSpecular'+i+';                                ',
+              'uniform int lightType'+i+';                                     ',
+              'uniform float lightSpotCosCutoff'+i+', lightSpotOuterAngle'+i+';',
               ''
       )
     }
@@ -29,8 +31,8 @@ Jax.shader_program_builders['phong'] = (function() {
         'if (lightingEnabled) {'];
       for (var i = 0; i < options.light_count; i++) result.push(
         '  if (lightEnabled'+i+' == true) {',
-        '    lightDirection'+i+' = vec3(lightPosition'+i+' - vVertex);       ',
-        '    d = length(lightDirection'+i+');                            ',
+        '    lightVertexDir'+i+' = vec3(lightPosition'+i+' - vVertex);       ',
+        '    d = length(lightVertexDir'+i+');                            ',
         '    lightAtt'+i+' = 1.0 / ( lightConstantAttenuation'+i+' +         ',
         '    (lightLinearAttenuation'+i+'*d) +                           ',
         '    (lightQuadraticAttenuation'+i+'*d*d) );                     ',
@@ -79,14 +81,25 @@ Jax.shader_program_builders['phong'] = (function() {
       for (var i = 0; i < options.light_count; i++) result.push(
         '    if (lightEnabled'+i+') {                                         ',
         '      final_color = final_color + (lightAmbient'+i+'*matr_ambient)*lightAtt'+i+';',
-        '      L = normalize(lightDirection'+i+');                                    ',
+        '      L = normalize(lightVertexDir'+i+');                                    ',
+        '      if (lightType'+i+' == '+Jax.SPOT_LIGHT+') {',
+        '        if (dot(L, normalize(lightDirection'+i+')) > lightSpotCosCutoff'+i+') {',
+        '          spot = 1.0;',
+        '        } else { spot = 1.0; }',
+//        '        D = normalize(lightDirection'+i+');                                ',
+//        '        cos_cur_angle = dot(-L, D);                                        ',
+//        '        cos_inner_cone_angle = lightSpotCosCutoff'+i+';                    ',
+//        '        cos_inner_minus_outer_angle = cos_inner_cone_angle - lightSpotOuterAngle'+i+';',
+//        '        spot = clamp((cos_cur_angle - lightSpotOuterAngle'+i+') / cos_inner_minus_outer_angle, 0.0, 1.0);',
+        '      } else { spot = 1.0; }                                               ',
+              
         '      lambertTerm = dot(N,L);                                            ',
         '      if(lambertTerm > 0.0)                                              ',
         '      {                                                                  ',
-        '        final_color += lightDiffuse'+i+'*matr_diffuse*lambertTerm*lightAtt'+i+'; ',
+        '        final_color += lightDiffuse'+i+'*matr_diffuse*lambertTerm*lightAtt'+i+' * spot; ',
         '        R = reflect(-L, N);                                              ',
         '        specular = pow( max(dot(R, E), 0.0), matr_shininess);            ',
-        '        final_color += lightSpecular'+i+'*matr_specular*specular*lightAtt'+i+';  ',
+        '        final_color += lightSpecular'+i+'*matr_specular*specular*lightAtt'+i+' * spot;  ',
         '      }                                                                  ',
         '    }                                                                    ',
         ''
@@ -107,7 +120,9 @@ Jax.shader_program_builders['phong'] = (function() {
 
       'void main (void)                                                         ',
       '{                                                                        ',
-      '  vec3 N = normalize(normal), L, E = normalize(eyeVec), R;               ',
+      '  vec3 N = normalize(normal), L, E = normalize(eyeVec), R, D;            ',
+      '  float cos_cur_angle, cos_inner_cone_angle, cos_inner_minus_outer_angle;',
+      '  float spot;',
       '  float lambertTerm, specular;                                           ',
 
       '  vec4 final_color = color;                                              ',
@@ -176,6 +191,22 @@ Jax.shader_program_builders['phong'] = (function() {
 
       result.uniforms['lightQuadraticAttenuation'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
         return ctx.world.lighting.getQuadraticAttenuation(this.index);
+      } };
+      
+      result.uniforms['lightType'+i] = { index: i, type: "glUniform1i", value: function(ctx) {
+        return ctx.world.lighting.getType(this.index);
+      } };
+      
+      result.uniforms['lightDirection'+i] = { index: i, type: "glUniform3fv", value: function(ctx) {
+        return ctx.world.lighting.getDirection(this.index);
+      } };
+      
+      result.uniforms['lightSpotCosCutoff'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
+        return 0.95;
+      } };
+
+      result.uniforms['lightSpotOuterAngle'+i] = { index: i, type: "glUniform1f", value: function(ctx) {
+        return 0.8; // 36 degrees
       } };
     }
     

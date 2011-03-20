@@ -13,32 +13,85 @@ var ShadowsController = (function() {
   return Jax.Controller.create("shadows", ApplicationController, {
     index: function() {
       alert("Shadowcasting: WORK IN PROGRESS");
-      
-      window.mesh = new Jax.Mesh.Torus({inner_radius:0.6, outer_radius:1.8, rings:128, sides:256});
-      
-      this.world.addObject(new Jax.Model({mesh: window.mesh}));
-      
-      this.world.addLightSource(window.light = new Jax.Scene.LightSource({
+
+      /* light sources */
+      var light01 = new Jax.Scene.LightSource({
         enabled:true,
-        position:[0,0,1],
+        type: Jax.SPOT_LIGHT,
+        angle: 20.0,
+        position: [0,150,150],
+//        direction: [],
+        ambient: [0,0,0,1],
+        diffuse: [1,1,1,1],
+        specular: [1,1,1,1],
         attenuation: {
           constant: 0,
-          linear: 0,
-          quadratic: 0.00275
-        },
-        type: Jax.SPOT_LIGHT,
-        ambient: [0,0,0,1],
-        diffuse: [0.5,0.5,0.5,1],
-        specular: [1,1,1,1]
-      }));
+          linear: 0.01,
+          quadratic: 0.00001
+        }
+      });
       
-      this.player.camera.move(-10);
+      this.world.addLightSource(light01);
+      
+      /* materials */
+      var floor_mat = new Jax.Material({
+        shaderType: "phong",
+        colors: {
+          glossiness: 60,
+          ambient: [0.7,0.7,0.7,1],
+          diffuse: [0.4,0.9,0.4,1],
+          specular: [0.4,0.4,0.4,1]
+        }
+      });
+      
+      var torus_mat = new Jax.Material({
+        shaderType: "phong",
+        specular: 60,
+        colors: {
+          ambient: [0.3,0.3,0.3,1],
+          diffuse: [0.9,0.5,0.5,1],
+          specular:[0.6,0.6,0.6,1]
+        }
+      });
+      
+      var sphere_mat = new Jax.Material({
+        shaderType: "phong",
+        specular: 60,
+        colors: {
+          ambient: [0.3,0.3,0.3,1],
+          diffuse: [0.5,0.5,0.9,1],
+          specular:[0.4,0.4,0.4,1]
+        }
+      });
+
+      /* objects */
+      this.world.addObject(new Jax.Model({mesh: new Jax.Mesh.Plane({size:500,segments:20,material:floor_mat})}));
+      
+      var torus = new Jax.Model({mesh:new Jax.Mesh.Torus({outer_radius:60,inner_radius:32,material:torus_mat})});
+      torus.camera.orient(0,-1,0,  0,0,1);
+      torus.camera.setPosition(-70,50,0);
+      this.world.addObject(torus);
+      
+      var sphere = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:40,stacks:40,slices:40,material:sphere_mat})});
+      sphere.camera.setPosition(70, 40, 0);
+      this.world.addObject(sphere);
+
+      /* camera */
+      this.player.camera.setPosition(30, 100, 200);
+      this.player.camera.lookAt([0,0,0], [0,1,0]);
+    },
+    
+    update: function(timechange) {
+      // let's rotate the light's camera
+      
     },
     
     mouse_moved: function(event) {
       var obj = this.context.world.lighting.getLight(0);
 //      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
 //      document.getElementById('jax_banner').innerHTML = (this.context.mouse.diffx+" "+this.context.mouse.diffy);
+      this.context.player.camera.rotate( this.context.mouse.diffy/50, 1, 0, 0);
+      this.context.player.camera.rotate(-this.context.mouse.diffx/50, 0, 1, 0);
     },
     
     mouse_clicked: function(event) {
