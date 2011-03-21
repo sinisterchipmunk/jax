@@ -171,8 +171,13 @@ Jax.Shader = (function() {
         throw new Error("Value is undefined or null for uniform '"+uniform.name+"'!");
       
       if (!context[uniform.type]) throw new Error("Invalid uniform type: "+uniform.type);
-      if (uniform.type.indexOf("glUniformMatrix") != -1) context[uniform.type](location, false, value);
-      else                                               context[uniform.type](location,        value);
+      try {
+        if (uniform.type.indexOf("glUniformMatrix") != -1) context[uniform.type](location, false, value);
+        else                                               context[uniform.type](location,        value);
+      } catch(e) {
+        if (Jax.environment == "production") throw(e);
+        else alert("Could not set uniform "+uniform.name+" with value:\n\n"+value);
+      }
     },
     
     disableAttribute: function(context, attribute) {
