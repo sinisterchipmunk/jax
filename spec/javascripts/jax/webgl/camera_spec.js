@@ -40,6 +40,14 @@ describe("Camera", function() {
     it("should not change its position", function() { expect(camera.getPosition()).toEqualVector([100,100,100]); });
     
   });
+  
+  describe("orientation", function() {
+    it(" pos(0,0,1), view(0,-1,0)", function() {
+      camera.setPosition(0,0,1);
+      camera.orient(0,-1,0);
+      expect(camera.getViewVector()).toEqualVector([0,-1,0]);
+    });
+  });
 
   describe("looking", function() {
     beforeEach(function() { camera.lookAt([0,0,-1], [0,1,0], [0,0,0]); });

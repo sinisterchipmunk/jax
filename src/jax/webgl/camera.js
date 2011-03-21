@@ -28,16 +28,17 @@ Jax.Camera = (function() {
   function storeVecBuf(self, buftype) {
     var world = self.matrices.mv;
     
-    var position = (self._tmp[0]);
-    var result   = (self._tmp[1]);
+    var position = (self._tmp[POSITION]);
+    var result   = (self._tmp[buftype]);
     
+    // position is 0,0,0 in eye space. Convert that to world space.
     position[0] = position[1] = position[2] = 0;
     mat4.multiplyVec3(world, position, position);
 
     switch(buftype) {
       case POSITION:
-        // we already have the position, which is 0,0,0 in eye space
-        result = position;
+        // we already have the position
+        return position;
         break;
       case VIEW:
         // relative view vector is [0,0,-1] -- convert that to world coords
@@ -80,7 +81,7 @@ Jax.Camera = (function() {
       /* used for temporary storage, just to avoid repeatedly allocating temporary vectors */
       this._tmp = [ vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create() ];
       
-      this.matrices = { mv: mat4.identity(mat4.create()), p : mat4.identity(mat4.create()), n : mat4.create() };
+      this.matrices = { mv: mat4.identity(mat4.create()), p : mat4.identity(mat4.create()), n : mat3.create() };
       this.frustum = new Jax.Scene.Frustum(this.matrices.mv, this.matrices.p);
       
       this.addEventListener('matrixUpdated', function() { matrixUpdated(this); });
@@ -190,15 +191,26 @@ Jax.Camera = (function() {
       var pos;
       
       switch(arguments.length) {
+        case 1:
+          view = store(this,     VIEW, view[0], view[1], view[2]);
+          up   = store(this,       UP);
+          pos  = store(this, POSITION);
+          break;
         case 2:
           view = store(this,     VIEW, view[0], view[1], view[2]);
           up   = store(this,       UP,   up[0],   up[1],   up[2]);
           pos  = store(this, POSITION);
           break;
         case 3:
-          view = store(this,     VIEW,         view[0],         view[1],         view[2]);
-          up   = store(this,       UP,           up[0],           up[1],           up[2]);
-          pos  = store(this, POSITION, arguments[2][0], arguments[2][1], arguments[2][2]);
+          if (typeof(arguments[0]) == "number") {
+            view = store(this,     VIEW,    arguments[0],    arguments[1],    arguments[2]);
+            up   = store(this,       UP);
+            pos  = store(this, POSITION);
+          } else {
+            view = store(this,     VIEW,         view[0],         view[1],         view[2]);
+            up   = store(this,       UP,           up[0],           up[1],           up[2]);
+            pos  = store(this, POSITION, arguments[2][0], arguments[2][1], arguments[2][2]);
+          }
           break;
         case 6:
           view = store(this,     VIEW, arguments[0], arguments[1], arguments[2]);
@@ -225,13 +237,22 @@ Jax.Camera = (function() {
       /*
         I can't seem to get mat4.lookAt() to work as expected. I suspect that the forward vector is not
         calculated properly, as it seems to reverse the operands. Dunno if this is a bug or a misunderstanding
-        in expectations, but either way I've decided not to use it, and borrowed this code from:
+        in expectations, but either way I've decided not to use it, and adapted this code from:
           GLH at http://www.opengl.org/wiki/GluLookAt_code 
        */
       var forward = this._tmp[FORWARD], side = this._tmp[SIDE];
       var matrix2 = this.matrices.mv;
       
       vec3.subtract(point, pos, forward);
+
+      // check whether up is parallel with view. If so, we can't possibly use up so
+      // we must recalculate up from the current side. We don't simply throw an error
+      // because the user may not be at fault. (Example: this.orient([0,-1,0]) infers
+      // the current up, which defaults to [0,1,0].)
+      var dot = vec3.dot(forward, up);
+      if (!isNaN(dot) && Math.abs(dot) > (1 - Math.EPSILON))
+        vec3.cross(store(this, RIGHT), forward, up);
+
       vec3.normalize(forward);
       // side = forward x up
       vec3.cross(forward, up, side);
@@ -316,8 +337,10 @@ Jax.Camera = (function() {
      * This matrix is commonly used in lighting calculations.
      **/
     getNormalMatrix: function() {
-      if (!this.normal_matrix_up_to_date)
-        mat4.transpose(mat4.inverse(this.matrices.mv, this.matrices.n), this.matrices.n);
+      if (!this.normal_matrix_up_to_date) {
+        mat4.inverse(this.getModelViewMatrix(), this.matrices.n);
+        mat4.transpose(this.matrices.n);
+      }
       this.normal_matrix_up_to_date = true;
       return this.matrices.n;
     },
