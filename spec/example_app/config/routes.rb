@@ -1,5 +1,5 @@
 ExampleApp.routes.map do
-  root 'phong'
+  root 'lighting'
   map 'shadows'
-  map 'phong'
+  map 'lighting'
 end
