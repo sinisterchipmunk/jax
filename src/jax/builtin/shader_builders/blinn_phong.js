@@ -9,6 +9,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             'uniform vec4 lightDiffuse'+i+', lightAmbient'+i+', lightSpecular'+i+';',
             'uniform float lightConstantAttenuation'+i+', lightLinearAttenuation'+i+', lightQuadraticAttenuation'+i+',',
                           'lightSpotCosCutoff'+i+', lightSpotExponent'+i+';',
+            'uniform bool lightEnabled'+i+';',
             '',
             /* light-specific varying */
             'varying vec3 lightDir'+i+', halfVector'+i+', spotlightDirection'+i+';',
@@ -21,36 +22,42 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
   
   function vertexLightCalculations(options) {
-    var s = [];
+    var s = ['if (lightingEnabled) {'];
     for (var i = 0; i < options.light_count; i++) {
       s.push(
-              'if (lightType'+i+' == '+Jax.DIRECTIONAL_LIGHT+') {',
-                /* now normalize the light's direction. Note that it must be converted to eye space. */
-                'lightDir'+i+' = normalize(vec3(nMatrix * vec4(-lightDirection'+i+', 1)));',
-              '} else {',
-                'aux = vec3(mvMatrix * vec4(lightPosition'+i+', 1));',
-                'aux = vec3(aux - eyePosition.xyz);',
-                'lightDir'+i+' = normalize(aux);',
-                'dist'+i+' = length(aux);',
+              'if (lightEnabled'+i+') {',
+                'if (lightType'+i+' == '+Jax.DIRECTIONAL_LIGHT+') {',
+                  /* now normalize the light's direction. Note that it must be converted to eye space. */
+                  'lightDir'+i+' = normalize(vec3(nMatrix * -lightDirection'+i+'));',
+                '} else {',
+                  'aux = vec3(mvMatrix * vec4(lightPosition'+i+', 1));',
+                  'aux = vec3(aux - eyePosition.xyz);',
+                  'lightDir'+i+' = normalize(aux);',
+                  'dist'+i+' = length(aux);',
+                '}',
+              
+                /* if it's a spotlight, calculate spotlightDirection */
+                'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') {',
+                  'spotlightDirection'+i+' = normalize(vec3(nMatrix * lightDirection'+i+'));',
+                '}',
+              
+                'halfVector'+i+' = normalize(eyeVector+lightDir'+i+');',
+                'diffuse'+i+' = materialDiffuse * lightDiffuse'+i+';',
               '}',
-            
-              /* if it's a spotlight, calculate spotlightDirection */
-              'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') {',
-                'spotlightDirection'+i+' = normalize(vec3(nMatrix * vec4(lightDirection'+i+', 1)));',
-              '}',
-            
-              'halfVector'+i+' = normalize(eyeVector+lightDir'+i+');',
-              'diffuse'+i+' = materialDiffuse * lightDiffuse'+i+';',
               ''
       );
     }
+    s.push('}');
     return s.join("\n");
   }
   
   function buildVertexSource(options) {
     var s = [
+            'uniform bool lightingEnabled;',
+            
             /* matrix uniforms */
-            'uniform mat4 mvMatrix, pMatrix, nMatrix;',
+            'uniform mat4 mvMatrix, pMatrix;',
+            'uniform mat3 nMatrix;',
             
             /* material uniforms */
             'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
@@ -74,7 +81,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
               'eyeVector = -normalize(eyePosition.xyz);',
                   
               /* transform the normal into eye space and normalize the result */
-              'normal = normalize(vec3(nMatrix * vec4(vertexNormal, 1)));',
+              'normal = normalize(vec3(nMatrix * vertexNormal));',
             
               vertexLightCalculations(options),
                        
@@ -86,47 +93,52 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
   
   function fragmentLightCalculations(options) {
-    var s = [];
+    var s = ['if (lightingEnabled) {'];
     for (var i = 0; i < options.light_count; i++) {
       s.push(
-        /*
-          compute the cos of the angle between the normal and light directions.
-          The light is directional so the direction is constant for every vertex.
-          Since these are normalized the cosine is the dot product. We also need
-          to clamp to the [0,1] range.
-         */
-        'NdotL = max(dot(n, normalize(lightDir'+i+')), 0.0);',
-      
-        /* TODO: it feels like all these conditions could be optimized a bit */
-        'if (lightType'+i+' != '+Jax.SPOT_LIGHT+' || ',
-          '(spotEffect = dot(normalize(spotlightDirection'+i+'), normalize(-lightDir'+i+'))) > lightSpotCosCutoff'+i+'',
-        ') {',
-          'if (lightType'+i+' != '+Jax.DIRECTIONAL_LIGHT+') {',
-            'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') { att = pow(spotEffect, lightSpotExponent'+i+'); }',
-            'else { att = 1.0; }',
-      
-            'att = att / (lightConstantAttenuation'+i+' ',
-                       '+ lightLinearAttenuation'+i+' * dist'+i,
-                       '+ lightQuadraticAttenuation'+i+' * dist'+i+' * dist'+i+');',
-          '} else { att = 1.0; }',
-    
-          'if (NdotL > 0.0) {',
-            'final_color += att * (diffuse'+i+' * NdotL + lightAmbient'+i+');',
+        'if (lightEnabled'+i+') {',
+          /*
+            compute the cos of the angle between the normal and light directions.
+            The light is directional so the direction is constant for every vertex.
+            Since these are normalized the cosine is the dot product. We also need
+            to clamp to the [0,1] range.
+           */
+          'NdotL = max(dot(n, normalize(lightDir'+i+')), 0.0);',
         
-            /* normalize the half-vector, then compute the cosine (dot product) with the normal */
-            'halfV = normalize(halfVector'+i+');',
-            'NdotHV = max(dot(n, halfV), 0.0);',
-            'final_color += att * materialSpecular * lightSpecular'+i+' * pow(NdotHV, materialShininess);',
-          '} else { final_color += att * lightAmbient'+i+'; }',
+          /* TODO: it feels like all these conditions could be optimized a bit */
+          'if (lightType'+i+' != '+Jax.SPOT_LIGHT+' || ',
+            '(spotEffect = dot(normalize(spotlightDirection'+i+'), normalize(-lightDir'+i+'))) > lightSpotCosCutoff'+i+'',
+          ') {',
+            'if (lightType'+i+' != '+Jax.DIRECTIONAL_LIGHT+') {',
+              'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') { att = pow(spotEffect, lightSpotExponent'+i+'); }',
+              'else { att = 1.0; }',
+        
+              'att = att / (lightConstantAttenuation'+i+' ',
+                         '+ lightLinearAttenuation'+i+' * dist'+i,
+                         '+ lightQuadraticAttenuation'+i+' * dist'+i+' * dist'+i+');',
+            '} else { att = 1.0; }',
+      
+            'if (NdotL > 0.0) {',
+              'final_color += att * (diffuse'+i+' * NdotL + lightAmbient'+i+');',
+          
+              /* normalize the half-vector, then compute the cosine (dot product) with the normal */
+              'halfV = normalize(halfVector'+i+');',
+              'NdotHV = max(dot(n, halfV), 0.0);',
+              'final_color += att * materialSpecular * lightSpecular'+i+' * pow(NdotHV, materialShininess);',
+            '} else { final_color += att * lightAmbient'+i+'; }',
+          '}',
         '}',
         ''
       );
     }
+    s.push('}');
     return s.join("\n");
   }
   
   function buildFragmentSource(options) {
     var s = [
+            'uniform bool lightingEnabled;',
+            
             /* material uniforms */
             'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
             'uniform float materialShininess;',
@@ -163,12 +175,14 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       uniforms: {
         mvMatrix: { type: "glUniformMatrix4fv", value: function(context) { return context.getModelViewMatrix();  } },
         pMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getProjectionMatrix(); } },
-        nMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getNormalMatrix();     } },
+        nMatrix:  { type: "glUniformMatrix3fv", value: function(context) { return context.getNormalMatrix();     } },
         
         materialAmbient: { type: "glUniform4fv", value: function(context) { return options.ambient || [0.2,0.2,0.2,1]; } },
         materialDiffuse: { type: "glUniform4fv", value: function(context) { return options.diffuse || [1,1,1,1]; } },
         materialSpecular: { type: "glUniform4fv", value: function(context) { return options.specular || [1,1,1,1]; } },
-        materialShininess: { type: "glUniform1f", value: function(context) { return options.shininess || 0; } }
+        materialShininess: { type: "glUniform1f", value: function(context) { return options.shininess || 0; } },
+        
+        lightingEnabled: { type: "glUniform1i", value: function(context) { return context.world.lighting.isEnabled(); } }
       }
     };
     
@@ -186,11 +200,13 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
 
       result.uniforms['lightType'+i] = {i:i,type:"glUniform1i", value: function(ctx) { return ctx.world.lighting.getType(this.i); } };
 
-      result.uniforms['lightConstantAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getConstantAttenuation(this.i); } },
-      result.uniforms['lightLinearAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getLinearAttenuation(this.i); } },
-      result.uniforms['lightQuadraticAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getQuadraticAttenuation(this.i); } },
-      result.uniforms['lightSpotCosCutoff'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotCosCutoff(this.i); } },
-      result.uniforms['lightSpotExponent'+i] = {i:i,type: "glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotExponent(this.i); } }
+      result.uniforms['lightConstantAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getConstantAttenuation(this.i); } };
+      result.uniforms['lightLinearAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getLinearAttenuation(this.i); } };
+      result.uniforms['lightQuadraticAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getQuadraticAttenuation(this.i); } };
+      result.uniforms['lightSpotCosCutoff'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotCosCutoff(this.i); } };
+      result.uniforms['lightSpotExponent'+i] = {i:i,type: "glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotExponent(this.i); } };
+      
+      result.uniforms['lightEnabled'+i] = {i:i,type:"glUniform1i",value: function(c){return c.world.lighting.isEnabled(this.i); } };
     }
     
     return result;

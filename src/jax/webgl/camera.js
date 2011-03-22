@@ -338,8 +338,8 @@ Jax.Camera = (function() {
      **/
     getNormalMatrix: function() {
       if (!this.normal_matrix_up_to_date) {
-        mat4.inverse(this.getModelViewMatrix(), this.matrices.n);
-        mat4.transpose(this.matrices.n);
+        mat4.toInverseMat3(this.getModelViewMatrix(), this.matrices.n);
+        mat3.transpose(this.matrices.n);
       }
       this.normal_matrix_up_to_date = true;
       return this.matrices.n;
