@@ -219,14 +219,14 @@ Jax.Context = (function() {
 
     /**
      * Jax.Context#getNormalMatrix() -> Matrix
-     * Returns the current projection matrix.
+     * Returns the current normal matrix.
      **/
     getNormalMatrix: function() {
+      // TODO: optimize
       var mat = mat4.create();
       mat4.inverse(this.getModelViewMatrix(), mat);
       mat4.transpose(mat);
       return mat;
-      //return this.player.camera.getNormalMatrix(); },
     },
 
     checkForRenderErrors: function() {

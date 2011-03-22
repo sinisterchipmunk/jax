@@ -72,11 +72,17 @@ task :compile do
   cp File.join(File.dirname(__FILE__), "dist/jax.js"), 
      File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")
   
-  puts "(minifying...)"
-  system("java", "-jar", File.join(File.dirname(__FILE__), "vendor/yuicompressor-2.4.2.jar"), "dist/jax.js", "-o", "dist/jax-min.js")
-  
-#  cp File.join(File.dirname(__FILE__), "src/prototype.js"), File.join(File.dirname(__FILE__), "dist/prototype.js")
   puts "(project built)"
+end
+
+desc "compile and minify Jax into dist/jax.js and dist/jax-min.js"
+task :minify => :compile do
+  puts "(minifying...)"
+  if system("java", "-jar", File.join(File.dirname(__FILE__), "vendor/yuicompressor-2.4.2.jar"), "dist/jax.js", "-o", "dist/jax-min.js")
+    puts "(done.)"
+  else
+    puts "(Error while minifying!)"
+  end
 end
 
 namespace :doc do

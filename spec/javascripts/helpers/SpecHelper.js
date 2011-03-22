@@ -36,10 +36,10 @@ beforeEach(function() {
     },
     
     toEqualVector: function() {
-      var vec;
+      var vec = vec3.create();
       switch(arguments.length) {
-        case 1: vec = vec3.create(arguments[0]); break;
-        case 3: vec = vec3.create(arguments); break;
+        case 1: vec = arguments[0]; break;
+        case 3: vec3.set(arguments, vec); break;
         default: throw new Error("Invalid args");
       }
       if (this.actual.length != vec.length) return false;
@@ -64,7 +64,7 @@ beforeEach(function() {
         var match = true;
         for (var j = 0; j < 3; j++) {
           for (var k = 0; k < 3; k++) {
-            if (f[j][k] != arguments[j][k])
+            if (Math.abs(f[j][k] - arguments[j][k]) > Math.EPSILON)
               match = false;
           }
         }
@@ -81,7 +81,7 @@ beforeEach(function() {
         var match = true;
         for (var j = 0; j < 2; j++) {
           for (var k = 0; k < 3; k++) {
-            if (e[j][k] != arguments[j][k])
+            if (Math.abs(e[j][k] - arguments[j][k]) > Math.EPSILON)
               match = false;
           }
         }

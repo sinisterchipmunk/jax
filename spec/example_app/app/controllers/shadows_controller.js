@@ -20,10 +20,11 @@ var ShadowsController = (function() {
         type: Jax.SPOT_LIGHT,
         angle: 20.0,
         position: [0,150,150],
-//        direction: [],
-        ambient: [0,0,0,1],
-        diffuse: [1,1,1,1],
-        specular: [1,1,1,1],
+        color: {
+          ambient: [0,0,0,1],
+          diffuse: [1,1,1,1],
+          specular: [1,1,1,1]
+        },
         attenuation: {
           constant: 0,
           linear: 0.01,
@@ -35,33 +36,27 @@ var ShadowsController = (function() {
       
       /* materials */
       var floor_mat = new Jax.Material({
-        shaderType: "phong",
-        colors: {
-          glossiness: 60,
-          ambient: [0.7,0.7,0.7,1],
-          diffuse: [0.4,0.9,0.4,1],
-          specular: [0.4,0.4,0.4,1]
-        }
+        shaderType: "blinn-phong",
+        shininess: 60,
+        ambient: [0.7,0.7,0.7,1],
+        diffuse: [0.4,0.9,0.4,1],
+        specular: [0.4,0.4,0.4,1]
       });
       
       var torus_mat = new Jax.Material({
-        shaderType: "phong",
-        specular: 60,
-        colors: {
-          ambient: [0.3,0.3,0.3,1],
-          diffuse: [0.9,0.5,0.5,1],
-          specular:[0.6,0.6,0.6,1]
-        }
+        shaderType: "blinn-phong",
+        shininess: 60,
+        ambient: [0.3,0.3,0.3,1],
+        diffuse: [0.9,0.5,0.5,1],
+        specular:[0.6,0.6,0.6,1]
       });
       
       var sphere_mat = new Jax.Material({
-        shaderType: "phong",
-        specular: 60,
-        colors: {
-          ambient: [0.3,0.3,0.3,1],
-          diffuse: [0.5,0.5,0.9,1],
-          specular:[0.4,0.4,0.4,1]
-        }
+        shaderType: "blinn-phong",
+        shininess: 60,
+        ambient: [0.3,0.3,0.3,1],
+        diffuse: [0.5,0.5,0.9,1],
+        specular:[0.4,0.4,0.4,1]
       });
 
       /* objects */
@@ -95,18 +90,19 @@ var ShadowsController = (function() {
     },
     
     mouse_clicked: function(event) {
-      switch(window.light.type) {
+      var lt = this.context.world.lighting.getLight(0);
+      switch(lt.type) {
         case Jax.POINT_LIGHT:
-          window.light.type = Jax.SPOT_LIGHT;
+          lt.type = Jax.SPOT_LIGHT;
           break;
         case Jax.SPOT_LIGHT:
-          window.light.type = Jax.DIRECTIONAL_LIGHT;
+          lt.type = Jax.DIRECTIONAL_LIGHT;
           break;
         case Jax.DIRECTIONAL_LIGHT:
-          window.light.type = Jax.POINT_LIGHT;
+          lt.type = Jax.POINT_LIGHT;
           break;
         default:
-          alert("unexpected light type: "+window.light.type);
+          alert("unexpected light type: "+lt.type);
       }
     },
     

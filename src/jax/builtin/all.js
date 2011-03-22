@@ -1,7 +1,7 @@
 /* shader builders */
 //= require "shader_builders/failsafe"
 //= require "shader_builders/color_without_texture"
-//= require "shader_builders/phong"
+//= require "shader_builders/blinn_phong"
 
 /* meshes */
 //= require "meshes/quad"
