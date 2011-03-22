@@ -8,7 +8,7 @@
 var PhongController = (function() {
   return Jax.Controller.create("phong", ApplicationController, {
     index: function() {
-      var custom_material = new Jax.Material({shininess:128});
+      var custom_material = new Jax.Material({shininess:128,ambient:[0.05,0.05,0.05,1]});
       
       this.world.addObject(new Jax.Model({
         mesh: new Jax.Mesh.Teapot({size:10, material:custom_material})
@@ -49,6 +49,7 @@ var PhongController = (function() {
           specular: [0.75,0,0,1]
         }
       }));
+      
       this.world.addLightSource(new Jax.Scene.LightSource({
         enabled:true,
         position:[0,20,1],
@@ -66,13 +67,13 @@ var PhongController = (function() {
         }
       }));
       
-      this.player.camera.move(-10);
+      this.player.camera.move(-20);
     },
     
     update: function(timechange) {
       var lt = this.context.world.lighting.getLight(0);
 
-      this.rotation_per_second = this.rotation_per_second || Math.PI/4.0; // 45 degrees per second
+      this.rotation_per_second = this.rotation_per_second || Math.PI/4; // 45 degrees per second
       this.tracker = this.tracker || 0;
       this.tracker++;
       
@@ -97,12 +98,17 @@ var PhongController = (function() {
     },
     
     mouse_moved: function(event) {
-      this.context.player.camera.rotate( this.context.mouse.diffy/50, 1, 0, 0);
-      this.context.player.camera.rotate(-this.context.mouse.diffx/50, 0, 1, 0);
+      var camera = this.world.getObject(0).camera;
+      
+      // for mouselook
+//      camera = this.context.player.camera;
+      
+      camera.rotate( this.context.mouse.diffy/75, 1, 0, 0);
+      camera.rotate(-this.context.mouse.diffx/75, 0, 1, 0);
     },
     
     mouse_dragged: function(event) {
-      this.context.player.camera.move(0.25, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
+      this.context.player.camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
     }
   });
 })();

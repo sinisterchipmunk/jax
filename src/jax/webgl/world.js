@@ -4,7 +4,7 @@ Jax.World = (function() {
   return Jax.Class.create({
     initialize: function(context) {
       this.context  = context;
-      this.lighting = new Jax.Scene.LightManager();
+      this.lighting = new Jax.Scene.LightManager(context);
       this.objects  = [];
     },
     
@@ -35,7 +35,7 @@ Jax.World = (function() {
       */
         (o = this.objects.pop());// && o.dispose();
       
-      this.lighting = new Jax.Scene.LightManager();
+      this.lighting = new Jax.Scene.LightManager(this.context);
     }
   });
 })();

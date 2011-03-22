@@ -2,7 +2,8 @@
 
 Jax.Scene.LightManager = (function() {
   return Jax.Class.create({
-    initialize: function() {
+    initialize: function(context) {
+      this.context = context;
       this._lights = [];
     },
     
@@ -36,19 +37,36 @@ Jax.Scene.LightManager = (function() {
       return result;
     },
     
+    /*
+      shading is done in eye space, but the mv matrix represents object space. So if we return the lights
+      in world space, they'll be converted to object space. Instead we need to convert the return value to
+      a more usable value, such that when it is multiplied by object space, the result is in world space.
+     */
+    getDirection: function(index) {
+      var result = this._lights[index] ? this._lights[index].getDirection() : vec3.normalize([-1,0,-1]);
+      if (this.context) {
+        result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
+      }
+      return result;
+    },
+    
+    getPosition: function(lightIndex) {
+      var result = this._lights[lightIndex] ? this._lights[lightIndex].getPosition() : [0,0,0];
+      if (this.context) {
+        result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
+      }
+      return result;
+    },
+    
     getLight: function(index) { return this._lights[index]; },
     
     getType: function(index) { return this._lights[index] ? this._lights[index].getType() : Jax.SPOT_LIGHT; },
-    
-    getDirection: function(index) { return this._lights[index] ? this._lights[index].getDirection() : vec3.normalize([-1,0,-1]); },
     
     getDiffuseColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getDiffuseColor() : [0.6,0.6,0.6,1]; },
     
     getSpecularColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getSpecularColor() : [1,1,1,1]; },
     
     getAmbientColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getAmbientColor() : [0.1,0.1,0.1,1]; },
-    
-    getPosition: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getPosition() : [0,0,0]; },
     
     getConstantAttenuation: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getConstantAttenuation() : 0; },
     
