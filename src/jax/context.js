@@ -223,9 +223,9 @@ Jax.Context = (function() {
      **/
     getNormalMatrix: function() {
       // TODO: optimize
-      var mat = mat4.create();
-      mat4.inverse(this.getModelViewMatrix(), mat);
-      mat4.transpose(mat);
+      var mat = mat3.create();
+      mat4.toInverseMat3(this.getModelViewMatrix(), mat);
+      mat3.transpose(mat);
       return mat;
     },
 
