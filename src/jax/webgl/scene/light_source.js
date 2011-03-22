@@ -6,29 +6,42 @@ Jax.Scene.LightSource = (function() {
   return Jax.Model.create({
     initialize: function($super, data) {
       data = data || {};
-      data.enabled = typeof(data.enabled) == "undefined" ? true : data.enabled;
-      data.attenuation           = data.attenuation           || {};
-      data.attenuation.constant  = data.attenuation.constant  || 0;
-      data.attenuation.linear    = data.attenuation.linear    || 0;
-      data.attenuation.quadratic = data.attenuation.quadratic || 0.001;
-      data.position = data.position || [0,0,0];
-      data.ambient  = data.ambient  || [0,0,0,1];
-      data.diffuse  = data.diffuse  || [1,1,1,1];
-      data.specular = data.specular || [1,1,1,1];
-      data.type = data.type || Jax.POINT_LIGHT;
+      data.attenuation = data.attenuation || {};
+      data.color = data.color || {};
+
+      function default_field(name, value, obj) {
+        obj = obj || data;
+        if (typeof(obj[name]) == "undefined")
+          obj[name] = value;
+      }
+      
+      default_field('enabled', true);
+      default_field('type', Jax.POINT_LIGHT);
+      default_field('ambient', [0,0,0,1], data.color);
+      default_field('diffuse', [1,1,1,1], data.color);
+      default_field('specular', [1,1,1,1],data.color);
+      default_field('position', [0,0,0]);
+      default_field('direction', [-1,-1,-1]);
+      default_field('angle', Math.PI/6);
+      default_field('spotExponent', 0);
       
       $super(data);
     },
     
-    getType: function() { return this.type; },
-    getDirection: function() { return this.camera.getViewVector(); },
-    getDiffuseColor: function() { return this.diffuse; },
-    getAmbientColor: function() { return this.ambient; },
-    getSpecularColor: function() { return this.specular; },
     getPosition: function() { return this.camera.getPosition(); },
+    getDirection: function() { return this.camera.getViewVector(); },
+
+    isEnabled: function() { return this.enabled; },
+    getType: function() { return this.type; },
+
+    getDiffuseColor: function() { return this.color.diffuse; },
+    getAmbientColor: function() { return this.color.ambient; },
+    getSpecularColor: function() { return this.color.specular; },
     getConstantAttenuation: function() { return this.attenuation.constant; },
     getQuadraticAttenuation: function() { return this.attenuation.quadratic; },
     getLinearAttenuation: function() { return this.attenuation.linear; },
-    isEnabled: function() { return this.enabled; }
+    getAngle: function() { return this.angle; },
+    getSpotExponent: function() { return this.spotExponent; },
+    getSpotCosCutoff: function() { return Math.cos(this.angle); }
   });
 })();

@@ -12,6 +12,8 @@ Jax.World = (function() {
     
     addObject: function(object) { this.objects.push(object); return object; },
     
+    getObject: function(index) { return this.objects[index]; },
+    
     render: function() {
       for (var i = 0; i < this.objects.length; i++)
         this.objects[i].render(this.context);
