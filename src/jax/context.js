@@ -88,7 +88,8 @@ Jax.Context = (function() {
 
     // the modelview matrix is actually the inverse of the model (world space transform) matrix.
     // TODO rename the modelview functions accordingly, since they're really just model matrices
-    mat4.inverse(self.matrices[self.matrix_depth]);
+    mat4.inverse(self.matrices.mv[self.matrix_depth]);
+    mat4.identity(self.matrices.world[self.matrix_depth]);
   }
   
   return Jax.Class.create({
@@ -109,8 +110,9 @@ Jax.Context = (function() {
       this.player = {camera: new Jax.Camera()};
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
       
-      this.matrices = [mat4.create()];
-      mat4.set(this.player.camera.getModelViewMatrix(), this.matrices[0]);
+//      this.matrices = [mat4.create()];
+      this.matrices = { mv: [mat4.create()], world: [mat4.create()] };
+      mat4.set(this.player.camera.getModelViewMatrix(), this.matrices.mv[0]);
       this.matrix_depth = 0;
       
       if (Jax.routes.isRouted("/"))
@@ -182,16 +184,31 @@ Jax.Context = (function() {
     },
     
     pushMatrix: function(yield_to) {
-      var current = this.getModelViewMatrix();
+      var current_mv = this.getModelViewMatrix();
+      var current_ws = this.getWorldSpaceMatrix();
       this.matrix_depth++;
-      if (!this.matrices[this.matrix_depth]) this.matrices[this.matrix_depth] = mat4.create();
-      mat4.set(current, this.matrices[this.matrix_depth]);
+      if (!this.matrices.mv[this.matrix_depth]) {
+        this.matrices.mv[this.matrix_depth] = mat4.create();
+        this.matrices.world[this.matrix_depth] = mat4.create();
+      }
+      mat4.set(current_mv, this.matrices.mv[this.matrix_depth]);
+      mat4.set(current_ws, this.matrices.world[this.matrix_depth]);
       yield_to();
       this.matrix_depth--;
     },
     
     multMatrix: function(matr) {
       mat4.multiply(this.getModelViewMatrix(), matr);
+      mat4.multiply(this.getWorldSpaceMatrix(), mat4.inverse(matr, mat4.create())); 
+    },
+    
+    /**
+     * Jax.Context#getWorldSpaceMatrix() -> mat4
+     * Returns the world space matrix. A vector multiplied by this matrix will be transformed
+     * into world space regardless of the current matrix transformations.
+     **/
+    getWorldSpaceMatrix: function(matr) {
+      return this.matrices.world[this.matrix_depth];
     },
     
     /**
@@ -209,7 +226,7 @@ Jax.Context = (function() {
      * Jax.Context#getModelViewMatrix() -> Matrix
      * Returns the current modelview matrix.
      **/
-    getModelViewMatrix: function() { return this.matrices[this.matrix_depth]; },
+    getModelViewMatrix: function() { return this.matrices.mv[this.matrix_depth]; },
     
     /**
      * Jax.Context#getProjectionMatrix() -> Matrix
