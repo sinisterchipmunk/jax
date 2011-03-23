@@ -49,11 +49,12 @@ Jax.Mesh = (function() {
   }
   
   function normalizeRenderOptions(self, options) {
-    options = options || {};
-    options.material = findMaterial(options.material || self.material);
-    options.draw_mode = options.draw_mode || self.draw_mode || GL_TRIANGLES;
+    var result = {};
+    options = options || result;
+    result.material = findMaterial(options.material || self.material);
+    result.draw_mode = options.draw_mode || self.draw_mode || GL_TRIANGLES;
 
-    return options;
+    return result;
   }
   
   function calculateBounds(self, vertices) {
