@@ -50,10 +50,10 @@ Jax.Mesh.Quad = (function() {
     init: function(verts, colors, textureCoords, normals) {
       var width = this.width/2, height = this.height/2;
       
-      verts.push(-width, -height, 0);
       verts.push(-width,  height, 0);
-      verts.push( width, -height, 0);
+      verts.push(-width, -height, 0);
       verts.push( width,  height, 0);
+      verts.push( width, -height, 0);
 
       colors.push(1,1,1,1);
       colors.push(1,1,1,1);
