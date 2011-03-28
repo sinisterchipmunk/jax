@@ -1,176 +1,116 @@
 Jax.shader_program_builders['blinn-phong'] = (function() {
-  function defineLightVariables(options) {
-    var s = [];
-    for (var i = 0; i < options.light_count; i++) {
-      s.push(
-            /* light uniforms */
-            'uniform int lightType'+i+';',
-            'uniform vec3 lightDirection'+i+', lightPosition'+i+', lightHalfVector'+i+';',
-            'uniform vec4 lightDiffuse'+i+', lightAmbient'+i+', lightSpecular'+i+';',
-            'uniform float lightConstantAttenuation'+i+', lightLinearAttenuation'+i+', lightQuadraticAttenuation'+i+',',
-                          'lightSpotCosCutoff'+i+', lightSpotExponent'+i+';',
-            'uniform bool lightEnabled'+i+';',
-            '',
-            /* light-specific varying */
-            'varying vec3 lightDir'+i+', halfVector'+i+', spotlightDirection'+i+';',
-            'varying vec4 diffuse'+i+';',
-            'varying float dist'+i+';',
-            ''
-      );
-    }
-    return s.join("\n");
-  }
-  
-  function vertexLightCalculations(options) {
-    var s = ['if (lightingEnabled) {'];
-    for (var i = 0; i < options.light_count; i++) {
-      s.push(
-              'if (lightEnabled'+i+') {',
-                'if (lightType'+i+' == '+Jax.DIRECTIONAL_LIGHT+') {',
-                  /* now normalize the light's direction. Note that it must be converted to eye space. */
-                  'lightDir'+i+' = normalize(vec3(nMatrix * -lightDirection'+i+'));',
-                '} else {',
-                  'aux = vec3(mvMatrix * vec4(lightPosition'+i+', 1));',
-                  'aux = vec3(aux - eyePosition.xyz);',
-                  'lightDir'+i+' = normalize(aux);',
-                  'dist'+i+' = length(aux);',
-                '}',
-              
-                /* if it's a spotlight, calculate spotlightDirection */
-                'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') {',
-                  'spotlightDirection'+i+' = normalize(vec3(nMatrix * lightDirection'+i+'));',
-                '}',
-              
-                'halfVector'+i+' = normalize(eyeVector+lightDir'+i+');',
-                'diffuse'+i+' = materialDiffuse * lightDiffuse'+i+';',
-              '}',
-              ''
-      );
-    }
-    s.push('}');
-    return s.join("\n");
+  function defs(options) {
+    return [
+      /* matrix uniforms */
+      'uniform mat4 mvMatrix, pMatrix;',
+      'uniform mat3 nMatrix;',
+      
+      /* material uniforms */
+      'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
+      'uniform float materialShininess;',
+            
+      'uniform int PASS_TYPE;',
+            
+      /* light uniforms */
+      'uniform vec3 LIGHT_DIRECTION, LIGHT_POSITION;',
+      'uniform vec4 LIGHT_SPECULAR, LIGHT_AMBIENT, LIGHT_DIFFUSE;',
+      'uniform bool LIGHT_ENABLED;',
+      'uniform int LIGHT_TYPE;',
+      'uniform float SPOTLIGHT_COS_CUTOFF, SPOTLIGHT_EXPONENT, LIGHT_ATTENUATION_CONSTANT, LIGHT_ATTENUATION_LINEAR,',
+                    'LIGHT_ATTENUATION_QUADRATIC;',
+
+      'varying vec3 vNormal, vLightDir, vSpotlightDirection;',
+      'varying vec4 vBaseColor;',
+      'varying float vDist;',
+            
+      ''
+    ].join("\n");
   }
   
   function buildVertexSource(options) {
     var s = [
-            'uniform bool lightingEnabled;',
+      defs(options),
             
-            /* matrix uniforms */
-            'uniform mat4 mvMatrix, pMatrix;',
-            'uniform mat3 nMatrix;',
-            
-            /* material uniforms */
-            'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
-            'uniform float materialShininess;',
-
-            defineLightVariables(options),
-                                          
-            /* attributes */
-            'attribute vec3 vertexPosition, vertexNormal;',
-            'attribute vec4 vertexColor;',
-                  
-            'varying vec3 normal;',
-            'varying vec4 baseColor;',
-            
-            'void main() {',
-              'vec4 eyePosition;',
-              'vec3 eyeVector, aux;',
-            
-              /* get the eye vector from the vertex position to the eye (camera) position */
-              'eyePosition = mvMatrix * vec4(vertexPosition, 1);',
-              'eyeVector = -normalize(eyePosition.xyz);',
-                  
-              /* transform the normal into eye space and normalize the result */
-              'normal = normalize(vec3(nMatrix * vertexNormal));',
-            
-              vertexLightCalculations(options),
-                       
-              'baseColor = vertexColor;',
-              'gl_Position = pMatrix * mvMatrix * vec4(vertexPosition, 1);',
-            '}'
-    ];
-    return s;
-  }
-  
-  function fragmentLightCalculations(options) {
-    var s = ['if (lightingEnabled) {'];
-    for (var i = 0; i < options.light_count; i++) {
-      s.push(
-        'if (lightEnabled'+i+') {',
-          /*
-            compute the cos of the angle between the normal and light directions.
-            The light is directional so the direction is constant for every vertex.
-            Since these are normalized the cosine is the dot product. We also need
-            to clamp to the [0,1] range.
-           */
-          'NdotL = max(dot(n, normalize(lightDir'+i+')), 0.0);',
-        
-          /* TODO: it feels like all these conditions could be optimized a bit */
-          'if (lightType'+i+' != '+Jax.SPOT_LIGHT+' || ',
-            '(spotEffect = dot(normalize(spotlightDirection'+i+'), normalize(-lightDir'+i+'))) > lightSpotCosCutoff'+i+'',
-          ') {',
-            'if (lightType'+i+' != '+Jax.DIRECTIONAL_LIGHT+') {',
-              'if (lightType'+i+' == '+Jax.SPOT_LIGHT+') { att = pow(spotEffect, lightSpotExponent'+i+'); }',
-              'else { att = 1.0; }',
-        
-              'att = att / (lightConstantAttenuation'+i+' ',
-                         '+ lightLinearAttenuation'+i+' * dist'+i,
-                         '+ lightQuadraticAttenuation'+i+' * dist'+i+' * dist'+i+');',
-            '} else { att = 1.0; }',
+      /* attributes */
+      'attribute vec4 VERTEX_POSITION, VERTEX_COLOR;',
+      'attribute vec3 VERTEX_NORMAL;',
       
-            'if (NdotL > 0.0) {',
-              'final_color += att * (diffuse'+i+' * NdotL + lightAmbient'+i+');',
-          
-              /* normalize the half-vector, then compute the cosine (dot product) with the normal */
-              'halfV = normalize(halfVector'+i+');',
-              'NdotHV = max(dot(n, halfV), 0.0);',
-              'final_color += att * materialSpecular * lightSpecular'+i+' * pow(NdotHV, materialShininess);',
-            '} else { final_color += att * lightAmbient'+i+'; }',
+      'void main() {',
+        'vBaseColor = VERTEX_COLOR;',
+        'vNormal = nMatrix * VERTEX_NORMAL;',
+            
+        /* if it's an ambient pass, then we don't even care about light information */
+        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
+          'if (LIGHT_TYPE == '+Jax.DIRECTIONAL_LIGHT+') {',
+            'vLightDir = normalize(nMatrix * -LIGHT_DIRECTION);',
+          '} else {',
+            'vec3 vec = (mvMatrix*vec4(LIGHT_POSITION,1)).xyz - (mvMatrix * VERTEX_POSITION).xyz;',
+            'vLightDir = normalize(vec);',
+            'vDist = length(vec);',
+          '}',
+            
+          /* if it's a spotlight, calculate spotlightDirection */
+          'if (LIGHT_TYPE == '+Jax.SPOT_LIGHT+') {',
+            'vSpotlightDirection = normalize(nMatrix * LIGHT_DIRECTION);',
           '}',
         '}',
-        ''
-      );
-    }
-    s.push('}');
-    return s.join("\n");
+            
+        'gl_Position = pMatrix * mvMatrix * vec4(VERTEX_POSITION.xyz, 1);',
+      '}'
+    ];
+    return s;
   }
   
   function buildFragmentSource(options) {
     var s = [
-            'uniform bool lightingEnabled;',
+      defs(options),
             
-            /* material uniforms */
-            'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
-            'uniform float materialShininess;',
+      'void main() {',
+        'vec4 final_color = vec4(0,0,0,0);',
+        'float spotEffect, att = 1.0;',
+            
+        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
+          'if (LIGHT_ENABLED) {',
+            'vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);',
+            'vec3 halfVector = normalize(nLightDir + vec3(0.0,0.0,1.0));',
+            'float NdotL = max(dot(nNormal, nLightDir), 0.0);',
 
-            defineLightVariables(options),
-            
-            /* varying */
-            'varying vec3 normal;',
-            'varying vec4 baseColor;',
-
-            'void main() {',
-              'vec4 final_color = materialAmbient;',
-              'float NdotL, NdotHV, att, spotEffect;',
-              'vec3 n = normalize(normal), halfV;',
-            
-              fragmentLightCalculations(options),
-            
-              'gl_FragColor = final_color * baseColor;',
-            '}'
+            'if (LIGHT_TYPE != '+Jax.SPOT_LIGHT+' || ',
+              '(spotEffect = dot(normalize(vSpotlightDirection), -nLightDir)) > SPOTLIGHT_COS_CUTOFF',
+            ') {',
+              'if (LIGHT_TYPE != '+Jax.DIRECTIONAL_LIGHT+') {',
+                'if (LIGHT_TYPE == '+Jax.SPOT_LIGHT+') { att = pow(spotEffect, SPOTLIGHT_EXPONENT); }',
+              
+                'att = att / (LIGHT_ATTENUATION_CONSTANT ',
+                           '+ LIGHT_ATTENUATION_LINEAR * vDist',
+                           '+ LIGHT_ATTENUATION_QUADRATIC * vDist * vDist);',
+              '}',
+              
+              'final_color += att * LIGHT_AMBIENT;',
+              'if (NdotL > 0.0) {',
+                'float NdotHV = max(dot(nNormal, halfVector), 0.0);',
+                'final_color += att * NdotL * materialDiffuse * LIGHT_DIFFUSE;', /* diffuse */
+                'final_color += att * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);', /* specular */
+              '}',
+            '}',
+          '}',
+        '} else {',
+          'final_color += materialAmbient * vBaseColor;',
+        '}',
+        'gl_FragColor = final_color;',
+      '}'
     ];
     return s;
   }
-  
+      
   return function(options) {
-    var result = {
-      supports_shadows: true,
+    return {
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       attributes: {
-        vertexPosition: function(context, mesh) { return mesh.getVertexBuffer(); },
-        vertexColor   : function(context, mesh) { return mesh.getColorBuffer();  },
-        vertexNormal  : function(context, mesh) { return mesh.getNormalBuffer(); }
+        VERTEX_POSITION: function(context, mesh) { return mesh.getVertexBuffer(); },
+        VERTEX_COLOR   : function(context, mesh) { return mesh.getColorBuffer();  },
+        VERTEX_NORMAL  : function(context, mesh) { return mesh.getNormalBuffer(); }
       },
       uniforms: {
         mvMatrix: { type: "glUniformMatrix4fv", value: function(context) { return context.getModelViewMatrix();  } },
@@ -182,33 +122,21 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         materialSpecular: { type: "glUniform4fv", value: function(context) { return options.specular || [1,1,1,1]; } },
         materialShininess: { type: "glUniform1f", value: function(context) { return options.shininess || 0; } },
         
-        lightingEnabled: { type: "glUniform1i", value: function(context) { return context.world.lighting.isEnabled(); } }
+        PASS_TYPE: {type:"glUniform1i",value:function(c,m){return c.current_pass||Jax.Scene.AMBIENT_PASS;}},
+        
+        LIGHT_ENABLED: {type:"glUniform1i",value:function(c,m){return c.world.lighting.getLight().isEnabled();}},
+        LIGHT_DIRECTION: {type:"glUniform3fv", value:function(c,m){return c.world.lighting.getDirection();}},
+        LIGHT_POSITION:  {type:"glUniform3fv", value:function(c,m){return c.world.lighting.getPosition();}},
+        LIGHT_TYPE: {type:"glUniform1i",value:function(c,m){return c.world.lighting.getType();}},
+        LIGHT_SPECULAR:{type:"glUniform4fv",value:function(c,m){return c.world.lighting.getSpecularColor(); } },
+        LIGHT_AMBIENT: {type:"glUniform4fv",value:function(c,m){return c.world.lighting.getAmbientColor(); } },
+        LIGHT_DIFFUSE: {type:"glUniform4fv",value:function(c,m){return c.world.lighting.getDiffuseColor(); } },
+        SPOTLIGHT_COS_CUTOFF: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getSpotCosCutoff(); } },
+        SPOTLIGHT_EXPONENT: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getSpotExponent(); } },
+        LIGHT_ATTENUATION_CONSTANT: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getConstantAttenuation();}},
+        LIGHT_ATTENUATION_LINEAR: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getLinearAttenuation();}},
+        LIGHT_ATTENUATION_QUADRATIC: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getQuadraticAttenuation();}}
       }
     };
-    
-    for (var i = 0; i < options.light_count; i++) {
-      result.uniforms['lightDirection'+i] = { i:i,type:"glUniform3fv",value:function(c){return c.world.lighting.getDirection(this.i);}};
-      result.uniforms['lightHalfVector'+i] = { i:i,type:"glUniform4fv",value:function(c){
-        { return vec3.normalize(vec3.add(c.player.camera.getPosition(), c.world.lighting.getDirection(this.i), vec3.create())); }
-      }};
-      
-      result.uniforms['lightPosition'+i] = {i:i,type:"glUniform3fv",value:function(c){return c.world.lighting.getPosition(this.i);}};
-
-      result.uniforms['lightDiffuse'+i] = {i:i,type:"glUniform4fv",value:function(c){return c.world.lighting.getDiffuseColor(this.i); } };
-      result.uniforms['lightAmbient'+i] = {i:i,type:"glUniform4fv",value:function(c){return c.world.lighting.getAmbientColor(this.i); } };
-      result.uniforms['lightSpecular'+i] = {i:i,type:"glUniform4fv",value:function(c){return c.world.lighting.getSpecularColor(this.i); } };
-
-      result.uniforms['lightType'+i] = {i:i,type:"glUniform1i", value: function(ctx) { return ctx.world.lighting.getType(this.i); } };
-
-      result.uniforms['lightConstantAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getConstantAttenuation(this.i); } };
-      result.uniforms['lightLinearAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getLinearAttenuation(this.i); } };
-      result.uniforms['lightQuadraticAttenuation'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getQuadraticAttenuation(this.i); } };
-      result.uniforms['lightSpotCosCutoff'+i] = {i:i,type:"glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotCosCutoff(this.i); } };
-      result.uniforms['lightSpotExponent'+i] = {i:i,type: "glUniform1f", value: function(ctx) { return ctx.world.lighting.getSpotExponent(this.i); } };
-      
-      result.uniforms['lightEnabled'+i] = {i:i,type:"glUniform1i",value: function(c){return c.world.lighting.isEnabled(this.i); } };
-    }
-    
-    return result;
-  };
+  }
 })();
