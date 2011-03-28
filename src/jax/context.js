@@ -28,7 +28,7 @@
  **/
 Jax.Context = (function() {
   function setupContext(self) {
-    try { self.gl = self.canvas.getContext(WEBGL_CONTEXT_NAME); } catch(e) { }
+    try { self.gl = self.canvas.getContext(WEBGL_CONTEXT_NAME, WEBGL_CONTEXT_OPTIONS); } catch(e) { }
     if (!self.gl) throw new Error("WebGL could not be initialized!");
   }
   
@@ -85,6 +85,7 @@ Jax.Context = (function() {
   
   function reloadMatrices(self) {
     mat4.set(self.player.camera.getModelViewMatrix(), self.getModelViewMatrix());
+    mat4.set(self.player.camera.getProjectionMatrix(), self.getProjectionMatrix());
 
     // the modelview matrix is actually the inverse of the model (world space transform) matrix.
     // TODO rename the modelview functions accordingly, since they're really just model matrices
@@ -111,14 +112,19 @@ Jax.Context = (function() {
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
       
 //      this.matrices = [mat4.create()];
-      this.matrices = { mv: [mat4.create()], world: [mat4.create()] };
+      this.matrices = { mv: [mat4.create()], world: [mat4.create()], p: [mat4.create()] };
       mat4.set(this.player.camera.getModelViewMatrix(), this.matrices.mv[0]);
+      mat4.set(this.player.camera.getProjectionMatrix(), this.matrices.p[0]);
       this.matrix_depth = 0;
       
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
       
       startUpdating(this);
+    },
+    
+    hasStencil: function() {
+      return !!this.gl.stencil;
     },
 
     /**
@@ -186,13 +192,16 @@ Jax.Context = (function() {
     pushMatrix: function(yield_to) {
       var current_mv = this.getModelViewMatrix();
       var current_ws = this.getWorldSpaceMatrix();
+      var current_pr = this.getProjectionMatrix();
       this.matrix_depth++;
       if (!this.matrices.mv[this.matrix_depth]) {
         this.matrices.mv[this.matrix_depth] = mat4.create();
         this.matrices.world[this.matrix_depth] = mat4.create();
+        this.matrices.p[this.matrix_depth] = mat4.create();
       }
       mat4.set(current_mv, this.matrices.mv[this.matrix_depth]);
       mat4.set(current_ws, this.matrices.world[this.matrix_depth]);
+      mat4.set(current_pr, this.matrices.p[this.matrix_depth]);
       yield_to();
       this.matrix_depth--;
     },
@@ -232,7 +241,7 @@ Jax.Context = (function() {
      * Jax.Context#getProjectionMatrix() -> Matrix
      * Returns the current projection matrix.
      **/
-    getProjectionMatrix: function() { return this.player.camera.getProjectionMatrix(); },
+    getProjectionMatrix: function() { return this.matrices.p[this.matrix_depth]; },
 
     /**
      * Jax.Context#getNormalMatrix() -> Matrix

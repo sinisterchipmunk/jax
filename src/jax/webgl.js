@@ -7,6 +7,7 @@ within Jax.Context.
 //= require "vendor/glMatrix-0.9.5"
 
 window['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
+window['WEBGL_CONTEXT_OPTIONS'] = {stencil:true};
 window['GL_METHODS'] = {};
 
 (function() {
