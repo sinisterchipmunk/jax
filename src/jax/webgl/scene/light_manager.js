@@ -24,7 +24,7 @@ Jax.Scene.LightManager = (function() {
         return false;
       }
       
-      if (typeof(this.enabled) != "undefined")
+      if (this.enabled != undefined)
         return this.enabled;
       return this._lights.length > 0;
     },
@@ -37,45 +37,61 @@ Jax.Scene.LightManager = (function() {
       return result;
     },
     
+    illuminate: function(context, objects) {
+      for (var i = 0; i < this._lights.length; i++) {
+        this._current_light = i;
+        for (var j = 0; j < objects.length; j++) {
+          /* TODO optimization: see if objects[j] is even affected by this._lights[i] */
+          objects[j].render(context);
+        }
+      }
+      delete this._current_light;
+    },
+    
     /*
       shading is done in eye space, but the mv matrix represents object space. So if we return the lights
       in world space, they'll be converted to object space. Instead we need to convert the return value to
       a more usable value, such that when it is multiplied by object space, the result is in world space.
      */
     getDirection: function(index) {
-      var result = this._lights[index] ? this._lights[index].getDirection() : vec3.normalize([-1,0,-1]);
+      var result = this.getLight(index).getDirection();
       if (this.context) {
         result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
       }
       return result;
     },
     
-    getPosition: function(lightIndex) {
-      var result = this._lights[lightIndex] ? this._lights[lightIndex].getPosition() : [0,0,0];
+    getPosition: function(index) {
+      var result = this.getLight(index).getPosition();
       if (this.context) {
         result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
       }
       return result;
     },
     
-    getLight: function(index) { return this._lights[index]; },
+    getLight: function(index) {
+      if (index == undefined)
+        if (this._current_light != undefined) return this._lights[this._current_light];
+        else return (this.default_light = this.default_light || new Jax.Scene.LightSource());
+      return this._lights[index];
+    },
     
-    getType: function(index) { return this._lights[index] ? this._lights[index].getType() : Jax.SPOT_LIGHT; },
+    getType: function(index) { return this.getLight(index).getType(); },
     
-    getDiffuseColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getDiffuseColor() : [0.6,0.6,0.6,1]; },
+    getDiffuseColor: function(index) { return this.getLight(index).getDiffuseColor(); },
     
-    getSpecularColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getSpecularColor() : [1,1,1,1]; },
+    getSpecularColor: function(index) { return this.getLight(index).getSpecularColor(); },
     
-    getAmbientColor: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getAmbientColor() : [0.1,0.1,0.1,1]; },
+    getAmbientColor: function(index) { return this.getLight(index).getAmbientColor(); },
     
-    getConstantAttenuation: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getConstantAttenuation() : 0; },
+    getConstantAttenuation: function(index) { return this.getLight(index).getConstantAttenuation(); },
     
-    getLinearAttenuation: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getLinearAttenuation() : 0.1; },
+    getLinearAttenuation: function(index) { return this.getLight(index).getLinearAttenuation(); },
                                                                                                                                   
-    getQuadraticAttenuation: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getQuadraticAttenuation() : 0.0002; },
+    getQuadraticAttenuation: function(index) { return this.getLight(index).getQuadraticAttenuation(); },
     
-    getSpotCosCutoff: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getSpotCosCutoff() : 0.1; },
+    getSpotCosCutoff: function(index) { return this.getLight(index).getSpotCosCutoff(); },
     
-    getSpotExponent: function(lightIndex) { return this._lights[lightIndex] ? this._lights[lightIndex].getSpotExponent() : 0; }
+    getSpotExponent: function(index) { return this.getLight(index).getSpotExponent(); }
   });
 })();

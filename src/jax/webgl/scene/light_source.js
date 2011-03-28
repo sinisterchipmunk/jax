@@ -24,6 +24,9 @@ Jax.Scene.LightSource = (function() {
       default_field('direction', [-1,-1,-1]);
       default_field('angle', Math.PI/6);
       default_field('spotExponent', 0);
+      default_field('constant', 0, data.attenuation);
+      default_field('linear', 0.02, data.attenuation);
+      default_field('quadratic', 0, data.attenuation);
       
       $super(data);
     },
