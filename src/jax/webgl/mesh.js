@@ -197,6 +197,10 @@ Jax.Mesh = (function() {
      * Jax.Mesh#getNormalBuffer() -> Jax.NormalBuffer
      **/
     getNormalBuffer: function() { ensureBuilt(this); return this.buffers.normal_buffer; },
+    /**
+     * Jax.Mesh#getTextureCoordsBuffer() -> Jax.TextureCoordsBuffer
+     **/
+    getTextureCoordsBuffer: function() { ensureBuilt(this); return this.buffers.texture_coords; },
 
     /**
      * Jax.Mesh#isValid() -> Boolean
@@ -245,6 +249,7 @@ Jax.Mesh = (function() {
       if (colors.length > 0) this.buffers.color_buffer = new Jax.ColorBuffer(colors);
       if (indices.length> 0) this.buffers.index_buffer = new Jax.ElementArrayBuffer(indices);
       if (normals.length> 0) this.buffers.normal_buffer= new Jax.NormalBuffer(normals);
+      if (textureCoords.length > 0) this.buffers.texture_coords = new Jax.TextureCoordsBuffer(textureCoords);
       
       this.built = true;
 
