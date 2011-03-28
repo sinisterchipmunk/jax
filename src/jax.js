@@ -4,6 +4,7 @@
  **/
 var Jax = { };
 
+//= require "jax/math"
 //= require "jax/vendor/glMatrix-0.9.5"
 //= require "jax/core"
 //= require "jax/anim_frame"
