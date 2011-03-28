@@ -13,16 +13,23 @@ Jax.Mesh.Plane = Jax.Class.create(Jax.Mesh, {
     var w = this.width, d = this.depth, x_seg = this.x_segments, z_seg = this.z_segments;
     
     var x_unit = w / x_seg, z_unit = d / z_seg;
-    for (var x = 1; x < x_seg; x++) {
-      for (var i = -1; i < 2; i += 2) {
-        for (var z = (i == -1 ? 0 : z_seg-1); z < z_seg && z >= 0; z += i) {
-          var vx = x_unit * x;
-          var vz = z_unit * z;
-          verts.push(vx-w/2, 0, vz-d/2);
-          norms.push(0,1,0);
-          verts.push(vx-x_unit-w/2, 0, vz-d/2);
-          norms.push(0,1,0);
-        }
+    var x, z, vx, vz;
+
+    for (x = 1; x < x_seg; x++) {
+      for (z = 0; z < z_seg; z++) {
+          vx = x_unit * x - w / 2;
+          vz = z_unit * z - d / 2;
+          verts.push(vx,        0, vz);
+          verts.push(vx-x_unit, 0, vz);
+          norms.push(0,1,0,  0,1,0);
+      }
+
+      for (z = z_seg-1; z >= 0; z--) {
+          vx = x_unit * x - w / 2;
+          vz = z_unit * z - d / 2;
+          verts.push(vx-x_unit, 0, vz);
+          verts.push(vx, 0, vz);
+          norms.push(0,1,0,  0,1,0);
       }
     }
   }
