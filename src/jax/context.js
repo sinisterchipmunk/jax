@@ -95,6 +95,8 @@ Jax.Context = (function() {
   
   return Jax.Class.create({
     initialize: function(canvas) {
+      if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
+      if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
       this.id = ++Jax.Context.identifier;
       this.canvas = canvas;
       setupContext(this);
