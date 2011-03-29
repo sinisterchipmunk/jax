@@ -40,15 +40,25 @@
        * Renders this model with the given context. If the model doesn't have a mesh,
        * nothing is rendered.
        **/
-      render: function(context) {
+      render: function(context, options) {
         if (this.mesh)
         {
           var self = this;
           context.pushMatrix(function() {
             context.multMatrix(self.camera.getModelViewMatrix());
-            self.mesh.render(context);
+            self.mesh.render(context, options);
           });
         }
+      },
+      
+      getBoundingCube: function() {
+        if (!this.mesh.built) this.mesh.rebuild();
+        return this.mesh.bounds;
+      },
+      
+      getBoundingSphereRadius: function() {
+        var b = this.getBoundingCube();
+        return Math.max(b.width, Math.max(b.height, b.depth));
       },
       
       dispose: function() {
