@@ -1,3 +1,6 @@
+//= require "core/math"
+//= require "core/util"
+
 // a global debugAssert method that will do nothing in production, and fail if expr is false
 // in any other run mode. If msg is given, an error with that message is raised. Otherwise,
 // a more generic error is raised.
@@ -9,10 +12,6 @@ window.debugAssert = function(expr, msg) {
     throw error;
   }
 };
-
-// If an epsilon isn't defined, define it. This is used for fuzzy equality with floats,
-// because of floating point imprecision.
-Math.EPSILON = Math.EPSILON || 0.00001;
 
 // If glMatrixArrayType isn't simply Array, then most browsers (FF, Chrome) have a pretty
 // crappy implementation of toString() that actually tells you nothing about the array's
