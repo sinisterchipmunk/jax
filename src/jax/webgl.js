@@ -79,3 +79,4 @@ window['GL_METHODS'] = {};
 //= require "webgl/mesh"
 //= require "webgl/camera"
 //= require "webgl/world"
+//= require "webgl/texture"
