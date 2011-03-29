@@ -12,6 +12,17 @@ describe("Jax.Util", function() {
   
   describe("normalizeOptions", function() {
     var normalized;
+    describe("with a missing default array", function() {
+      var arr = [1,2,3];
+      beforeEach(function() { normalized = Jax.Util.normalizeOptions(null, {def:arr}); });
+      
+      it("should copy the default array", function() {
+        expect(normalized.def.length).toEqual(arr.length);
+        for (var i = 0; i < arr.length; i++)
+          expect(normalized.def[i]).toEqual(arr[i]);
+      });
+    });
+    
     describe("with a function value that defaults to null", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({onload:function(){}}, {onload:null}); });
       
