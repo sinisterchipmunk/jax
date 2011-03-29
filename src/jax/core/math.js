@@ -1,3 +1,7 @@
+// If an epsilon isn't defined, define it. This is used for fuzzy equality with floats,
+// because of floating point imprecision.
+Math.EPSILON = Math.EPSILON || 0.00001;
+
 /**
  * Math
  * Defines math-related helper functions.
