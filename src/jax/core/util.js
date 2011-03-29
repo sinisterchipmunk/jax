@@ -11,11 +11,18 @@ Jax.Util = {
    **/
   merge: function(src, dst) {
     if (!src) return;
-    for (var i in src) {
+    var i;
+
+    function doComparison(i) {
       if (src[i] == null) dst[i] = null;
+      else if (Object.isArray(src[i]))     Jax.Util.merge(src[i], dst[i] = dst[i] || []);
       else if (typeof(src[i]) == "object") Jax.Util.merge(src[i], dst[i] = dst[i] || {});
       else dst[i] = src[i];
     }
+    
+    if (Object.isArray(src)) for (i = 0; i < src.length; i++) doComparison(i);
+    else for (i in src) doComparison(i);
+
     return dst;
   },
   
