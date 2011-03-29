@@ -152,11 +152,15 @@ Jax.Texture = (function() {
       context.glPixelStorei(GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, this.options.colorspace_conversion ? GL_BROWSER_DEFAULT_WEBGL : GL_NONE);
       
       if (this.generate_mipmap) {
-        context.glHint(this.options.mipmap_hint);
-        context.glGenerateMipmap(this.options.target);
+        this.generateMipmap(context);
       }
       
       this.valid[context.id] = true;
+    },
+    
+    generateMipmap: function(context) {
+      context.glHint(this.options.mipmap_hint);
+      context.glGenerateMipmap(this.options.target);
     },
     
     invalidate: function() { this.valid.clear(); },
