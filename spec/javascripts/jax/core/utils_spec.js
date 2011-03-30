@@ -10,6 +10,31 @@ describe("Jax.Util", function() {
     });
   });
   
+  describe("sizeofFormat", function() {
+    it("should return size of ALPHA", function() { expect(Jax.Util.sizeofFormat(GL_ALPHA)).toEqual(1); });
+    it("should return size of LUMINANCE", function() { expect(Jax.Util.sizeofFormat(GL_LUMINANCE)).toEqual(1); });
+    it("should return size of RGB", function() { expect(Jax.Util.sizeofFormat(GL_RGB)).toEqual(3); });
+    it("should return size of RGBA", function() { expect(Jax.Util.sizeofFormat(GL_RGBA)).toEqual(4); });
+    it("should return size of LUMINANCE_ALPHA", function() { expect(Jax.Util.sizeofFormat(GL_LUMINANCE_ALPHA)).toEqual(2); });
+    it("should fail", function() { expect(function(){Jax.Util.sizeofFormat(-12345);}).toThrow(); });
+  });
+  
+  describe("enumName", function() {
+    it("should work", function() {
+      expect(Jax.Util.enumName(GL_TEXTURE_2D)).toEqual("GL_TEXTURE_2D");
+    });
+    
+    describe("failure", function() {
+      it("should contain the decimal form", function() {
+        expect(Jax.Util.enumName(36059)).toMatch(/36059/);
+      });
+
+      it("should contain the hex form", function() {
+        expect(Jax.Util.enumName(36059)).toMatch(/0x8cdb/);
+      });
+    });
+  });
+  
   describe("normalizeOptions", function() {
     var normalized;
     describe("with a missing default array", function() {
