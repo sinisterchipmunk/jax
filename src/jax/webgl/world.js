@@ -28,6 +28,7 @@ Jax.World = (function() {
         
         /* illumination pass */
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
+        this.lighting.updateShadowMaps(this.context, this.objects);
         this.context.glBlendFunc(GL_ONE, GL_ONE);
         this.lighting.illuminate(this.context, this.objects);
       } else {

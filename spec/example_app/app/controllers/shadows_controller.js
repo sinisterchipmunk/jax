@@ -12,14 +12,16 @@
 var ShadowsController = (function() {
   return Jax.Controller.create("shadows", ApplicationController, {
     index: function() {
-      alert("Shadowcasting: WORK IN PROGRESS");
+//      alert("Shadowcasting: WORK IN PROGRESS");
 
       /* light sources */
       var light01 = new Jax.Scene.LightSource({
         enabled:true,
-        type: Jax.SPOT_LIGHT,
+        type: Jax.POINT_LIGHT,
+//        type: Jax.DIRECTIONAL_LIGHT,
         angle: 20.0,
         position: [0,150,150],
+        direction: [-1,-1,-1],
         color: {
           ambient: [0,0,0,1],
           diffuse: [1,1,1,1],
@@ -70,9 +72,12 @@ var ShadowsController = (function() {
       var sphere = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:40,stacks:40,slices:40,material:sphere_mat})});
       sphere.camera.setPosition(70, 40, 0);
       this.world.addObject(sphere);
+      
+      var ball = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:10, stacks:40, slices:40, material: sphere_mat})});
+      this.world.addObject(ball);
 
       /* camera */
-      this.player.camera.setPosition(30, 100, 200);
+      this.player.camera.setPosition(30, 100, 250);
       this.player.camera.lookAt([0,0,0], [0,1,0]);
     },
     
@@ -90,20 +95,20 @@ var ShadowsController = (function() {
     },
     
     mouse_clicked: function(event) {
-      var lt = this.context.world.lighting.getLight(0);
-      switch(lt.type) {
-        case Jax.POINT_LIGHT:
-          lt.type = Jax.SPOT_LIGHT;
-          break;
-        case Jax.SPOT_LIGHT:
-          lt.type = Jax.DIRECTIONAL_LIGHT;
-          break;
-        case Jax.DIRECTIONAL_LIGHT:
-          lt.type = Jax.POINT_LIGHT;
-          break;
-        default:
-          alert("unexpected light type: "+lt.type);
-      }
+//      var lt = this.context.world.lighting.getLight(0);
+//      switch(lt.type) {
+//        case Jax.POINT_LIGHT:
+//          lt.type = Jax.SPOT_LIGHT;
+//          break;
+//        case Jax.SPOT_LIGHT:
+//          lt.type = Jax.DIRECTIONAL_LIGHT;
+//          break;
+//        case Jax.DIRECTIONAL_LIGHT:
+//          lt.type = Jax.POINT_LIGHT;
+//          break;
+//        default:
+//          alert("unexpected light type: "+lt.type);
+//      }
     },
     
     mouse_dragged: function(event) {
