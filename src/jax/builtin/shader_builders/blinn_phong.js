@@ -25,6 +25,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       'uniform bool SHADOWMAP_ENABLED;',
       'uniform sampler2D SHADOWMAP;',
       'uniform mat4 SHADOWMAP_MATRIX;',
+      'uniform int SHADOWMAP_PCF_SAMPLES;',
 
       'varying vec2 vTexCoords;',
       'varying vec3 vNormal, vLightDir, vSpotlightDirection;',
@@ -104,16 +105,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         'return depth;',
       '}',
             
-      'void main() {',
-        'vec4 final_color = vec4(0,0,0,0);',
-        'float spotEffect, att = 1.0, visibility = 1.0;',
-            
-        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
-          'if (LIGHT_ENABLED) {',
-            'if (SHADOWMAP_ENABLED) {',
-              'float s = vShadowCoord.z * 0.5 + 0.5;',
-              'float d = unpack_depth(texture2D(SHADOWMAP, vShadowCoord.xy*0.5+0.5));',
-            
+      'float pcf_lookup(float s, vec2 offset) {',
               // s is the projected depth of the current vShadowCoord relative to the shadow's camera. This represents
               // a *potentially* shadowed surface about to be drawn.
               //
@@ -123,8 +115,39 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
               // shadowed because it has a greater depth. Less-or-equal depth means it's either in front of, or it *is*
               // the light-visible surface.
 
-              'if (s - d > -0.000005) visibility = 0.0;',
-              'else visibility = 1.0;',
+//              'if (s - d > -0.000005) visibility = 0.0;',
+//              'else visibility = 1.0;',
+        'float d = unpack_depth(texture2D(SHADOWMAP, (vShadowCoord.xy*0.5+0.5)+offset));',
+        'return (s - d > -0.000005) ? 0.0 : 1.0;',
+      '}',
+            
+      'void main() {',
+        'vec4 final_color = vec4(0,0,0,0);',
+        'float spotEffect, att = 1.0, visibility = 1.0;',
+            
+        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
+          'if (LIGHT_ENABLED) {',
+            'if (SHADOWMAP_ENABLED) {',
+              'float s = vShadowCoord.z * 0.5 + 0.5;',
+              'float d;',
+              'int samples = int(sqrt(float(SHADOWMAP_PCF_SAMPLES)));',
+              'float dx, dy;',
+              'if (samples <= 1) {',
+                'visibility = pcf_lookup(s, vec2(0.0,0.0));',
+//                'd = unpack_depth(texture2D(SHADOWMAP, vShadowCoord.xy*0.5+0.5));',
+              '} else {',
+                /* do PCF filtering */
+//                'float start = -(float(samples)/2.0)*1.5, stop = float(samples)/2.0*1.5;',
+                'visibility = 0.0;',
+                'for (float dx = -2.5; dx < 2.5; dx += 1.0) {',
+                  'for (float dy = -2.5; dy < 2.5; dy += 1.0) {',
+                    'visibility += pcf_lookup(s, vec2(dx/2048.0, dy/2048.0));',
+                  '}',
+                '}',
+                'visibility /= 25.0;',
+              '}',
+            
+            
             '}',
       
             'vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);',
@@ -213,6 +236,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           c.glBindTexture(GL_TEXTURE_2D, c.world.lighting.getLight().getShadowMapTexture(c));
           return 0;
         }},
+        SHADOWMAP_PCF_SAMPLES:{type:"glUniform1i",value:function(c){return 9;}},
         SHADOWMAP_MATRIX:{type:"glUniformMatrix4fv",value:function(c,m){return c.world.lighting.getLight().getShadowMatrix();}}
       }
     };
