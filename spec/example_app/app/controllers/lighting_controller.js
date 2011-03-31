@@ -15,6 +15,7 @@ var LightingController = (function() {
       
       // add a Teapot
       this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Teapot({size:10, material:custom_material}) }));
+      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Quad({size:80, material:custom_material}), position:[0,0,-15]}));
       
       // add a spotlight, like a flashlight -- we'll animate this later
       this.world.addLightSource(new Jax.Scene.LightSource({

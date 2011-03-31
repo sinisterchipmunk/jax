@@ -2,6 +2,7 @@
 //= require "shader_builders/failsafe"
 //= require "shader_builders/color_without_texture"
 //= require "shader_builders/blinn_phong"
+//= require "shader_builders/depthmap"
 
 /* meshes */
 //= require "meshes/quad"

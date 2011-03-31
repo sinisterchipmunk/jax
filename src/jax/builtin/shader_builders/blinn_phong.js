@@ -11,6 +11,8 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             
       'uniform int PASS_TYPE;',
             
+      'uniform sampler2D DEBUG_TEXTURE;',
+            
       /* light uniforms */
       'uniform vec3 LIGHT_DIRECTION, LIGHT_POSITION;',
       'uniform vec4 LIGHT_SPECULAR, LIGHT_AMBIENT, LIGHT_DIFFUSE;',
@@ -18,9 +20,15 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       'uniform int LIGHT_TYPE;',
       'uniform float SPOTLIGHT_COS_CUTOFF, SPOTLIGHT_EXPONENT, LIGHT_ATTENUATION_CONSTANT, LIGHT_ATTENUATION_LINEAR,',
                     'LIGHT_ATTENUATION_QUADRATIC;',
+            
+      /* shadow map uniforms */
+      'uniform bool SHADOWMAP_ENABLED;',
+      'uniform sampler2D SHADOWMAP;',
+      'uniform mat4 SHADOWMAP_MATRIX;',
 
+      'varying vec2 vTexCoords;',
       'varying vec3 vNormal, vLightDir, vSpotlightDirection;',
-      'varying vec4 vBaseColor;',
+      'varying vec4 vBaseColor, vShadowCoord;',
       'varying float vDist;',
             
       ''
@@ -32,12 +40,19 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       defs(options),
             
       /* attributes */
+      'attribute vec2 VERTEX_TEXCOORDS;',
       'attribute vec4 VERTEX_POSITION, VERTEX_COLOR;',
       'attribute vec3 VERTEX_NORMAL;',
       
       'void main() {',
         'vBaseColor = VERTEX_COLOR;',
         'vNormal = nMatrix * VERTEX_NORMAL;',
+        'vTexCoords = VERTEX_TEXCOORDS;',
+            
+        'if (SHADOWMAP_ENABLED) {',
+          'vec4 shadow = SHADOWMAP_MATRIX * mvMatrix * VERTEX_POSITION;',
+          'vShadowCoord = vec4(shadow.xyz / shadow.w, 1);',// / shadow.w;',
+        '}',
             
         /* if it's an ambient pass, then we don't even care about light information */
         'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
@@ -65,12 +80,53 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
     var s = [
       defs(options),
             
+      'float linearize(in float z) {',
+        'float A = pMatrix[2].z, B = pMatrix[3].z;',
+        'float n = - B / (1.0 - A);', // camera z near
+        'float f =   B / (1.0 + A);', // camera z far
+        'return (2.0 * n) / (f + n - z * (f - n));',
+      '}',
+      
+      'vec4 pack_depth(const in float depth)',
+      '{',
+        'const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);',
+        'const vec4 bit_mask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);',
+        'vec4 res = fract(depth * bit_shift);',
+        'res -= res.xxyz * bit_mask;',
+        'return res;',
+      '}',
+
+
+      'float unpack_depth(const in vec4 rgba_depth)',
+      '{',
+        'const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);',
+        'float depth = dot(rgba_depth, bit_shift);',
+        'return depth;',
+      '}',
+            
       'void main() {',
         'vec4 final_color = vec4(0,0,0,0);',
-        'float spotEffect, att = 1.0;',
+        'float spotEffect, att = 1.0, visibility = 1.0;',
             
         'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
           'if (LIGHT_ENABLED) {',
+            'if (SHADOWMAP_ENABLED) {',
+              'float s = vShadowCoord.z * 0.5 + 0.5;',
+              'float d = unpack_depth(texture2D(SHADOWMAP, vShadowCoord.xy*0.5+0.5));',
+            
+              // s is the projected depth of the current vShadowCoord relative to the shadow's camera. This represents
+              // a *potentially* shadowed surface about to be drawn.
+              //
+              // d is the actual depth stored within the SHADOWMAP texture (representing the visible surface).
+            
+              // if the surface to be drawn is further back than the light-visible surface, then the surface is
+              // shadowed because it has a greater depth. Less-or-equal depth means it's either in front of, or it *is*
+              // the light-visible surface.
+
+              'if (s - d > -0.000005) visibility = 0.0;',
+              'else visibility = 1.0;',
+            '}',
+      
             'vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);',
             'vec3 halfVector = normalize(nLightDir + vec3(0.0,0.0,1.0));',
             'float NdotL = max(dot(nNormal, nLightDir), 0.0);',
@@ -86,17 +142,18 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
                            '+ LIGHT_ATTENUATION_QUADRATIC * vDist * vDist);',
               '}',
               
-              'final_color += att * LIGHT_AMBIENT;',
+              'final_color += visibility * att * LIGHT_AMBIENT;',
               'if (NdotL > 0.0) {',
                 'float NdotHV = max(dot(nNormal, halfVector), 0.0);',
-                'final_color += att * NdotL * materialDiffuse * LIGHT_DIFFUSE;', /* diffuse */
-                'final_color += att * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);', /* specular */
+                'final_color += visibility * att * NdotL * materialDiffuse * LIGHT_DIFFUSE;', /* diffuse */
+                'final_color += visibility * att * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);', /* specular */
               '}',
             '}',
           '}',
         '} else {',
-          'final_color += materialAmbient * vBaseColor;',
+          'final_color += visibility * materialAmbient * vBaseColor;',
         '}',
+//        'gl_FragColor = texture2D(SHADOWMAP, vTexCoords);',
         'gl_FragColor = final_color;',
       '}'
     ];
@@ -110,7 +167,8 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       attributes: {
         VERTEX_POSITION: function(context, mesh) { return mesh.getVertexBuffer(); },
         VERTEX_COLOR   : function(context, mesh) { return mesh.getColorBuffer();  },
-        VERTEX_NORMAL  : function(context, mesh) { return mesh.getNormalBuffer(); }
+        VERTEX_NORMAL  : function(context, mesh) { return mesh.getNormalBuffer(); },
+        VERTEX_TEXCOORDS:function(context, mesh) { return mesh.getTextureCoordsBuffer(); }
       },
       uniforms: {
         mvMatrix: { type: "glUniformMatrix4fv", value: function(context) { return context.getModelViewMatrix();  } },
@@ -135,7 +193,27 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         SPOTLIGHT_EXPONENT: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getSpotExponent(); } },
         LIGHT_ATTENUATION_CONSTANT: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getConstantAttenuation();}},
         LIGHT_ATTENUATION_LINEAR: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getLinearAttenuation();}},
-        LIGHT_ATTENUATION_QUADRATIC: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getQuadraticAttenuation();}}
+        LIGHT_ATTENUATION_QUADRATIC: {type:"glUniform1f",value:function(c,m){return c.world.lighting.getQuadraticAttenuation();}},
+        
+        
+        DEBUG_TEXTURE: {type:"glUniform1i",value:function(c,m){
+          var self = this;
+          if (!self.tex) {
+            self.tex = new Jax.Texture("http://theorynine.com/wp/labs/wp-content/plugins/sociable-30/pro/images/komodo/32/rss.png");
+          }
+          if (self.tex.loaded) {
+            self.tex.bind(c, 1);
+          }
+          return 1;
+        }},
+        
+        SHADOWMAP_ENABLED: {type:"glUniform1i",value:function(c,m){return c.world.lighting.getLight().isShadowMapEnabled();}},
+        SHADOWMAP: {type:"glUniform1i",value:function(c,m){
+          c.glActiveTexture(GL_TEXTURE0);
+          c.glBindTexture(GL_TEXTURE_2D, c.world.lighting.getLight().getShadowMapTexture(c));
+          return 0;
+        }},
+        SHADOWMAP_MATRIX:{type:"glUniformMatrix4fv",value:function(c,m){return c.world.lighting.getLight().getShadowMatrix();}}
       }
     };
   }

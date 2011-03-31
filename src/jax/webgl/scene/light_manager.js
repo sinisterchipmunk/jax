@@ -48,6 +48,27 @@ Jax.Scene.LightManager = (function() {
       delete this._current_light;
     },
     
+    updateShadowMaps: function(context, objects) {
+      var boundingRadius = null;
+      var i, j;
+      for (i = 0; i < objects.length; i++) {
+        j = vec3.length(objects[i].camera.getPosition()) + objects[i].getBoundingSphereRadius();
+        if (boundingRadius == null || boundingRadius < j)
+          boundingRadius = j;
+      }
+      boundingRadius = boundingRadius || 0;
+      
+//      context.glPolygonOffset(1.1, 4.0);
+//      context.glPolygonOffset(2,2);
+//      context.glEnable(GL_POLYGON_OFFSET_FILL);
+      for (i = 0; i < this._lights.length; i++) {
+        this._lights[i].updateShadowMap(context, boundingRadius, objects);
+        break;
+      }
+//      context.glDisable(GL_POLYGON_OFFSET_FILL);
+//      context.glPolygonOffset(0.0, 0.0);
+    },
+    
     /*
       shading is done in eye space, but the mv matrix represents object space. So if we return the lights
       in world space, they'll be converted to object space. Instead we need to convert the return value to
