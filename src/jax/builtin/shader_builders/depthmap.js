@@ -15,6 +15,8 @@ Jax.shader_program_builders['depthmap'] = (function() {
   
   function buildFragmentSource(options) {
     return [
+            "uniform mat4 pMatrix;",
+
             'vec4 pack_depth(const in float depth)',
             '{',
               'const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);',

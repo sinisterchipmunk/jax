@@ -47,10 +47,11 @@ Jax.Framebuffer = (function() {
         context.glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, tex);
       }
       
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
       // FIXME for depth render ONLY
 //      context.glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 //      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -120,7 +121,7 @@ Jax.Framebuffer = (function() {
         width:512,
         height:512
       };
-      if (!(options && (options.color || options.colors))) defaults.colors = [GL_RGB];
+      if (!(options && (options.color || options.colors))) defaults.colors = [GL_RGBA];
       
       this.handles = {};
       this.options = options = Jax.Util.normalizeOptions(options, defaults);

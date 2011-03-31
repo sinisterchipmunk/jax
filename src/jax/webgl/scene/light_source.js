@@ -84,7 +84,9 @@ Jax.Scene.LightSource = (function() {
       mat4.multiply(sm, mat4.inverse(this.camera.getModelViewMatrix(), tmpm), sm);
       mat4.multiply(sm, mat4.inverse(context.getModelViewMatrix(), tmpm), sm);
       
-      this.framebuffer = this.framebuffer || new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA});
+      if (!this.framebuffer)
+        this.framebuffer = new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA});
+
       this.framebuffer.bind(context, function() {
         context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         context.pushMatrix(function() {

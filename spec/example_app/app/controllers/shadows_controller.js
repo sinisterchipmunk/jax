@@ -40,7 +40,7 @@ var ShadowsController = (function() {
       var floor_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.7,0.7,0.7,1],
+        ambient: [0.3,0.3,0.3,1],
         diffuse: [0.4,0.9,0.4,1],
         specular: [0.4,0.4,0.4,1]
       });
@@ -48,7 +48,7 @@ var ShadowsController = (function() {
       var torus_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.3,0.3,0.3,1],
+        ambient: [0.325,0.325,0.325,1],
         diffuse: [0.9,0.5,0.5,1],
         specular:[0.6,0.6,0.6,1]
       });
@@ -56,7 +56,7 @@ var ShadowsController = (function() {
       var sphere_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.3,0.3,0.3,1],
+        ambient: [0.325,0.325,0.325,1],
         diffuse: [0.5,0.5,0.9,1],
         specular:[0.4,0.4,0.4,1]
       });
@@ -72,18 +72,26 @@ var ShadowsController = (function() {
       var sphere = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:40,stacks:40,slices:40,material:sphere_mat})});
       sphere.camera.setPosition(70, 40, 0);
       this.world.addObject(sphere);
-      
-      var ball = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:10, stacks:40, slices:40, material: sphere_mat})});
-      this.world.addObject(ball);
 
       /* camera */
       this.player.camera.setPosition(30, 100, 250);
       this.player.camera.lookAt([0,0,0], [0,1,0]);
     },
     
+    /*
+    TODO delegation
+    delegate getLight() into world.lighting
+    delegate model setPosition() and friends into model.camera
+     */
+    
     update: function(timechange) {
       // let's rotate the light's camera
-      
+      var light = this.world.lighting.getLight(0);
+      var rot = light.rotation || 0;
+      rot += Math.PI / 4 * timechange;
+      light.rotation = rot;
+      var length = vec3.length([0,150,150]);
+      light.camera.setPosition(Math.cos(rot)*length, 150, Math.sin(rot)*length);
     },
     
     mouse_moved: function(event) {
