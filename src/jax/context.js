@@ -69,7 +69,7 @@ Jax.Context = (function() {
   function stopUpdating(self) {
     clearTimeout(self.update_interval);
   }
-  
+    
   function setupView(self, view) {
     view.context = self;
     view.world = self.world;
@@ -84,13 +84,10 @@ Jax.Context = (function() {
   }
   
   function reloadMatrices(self) {
-    mat4.set(self.player.camera.getModelViewMatrix(), self.getModelViewMatrix());
-    mat4.set(self.player.camera.getProjectionMatrix(), self.getProjectionMatrix());
-
-    // the modelview matrix is actually the inverse of the model (world space transform) matrix.
-    // TODO rename the modelview functions accordingly, since they're really just model matrices
-    mat4.inverse(self.matrices.mv[self.matrix_depth]);
-    mat4.identity(self.matrices.world[self.matrix_depth]);
+    self.matrix_stack.reset(); // reset depth
+    self.matrix_stack.loadModelMatrix(Jax.IDENTITY_MATRIX);
+    self.matrix_stack.loadViewMatrix(self.player.camera.getModelViewMatrix());
+    self.matrix_stack.loadProjectionMatrix(self.player.camera.getProjectionMatrix());
   }
   
   return Jax.Class.create({
@@ -112,12 +109,7 @@ Jax.Context = (function() {
       this.world = new Jax.World(this);
       this.player = {camera: new Jax.Camera()};
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
-      
-//      this.matrices = [mat4.create()];
-      this.matrices = { mv: [mat4.create()], world: [mat4.create()], p: [mat4.create()] };
-      mat4.set(this.player.camera.getModelViewMatrix(), this.matrices.mv[0]);
-      mat4.set(this.player.camera.getProjectionMatrix(), this.matrices.p[0]);
-      this.matrix_depth = 0;
+      this.matrix_stack = new Jax.MatrixStack();
       
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
@@ -192,35 +184,19 @@ Jax.Context = (function() {
     },
     
     pushMatrix: function(yield_to) {
-      var current_mv = this.getModelViewMatrix();
-      var current_ws = this.getWorldSpaceMatrix();
-      var current_pr = this.getProjectionMatrix();
-      this.matrix_depth++;
-      if (!this.matrices.mv[this.matrix_depth]) {
-        this.matrices.mv[this.matrix_depth] = mat4.create();
-        this.matrices.world[this.matrix_depth] = mat4.create();
-        this.matrices.p[this.matrix_depth] = mat4.create();
-      }
-      mat4.set(current_mv, this.matrices.mv[this.matrix_depth]);
-      mat4.set(current_ws, this.matrices.world[this.matrix_depth]);
-      mat4.set(current_pr, this.matrices.p[this.matrix_depth]);
+      this.matrix_stack.push();
       yield_to();
-      this.matrix_depth--;
+      this.matrix_stack.pop();
     },
     
-    multMatrix: function(matr) {
-      mat4.multiply(this.getModelViewMatrix(), matr);
-      mat4.multiply(this.getWorldSpaceMatrix(), mat4.inverse(matr, mat4.create())); 
-    },
+    multMatrix: function(matr) { return this.matrix_stack.multModelMatrix(matr); },
     
     /**
      * Jax.Context#getWorldSpaceMatrix() -> mat4
      * Returns the world space matrix. A vector multiplied by this matrix will be transformed
      * into world space regardless of the current matrix transformations.
      **/
-    getWorldSpaceMatrix: function(matr) {
-      return this.matrices.world[this.matrix_depth];
-    },
+    getViewMatrix: function() { return this.matrix_stack.getViewMatrix(); },
     
     /**
      * Jax.Context#getFrustum() -> Jax.Scene.Frustum
@@ -234,28 +210,28 @@ Jax.Context = (function() {
     getFrustum: function() { return this.player.camera.frustum; },
   
     /**
-     * Jax.Context#getModelViewMatrix() -> Matrix
+     * Jax.Context#getModelViewMatrix() -> mat4
      * Returns the current modelview matrix.
      **/
-    getModelViewMatrix: function() { return this.matrices.mv[this.matrix_depth]; },
+    getModelViewMatrix: function() { return this.matrix_stack.getModelViewMatrix(); },
     
     /**
-     * Jax.Context#getProjectionMatrix() -> Matrix
+     * Jax.Context#getInverseModelViewMatrix() -> mat4
+     * Returns the inverse of the current modelview matrix.
+     **/
+    getInverseModelViewMatrix: function() { return this.matrix_stack.getInverseModelViewMatrix(); },
+    
+    /**
+     * Jax.Context#getProjectionMatrix() -> mat4
      * Returns the current projection matrix.
      **/
-    getProjectionMatrix: function() { return this.matrices.p[this.matrix_depth]; },
+    getProjectionMatrix: function() { return this.matrix_stack.getProjectionMatrix(); },
 
     /**
-     * Jax.Context#getNormalMatrix() -> Matrix
+     * Jax.Context#getNormalMatrix() -> mat4
      * Returns the current normal matrix.
      **/
-    getNormalMatrix: function() {
-      // TODO: optimize
-      var mat = mat3.create();
-      mat4.toInverseMat3(this.getModelViewMatrix(), mat);
-      mat3.transpose(mat);
-      return mat;
-    },
+    getNormalMatrix: function() {return this.matrix_stack.getNormalMatrix(); },
 
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */

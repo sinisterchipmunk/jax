@@ -1,5 +1,8 @@
+//= require "vendor/glMatrix-0.9.5"
+//= require "prototype/class"
 //= require "core/math"
 //= require "core/util"
+//= require "core/matrix_stack"
 
 // a global debugAssert method that will do nothing in production, and fail if expr is false
 // in any other run mode. If msg is given, an error with that message is raised. Otherwise,
