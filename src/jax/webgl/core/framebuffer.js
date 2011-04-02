@@ -33,32 +33,24 @@ Jax.Framebuffer = (function() {
       context.glBindRenderbuffer(GL_RENDERBUFFER, null);
     }
     
-    // texture attachments -- TODO wrap Jax.Texture
+    // texture attachments
     handle.textures = [];
     var attachment = GL_COLOR_ATTACHMENT0;
     for (var i = 0; i < self.options.colors.length; i++) {
       var format = self.options.colors[i];
-      handle.textures[i] = context.glCreateTexture();
-      context.glBindTexture(GL_TEXTURE_2D, handle.textures[i]);
-      try {
-        context.glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, null);
-      } catch (e) {
-        var tex = new Uint8Array(width*height*Jax.Util.sizeofFormat(format));
-        context.glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, tex);
-      }
+      handle.textures[i] = new Jax.Texture({
+        format:format,
+        width:width,
+        height:height,
+        min_filter:GL_LINEAR,
+        mag_filter:GL_LINEAR,
+        wrap_s:GL_CLAMP_TO_EDGE,
+        wrap_t:GL_CLAMP_TO_EDGE,
+        generate_mipmap:false
+      });
       
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, handle.textures[i].getHandle(context), 0);
       
-      // FIXME for depth render ONLY
-//      context.glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-//      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-//      context.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-
-      context.glBindTexture(GL_TEXTURE_2D, null);
-      context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, handle.textures[i], 0);
       attachment++;
     }
 
@@ -104,6 +96,10 @@ Jax.Framebuffer = (function() {
      *   * colors: an array of color formats such as GL_RGBA, GL_RGB, etc. The _colors_ array may
      *             be empty if no color attachments are needed. Defaults to [GL_RGBA] unless _color_
      *             is specified.
+     *             
+     *             Alternatively, an options object can be used. This object will be passed into
+     *             Jax.Texture().
+     *             
      *   * color: optionally, in place of a colors array, a single color format as above. If both
      *            _color_ and _colors_ are specified, _color_ is simply added to the _colors_ array.
      *   * depth: true if a depth attachment is required, false otherwise.
@@ -149,7 +145,7 @@ Jax.Framebuffer = (function() {
       context.glViewport(0, 0, context.canvas.width, context.canvas.height);
     },
     
-    getTextureBuffer: function(context, index) { return this.getHandle(context).textures[index]; },
+    getTextureBuffer: function(context, index) { return this.getHandle(context).textures[index].getHandle(context); },
     
     getHandle: function(context) { return this.handles[context.id]; },
     setHandle: function(context, handle) { this.handles[context.id] = handle; }
