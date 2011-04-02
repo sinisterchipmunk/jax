@@ -31,9 +31,14 @@ Jax.IDENTITY_MATRIX = mat4.identity(mat4.create());
 Jax.MatrixStack = (function() {
   var MODEL = 1, VIEW = 2, PROJECTION = 3;
   
+  function updateMVP(self) {
+    mat4.multiply(self.getProjectionMatrix(), self.getModelViewMatrix(), self.getModelViewProjectionMatrix());
+  }
+  
   function updateModelView(self) {
     mat4.multiply(self.getInverseViewMatrix(), self.getModelMatrix(), self.getModelViewMatrix());
     mat4.inverse(self.getModelViewMatrix(), self.getInverseModelViewMatrix());
+    updateMVP(self);
   }
   
   function updateNormal(self) {
@@ -55,6 +60,7 @@ Jax.MatrixStack = (function() {
   
   function pMatrixUpdated(self) {
     mat4.inverse(self.getProjectionMatrix(), self.getInverseProjectionMatrix());
+    updateMVP(self);
   }
   
   function loadMatrix(self, which, values) {
@@ -258,6 +264,13 @@ Jax.MatrixStack = (function() {
      * multiplied by screen dimensions to find a pixel position.
      **/
     getProjectionMatrix: function() { return this.matrices.projection[this.depth]; },
+
+    /**
+     * Jax.MatrixStack#getModelViewProjectionMatrix() -> mat4
+     * 
+     * Returns the model, view and projection matrices combined into one.
+     **/
+    getModelViewProjectionMatrix: function() { return this.matrices.modelview_projection[this.depth]; },
         
     /**
      * Jax.MatrixStack#getInverseProjectionMatrix() -> mat4
@@ -281,7 +294,8 @@ Jax.MatrixStack = (function() {
         modelview: [mat4.create()],
         inverse_modelview: [mat4.create()],
         projection: [mat4.create()],
-        inverse_projection: [mat4.create()]
+        inverse_projection: [mat4.create()],
+        modelview_projection: [mat4.create()]
       };
       
       this.loadModelMatrix(Jax.IDENTITY_MATRIX);

@@ -15,20 +15,21 @@ var LightingController = (function() {
       
       // add a Teapot
       this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Teapot({size:10, material:custom_material}) }));
-      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Quad({size:80, material:custom_material}), position:[0,0,-15]}));
+      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Quad({size:75, material:custom_material}), position:[0,-15,-50]}));
       
       // add a spotlight, like a flashlight -- we'll animate this later
       this.world.addLightSource(new Jax.Scene.LightSource({
         enabled:true,
-        position:[0,0,50],
+        shadowcaster:true,
+        position:[0,0,30],
         direction:[0,0,-1],
         attenuation: {
           constant:  0,
-          linear:    0.02,
+          linear:    0.04,
           quadratic: 0
         },
         type: Jax.SPOT_LIGHT,
-        spotExponent: 64,
+        spotExponent: 32,
         angle: Math.PI/6,
         color: {
           ambient: [0.15,0.15,0.15,1],
@@ -36,9 +37,11 @@ var LightingController = (function() {
           specular: [1,1,1,1]
         }
       }));
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"color_without_texture",color:[1,1,1,0.2]}), shadow_caster: false, position:[0,0,30]}));
       
       // add a point light, like a candle
       this.world.addLightSource(new Jax.Scene.LightSource({
+        shadowcaster:false,
         enabled:true,
         position:[-20,0,0],
         type: Jax.POINT_LIGHT,
@@ -53,13 +56,15 @@ var LightingController = (function() {
           specular: [0.75,0,0,1]
         }
       }));
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"failsafe",color:[1,0,0,0.2]}), shadow_caster: false, position:[-20,0,0]}));
       
       // add a directional light, like the sun
       this.world.addLightSource(new Jax.Scene.LightSource({
         enabled:true,
         position:[0,20,1],
-        direction:[-1,-1,0],
+        direction:[-1,-1,-1],
         type: Jax.DIRECTIONAL_LIGHT,
+        shadowcaster:true,
         attenuation: {
           constant: 1,
           linear: 0,
@@ -67,13 +72,14 @@ var LightingController = (function() {
         },
         color: {
           ambient: [0,0,0,1],
-          diffuse: [0.0,0.0,0.9,1],
+          diffuse: [0.0,0.0,0.5,1],
           specular: [0,0,0.75,1]
         }
       }));
       
       // position the player backwards 20 units, to [0,0,20].
-      this.player.camera.move(-20);
+      this.player.camera.setPosition(0,15,50);
+      this.player.camera.lookAt([0,0,0],[0,1,0]);
     },
     
     /* this updater will take care of pivoting the spotlight horizontally over time. */
@@ -94,20 +100,16 @@ var LightingController = (function() {
       spotlight.camera.rotate(rotation_direction*timechange, 0, 1, 0);
     },
     
-    /* moving the mouse will rotate the object in place */
+    /* moving the mouse will pan the camera */
     mouse_moved: function(event) {
-      var camera = this.world.getObject(0).camera;
-      
-      // uncomment to enable mouselook -- this would rotate the user's "head" instead of the object itself
-//      camera = this.context.player.camera;
-      
-      camera.rotate( this.context.mouse.diffy/75, 1, 0, 0);
-      camera.rotate(-this.context.mouse.diffx/75, 0, 1, 0);
+      var camera = this.context.player.camera;
+      camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
     },
     
-    /* dragging the mouse will move the camera forward or sideways relative to its current orientation */
+    /* dragging the mouse will pan the object */
     mouse_dragged: function(event) {
-      this.context.player.camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
+      var camera = this.world.getObject(0).camera;
+      camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
     }
   });
 })();

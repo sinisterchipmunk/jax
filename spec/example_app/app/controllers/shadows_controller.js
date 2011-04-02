@@ -17,7 +17,8 @@ var ShadowsController = (function() {
       /* light sources */
       var light01 = new Jax.Scene.LightSource({
         enabled:true,
-        type: Jax.POINT_LIGHT,
+        type: Jax.SPOT_LIGHT,
+//        type: Jax.POINT_LIGHT,
 //        type: Jax.DIRECTIONAL_LIGHT,
         angle: 20.0,
         position: [0,150,150],
@@ -40,7 +41,7 @@ var ShadowsController = (function() {
       var floor_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.3,0.3,0.3,1],
+        ambient: [0.1,0.1,0.1,1],
         diffuse: [0.4,0.9,0.4,1],
         specular: [0.4,0.4,0.4,1]
       });
@@ -48,16 +49,16 @@ var ShadowsController = (function() {
       var torus_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.325,0.325,0.325,1],
-        diffuse: [0.9,0.5,0.5,1],
+        ambient: [0.1,0.1,0.1,1],
+        diffuse: [0.9,0.3,0.3,1],
         specular:[0.6,0.6,0.6,1]
       });
       
       var sphere_mat = new Jax.Material({
         shaderType: "blinn-phong",
         shininess: 60,
-        ambient: [0.325,0.325,0.325,1],
-        diffuse: [0.5,0.5,0.9,1],
+        ambient: [0.1,0.1,0.1,1],
+        diffuse: [0.3,0.3,0.9,1],
         specular:[0.4,0.4,0.4,1]
       });
 
@@ -74,7 +75,7 @@ var ShadowsController = (function() {
       this.world.addObject(sphere);
 
       /* camera */
-      this.player.camera.setPosition(30, 100, 250);
+      this.player.camera.setPosition(30, 500, 400);
       this.player.camera.lookAt([0,0,0], [0,1,0]);
     },
     
@@ -90,8 +91,9 @@ var ShadowsController = (function() {
       var rot = light.rotation || 0;
       rot += Math.PI / 4 * timechange;
       light.rotation = rot;
-      var length = vec3.length([0,150,150]);
+      var length = vec3.length([0,75,75]);
       light.camera.setPosition(Math.cos(rot)*length, 150, Math.sin(rot)*length);
+      light.camera.lookAt([0,0,0],[0,1,0]);
     },
     
     mouse_moved: function(event) {

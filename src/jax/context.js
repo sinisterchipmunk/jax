@@ -192,11 +192,16 @@ Jax.Context = (function() {
     multMatrix: function(matr) { return this.matrix_stack.multModelMatrix(matr); },
     
     /**
-     * Jax.Context#getWorldSpaceMatrix() -> mat4
-     * Returns the world space matrix. A vector multiplied by this matrix will be transformed
-     * into world space regardless of the current matrix transformations.
+     * Jax.Context#getViewMatrix() -> mat4
+     * Returns the view matrix. See Jax.MatrixStack#getViewMatrix for details.
      **/
     getViewMatrix: function() { return this.matrix_stack.getViewMatrix(); },
+    
+    /**
+     * Jax.Context#getInverseViewMatrix() -> mat4
+     * Returns the inverse view matrix. See Jax.MatrixStack#getInverseViewMatrix for details.
+     **/
+    getInverseViewMatrix: function() { return this.matrix_stack.getInverseViewMatrix(); },
     
     /**
      * Jax.Context#getFrustum() -> Jax.Scene.Frustum
@@ -220,6 +225,9 @@ Jax.Context = (function() {
      * Returns the inverse of the current modelview matrix.
      **/
     getInverseModelViewMatrix: function() { return this.matrix_stack.getInverseModelViewMatrix(); },
+    
+    getModelViewProjectionMatrix: function() { return this.matrix_stack.getModelViewProjectionMatrix(); },
+    getModelMatrix: function() { return this.matrix_stack.getModelMatrix(); },
     
     /**
      * Jax.Context#getProjectionMatrix() -> mat4

@@ -27,6 +27,7 @@ Jax.Scene.LightSource = (function() {
       default_field('constant', 0, data.attenuation);
       default_field('linear', 0.02, data.attenuation);
       default_field('quadratic', 0, data.attenuation);
+      default_field('shadowcaster', true);
       
       $super(data);
 
@@ -55,43 +56,51 @@ Jax.Scene.LightSource = (function() {
     },
     
     isShadowMapEnabled: function() {
-      return !!(this.framebuffer && true);
+      return !!(this.framebuffer && this.isShadowcaster());
     },
     
     getShadowMatrix: function() {
       return this.shadowMatrix;
     },
     
-    updateShadowMap: function(context, sceneBoundingRadius, objects) {
-      // Save the depth precision for where it's useful
-      var lightToSceneDistance = vec3.length(this.camera.getPosition());
-      var nearPlane = lightToSceneDistance - sceneBoundingRadius;
-      if (nearPlane < 0.01) nearPlane = 0.01;
-      var fieldOfView = Math.radToDeg(2.0 * Math.atan(sceneBoundingRadius / lightToSceneDistance));
+    isShadowcaster: function() { return this.shadowcaster; },
     
-      this.camera.perspective({near:nearPlane,far:nearPlane+(2.0*sceneBoundingRadius),fov:fieldOfView,width:2048,height:2048});
-      this.camera.lookAt([0,0,0],[0,1,0]);
+    updateShadowMap: function(context, sceneBoundingRadius, objects) {
+      if (this.type == Jax.DIRECTIONAL_LIGHT) {
+        this.camera.ortho({left:-sceneBoundingRadius,right:sceneBoundingRadius,
+                           top:sceneBoundingRadius,bottom:-sceneBoundingRadius,
+                           near:-sceneBoundingRadius,far:sceneBoundingRadius
+        });
+        this.camera.setPosition(0,0,0);
+      } else {
+        // Save the depth precision for where it's useful
+        var lightToSceneDistance = vec3.length(this.camera.getPosition());
+        var nearPlane = lightToSceneDistance - sceneBoundingRadius;
+        if (nearPlane < 0.01) nearPlane = 0.01;
+        var fieldOfView = Math.radToDeg(2.0 * Math.atan(sceneBoundingRadius / lightToSceneDistance));
+      
+        this.camera.perspective({near:nearPlane,far:nearPlane+(2.0*sceneBoundingRadius),fov:fieldOfView,width:2048,height:2048});
+        if (this.type == Jax.POINT_LIGHT) {
+          this.camera.lookAt([0,0,0],[0,1,0]);
+        }
+      }
 
       var self = this;
       var sm = this.shadowMatrix, tmpm = mat4.create();
       mat4.identity(sm);
-      
-      // translate 0.5, scale 0.5
-//      var bias = mat4.create();
-//      bias[0] = bias[5] = bias[10] = bias[12] = bias[13] = bias[14] = 0.5;
-//      mat4.multiply(bias, this.camera.getProjectionMatrix(), sm);
-      mat4.set(this.camera.getProjectionMatrix(), sm);
-      mat4.multiply(sm, mat4.inverse(this.camera.getModelViewMatrix(), tmpm), sm);
-      mat4.multiply(sm, mat4.inverse(context.getModelViewMatrix(), tmpm), sm);
-      
+      sm[0] = sm[5] = sm[10] = sm[12] = sm[13] = sm[14] = 0.5;
+
       if (!this.framebuffer)
         this.framebuffer = new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA});
 
       this.framebuffer.bind(context, function() {
         context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         context.pushMatrix(function() {
-          mat4.set(self.camera.getProjectionMatrix(), context.getProjectionMatrix());
-          mat4.inverse(self.camera.getModelViewMatrix(), context.getModelViewMatrix());
+          context.matrix_stack.loadProjectionMatrix(self.camera.getProjectionMatrix());
+          context.matrix_stack.loadViewMatrix(self.camera.getModelViewMatrix());
+          mat4.multiply(sm, context.getModelViewProjectionMatrix());
+          
+          
           context.glEnable(GL_CULL_FACE);
           context.glCullFace(GL_FRONT);
           context.glDisable(GL_BLEND);

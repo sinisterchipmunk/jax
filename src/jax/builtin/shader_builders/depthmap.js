@@ -34,7 +34,7 @@ Jax.shader_program_builders['depthmap'] = (function() {
             '}',
             
             'void main(void) {',
-              'gl_FragColor = pack_depth(gl_FragCoord.z*0.5+0.5);',
+              'gl_FragColor = pack_depth(gl_FragCoord.z);',
             '}']
   }
   

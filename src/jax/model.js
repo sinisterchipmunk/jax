@@ -27,12 +27,15 @@
       initialize: function(data) {
         this.camera = new Jax.Camera();
         
+        this.shadow_caster = true;
         if (this._klass && this._klass.resources)
           initProperties(this, this._klass.resources['default']);
         initProperties(this, data);
         
         if (this.after_initialize) this.after_initialize();
       },
+      
+      isShadowCaster: function() { return this.shadow_caster; },
 
       /**
        * Jax.Model#render(context) -> undefined
