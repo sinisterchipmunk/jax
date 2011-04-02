@@ -38,8 +38,8 @@ Jax.Framebuffer = (function() {
     var attachment = GL_COLOR_ATTACHMENT0;
     for (var i = 0; i < self.options.colors.length; i++) {
       var format = self.options.colors[i];
-      handle.textures[i] = new Jax.Texture({
-        format:format,
+      var texture_options = {
+        format:GL_RGBA,
         width:width,
         height:height,
         min_filter:GL_LINEAR,
@@ -47,9 +47,16 @@ Jax.Framebuffer = (function() {
         wrap_s:GL_CLAMP_TO_EDGE,
         wrap_t:GL_CLAMP_TO_EDGE,
         generate_mipmap:false
-      });
+      };
+      if (typeof(format) != "number") { texture_options = Jax.Util.normalizeOptions(format, texture_options); }
+      else { texture_options.format = format; }
+      handle.textures[i] = new Jax.Texture(texture_options);
       
-      context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, handle.textures[i].getHandle(context), 0);
+      if (handle.textures[i].getTarget() == GL_TEXTURE_2D)
+        context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, handle.textures[i].getHandle(context), 0);
+      else
+        context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+                handle.textures[i].getHandle(context), 0);
       
       attachment++;
     }
@@ -127,11 +134,54 @@ Jax.Framebuffer = (function() {
         delete options.color;
       }
     },
+
+    /**
+     * Jax.Framebuffer#cubeFace(context, texIndex, faceEnum[, callback]) -> Jax.Framebuffer
+     * - context (Jax.Context): a Jax context
+     * - texIndex (number): the index of the cube map texture
+     * - faceEnum (enum): the cube map face to bind
+     * - callback (function): an optional callback. If given, the framebuffer will be automatically unbound
+     *                        after the callback returns. Otherwise, the framebuffer will remain bound.
+     *                        
+     * For cube map framebuffers only, this will bind the specified cube map face to its color buffer position.
+     * The faceEnum can be any of the following face enums:
+     * 
+     *     0: GL_TEXTURE_CUBE_MAP_POSITIVE_X
+     *     1: GL_TEXTURE_CUBE_MAP_NEGATIVE_X
+     *     2: GL_TEXTURE_CUBE_MAP_POSITIVE_Y
+     *     3: GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
+     *     4: GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+     *     5: GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+     * 
+     * Example:
+     * 
+     *     fb.bindCubeFace(context, 0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, function() {
+     *       // render to +X cube face
+     *     });
+     *     fb.bindCubeFace(context, 0, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, function() {
+     *       // render to -Z cube face
+     *     });
+     **/
+    bindCubeFace: function(context, texIndex, faceEnum, callback) {
+      if (!this.getHandle(context)) build(context, this);
+      var texture = this.getHandle(context).textures[texIndex];
+      if (texture.options.target != GL_TEXTURE_CUBE_MAP)
+        throw new Error("Texture at index "+texIndex+" is not a cube map!");
+      
+      this.bind(context);
+      context.glFramebufferTexture2D(GL_FRAMEBUFFER, window['GL_COLOR_ATTACHMENT'+texIndex],
+              faceEnum, texture.getHandle(context), 0);
+      
+      if (callback) {
+        callback();
+        this.unbind(context);
+      }
+    },
     
     bind: function(context, callback) {
       if (!this.getHandle(context)) build(context, this);
       context.glBindFramebuffer(GL_FRAMEBUFFER, this.getHandle(context));
-      context.glViewport(0,0,this.options.width,this.options.height);
+      
       
       if (callback) {
         callback.call(this);
@@ -141,8 +191,10 @@ Jax.Framebuffer = (function() {
     
     unbind: function(context) {            
       context.glBindFramebuffer(GL_FRAMEBUFFER, null);
-      // restore the original context viewport
-      context.glViewport(0, 0, context.canvas.width, context.canvas.height);
+    },
+    
+    viewport: function(context) {
+      context.glViewport(0,0,this.options.width,this.options.height);
     },
     
     getTextureBuffer: function(context, index) { return this.getHandle(context).textures[index].getHandle(context); },
