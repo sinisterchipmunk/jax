@@ -109,6 +109,7 @@ Jax.Texture = (function() {
   
   function popLevel(self, context) {
     Jax.Texture._level = self.textureLevel - 1;
+    if (Jax.Texture._level < 0) Jax.Texture._level = 0;
     delete self.textureLevel;
   }
   
@@ -122,18 +123,36 @@ Jax.Texture = (function() {
      *                 for use with cube maps. If used with a cube map, 6 paths must be provided.
      *                 If used with a standard 2D texture, only the first path in the array will be used.
      * - options (Object): a generic object optionally consisting of the following properties:
+     * new Jax.Texture(options)
+     * - options (Object): a generic object optionally consisting of the following properties, plus a mandatory
+     *                     _width_ and _height_ in pixels:
      * 
-     *   * min_filter (GL_NEAREST)
-     *   * mag_filter (GL_NEARETS)
-     *   * onload (null) - a function to be called after the image has been loaded. This function
-     *                     will not be called if the image fails to load.
+     *   * min_filter: GL_NEAREST
+     *   * mag_filter: GL_NEARETS
+     *   * generate_mipmap: true
+     *   * mipmap_hint: GL_DONT_CARE
+     *   * format: GL_RGBA
+     *   * target: GL_TEXTURE_2D
+     *   * data_type: GL_UNSIGNED_BYTE
+     *   * wrap_s: GL_REPEAT
+     *   * wrap_t: GL_REPEAT
+     *   * flip_y: false
+     *   * premultiply_alpha: false
+     *   * colorspace_conversion: true
+     *   * onload: null - a function to be called after the image has been loaded. This function
+     *                    will not be called if the image fails to load.
      *                     
      **/
     initialize: function(path_or_array, options) {
       this.handles = {};
       this.loaded = false;
       this.valid = [];
-
+      
+      if (!options && typeof(path_or_array) == "object" && path_or_array.length == undefined) {
+        options = path_or_array;
+        path_or_array = null;
+      }
+      
       var self = this;
       this.options = Jax.Util.normalizeOptions(options, {
         min_filter: GL_NEAREST,
@@ -195,7 +214,7 @@ Jax.Texture = (function() {
     },
     
     generateMipmap: function(context) {
-      // why does this raise 1280 invalid enum?
+      // FIXME why does this raise 1280 invalid enum?
 //      context.glHint(GL_GENERATE_MIPMAP_HINT, this.options.mipmap_hint);
       context.glGenerateMipmap(this.options.target);
     },
@@ -208,7 +227,10 @@ Jax.Texture = (function() {
     },
     
     getHandle: function(context) {
-      if (!this.handles[context.id]) build(this, context);
+      if (!this.handles[context.id]) {
+        build(this, context);
+        this.refresh(context);
+      }
       return this.handles[context.id];
     },
     
