@@ -11,6 +11,18 @@ describe("Texture", function() {
   };
   
   describe("cube map", function() {
+    describe("with no image", function() {
+      beforeEach(function() {
+        tex = new Jax.Texture(null, {target:GL_TEXTURE_CUBE_MAP,width:128,height:128});
+        spyOn(c, 'glBindTexture').andCallThrough();
+      });
+      
+      it("should bind successfully", function() {
+        expect(function(){tex.bind(c);}).not.toThrow();
+        expect(c.glBindTexture).toHaveBeenCalled();
+      });
+    });
+    
     describe("with a single POT texture", function() {
       beforeEach(function() { tex = new Jax.Texture("/public/rss.png", {target:GL_TEXTURE_CUBE_MAP}); });
       
@@ -28,6 +40,18 @@ describe("Texture", function() {
     });
   });
   
+  describe("with no image", function() {
+    beforeEach(function() {
+      tex = new Jax.Texture(null, {target:GL_TEXTURE_2D,width:128,height:128});
+      spyOn(c, 'glBindTexture').andCallThrough();
+    });
+      
+    it("should bind successfully", function() {
+      expect(function(){tex.bind(c);}).not.toThrow();
+      expect(c.glBindTexture).toHaveBeenCalled();
+    });
+  });
+    
   describe("POT with default options", function() {
     beforeEach(function() { tex = new Jax.Texture("/public/rss.png"); });
     
