@@ -63,32 +63,15 @@ Jax.Scene.LightManager = (function() {
 //      context.glEnable(GL_POLYGON_OFFSET_FILL);
       for (i = 0; i < this._lights.length; i++) {
         this._lights[i].updateShadowMap(context, boundingRadius, objects);
-        break;
+//        break;
       }
 //      context.glDisable(GL_POLYGON_OFFSET_FILL);
 //      context.glPolygonOffset(0.0, 0.0);
     },
     
-    /*
-      shading is done in eye space, but the mv matrix represents object space. So if we return the lights
-      in world space, they'll be converted to object space. Instead we need to convert the return value to
-      a more usable value, such that when it is multiplied by object space, the result is in world space.
-     */
-    getDirection: function(index) {
-      var result = this.getLight(index).getDirection();
-      if (this.context) {
-        result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
-      }
-      return result;
-    },
+    getDirection: function(index) { return this.getLight(index).getDirection(); },
     
-    getPosition: function(index) {
-      var result = this.getLight(index).getPosition();
-      if (this.context) {
-        result = mat4.multiplyVec3(this.context.getWorldSpaceMatrix(), result);
-      }
-      return result;
-    },
+    getPosition: function(index) { return this.getLight(index).getPosition(); },
     
     getLight: function(index) {
       if (index == undefined)

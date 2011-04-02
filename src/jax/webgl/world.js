@@ -6,6 +6,7 @@ Jax.World = (function() {
       this.context  = context;
       this.lighting = new Jax.Scene.LightManager(context);
       this.objects  = [];
+      this.object_cache = [];
     },
     
     addLightSource: function(light)   { this.lighting.add(light); },
@@ -16,6 +17,13 @@ Jax.World = (function() {
     
     render: function() {
       var i;
+      
+      while (this.object_cache.length > 0) this.object_cache.pop();
+      for (i = 0; i < this.objects.length; i++) {
+        if (this.objects[i].isShadowCaster()) {
+          this.object_cache.push(this.objects[i]);
+        }
+      }
       
       /* this.current_pass is used by the material */
       this.context.current_pass = Jax.Scene.AMBIENT_PASS;
@@ -28,7 +36,7 @@ Jax.World = (function() {
         
         /* illumination pass */
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
-        this.lighting.updateShadowMaps(this.context, this.objects);
+        this.lighting.updateShadowMaps(this.context, this.object_cache);
         this.context.glBlendFunc(GL_ONE, GL_ONE);
         this.lighting.illuminate(this.context, this.objects);
       } else {
