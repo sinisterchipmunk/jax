@@ -193,6 +193,20 @@ Jax.Texture = (function() {
       }
     },
     
+    getTarget: function() { return this.options.target; },
+    getMinFilter: function() { return this.options.min_filter; },
+    getMagFilter: function() { return this.options.mag_filter; },
+    getGeneratesMipmaps: function() { return this.options.generate_mipmap; },
+    getMipmapHint: function() { return this.options.mipmap_hint; },
+    getFormat: function() { return this.options.format; },
+    getDataType: function() { return this.options.data_type; },
+    getWrapS: function() { return this.options.wrap_s; },
+    getWrapT: function() { return this.options.wrap_t; },
+    getFlipY: function() { return this.options.flip_y; },
+    getPremultipliesAlpha: function() { return this.options.premultiply_alpha; },
+    getDoesColorspaceConversion: function() { return this.options.colorspace_conversion; },
+    getOnloadFunc: function() { return this.options.onload; },
+    
     refresh: function(context) {
       if (!this.ready()) return;
       
@@ -210,6 +224,7 @@ Jax.Texture = (function() {
         this.generateMipmap(context);
       }
       
+      context.glBindTexture(this.options.target, null);
       this.valid[context.id] = true;
     },
     
