@@ -28,30 +28,58 @@ Jax.Texture = (function() {
     if (self.image) {
       switch(target) {
         case GL_TEXTURE_2D:
-          context.glTexImage2D(target, 0, format, GL_RGBA, data_type, self.image);
+          context.glTexImage2D(target, 0, format, format, data_type, self.image);
           break;
         case GL_TEXTURE_CUBE_MAP:
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, GL_RGBA, data_type, self.image);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, GL_RGBA, data_type, self.image);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, GL_RGBA, data_type, self.image);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, GL_RGBA, data_type, self.image);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, GL_RGBA, data_type, self.image);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, GL_RGBA, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, format, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, format, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, format, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, format, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, format, data_type, self.image);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, format, data_type, self.image);
           break;
         default: throw new Error("Unexpected texture target "+target+"; use GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP");
       }
     } else if (self.images) {
       switch(target) {
         case GL_TEXTURE_2D:
-          context.glTexImage2D(target, 0, format, GL_RGBA, data_type, self.images[0]);
+          context.glTexImage2D(target, 0, format, format, data_type, self.images[0]);
           break;
         case GL_TEXTURE_CUBE_MAP:
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_X] || self.images[0]);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_Y] || self.images[1]);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_Z] || self.images[2]);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_X] || self.images[3]);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_Y] || self.images[4]);
-          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, GL_RGBA, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_Z] || self.images[5]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_X] || self.images[0]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_Y] || self.images[1]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_POSITIVE_Z] || self.images[2]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_X] || self.images[3]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_Y] || self.images[4]);
+          context.glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, format, data_type, self.images[GL_TEXTURE_CUBE_MAP_NEGATIVE_Z] || self.images[5]);
+          break;
+        default: throw new Error("Unexpected texture target "+target+"; use GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP");
+      }
+    } else {
+      // no images at all -- load the texture with empty data; it's probably for a framebuffer
+      var width = self.options.width, height = self.options.height;
+      if (!width || !height) throw new Error("Can't build an empty texture without at least a width and height");
+      
+      function ti2d(glEnum) {
+        try {
+          context.glTexImage2D(glEnum, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, null);
+        } catch (e) {
+          var tex = new Uint8Array(width*height*Jax.Util.sizeofFormat(format));
+          context.glTexImage2D(glEnum, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, tex);
+        }
+      }
+      
+      switch(target) {
+        case GL_TEXTURE_2D:
+          ti2d(GL_TEXTURE_2D);
+          break;
+        case GL_TEXTURE_CUBE_MAP:
+          ti2d(GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+          ti2d(GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
+          ti2d(GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+          ti2d(GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
+          ti2d(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
+          ti2d(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
           break;
         default: throw new Error("Unexpected texture target "+target+"; use GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP");
       }
@@ -102,6 +130,10 @@ Jax.Texture = (function() {
      *                     
      **/
     initialize: function(path_or_array, options) {
+      this.handles = {};
+      this.loaded = false;
+      this.valid = [];
+
       var self = this;
       this.options = Jax.Util.normalizeOptions(options, {
         min_filter: GL_NEAREST,
@@ -119,27 +151,31 @@ Jax.Texture = (function() {
         onload: null
       });
 
-      if (typeof(path_or_array) == "string") {
-        this.image = new Image();
-        this.image.onload = function() { imageLoaded(self, false); };
-        this.image.src = path_or_array;
-      } else {
-        var onload = function() { imageLoaded(self, true); };
-        this.images = [];
-        this.images.load_count = 0;
-        for (var i = 0; i < path_or_array.length; i++) {
-          this.images[i] = new Image();
-          this.images[i].onload = onload;
-          this.images[i].src = path_or_array[i];
+      if (path_or_array) {
+        if (typeof(path_or_array) == "string") {
+          this.image = new Image();
+          this.image.onload = function() { imageLoaded(self, false); };
+          this.image.src = path_or_array;
+        } else {
+          var onload = function() { imageLoaded(self, true); };
+          this.images = [];
+          this.images.load_count = 0;
+          for (var i = 0; i < path_or_array.length; i++) {
+            this.images[i] = new Image();
+            this.images[i].onload = onload;
+            this.images[i].src = path_or_array[i];
+          }
         }
       }
-      this.handles = {};
-      this.loaded = false;
-      this.valid = [];
+      else {
+        // nothing to load
+        this.options.generate_mipmap = !!(options && options.generate_mipmap);
+        this.loaded = true;
+      }
     },
     
     refresh: function(context) {
-      if (!this.loaded) return;
+      if (!this.ready()) return;
       
       context.glBindTexture(this.options.target, this.getHandle(context));
       generateTexture(context, this);
@@ -151,7 +187,7 @@ Jax.Texture = (function() {
       context.glPixelStorei(GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.options.premultiply_alpha);
       context.glPixelStorei(GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, this.options.colorspace_conversion ? GL_BROWSER_DEFAULT_WEBGL : GL_NONE);
       
-      if (this.generate_mipmap) {
+      if (this.options.generate_mipmap) {
         this.generateMipmap(context);
       }
       
@@ -159,7 +195,8 @@ Jax.Texture = (function() {
     },
     
     generateMipmap: function(context) {
-      context.glHint(this.options.mipmap_hint);
+      // why does this raise 1280 invalid enum?
+//      context.glHint(GL_GENERATE_MIPMAP_HINT, this.options.mipmap_hint);
       context.glGenerateMipmap(this.options.target);
     },
     
@@ -180,7 +217,7 @@ Jax.Texture = (function() {
     },
     
     bind: function(context, level, callback) {
-      if (!this.loaded) return; // no texture to display, yet... but not worth crashing over.
+      if (!this.ready()) return; // no texture to display, yet... but not worth crashing over.
       if (!this.isValid(context)) this.refresh(context);
       
       if (typeof(level) == "number")
