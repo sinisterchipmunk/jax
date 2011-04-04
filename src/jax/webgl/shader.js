@@ -98,8 +98,8 @@ Jax.Shader = (function() {
   function doRenderPass(self, context, mesh, options) {
     var id;
     
-    for (id in self.attributes) self.setAttribute(context, mesh, getNormalizedAttribute(self, id));
-    for (id in self.uniforms)   self.setUniform(  context, mesh, getNormalizedUniform(self, id));
+    for (id in self.attributes) self.setAttribute(context, mesh, options, getNormalizedAttribute(self, id));
+    for (id in self.uniforms)   self.setUniform(  context, mesh, options, getNormalizedUniform(self, id));
       
     var buffer;
     if (buffer = mesh.getIndexBuffer()) {
@@ -127,22 +127,12 @@ Jax.Shader = (function() {
         compile(this, context);
       
       context.glUseProgram(this.compiled_program[context.id]);
-      if (this.supports_shadows && context.world.lighting.isEnabled()) {
-        // ambient pass
-//        context.world.lighting.disable();
-//        doRenderPass(this, context, mesh, options);
-        
-        // illumination pass
-//        context.world.lighting.enable();
-        doRenderPass(this, context, mesh, options);
-      } else {
-        doRenderPass(this, context, mesh, options);
-      }
+      doRenderPass(this, context, mesh, options);
     },
     
-    setAttribute: function(context, mesh, attribute) {
+    setAttribute: function(context, mesh, options, attribute) {
       var value = attribute.value;
-      if (typeof(value) == "function") value = value(context, mesh);
+      if (typeof(value) == "function") value = value(context, mesh, options);
       if (value == null || typeof(value) == "undefined") return this.disableAttribute(context, attribute);
       var location = getAttributeLocation(this, context, attribute);
       
@@ -151,9 +141,9 @@ Jax.Shader = (function() {
       context.glVertexAttribPointer(location, value.itemSize, attribute.type || value.type || GL_FLOAT, false, 0, 0);
     },
     
-    setUniform: function(context, mesh, uniform) {
+    setUniform: function(context, mesh, options, uniform) {
       var value = uniform.value;
-      if (typeof(value) == "function") value = value.call(uniform, context, mesh);
+      if (typeof(value) == "function") value = value.call(uniform, context, mesh, options);
 
       var location = getUniformLocation(this, context, uniform);
       if (!location) return;
