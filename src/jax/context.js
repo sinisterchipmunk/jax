@@ -90,7 +90,7 @@ Jax.Context = (function() {
     self.matrix_stack.loadProjectionMatrix(self.player.camera.getProjectionMatrix());
   }
   
-  return Jax.Class.create({
+  var klass = Jax.Class.create({
     initialize: function(canvas) {
       if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
       if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
@@ -189,8 +189,6 @@ Jax.Context = (function() {
       this.matrix_stack.pop();
     },
     
-    multMatrix: function(matr) { return this.matrix_stack.multModelMatrix(matr); },
-    
     /**
      * Jax.Context#getViewMatrix() -> mat4
      * Returns the view matrix. See Jax.MatrixStack#getViewMatrix for details.
@@ -214,33 +212,6 @@ Jax.Context = (function() {
      **/
     getFrustum: function() { return this.player.camera.frustum; },
   
-    /**
-     * Jax.Context#getModelViewMatrix() -> mat4
-     * Returns the current modelview matrix.
-     **/
-    getModelViewMatrix: function() { return this.matrix_stack.getModelViewMatrix(); },
-    
-    /**
-     * Jax.Context#getInverseModelViewMatrix() -> mat4
-     * Returns the inverse of the current modelview matrix.
-     **/
-    getInverseModelViewMatrix: function() { return this.matrix_stack.getInverseModelViewMatrix(); },
-    
-    getModelViewProjectionMatrix: function() { return this.matrix_stack.getModelViewProjectionMatrix(); },
-    getModelMatrix: function() { return this.matrix_stack.getModelMatrix(); },
-    
-    /**
-     * Jax.Context#getProjectionMatrix() -> mat4
-     * Returns the current projection matrix.
-     **/
-    getProjectionMatrix: function() { return this.matrix_stack.getProjectionMatrix(); },
-
-    /**
-     * Jax.Context#getNormalMatrix() -> mat4
-     * Returns the current normal matrix.
-     **/
-    getNormalMatrix: function() {return this.matrix_stack.getNormalMatrix(); },
-
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */
       if (Jax.environment == "production") return; /* TODO expose Jax.environment to application */
@@ -266,6 +237,11 @@ Jax.Context = (function() {
       throw err;
     }
   });
+  
+  /* set up matrix stack delegation */
+  klass.delegate(/^(get|load|mult)(.*)Matrix$/).into("matrix_stack");
+  
+  return klass;
 })();
 
 Jax.Context.identifier = 0;
