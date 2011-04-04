@@ -48,7 +48,7 @@
         {
           var self = this;
           context.pushMatrix(function() {
-            context.multMatrix(self.camera.getModelViewMatrix());
+            context.multModelMatrix(self.camera.getModelViewMatrix());
             self.mesh.render(context, options);
           });
         }
