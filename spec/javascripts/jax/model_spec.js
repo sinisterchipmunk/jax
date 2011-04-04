@@ -3,6 +3,12 @@ describe("Jax.Model", function() {
   
   describe("without any custom methods", function() {
     beforeEach(function() { model = Jax.Model.create({}); });
+    
+    it("should render", function() {
+      var context = new Jax.Context('canvas-element');
+      new model({mesh:new Jax.Mesh.Quad()}).render(context);
+      context.dispose();
+    });
   
     it("should fire after_initialize", function() {
       model.addResources({ "name": { fired: false } });
