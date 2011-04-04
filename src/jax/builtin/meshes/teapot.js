@@ -8,7 +8,7 @@ Jax.Mesh.Teapot = (function() {
   
   return Jax.Class.create(Jax.Mesh, {
     initialize: function($super, options) {
-      this.size = options.size || 1;
+      this.size = options && options.size || 1;
       $super(options);
     },
     
