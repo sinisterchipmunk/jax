@@ -15,6 +15,7 @@ Jax.Util = {
 
     function doComparison(i) {
       if (src[i] == null) dst[i] = null;
+      else if (src[i].klass)               dst[i] = src[i];
       else if (Object.isArray(src[i]))     Jax.Util.merge(src[i], dst[i] = dst[i] || []);
       else if (typeof(src[i]) == "object") Jax.Util.merge(src[i], dst[i] = dst[i] || {});
       else dst[i] = src[i];
@@ -30,6 +31,8 @@ Jax.Util = {
    * Jax.Util.normalizeOptions(incoming, defaults) -> Object
    * Receives incoming and formats it into a generic Object with a structure representing the given defaults.
    * The returned object is always a brand-new object, to avoid polluting original incoming object.
+   * If the object contains a Jax.Class instance, that actual object is copied over. All other objects
+   * are cloned into brand-new objects.
    **/
   normalizeOptions: function(incoming, defaults) {
     var result = {};

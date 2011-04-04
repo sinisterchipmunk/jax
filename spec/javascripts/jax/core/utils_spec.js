@@ -64,6 +64,15 @@ describe("Jax.Util", function() {
       });
     });
     
+    describe("given a klass value", function() {
+      beforeEach(function() { normalized = Jax.Util.normalizeOptions({k:new (Jax.Class.create({}))}, {}); });
+      
+      it("should be an instance of that klass", function() {
+        expect(normalized.k.klass).not.toBeUndefined();
+        expect(normalized.k).toBeKindOf(normalized.k.klass);
+      });
+    });
+    
     describe("given values that are not in defaults", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({m:8,n:{o:9,p:0}}, {i:1,j:{k:2,l:3}}); });
       
