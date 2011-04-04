@@ -15,10 +15,16 @@ Jax.Mesh.Quad = (function() {
   return Jax.Class.create(Jax.Mesh, {
     initialize: function($super, options) {
       if (typeof(options) == "number") { options = {width:options, height:options}; }
+      
+      options = Jax.Util.normalizeOptions(options, {
+        width:options && options.size ? options.size : 1,
+        height:options && options.size ? options.size : 1
+      });
+      
       this.draw_mode = GL_TRIANGLE_STRIP;
       $super(options);
       
-      this.setSize(options && options.width || options.size || 1, options && options.height || options.size || 1)
+      this.setSize(options.width, options.height);
     },
 
     /**
