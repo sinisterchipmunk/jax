@@ -49,10 +49,12 @@ Jax.Mesh = (function() {
   }
   
   function normalizeRenderOptions(self, options) {
-    var result = {};
-    options = options || result;
-    result.material = findMaterial(options.material || self.material);
-    result.draw_mode = options.draw_mode || self.draw_mode || GL_TRIANGLES;
+    var result = Jax.Util.normalizeOptions(options, {
+      material: self.material,
+      draw_mode: self.draw_mode || GL_TRIANGLES
+    });
+    
+    result.material = findMaterial(result.material);
 
     return result;
   }
