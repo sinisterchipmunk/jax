@@ -4,6 +4,19 @@
  **/
 Jax.Util = {
   /**
+   * Jax.Util.properties(object) -> Array
+   * - object (Object): any Object
+   * 
+   * Returns an array containing the names of all properties in the specified object.
+   **/
+  properties: function(object) {
+    var arr = [];
+    for (var i in object)
+      arr.push(i);
+    return arr;
+  },
+  
+  /**
    * Jax.Util.merge(incoming, outgoing) -> outgoing
    * Merges the two objects by copying all properties from _incoming_ into _outgoing_, replacing
    * any properties that already exist. _outgoing_ will retain any properties that do not exist
