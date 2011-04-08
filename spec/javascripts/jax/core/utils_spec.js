@@ -1,4 +1,12 @@
 describe("Jax.Util", function() {
+  describe("properties", function() {
+    var src;
+    beforeEach(function() { src = { prop1: 1, prop2: 2 }; });
+    it("should return property names", function() {
+      expect(Jax.Util.properties(src)).toEqual(['prop1', 'prop2']);
+    });
+  });
+  
   describe("merge", function() {
     var src, dst;
     describe("with a source with null attributes and destination with existing attributes of same name", function() {
