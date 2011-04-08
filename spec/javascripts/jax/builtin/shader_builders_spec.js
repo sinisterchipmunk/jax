@@ -3,7 +3,7 @@ describe("Built-in Shader Builder:", function() {
   beforeEach(function() { context = new Jax.Context(document.getElementById('canvas-element')); });
   afterEach(function() { context.dispose(); });
   
-  var shaders = ['failsafe', 'color_without_texture', 'blinn-phong'];
+  var shaders = Jax.Util.properties(Jax.shader_program_builders);
   for (var i = 0; i < shaders.length; i++)
   {
     describe(shaders[i], function() {
