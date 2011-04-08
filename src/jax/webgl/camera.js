@@ -151,6 +151,12 @@ Jax.Camera = (function() {
       mat4.ortho(options.left, options.right, options.bottom, options.top, options.near, options.far, this.matrices.p);
       this.matrices.p.width = options.right - options.left;
       this.matrices.p.height= options.top - options.bottom;
+      this.matrices.p.left = options.left;
+      this.matrices.p.right = options.right;
+      this.matrices.p.near = options.near;
+      this.matrices.p.far = options.far;
+      this.matrices.p.top = options.top;
+      this.matrices.p.bottom = options.bottom;
       this.fireEvent('matrixUpdated');
     },
 
@@ -309,6 +315,9 @@ Jax.Camera = (function() {
       mat4.perspective(options.fov, aspect_ratio, options.near, options.far, this.matrices.p);
       this.matrices.p.width = options.width;
       this.matrices.p.height = options.height;
+      this.matrices.p.near = options.near;
+      this.matrices.p.far = options.far;
+      this.matrices.p.fov = options.fov;
       this.fireEvent('matrixUpdated');
     },
 
