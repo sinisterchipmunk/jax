@@ -76,7 +76,48 @@ Jax.Shader = (function() {
       context.glShaderSource(shader, source);
       context.glCompileShader(shader);
       if (!context.glGetShaderParameter(shader, GL_COMPILE_STATUS))
-        throw new Error(context.glGetShaderInfoLog(shader));
+      {
+        source = source.split(/\n/);
+        var log = context.glGetShaderInfoLog(shader).split(/\n/);
+        /* show the dev where the errors are in the shader source */
+        /*
+          ERROR: 0:34: '' : function does not return a value: dp_lookup
+          ERROR: 0:75: '}' : syntax error 
+        */
+        var current = 1;
+        var injected = [], li;
+        
+        function strToInject() {
+          return current+" : "+source[current-1];
+        }
+        
+        for (li = 0; li < log.length; li++) {
+          var line = log[li];
+          var match = /0:(\d+):(.*)/.exec(line);
+          if (!match) continue; // blank line
+          var line_number = parseInt(match[1]);
+          if (line_number > current) {
+            for (current = current; current < line_number; current++)
+              injected.push(strToInject());
+          }
+          if (line_number == current) {
+            injected.push(strToInject());
+            injected.push(":: ERROR : "+match[2]); /* error message */
+          }
+          current = line_number+1;
+        }
+        /* prepend a summary so user can debug simple errors at a glance*/
+        injected.unshift("");
+        for (li = log.length-1; li >= 0; li--)
+          injected.unshift(log[li]);
+        
+        /* finally, add 3 more lines so the user has an easier time finding the problem in real code */
+        li = current;
+        for (current = li; current < li+3; current++)
+          injected.push(strToInject());
+        
+        throw new Error(injected.join("\n"));
+      }
       return shader;
     }
     
