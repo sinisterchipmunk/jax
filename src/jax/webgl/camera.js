@@ -78,6 +78,32 @@ Jax.Camera = (function() {
   
   return Jax.Class.create({
     initialize: function() {
+      /**
+       * Jax.Camera#projection -> Object
+       * This property is undefined until either #ortho() or #perspective() is called. After a projection matrix
+       * has been initialized, this object will contain various metadata about the projection matrix, such as
+       * the width and height of the viewport.
+       * 
+       * For orthogonal projection matrices, it contains the following information:
+       *     width, height, depth
+       *     left, right
+       *     top, bottom
+       *     near, far
+       *     
+       * For perspective projection matrices, it contains the following information:
+       *     width, height
+       *     near, far
+       *     fov (in degrees)
+       *     
+       * Note that this information is here for reference only; modifying it will in no way modify the projection
+       * matrix itself. (For that, you need to make another call to #ortho() or #perspective().) Therefore,
+       * changing this object's properties is not recommended because doing so would no longer accurately reflect
+       * the parameters of the real projection matrix.
+       * 
+       * Subsequent calls to #perspective() or #ortho() will cause this object to be regenerated. Because of this,
+       * it is not recommended to store any persistent data in this object.
+       **/
+      
       /* used for temporary storage, just to avoid repeatedly allocating temporary vectors */
       this._tmp = [ vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create() ];
       
@@ -149,14 +175,17 @@ Jax.Camera = (function() {
       options.near = options.near || 0.01;
       
       mat4.ortho(options.left, options.right, options.bottom, options.top, options.near, options.far, this.matrices.p);
-      this.matrices.p.width = options.right - options.left;
-      this.matrices.p.height= options.top - options.bottom;
-      this.matrices.p.left = options.left;
-      this.matrices.p.right = options.right;
-      this.matrices.p.near = options.near;
-      this.matrices.p.far = options.far;
-      this.matrices.p.top = options.top;
-      this.matrices.p.bottom = options.bottom;
+      this.projection = {
+        width: options.right - options.left,
+        height: options.top - options.bottom,
+        depth: options.near - options.far,
+        left: options.left,
+        right: options.right,
+        near: options.near,
+        far: options.far,
+        top: options.top,
+        bottom: options.bottom
+      };
       this.fireEvent('matrixUpdated');
     },
 
@@ -313,11 +342,11 @@ Jax.Camera = (function() {
       
       var aspect_ratio = options.width / options.height;
       mat4.perspective(options.fov, aspect_ratio, options.near, options.far, this.matrices.p);
-      this.matrices.p.width = options.width;
-      this.matrices.p.height = options.height;
-      this.matrices.p.near = options.near;
-      this.matrices.p.far = options.far;
-      this.matrices.p.fov = options.fov;
+      this.projection = {
+        width: options.width, height: options.height,
+        near: options.near,   far: options.far,
+        fov: options.fov
+      };
       this.fireEvent('matrixUpdated');
     },
 
