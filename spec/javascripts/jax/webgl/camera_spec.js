@@ -10,25 +10,25 @@ describe("Camera", function() {
     it("should have up [0,1,0]", function() { expect(camera.getUpVector()).toEqualVector([0,1,0]); });
   });
   
-  describe("perspective", function() {
+  describe("perspective projection", function() {
     beforeEach(function() { camera.perspective({fov:45,near:0.1,far:500,width:2048,height:1024}); });
     
-    it("should have fov 45", function() { expect(camera.getProjectionMatrix().fov).toEqual(45); });
-    it("should have near 0.1", function() { expect(camera.getProjectionMatrix().near).toEqual(0.1); });
-    it("should have far 500", function() { expect(camera.getProjectionMatrix().far).toEqual(500); });
-    it("should have width 2048", function() { expect(camera.getProjectionMatrix().width).toEqual(2048); });
-    it("should have height 1024", function() { expect(camera.getProjectionMatrix().height).toEqual(1024); });
+    it("should have fov 45", function() { expect(camera.projection.fov).toEqual(45); });
+    it("should have near 0.1", function() { expect(camera.projection.near).toEqual(0.1); });
+    it("should have far 500", function() { expect(camera.projection.far).toEqual(500); });
+    it("should have width 2048", function() { expect(camera.projection.width).toEqual(2048); });
+    it("should have height 1024", function() { expect(camera.projection.height).toEqual(1024); });
   });
   
-  describe("ortho", function() {
+  describe("ortho projection", function() {
     beforeEach(function() { camera.ortho({left:-1,right:2,top:3,bottom:-4,near:0.1,far:500}); });
     
-    it("should have left -1", function() { expect(camera.getProjectionMatrix().left).toEqual(-1); });
-    it("should have right 2", function() { expect(camera.getProjectionMatrix().right).toEqual(2); });
-    it("should have top 3", function() { expect(camera.getProjectionMatrix().top).toEqual(3); });
-    it("should have bottom -4", function() { expect(camera.getProjectionMatrix().bottom).toEqual(-4); });
-    it("should have near 0.1", function() { expect(camera.getProjectionMatrix().near).toEqual(0.1); });
-    it("should have far 500", function() { expect(camera.getProjectionMatrix().far).toEqual(500); });
+    it("should have left -1", function() { expect(camera.projection.left).toEqual(-1); });
+    it("should have right 2", function() { expect(camera.projection.right).toEqual(2); });
+    it("should have top 3", function() { expect(camera.projection.top).toEqual(3); });
+    it("should have bottom -4", function() { expect(camera.projection.bottom).toEqual(-4); });
+    it("should have near 0.1", function() { expect(camera.projection.near).toEqual(0.1); });
+    it("should have far 500", function() { expect(camera.projection.far).toEqual(500); });
   });
   
   it("should set and get position accurately", function() {
