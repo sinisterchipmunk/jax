@@ -2,6 +2,8 @@ require 'thor/shell/basic'
 
 class SpecShell < Thor::Shell::Basic
   attr_reader :stdin, :stdout, :stderr
+  alias input stdin
+  alias output stdout
   
   def initialize(options = { })
     super()

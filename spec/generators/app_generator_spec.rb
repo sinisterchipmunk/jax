@@ -16,6 +16,7 @@ EXPECTED_FILES = %w(
   spec/javascripts/support/jasmine.yml
   spec/javascripts/support/jasmine_runner.rb
   spec/javascripts/support/spec_layout.html.erb
+  spec/javascripts/helpers/jax_spec_helper.js
   Rakefile 
   Gemfile
 )
