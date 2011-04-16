@@ -1,4 +1,47 @@
 describe("Jax.Util", function() {
+  describe("vectorize", function() {
+    var data;
+    
+    describe("with object with names", function() {
+      beforeEach(function() { data = {x:1,y:2,z:3}; });
+      it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+    });
+    
+    describe("with string", function() {
+      describe("comma delimited", function() {
+        beforeEach(function() { data = "1,2,3"; });
+        it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      });
+      describe("space delimited", function() {
+        beforeEach(function() { data = "1 2 3"; });
+        it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      });
+      describe("comma-and-space delimited", function() {
+        beforeEach(function() { data = "1, 2, 3"; });
+        it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      });
+      describe("tab delimited", function() {
+        beforeEach(function() { data = "1\t2\t3"; });
+        it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      });
+      describe("comma-space-tab delimited", function() {
+        beforeEach(function() { data = "1, \t2, \t3"; });
+        it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      });
+    });
+    
+    describe("with object with indices", function() {
+      beforeEach(function() { data = {0:1,1:2,2:3}; });
+      it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+    });
+    
+    describe("with a vector", function() {
+      beforeEach(function() { data = [1,2,3]; });
+      it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+      it("should not return itself", function() { expect(Jax.Util.vectorize(data)).not.toEqual(data); });
+    });
+  });
+  
   describe("properties", function() {
     var src;
     beforeEach(function() { src = { prop1: 1, prop2: 2 }; });
