@@ -22,7 +22,7 @@ EXPECTED_FILES = %w(
 
 describe Jax::Generators::App::AppGenerator do
   def generate(*args)
-    Jax::Generators::App::AppGenerator.start(args, :shell => SpecShell.new)
+    Jax::Generators::App::AppGenerator.start(args + ['--debug'], :shell => SpecShell.new)
   end
 
   before :each do
