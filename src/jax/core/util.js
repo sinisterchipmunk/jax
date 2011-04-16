@@ -4,6 +4,42 @@
  **/
 Jax.Util = {
   /**
+   * Jax.Util.vectorize(object) -> vec3
+   * - object (Object): any Object
+   *
+   * Analyzes the input object and returns a vec3 based on its contents. It can be any of the following:
+   *   * a vec3
+   *   * an array
+   *   * an object with {x, y, z} properties
+   *   * an object with {0, 1, 2} properties
+   *   * a string delimited with any combination of commas, spaces and/or tab characters. Examples:
+   *     "x,y,z"
+   *     "x y z"
+   *     "x, y, z"
+   *     "x\ty\tz"
+   *     "x, \ty, \tz"
+   **/
+  vectorize: function(data) {
+    if (data) {
+      var res = vec3.create();
+      if (typeof(data) == "string") {
+        var components = data.split(/[,\s]+/);
+        if (components.length >= 3) {
+          for (var i = 0; i < 3; i++)
+            res[i] = parseFloat(components[i]);
+        }
+        return res;
+      }
+      if (data.length && data.length >= 3) return vec3.set(data, res);
+      if ((res[0] = data.x) != undefined && (res[1] = data.y) != undefined && (res[2] = data.z) != undefined) return res;
+      if ((res[0] = data[0]) != undefined && (res[1] = data[1]) != undefined && (res[2] = data[2]) != undefined) return res;
+      /* is this not the same as above? */
+      if ((res[0] = data['0']) != undefined && (res[1] = data['1']) != undefined && (res[2] = data['2']) != undefined) return res;
+    }
+    throw new Error("Input argument for Jax.Util.vectorize not recognized: "+JSON.stringify(data));
+  },
+  
+  /**
    * Jax.Util.properties(object) -> Array
    * - object (Object): any Object
    * 
