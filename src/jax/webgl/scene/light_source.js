@@ -3,39 +3,57 @@ Jax.SPOT_LIGHT        = 2;
 Jax.DIRECTIONAL_LIGHT = 3;
 
 Jax.Scene.LightSource = (function() {
+  function setupProjection(self) {
+    if (self.camera.projection) return;
+    
+    switch(self.type) {
+      case Jax.DIRECTIONAL_LIGHT:
+        self.camera.ortho({left:-1,right:1, top:1,bottom:-1, near:-1,far:1 });
+        self.camera.setPosition(0,0,0);
+        break;
+      case Jax.POINT_LIGHT:
+        self.camera.perspective({fov:45,near:0.01,far:500,width:2048,height:2048});
+        break;
+      case Jax.SPOT_LIGHT:
+        self.camera.perspective({near:0.1,far:500,fov:60,width:2048,height:2048});
+        break;
+      default:
+        throw new Error("Unexpected light type: "+self.type);
+    }
+  }
+  
   return Jax.Model.create({
     initialize: function($super, data) {
-      data = data || {};
-      data.attenuation = data.attenuation || {};
-      data.color = data.color || {};
-
-      function default_field(name, value, obj) {
-        obj = obj || data;
-        if (typeof(obj[name]) == "undefined")
-          obj[name] = value;
-      }
-      
-      default_field('enabled', true);
-      default_field('type', Jax.POINT_LIGHT);
-      default_field('ambient', [0,0,0,1], data.color);
-      default_field('diffuse', [1,1,1,1], data.color);
-      default_field('specular', [1,1,1,1],data.color);
-      default_field('position', [0,0,0]);
-      default_field('direction', [-1,-1,-1]);
-      default_field('angle', Math.PI/6);
-      default_field('spotExponent', 0);
-      default_field('constant', 0, data.attenuation);
-      default_field('linear', 0.02, data.attenuation);
-      default_field('quadratic', 0, data.attenuation);
-      default_field('shadowcaster', true);
-      
-      $super(data);
+      $super(Jax.Util.normalizeOptions(data, {
+        enabled: true,
+        type: Jax.POINT_LIGHT,
+        color: {
+          ambient: [0,0,0,1],
+          diffuse: [1,1,1,1],
+          specular: [1,1,1,1]
+        },
+        position: [0,0,0],
+        direction: [0,0,-1],
+        angle: Math.PI/6,
+        attenuation: {
+          constant: 0,
+          linear: 0.02,
+          quadratic: 0
+        },
+        spotExponent: 0,
+        shadowcaster: true
+      }));
 
       this.shadowMatrix = mat4.create();
+      
+      this.framebuffers = [new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA}),
+                           new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA})];
+
+      setupProjection(this);
     },
     
-    getPosition: function() { return this.camera.getPosition(); },
-    getDirection: function() { return this.camera.getViewVector(); },
+    getPosition: function() { setupProjection(this); return this.camera.getPosition(); },
+    getDirection: function() { setupProjection(this); return this.camera.getViewVector(); },
 
     isEnabled: function() { return this.enabled; },
     getType: function() { return this.type; },
@@ -51,12 +69,18 @@ Jax.Scene.LightSource = (function() {
     getSpotCosCutoff: function() { return Math.cos(this.angle); },
     
     getShadowMapTexture: function(context) {
-      if (this.framebuffer) return this.framebuffer.getTextureBuffer(context, 0);
-      return null;
+      setupProjection(this);
+      return this.framebuffers[0].getTextureBuffer(context, 0);
+    },
+    
+    getShadowMapTextures: function(context) {
+      setupProjection(this);
+      return [this.framebuffers[0].getTextureBuffer(context, 0),
+              this.framebuffers[1].getTextureBuffer(context, 0)];
     },
     
     isShadowMapEnabled: function() {
-      return !!(this.framebuffer && this.isShadowcaster());
+      return !!(this.framebuffers && this.isShadowcaster());
     },
     
     getShadowMatrix: function() {
@@ -65,41 +89,85 @@ Jax.Scene.LightSource = (function() {
     
     isShadowcaster: function() { return this.shadowcaster; },
     
+    getDPShadowNear: function() { setupProjection(this); return this.camera.projection.near; },
+    
+    getDPShadowFar: function() { setupProjection(this); return this.camera.projection.far; },
+    
     updateShadowMap: function(context, sceneBoundingRadius, objects) {
+      setupProjection(this);
+      
+      var self = this;
+      var sm = this.shadowMatrix;
+      var lightToSceneDistance = vec3.length(this.camera.getPosition());
+      var nearPlane = lightToSceneDistance - sceneBoundingRadius;
+      if (nearPlane < 0.01) nearPlane = 0.01;
+
       if (this.type == Jax.DIRECTIONAL_LIGHT) {
         this.camera.ortho({left:-sceneBoundingRadius,right:sceneBoundingRadius,
                            top:sceneBoundingRadius,bottom:-sceneBoundingRadius,
                            near:-sceneBoundingRadius,far:sceneBoundingRadius
         });
         this.camera.setPosition(0,0,0);
-      } else {
+      } else if (this.type == Jax.SPOT_LIGHT) {
         // Save the depth precision for where it's useful
-        var lightToSceneDistance = vec3.length(this.camera.getPosition());
-        var nearPlane = lightToSceneDistance - sceneBoundingRadius;
-        if (nearPlane < 0.01) nearPlane = 0.01;
         var fieldOfView = Math.radToDeg(2.0 * Math.atan(sceneBoundingRadius / lightToSceneDistance));
       
+//        fieldOfView = Math.radToDeg(this.getAngle());
+        fieldOfView = 60;
         this.camera.perspective({near:nearPlane,far:nearPlane+(2.0*sceneBoundingRadius),fov:fieldOfView,width:2048,height:2048});
-        if (this.type == Jax.POINT_LIGHT) {
-          this.camera.lookAt([0,0,0],[0,1,0]);
-        }
+      } else if (this.type == Jax.POINT_LIGHT) {
+        
+        context.glDisable(GL_BLEND);
+        context.glEnable(GL_CULL_FACE);
+        context.glCullFace(GL_FRONT);
+        context.glEnable(GL_POLYGON_OFFSET_FILL);
+        context.glPolygonOffset(2.0, 2.0);
+        
+        context.pushMatrix(function() {
+          self.framebuffers[0].bind(context, function() {
+            // front paraboloid
+            self.framebuffers[0].viewport(context);
+            context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            context.loadViewMatrix(self.camera.getModelViewMatrix());
+            mat4.set(context.getInverseViewMatrix(), sm);
+            
+            for (var i = 0; i < objects.length; i++) {
+              objects[i].render(context, {material:'paraboloid', direction:1});
+            }
+          });
+
+          self.framebuffers[1].bind(context, function() {
+            // back paraboloid
+            self.framebuffers[1].viewport(context);
+            context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            context.loadViewMatrix(self.camera.getModelViewMatrix());
+            for (var i = 0; i < objects.length; i++) {
+              objects[i].render(context, {material:'paraboloid',direction:-1});
+            }
+          });
+  
+          context.glDisable(GL_POLYGON_OFFSET_FILL);
+          context.glEnable(GL_BLEND);
+          context.glCullFace(GL_BACK);
+          context.glDisable(GL_CULL_FACE);
+
+          // restore the original context viewport
+          context.glViewport(0, 0, context.canvas.width, context.canvas.height);
+        });
+
+        return;
       }
-
-      var self = this;
-      var sm = this.shadowMatrix, tmpm = mat4.create();
-      mat4.identity(sm);
-      sm[0] = sm[5] = sm[10] = sm[12] = sm[13] = sm[14] = 0.5;
-
-      if (!this.framebuffer)
-        this.framebuffer = new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA});
-
-      this.framebuffer.bind(context, function() {
+      
+      this.framebuffers[0].bind(context, function() {
+        self.framebuffers[0].viewport(context);
         context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         context.pushMatrix(function() {
+          self.framebuffers[0].viewport(context);
           context.matrix_stack.loadProjectionMatrix(self.camera.getProjectionMatrix());
           context.matrix_stack.loadViewMatrix(self.camera.getModelViewMatrix());
+          mat4.identity(sm);
+          sm[0] = sm[5] = sm[10] = sm[12] = sm[13] = sm[14] = 0.5;
           mat4.multiply(sm, context.getModelViewProjectionMatrix());
-          
           
           context.glEnable(GL_CULL_FACE);
           context.glCullFace(GL_FRONT);
@@ -114,6 +182,8 @@ Jax.Scene.LightSource = (function() {
           context.glCullFace(GL_BACK);
           context.glDisable(GL_CULL_FACE);
         });
+        // restore the original context viewport
+        context.glViewport(0, 0, context.canvas.width, context.canvas.height);
       });
     }
   });
