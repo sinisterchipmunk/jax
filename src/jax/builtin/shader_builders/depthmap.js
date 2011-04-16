@@ -8,7 +8,10 @@ Jax.shader_program_builders['depthmap'] = (function() {
             "uniform mat4 mvMatrix;",
             "uniform mat4 pMatrix;",
             
+//            "varying vec4 vPos;",
+            
             "void main(void) {",
+//            "  vPos = (pMatrix * mvMatrix * vertexPosition);",
             "  gl_Position = pMatrix * mvMatrix * vertexPosition;",
             "}"]
   }
@@ -17,6 +20,8 @@ Jax.shader_program_builders['depthmap'] = (function() {
     return [
             "uniform mat4 pMatrix;",
 
+//            "varying vec4 vPos;",
+            
             'vec4 pack_depth(const in float depth)',
             '{',
               'const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);',

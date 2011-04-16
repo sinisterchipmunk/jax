@@ -14,8 +14,8 @@ var LightingController = (function() {
       var custom_material = new Jax.Material({shininess:128,ambient:[0.05,0.05,0.05,1]});
       
       // add a Teapot
-      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Teapot({size:10, material:custom_material}) }));
-      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Quad({size:75, material:custom_material}), position:[0,-15,-50]}));
+      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Teapot({size:10, material:custom_material}),position:[0,0,0] }));
+      this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Plane({size:75, material:custom_material}), position:[0,-15,-50],direction:[0,1,0]}));
       
       // add a spotlight, like a flashlight -- we'll animate this later
       this.world.addLightSource(new Jax.Scene.LightSource({
@@ -41,9 +41,10 @@ var LightingController = (function() {
       
       // add a point light, like a candle
       this.world.addLightSource(new Jax.Scene.LightSource({
-        shadowcaster:false,
+        shadowcaster:true,
         enabled:true,
         position:[-20,0,0],
+        direction:[1,0,0],
         type: Jax.POINT_LIGHT,
         attenuation: {
           constant: 0,
@@ -53,7 +54,7 @@ var LightingController = (function() {
         color: {
           ambient: [0,0,0,1],
           diffuse: [0.9,0.0,0.0,1],
-          specular: [0.75,0,0,1]
+          specular: [0.75,0.0,0,1]
         }
       }));
       this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"failsafe",color:[1,0,0,0.2]}), shadow_caster: false, position:[-20,0,0]}));
