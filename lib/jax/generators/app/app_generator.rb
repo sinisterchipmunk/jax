@@ -35,6 +35,10 @@ module Jax
           `jasmine init`
         end
         
+        def jax_spec_helper
+          copy_file "spec/javascripts/helpers/jax_spec_helper.js", "spec/javascripts/helpers/jax_spec_helper.js"
+        end
+        
         def rakefile
           insert_into_file 'Rakefile', File.read(File.expand_path("../templates/Rakefile", __FILE__)), :before => /\A/
         end
@@ -47,6 +51,9 @@ module Jax
           )
           source = source_files.collect { |s| "    - #{s}.js" }.join("\n")
           insert_into_file 'spec/javascripts/support/jasmine.yml', source+"\n", :after => /^src_files\:\n/
+          
+          insert_into_file 'spec/javascripts/support/jasmine.yml', "    - helpers/**/*.js",
+                           :after => /^helpers\:\n/
         end
 
         def script_jax
@@ -63,7 +70,6 @@ module Jax
           else
             template 'Gemfile.tt', 'Gemfile'
           end
-          `bundle install`
         end
         
         def spec_layout

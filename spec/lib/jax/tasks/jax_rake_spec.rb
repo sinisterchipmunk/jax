@@ -20,6 +20,7 @@ describe "Rake Tasks:" do
     FileUtils.mkdir_p pwd
     Dir.chdir pwd
     Jax::Generators::App::AppGenerator.start(["test_app"], :shell => shell)
+    puts shell.output.string
     Dir.chdir File.join(pwd, "test_app")
     File.open("Gemfile", "w") { |f| f.print "gem 'jax', :path => '#{File.join(File.dirname(__FILE__), "../../../..")}'"}
     `bundle install`
@@ -34,7 +35,7 @@ describe "Rake Tasks:" do
     Dir.chdir File.expand_path('..', pwd)
   end
   
-  context "package" do
+  context "jax:package" do
     before(:each) { rake('jax:package') }
     
     context "javascript" do
