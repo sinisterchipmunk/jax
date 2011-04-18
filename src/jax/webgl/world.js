@@ -11,37 +11,56 @@ Jax.World = (function() {
     
     addLightSource: function(light)   { this.lighting.add(light); },
     
-    addObject: function(object) { this.objects.push(object); return object; },
+    addObject: function(object) { this.objects.push(object); this.invalidate(); return object; },
     
     getObject: function(index) { return this.objects[index]; },
+    
+    removeObject: function(object_or_index) {
+      if (this.objects[object_or_index]) {
+        var obj = this.objects[object_or_index];
+        this.objects.splice(object_or_index, 1);
+        this.invalidate();
+        return obj;
+      }
+      else
+        for (var i = 0; i < this.objects.length; i++)
+          if (this.objects[i] == object_or_index)
+          {
+            this.objects.splice(i, 1);
+            this.invalidate();
+            return this.objects[i];
+          }
+    },
+    
+    invalidate: function() {
+      while (this.object_cache.length > 0) this.object_cache.pop();
+      for (var i = 0; i < this.objects.length; i++) {
+        if (this.objects[i].isShadowCaster()) {
+          this.object_cache[i] = this.objects[i];
+        }
+      }
+    },
     
     render: function() {
       var i;
       
-      while (this.object_cache.length > 0) this.object_cache.pop();
-      for (i = 0; i < this.objects.length; i++) {
-        if (this.objects[i].isShadowCaster()) {
-          this.object_cache.push(this.objects[i]);
-        }
-      }
-      
       /* this.current_pass is used by the material */
+
+      /* ambient pass */
       this.context.current_pass = Jax.Scene.AMBIENT_PASS;
+      this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      for (i = 0; i < this.objects.length; i++)
+        this.objects[i].render(this.context);
       
       if (this.lighting.isEnabled()) {
-        /* ambient pass */
-        this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        for (i = 0; i < this.objects.length; i++)
-          this.objects[i].render(this.context);
+        /* shadowgen pass */
+        this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
+        this.lighting.updateShadowMaps(this.context, this.object_cache);
         
         /* illumination pass */
-        this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
-        this.lighting.updateShadowMaps(this.context, this.object_cache);
         this.context.glBlendFunc(GL_ONE, GL_ONE);
+        this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
         this.lighting.illuminate(this.context, this.objects);
-      } else {
-        for (i = 0; i < this.objects.length; i++)
-          this.objects[i].render(this.context);
       }
     },
     
