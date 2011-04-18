@@ -9,6 +9,38 @@ describe("Mesh:", function() {
     
   });
   
+  describe("a sphere", function() {
+    beforeEach(function() { mesh = new Jax.Mesh.Sphere(); });
+    
+    describe("that is already built", function() {
+      beforeEach(function() { mesh.rebuild(); });
+
+      it("should set color", function() {
+        mesh.color = [0.5,0,0.4,0.2];
+        mesh.rebuild();
+        var cbuf = mesh.getColorBuffer();
+        for (var i = 0; i < mesh.getVertexBuffer().js.length / 3; i += 4) {
+          expect(cbuf.js[i+0]).toEqual(0.5);
+          expect(cbuf.js[i+1]).toEqual(0);
+          expect(cbuf.js[i+2]).toEqual(0.4);
+          expect(cbuf.js[i+3]).toEqual(0.2);
+        }
+      });
+    });
+    
+    it("should set color", function() {
+      mesh.color = [0.5,0,0.4,0.2];
+      mesh.rebuild();
+      var cbuf = mesh.getColorBuffer();
+      for (var i = 0; i < cbuf.js.length; i += 4) {
+        expect(cbuf.js[i+0]).toEqual(0.5);
+        expect(cbuf.js[i+1]).toEqual(0);
+        expect(cbuf.js[i+2]).toEqual(0.4);
+        expect(cbuf.js[i+3]).toEqual(0.2);
+      }
+    });
+  });
+  
   describe("a simple quad", function() {
     beforeEach(function() {
       mesh = new Jax.Mesh.Quad(2);
