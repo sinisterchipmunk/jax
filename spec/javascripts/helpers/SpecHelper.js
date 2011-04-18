@@ -12,7 +12,7 @@ beforeEach(function() {
     },
     
     toBeTrue: function() {
-      return this.actual;
+      return this.actual == true;
     },
     
     toBeUndefined: function() {

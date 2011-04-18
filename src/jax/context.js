@@ -59,7 +59,7 @@ Jax.Context = (function() {
       var now = new Date();
       var timechange = (now - self.lastUpdate) / 1000.0;
       self.lastUpdate = now;
-        
+      
       self.update(timechange);
       self.update_interval = setTimeout(updateFunc, Jax.update_speed);
     }
@@ -112,10 +112,9 @@ Jax.Context = (function() {
       this.matrix_stack = new Jax.MatrixStack();
       this.current_pass = Jax.Scene.AMBIENT_PASS;
       
+      startUpdating(this);
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
-      
-      startUpdating(this);
     },
     
     hasStencil: function() {
@@ -132,12 +131,16 @@ Jax.Context = (function() {
      **/
     redirectTo: function(path) {
       stopRendering(this);
+
       this.world.dispose();
       this.player.camera.reset();
+      /* yes, this is necessary. If the routing fails, controller must be null to prevent #update with a new world. */
+      this.current_controller = this.current_view = null;
       this.current_controller = Jax.routes.dispatch(path, this);
       if (!this.current_controller.view_key)
         throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
       this.current_view = Jax.views.find(this.current_controller.view_key);
+      
       setupView(this, this.current_view);
       if (!this.isRendering()) startRendering(this);
       

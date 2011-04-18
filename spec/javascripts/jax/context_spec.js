@@ -19,25 +19,44 @@ describe("Jax.Canvas", function() {
   
   describe("when redirecting", function() {
     beforeEach(function() {
+      jasmine.Clock.useMock();
+      
       Jax.routes.clear();
       
       Jax.views.push('one/index', function() { });
       Jax.views.push('two/index', function() { });
 
       var one = Jax.Controller.create("one", {index:function() {}});
-      var two = Jax.Controller.create("two", {index:function() {}});
+      var two = Jax.Controller.create("two", {
+        index:function() { this.world.addObject(new Jax.Model()); },
+        update: function(tc) {  }
+      });
       
       Jax.routes.map("/", one);
       Jax.routes.map("two", two);
       
       context = new Jax.Context(document.getElementById("canvas-element"));
-      spyOn(context.world, 'dispose').andCallThrough();
-      
-      context.redirectTo("two");
     });
     
+    afterEach(function() { context.dispose(); });
+    
     it("should dispose the world", function() {
+      spyOn(context.world, 'dispose').andCallThrough();
+      context.redirectTo("two");
       expect(context.world.dispose).toHaveBeenCalled();
+    });
+    
+    it("to a bad route should stop execution of current controller", function() {
+      context.redirectTo("two");
+      var two_instance = context.current_controller;
+      
+      jasmine.Clock.tick(Jax.update_speed+1);
+      expect(function() { context.redirectTo("invalid"); }).toThrow("Route not recognized: 'invalid'");
+      expect(context.world.objects.length).toEqual(0);
+      
+      spyOn(two_instance, "update"); // notice we can't do this earlier because it *does* get called above
+      jasmine.Clock.tick(Jax.update_speed+1);
+      expect(two_instance.update).not.toHaveBeenCalled();
     });
   });
   
