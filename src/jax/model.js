@@ -9,8 +9,8 @@
     if (data) {
       for (attribute in data) {
         switch(attribute) {
-          case 'position':    self.camera.setPosition(data[attribute]); break;
-          case 'direction':   self.camera.orient(data[attribute]); break;
+          case 'position':    self.camera.setPosition(Jax.Util.vectorize(data[attribute])); break;
+          case 'direction':   self.camera.orient(Jax.Util.vectorize(data[attribute])); break;
           case 'mesh':
             if (data[attribute].isKindOf(Jax.Mesh)) self.mesh = data[attribute];
             else throw new Error("Unexpected value for mesh:\n\n"+JSON.stringify(data[attribute]));
@@ -28,6 +28,7 @@
         this.camera = new Jax.Camera();
         
         this.shadow_caster = true;
+        initProperties(this, Jax.Model.default_properties);
         if (this._klass && this._klass.resources)
           initProperties(this, this._klass.resources['default']);
         initProperties(this, data);
@@ -67,6 +68,10 @@
       dispose: function() {
         if (this.mesh)
           this.mesh.dispose();
+      },
+      
+      isLit: function() {
+        return this.lit;
       },
 
       /**
@@ -136,6 +141,10 @@
         if (this.resources[id]) throw new Error("Duplicate resource ID: "+id);
         else this.resources[id] = resources[id];
     }
+  };
+  
+  Jax.Model.default_properties = {
+    lit: true
   };
   
   Jax.Model.create = function(superclass, inner) {

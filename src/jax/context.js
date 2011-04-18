@@ -110,6 +110,7 @@ Jax.Context = (function() {
       this.player = {camera: new Jax.Camera()};
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
       this.matrix_stack = new Jax.MatrixStack();
+      this.current_pass = Jax.Scene.AMBIENT_PASS;
       
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
