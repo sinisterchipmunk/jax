@@ -58,9 +58,11 @@ Jax.Mesh = (function() {
   function normalizeRenderOptions(self, options) {
     var result = Jax.Util.normalizeOptions(options, {
       material: self.material,
+      default_material: self.default_material,
       draw_mode: self.draw_mode || GL_TRIANGLES
     });
     
+    if (!result.material) result.material = result.default_material;
     result.material = findMaterial(result.material);
 
     return result;
@@ -109,7 +111,20 @@ Jax.Mesh = (function() {
        * 
        *     Jax.Material.find(...).
        **/
-      this.material = "default";
+
+      /**
+       * Jax.Mesh#default_material -> String | Jax.Material
+       * This property represents the material that will be used to render this mesh if #material
+       * isn't given a value and the render options don't override the material. If
+       * it is a string, Jax will find the material with this name in the material registry
+       * using:
+       * 
+       *     Jax.Material.find(...).
+       *     
+       * This property can also be specified as a render option in order to specify a default
+       * for a particular pass.
+       **/
+      this.default_material = "default";
       
       for (var i in options)
         this[i] = options[i];

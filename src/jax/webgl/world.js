@@ -46,13 +46,14 @@ Jax.World = (function() {
       
       /* this.current_pass is used by the material */
 
-      /* ambient pass */
       this.context.current_pass = Jax.Scene.AMBIENT_PASS;
       this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      for (i = 0; i < this.objects.length; i++)
-        this.objects[i].render(this.context);
       
       if (this.lighting.isEnabled()) {
+        /* ambient pass */
+        for (i = 0; i < this.objects.length; i++)
+          this.objects[i].render(this.context);
+      
         /* shadowgen pass */
         this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
         this.lighting.updateShadowMaps(this.context, this.object_cache);
@@ -61,6 +62,10 @@ Jax.World = (function() {
         this.context.glBlendFunc(GL_ONE, GL_ONE);
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
         this.lighting.illuminate(this.context, this.objects);
+      } else {
+        var options = { default_material: "basic" };
+        for (i = 0; i < this.objects.length; i++)
+          this.objects[i].render(this.context, options);
       }
     },
     
