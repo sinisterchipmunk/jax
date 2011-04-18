@@ -60,5 +60,9 @@ describe Jax::Generators::Controller::ControllerGenerator do
     it "should generate view file" do
       File.should exist("app/views/welcome/index.js")
     end
+    
+    it "should register route" do
+      File.read("config/routes.rb").should match(/^  map ['"]welcome\/index['"]/)
+    end
   end
 end

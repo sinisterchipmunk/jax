@@ -38,6 +38,13 @@ module Jax
             template 'view.js.tt', File.join("app/views", file_name, "#{action}.js")
           end
         end
+        
+        def routes
+          actions.each do |action|
+            insert_into_file "config/routes.rb", "\n  map '#{controller_name}/#{action}'",
+                             :after => /\.routes\.map do$/
+          end
+        end
 
         protected
         def self.banner
