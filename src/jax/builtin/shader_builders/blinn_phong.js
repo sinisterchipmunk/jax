@@ -45,7 +45,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       'attribute vec2 VERTEX_TEXCOORDS;',
       'attribute vec4 VERTEX_POSITION, VERTEX_COLOR;',
       'attribute vec3 VERTEX_NORMAL;',
-            
+       
       'void calculateDPLighting() {',
 //        'vShadowCoord = mvMatrix * vec4(VERTEX_POSITION.xyz, 1.0);',
         'vec4 p = vShadowCoord;',
@@ -88,12 +88,12 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         'vNormal = nMatrix * VERTEX_NORMAL;',
         'vTexCoords = VERTEX_TEXCOORDS;',
             
-        'if (SHADOWMAP_ENABLED) {',
-          'vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;',
-        '}',
-            
         /* if it's an ambient pass, then we don't even care about light information */
-        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
+        'if (PASS_TYPE == '+Jax.Scene.ILLUMINATION_PASS+') {',
+          'if (SHADOWMAP_ENABLED) {',
+            'vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;',
+          '}',
+                
           'if (LIGHT_TYPE == '+Jax.DIRECTIONAL_LIGHT+') {',
             'vLightDir = normalize(ivnMatrix * -LIGHT_DIRECTION);',
           '} else {',
@@ -139,30 +139,6 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
 
 
       'float dp_lookup() {',
-//        'vec4 p = vShadowCoord;',
-//        'vec3 pos = p.xyz / p.w;',
-//            
-//        'float L = length(pos.xyz);',
-//        'vec3 P0 = pos / L, P1 = pos / L;',
-//            
-//        'float z = pos.z;',
-//            
-//        'P0.z = 1.0 + P0.z;',
-//        'P0.x /= P0.z;',
-//        'P0.y /= P0.z;',
-//        'P0.z = (L - DP_SHADOW_NEAR) / (DP_SHADOW_FAR - DP_SHADOW_NEAR);',
-//            
-//        'P0.x =  0.5 * P0.x + 0.5;',
-//        'P0.y =  0.5 * P0.y + 0.5;',
-//            
-//        'P1.z = 1.0 - P1.z;',
-//        'P1.x /= P1.z;',
-//        'P1.y /= P1.z;',
-//        'P1.z = (L - DP_SHADOW_NEAR) / (DP_SHADOW_FAR - DP_SHADOW_NEAR);',
-//        
-//        'P1.x =  0.5 * P1.x + 0.5;',
-//        'P1.y =  0.5 * P1.y + 0.5;',
-            
         'float map_depth, depth;',
         'vec4 rgba_depth;',
             
@@ -193,8 +169,8 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           the light-visible surface.
         */
         'float d = unpack_depth(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)+offset));',
-        'return (d > s) ? 1.0 : 0.0;',
-//        'return (s - d > -0.000006) ? 0.0 : 1.0;',
+//        'return (d > s) ? 1.0 : 0.0;',
+        'return (s - d > 0.00002) ? 0.0 : 1.0;',
 //            'return 0.0;',
       '}',
             
@@ -202,7 +178,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         'vec4 final_color = vec4(0,0,0,0);',
         'float spotEffect, att = 1.0, visibility = 1.0;',
             
-        'if (PASS_TYPE != '+Jax.Scene.AMBIENT_PASS+') {',
+        'if (PASS_TYPE == '+Jax.Scene.ILLUMINATION_PASS+') {',
           'if (LIGHT_ENABLED) {',
             'LightAttenuation = (LIGHT_ATTENUATION_CONSTANT ',
                                '+ LIGHT_ATTENUATION_LINEAR    * vDist',
@@ -275,10 +251,10 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         pMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getProjectionMatrix(); } },
         nMatrix:  { type: "glUniformMatrix3fv", value: function(context) { return context.getNormalMatrix();     } },
         
-        materialAmbient: { type: "glUniform4fv", value: function(context) { return options.ambient || [0.2,0.2,0.2,1]; } },
-        materialDiffuse: { type: "glUniform4fv", value: function(context) { return options.diffuse || [1,1,1,1]; } },
-        materialSpecular: { type: "glUniform4fv", value: function(context) { return options.specular || [1,1,1,1]; } },
-        materialShininess: { type: "glUniform1f", value: function(context) { return options.shininess || 0; } },
+        materialAmbient: { type: "glUniform4fv", value: function(context) { return options.ambient; } },
+        materialDiffuse: { type: "glUniform4fv", value: function(context) { return options.diffuse; } },
+        materialSpecular: { type: "glUniform4fv", value: function(context) { return options.specular; } },
+        materialShininess: { type: "glUniform1f", value: function(context) { return options.shininess; } },
         
         PASS_TYPE: {type:"glUniform1i",value:function(c,m){return c.current_pass||Jax.Scene.AMBIENT_PASS;}},
         
@@ -298,7 +274,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         DP_SHADOW_NEAR: {type:"glUniform1f",value:function(c){return 0.1;}},//c.world.lighting.getLight().getDPShadowNear() || 0.1;}},
         DP_SHADOW_FAR: {type:"glUniform1f",value:function(c){return 500;}},//c.world.lighting.getLight().getDPShadowFar() || 500;}},
         
-        SHADOWMAP_PCF_ENABLED: { type:"glUniform1i", value:function(c) { return true; }},
+        SHADOWMAP_PCF_ENABLED: { type:"glUniform1i", value:function(c) { return false; }},
         SHADOWMAP_MATRIX:{type:"glUniformMatrix4fv",value:function(c,m){return c.world.lighting.getLight().getShadowMatrix();}},
         SHADOWMAP_ENABLED: {type:"glUniform1i",value:function(c,m){return c.world.lighting.getLight().isShadowMapEnabled();}},
         SHADOWMAP0: {type:"glUniform1i",value:function(c,m){
