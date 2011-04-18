@@ -93,7 +93,7 @@ Jax.RouteSet = (function() {
      * error is thrown.
      **/
     recognize_route: function(path) {
-      var route = find_route(this, path);
+      var route = find_route(this, path) || find_route(this, path+"/index");
       if (!route) throw new Error("Route not recognized: '"+path+"'");
       return route;
     },

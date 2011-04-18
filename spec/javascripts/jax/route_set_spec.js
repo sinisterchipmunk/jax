@@ -28,6 +28,16 @@ describe("Jax.RouteSet", function() {
     });
   });
   
+  describe("with a map", function() {
+    beforeEach(function() { map.map("generic/index", controller_class, "index"); });
+    it("should recognize the route without /index", function() {
+      var route = map.recognize_route("generic");
+      
+      expect(route.controller).toEqual(controller_class);
+      expect(route.action).toEqual("index");
+    });
+  });
+  
   describe("with a root", function() {
     beforeEach(function() { map.root(controller_class, "index"); });
     
