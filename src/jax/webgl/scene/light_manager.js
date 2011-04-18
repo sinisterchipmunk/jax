@@ -41,8 +41,9 @@ Jax.Scene.LightManager = (function() {
       for (var i = 0; i < this._lights.length; i++) {
         this._current_light = i;
         for (var j = 0; j < objects.length; j++) {
-          /* TODO optimization: see if objects[j] is even affected by this._lights[i] */
-          objects[j].render(context);
+          /* TODO optimization: see if objects[j] is even affected by this._lights[i] (based on attenuation) */
+          if (objects[j].isLit())
+            objects[j].render(context);
         }
       }
       delete this._current_light;
