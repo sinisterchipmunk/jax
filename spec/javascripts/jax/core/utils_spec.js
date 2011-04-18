@@ -30,6 +30,76 @@ describe("Jax.Util", function() {
       });
     });
     
+    describe("colorize", function() {
+      var data;
+    
+      describe("with object with short names", function() {
+        beforeEach(function() { data = {r:1,g:2,b:3,a:4}; });
+        it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+      });
+    
+      describe("with object with long names", function() {
+        beforeEach(function() { data = {red:1,green:2,blue:3,alpha:4}; });
+        it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+      });
+    
+      describe("with string", function() {
+        describe("comma delimited", function() {
+          beforeEach(function() { data = "1,2,3,4"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+        });
+        describe("space delimited", function() {
+          beforeEach(function() { data = "1 2 3 4"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+        });
+        describe("comma-and-space delimited", function() {
+          beforeEach(function() { data = "1, 2, 3, 4"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+        });
+        describe("tab delimited", function() {
+          beforeEach(function() { data = "1\t2\t3\t4"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+        });
+        describe("comma-space-tab delimited", function() {
+          beforeEach(function() { data = "1, \t2, \t3, \t4"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
+        });
+      });
+
+      describe("with object with short names and no alpha", function() {
+        beforeEach(function() { data = {r:1,g:2,b:3}; });
+        it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+      });
+    
+      describe("with object with long names and no alpha", function() {
+        beforeEach(function() { data = {red:1,green:2,blue:3}; });
+        it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+      });
+    
+      describe("with string", function() {
+        describe("comma delimited and no alpha", function() {
+          beforeEach(function() { data = "1,2,3"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+        });
+        describe("space delimited and no alpha", function() {
+          beforeEach(function() { data = "1 2 3"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+        });
+        describe("comma-and-space delimited and no alpha", function() {
+          beforeEach(function() { data = "1, 2, 3"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+        });
+        describe("tab delimited and no alpha", function() {
+          beforeEach(function() { data = "1\t2\t3"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+        });
+        describe("comma-space-tab delimited and no alpha", function() {
+          beforeEach(function() { data = "1, \t2, \t3"; });
+          it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+        });
+      });
+    });
+    
     describe("with object with indices", function() {
       beforeEach(function() { data = {0:1,1:2,2:3}; });
       it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
@@ -96,6 +166,20 @@ describe("Jax.Util", function() {
         expect(normalized.def.length).toEqual(arr.length);
         for (var i = 0; i < arr.length; i++)
           expect(normalized.def[i]).toEqual(arr[i]);
+      });
+    });
+    
+    describe("with a gen object left and array right", function() {
+      beforeEach(function() { normalized = Jax.Util.normalizeOptions({p:{"x":20,"y":40,"z":60}}, {p:[1,2,3]}); });
+      it("should merge both into a gen object", function() {
+        expect(Object.isArray(normalized.p)).toBeFalsy();
+
+        expect(normalized.p.x).toEqual(20);
+        expect(normalized.p.y).toEqual(40);
+        expect(normalized.p.z).toEqual(60);
+        expect(normalized.p[0]).toEqual(1);
+        expect(normalized.p[1]).toEqual(2);
+        expect(normalized.p[2]).toEqual(3);
       });
     });
     

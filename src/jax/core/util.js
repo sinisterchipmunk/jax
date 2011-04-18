@@ -7,7 +7,7 @@ Jax.Util = {
    * Jax.Util.vectorize(object) -> vec3
    * - object (Object): any Object
    *
-   * Analyzes the input object and returns a vec3 based on its contents. It can be any of the following:
+   * Analyzes the input object and returns a vec3 based on its contents. Input can be any of the following:
    *   * a vec3
    *   * an array
    *   * an object with {x, y, z} properties
@@ -33,10 +33,64 @@ Jax.Util = {
       if (data.length && data.length >= 3) return vec3.set(data, res);
       if ((res[0] = data.x) != undefined && (res[1] = data.y) != undefined && (res[2] = data.z) != undefined) return res;
       if ((res[0] = data[0]) != undefined && (res[1] = data[1]) != undefined && (res[2] = data[2]) != undefined) return res;
-      /* is this not the same as above? */
-      if ((res[0] = data['0']) != undefined && (res[1] = data['1']) != undefined && (res[2] = data['2']) != undefined) return res;
     }
     throw new Error("Input argument for Jax.Util.vectorize not recognized: "+JSON.stringify(data));
+  },
+
+  /**
+   * Jax.Util.colorize(object) -> vec3
+   * - object (Object): any Object
+   *
+   * Analyzes the input object and returns a 4-component color vector based on its contents. Input can be any of the
+   * following:
+   *   * an array
+   *   * an object with {r, g, b, a} properties
+   *   * an object with {0, 1, 2, 3} properties
+   *   * a string delimited with any combination of commas, spaces and/or tab characters. Examples:
+   *     "r,g,b,a"
+   *     "r g b a" 
+   *     "r, g, b, a"
+   *     "r\tg\tb\ta"
+   *     "r, \tg, \tb, \ta"
+   *     
+   * In all cases, if the alpha component is omitted, it defaults to 1.0.
+   **/
+  colorize: function(data) {
+    if (data) {
+      var res = new glMatrixArrayType(4);
+      if (typeof(data) == "string") {
+        var components = data.split(/[,\s]+/);
+        if (components.length >= 3) {
+          for (var i = 0; i < 4; i++)
+            if (components.length <= i)
+              res[i] = 1.0;
+            else
+              res[i] = parseFloat(components[i]);
+        }
+        return res;
+      }
+      if (data.length && data.length >= 3) {
+        res[0] = data[0];
+        res[1] = data[1];
+        res[2] = data[2];
+        if ((res[3] = data[3]) == undefined) res[3] = 1.0;
+        else res[3] = 1.0;
+        return res;
+      }
+      if ((res[0] = data.r) != undefined && (res[1] = data.g) != undefined && (res[2] = data.b) != undefined) {
+        if ((res[3] = data.a) == undefined) res[3] = 1.0;
+        return res;
+      }
+      if ((res[0] = data.red) != undefined && (res[1] = data.green) != undefined && (res[2] = data.blue) != undefined) {
+        if ((res[3] = data.alpha) == undefined) res[3] = 1.0;
+        return res;
+      }
+      if ((res[0] = data[0]) != undefined && (res[1] = data[1]) != undefined && (res[2] = data[2]) != undefined) {
+        if ((res[3] = data[3]) == undefined) res[3] = 1.0;
+        return res;
+      }
+    }
+    throw new Error("Input argument for Jax.Util.colorize not recognized: "+JSON.stringify(data));
   },
   
   /**
@@ -60,13 +114,20 @@ Jax.Util = {
    **/
   merge: function(src, dst) {
     if (!src) return;
-    var i;
+    var i, j, n;
 
     function doComparison(i) {
       if (src[i] == null) dst[i] = null;
-      else if (src[i].klass)               dst[i] = src[i];
-      else if (Object.isArray(src[i]))     Jax.Util.merge(src[i], dst[i] = dst[i] || []);
-      else if (typeof(src[i]) == "object") Jax.Util.merge(src[i], dst[i] = dst[i] || {});
+      else if (src[i].klass)           dst[i] = src[i];
+      else if (Object.isArray(src[i])) Jax.Util.merge(src[i], dst[i] = dst[i] || []);
+      else if (typeof(src[i]) == "object") {
+        if (Object.isArray(dst[i])) {
+          n = {};
+          for (j = 0; j < dst[i].length; j++) n[j] = dst[i][j];
+          dst[i] = n;
+        }
+        Jax.Util.merge(src[i], dst[i] = dst[i] || {});
+      }
       else dst[i] = src[i];
     }
     
