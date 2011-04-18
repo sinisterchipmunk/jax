@@ -46,6 +46,7 @@ module Jax
     private
     def controller_name_for(str)
       ctrlr = str.to_s.camelize
+      ctrlr.sub! /^(.*)?::.*$/, '\1'
       ctrlr = "#{ctrlr}Controller" unless ctrlr['Controller']
       ctrlr
     end

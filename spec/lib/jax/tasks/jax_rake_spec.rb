@@ -20,13 +20,13 @@ describe "Rake Tasks:" do
     FileUtils.mkdir_p pwd
     Dir.chdir pwd
     Jax::Generators::App::AppGenerator.start(["test_app"], :shell => shell)
-    puts shell.output.string
+#    puts shell.output.string
     Dir.chdir File.join(pwd, "test_app")
     File.open("Gemfile", "w") { |f| f.print "gem 'jax', :path => '#{File.join(File.dirname(__FILE__), "../../../..")}'"}
     `bundle install`
     Jax::Generators::Controller::ControllerGenerator.start(['welcome', 'index'], :shell => shell)
     File.open("config/routes.rb", "w") do |f|
-      f.puts "TestApp.routes.map do\n  root 'welcome'\nend"
+      f.puts "TestApp.routes.map do\n  root 'welcome'\nmap 'another/index'\nend"
     end
   end
 
@@ -62,7 +62,11 @@ describe "Rake Tasks:" do
       end
       
       it "should contain routes" do
-        subject.should =~ /Jax.routes.root\(WelcomeController, "index"\)/
+        subject.should =~ /#{Regexp::escape 'Jax.routes.root(WelcomeController, "index")'}/
+      end
+      
+      it "should not contain ruby package names" do
+        subject.should =~ /#{Regexp::escape 'Jax.routes.map("another/index", AnotherController, "index")'}/
       end
     end
   end
