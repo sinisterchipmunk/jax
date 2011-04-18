@@ -1,4 +1,6 @@
 describe("Texture", function() {
+  var _img = "/public/images/rss.png";
+  
   var c; // Jax context
   var tex;
   beforeEach(function() { c = new Jax.Context('canvas-element'); });
@@ -24,7 +26,7 @@ describe("Texture", function() {
     });
     
     describe("with a single POT texture", function() {
-      beforeEach(function() { tex = new Jax.Texture("/public/rss.png", {target:GL_TEXTURE_CUBE_MAP}); });
+      beforeEach(function() { tex = new Jax.Texture(_img, {target:GL_TEXTURE_CUBE_MAP}); });
       
       _it("should bind successfully", function() {
         expect(function() { tex.bind(c); }).not.toThrow();
@@ -32,7 +34,7 @@ describe("Texture", function() {
     });
 
     describe("with 6 POT textures", function() {
-      beforeEach(function() { tex = new Jax.Texture(["/public/rss.png","/public/rss.png","/public/rss.png","/public/rss.png","/public/rss.png","/public/rss.png"], {target:GL_TEXTURE_CUBE_MAP}); });
+      beforeEach(function() { tex = new Jax.Texture([_img,_img,_img,_img,_img,_img], {target:GL_TEXTURE_CUBE_MAP}); });
       
       _it("should bind successfully", function() {
         expect(function() { tex.bind(c); }).not.toThrow();
@@ -53,7 +55,7 @@ describe("Texture", function() {
   });
     
   describe("POT with default options", function() {
-    beforeEach(function() { tex = new Jax.Texture("/public/rss.png"); });
+    beforeEach(function() { tex = new Jax.Texture(_img); });
     
     describe("when bound with block", function() {
       _it("should increment textureLevel", function() {
@@ -104,7 +106,7 @@ describe("Texture", function() {
   
   describe("POT with #onload", function() {
     var loaded;
-    beforeEach(function() { loaded = false;tex = new Jax.Texture("/public/rss.png", {onload:function(){loaded=true;}}); });
+    beforeEach(function() { loaded = false;tex = new Jax.Texture(_img, {onload:function(){loaded=true;}}); });
     
     _it("should call #onload", function() {
       expect(loaded).toBeTruthy();
