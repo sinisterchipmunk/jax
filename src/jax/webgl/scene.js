@@ -5,6 +5,7 @@ Jax.Scene = {};
  */
 Jax.Scene.ILLUMINATION_PASS = 1;
 Jax.Scene.AMBIENT_PASS = 2;
+Jax.Scene.SHADOWMAP_PASS = 3;
 
 //= require "scene/frustum"
 //= require "scene/light_manager"
