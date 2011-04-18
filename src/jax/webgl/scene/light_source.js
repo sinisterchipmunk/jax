@@ -2,7 +2,11 @@ Jax.POINT_LIGHT       = 1;
 Jax.SPOT_LIGHT        = 2;
 Jax.DIRECTIONAL_LIGHT = 3;
 
-Jax.Scene.LightSource = (function() {
+/*
+  FIXME Resource manager looks for an object in the global namespace, so using Jax.Scene.LightSource
+  instead of just LightSource results in a broken resource load.
+ */
+var LightSource = Jax.Scene.LightSource = (function() {
   function setupProjection(self) {
     if (self.camera.projection) return;
     
@@ -24,7 +28,7 @@ Jax.Scene.LightSource = (function() {
   
   return Jax.Model.create({
     initialize: function($super, data) {
-      $super(Jax.Util.normalizeOptions(data, {
+      data = Jax.Util.normalizeOptions(data, {
         enabled: true,
         type: Jax.POINT_LIGHT,
         color: {
@@ -42,7 +46,13 @@ Jax.Scene.LightSource = (function() {
         },
         spotExponent: 0,
         shadowcaster: true
-      }));
+      });
+      
+      if (typeof(data.type) == "string") data.type = Jax[data.type] || data.type;
+      data.color.ambient = Jax.Util.colorize(data.color.ambient);
+      data.color.diffuse = Jax.Util.colorize(data.color.diffuse);
+      data.color.specular= Jax.Util.colorize(data.color.specular);
+      $super(data);
 
       this.shadowMatrix = mat4.create();
       
@@ -54,6 +64,10 @@ Jax.Scene.LightSource = (function() {
     
     getPosition: function() { setupProjection(this); return this.camera.getPosition(); },
     getDirection: function() { setupProjection(this); return this.camera.getViewVector(); },
+
+    setEnabled: function(b) { this.enabled = b; },
+    enable: function() { this.setEnabled(true); },
+    disable: function() { this.setEnabled(false); },
 
     isEnabled: function() { return this.enabled; },
     getType: function() { return this.type; },

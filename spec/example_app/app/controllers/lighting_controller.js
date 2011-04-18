@@ -3,7 +3,7 @@
 /*
   Example of blinn-phong shading with arbitrary light sources. Renders a teapot with 3 light sources:
   red, blue and white. The white light source is a spotlight and will pivot back and forth over a 90-degree angle
-  with the teapot in the center. The mouse can be moved to rotate the teapot, or dragged to pan the camera.
+  with the teapot in the center. The mouse can be moved to move the camera, or dragged to move the teapot.
  */
 
 var LightingController = (function() {
@@ -18,65 +18,16 @@ var LightingController = (function() {
       this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Plane({size:75, material:custom_material}), position:[0,-15,-50],direction:[0,1,0]}));
       
       // add a spotlight, like a flashlight -- we'll animate this later
-      this.world.addLightSource(new Jax.Scene.LightSource({
-        enabled:true,
-        shadowcaster:true,
-        position:[0,0,30],
-        direction:[0,0,-1],
-        attenuation: {
-          constant:  0,
-          linear:    0.04,
-          quadratic: 0
-        },
-        type: Jax.SPOT_LIGHT,
-        spotExponent: 32,
-        angle: Math.PI/6,
-        color: {
-          ambient: [0.15,0.15,0.15,1],
-          diffuse: [0.75,0.75,0.5,1],
-          specular: [1,1,1,1]
-        }
-      }));
-      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"color_without_texture",color:[1,1,1,0.2]}), shadow_caster: false, position:[0,0,30]}));
+      this.world.addLightSource(Jax.Scene.LightSource.find("spot_light"));
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0.5,0.5,1]}), shadow_caster: false, lit:false, position:[0,0,30]}));
       
       // add a point light, like a candle
-      this.world.addLightSource(new Jax.Scene.LightSource({
-        shadowcaster:true,
-        enabled:true,
-        position:[-20,0,0],
-        direction:[1,0,0],
-        type: Jax.POINT_LIGHT,
-        attenuation: {
-          constant: 0,
-          linear: 0,
-          quadratic: 0.00275
-        },
-        color: {
-          ambient: [0,0,0,1],
-          diffuse: [0.9,0.0,0.0,1],
-          specular: [0.75,0.0,0,1]
-        }
-      }));
-      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"failsafe",color:[1,0,0,0.2]}), shadow_caster: false, position:[-20,0,0]}));
+      var point_light = Jax.Scene.LightSource.find("point_light");
+      this.world.addLightSource(point_light);
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0,0,1]}), shadow_caster: false, lit:false, position:point_light.getPosition()}));
       
       // add a directional light, like the sun
-      this.world.addLightSource(new Jax.Scene.LightSource({
-        enabled:true,
-        position:[0,20,1],
-        direction:[-1,-1,-1],
-        type: Jax.DIRECTIONAL_LIGHT,
-        shadowcaster:true,
-        attenuation: {
-          constant: 1,
-          linear: 0,
-          quadratic: 0
-        },
-        color: {
-          ambient: [0,0,0,1],
-          diffuse: [0.0,0.0,0.5,1],
-          specular: [0,0,0.75,1]
-        }
-      }));
+      this.world.addLightSource(Jax.Scene.LightSource.find("directional_light"));
       
       // position the player backwards 20 units, to [0,0,20].
       this.player.camera.setPosition(0,15,50);
