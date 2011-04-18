@@ -12,6 +12,12 @@ describe("Built-in Shader Builder:", function() {
         var matr = new Jax.Material({shaderType: shader_name});
         matr.render(context, new Jax.Mesh());
       });
+      
+      it("should render an object", function() {
+        var obj = new Jax.Model({mesh:new Jax.Mesh.Sphere()});
+        context.world.addObject(obj);
+        context.world.render();
+      });
     });
   }
 });
