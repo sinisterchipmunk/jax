@@ -24,8 +24,25 @@ class Jax::ResourceCompiler
       model_name = File.basename(File.dirname(yml)).singularize
       resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
       resources[model_name] ||= {}
-      resources[model_name].merge!({ resource_id => YAML::load(File.read(yml)) })
+      resources[model_name].merge!({ resource_id => camelize_keys(YAML::load(File.read(yml))) })
       resources
     end
+  end
+  
+  # Camelizes the keys in this hash, except the first character,
+  # following the JavaScript variable naming conventions.
+  #
+  # If the camelized key already exists, no change is made.
+  def camelize_keys(hash)
+    hash.keys.each do |key|
+      camelized = key.gsub(/[_\-](.)/) { |m| $~[1].upcase }
+      unless hash.key?(camelized)
+        value = hash[camelized] = hash.delete(key)
+        if value.kind_of?(Hash)
+          camelize_keys(value)
+        end
+      end
+    end
+    hash
   end
 end
