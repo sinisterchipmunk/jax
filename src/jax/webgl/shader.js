@@ -207,7 +207,10 @@ Jax.Shader = (function() {
         else                                               context[uniform.type](location,        value);
       } catch(e) {
         if (Jax.environment == "production") throw(e);
-        else alert("Could not set uniform "+uniform.name+" with value:\n\n"+value);
+        else {
+          var inspection = (Object.isArray(value) ? value.toString() : JSON.stringify(value));
+          alert("Could not set uniform "+uniform.name+" with value:\n\n"+inspection);
+        }
       }
     },
     
