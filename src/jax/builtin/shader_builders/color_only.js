@@ -1,4 +1,4 @@
-Jax.shader_program_builders['color_without_texture'] = (function() {
+Jax.shader_program_builders['color_only'] = (function() {
   function buildVertexSource(options) {
     return ["attribute vec3 vertexPosition;",
             "attribute vec4 vertexColor;",
