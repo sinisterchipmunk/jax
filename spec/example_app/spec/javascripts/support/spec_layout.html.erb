@@ -78,6 +78,27 @@
   <a href="#" onclick="context.redirectTo('/');return false;">Lighting w/Multiple Sources</a> |
   <a href="#" onclick="context.redirectTo('shadows');return false;">Shadows</a>
 </div>
-<div id="jasmine_content"></div>
+<div id="jax_options">
+  <div style="float:left;width:350px;">
+    <input type="checkbox" checked onclick="window.context.world.lighting.getLight(0).setEnabled(this.checked);" /> Spot Light
+    <br/><br/>
+    The spot light is cast by the white sphere and has a limited area of effect.
+  </div>
+  <div style="float:left;width:350px;">
+    <input type="checkbox" checked onclick="window.context.world.lighting.getLight(1).setEnabled(this.checked);" /> Point Light
+    <br/><br/>
+    The point light is cast by the red sphere and is omnidirectional.
+  </div>
+  <div style="float:left;width:350px;">
+    <input type="checkbox" checked onclick="window.context.world.lighting.getLight(2).setEnabled(this.checked);" /> Directional Light
+    <br/><br/>
+    The directional light is blue and is shining in the bottom-forward-left direction.
+  </div>
+  
+  <div style="clear:both;">&nbsp;</div>
+</div>
+<div id="container">
+  <div id="jasmine_content"></div>
+</div>
 </body>
 </html>
