@@ -33,9 +33,16 @@
 Jax.Mesh = (function() {
   function setColorCoords(self, count, color, coords) {
     var i, j;
-    for (i = 0; i < count; i++)
-      for (j = 0; j < color.length; j++)
-        coords.push(color[j]);
+    var num_colors = color.length;
+    if (num_colors > 4) throw new Error("Color should have at most 4 components");
+    for (i = 0; i < count*4; i += 4)
+    {
+      for (j = 0; j < num_colors; j++)
+        coords[i+j] = color[j];
+      for (j = num_colors; j < 4; j++) {
+        coords[i+j] = 1;
+      }
+    }
   }
   
   function findMaterial(name_or_instance) {
