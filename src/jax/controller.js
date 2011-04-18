@@ -24,6 +24,8 @@
  *   * *key_pressed*    - called when a keyboard button has been pressed.
  *   * *key_released*   - called when a keyboard button has been released.
  *   * *key_typed*      - called when a keyboard button has been typed.
+ *   * *update*         - called (approximately) every 60 milliseconds for as long
+ *   as a controller is active. Time difference in seconds is passed as an arguments.
  *   
  * Example:
  * 
@@ -34,6 +36,10 @@
  *       
  *       mouse_clicked: function(event) {
  *         // ...
+ *       },
+ *       
+ *       update: function(timechange) {
+ *        // it's been [timechange] seconds since last update
  *       }
  *     });
  *
