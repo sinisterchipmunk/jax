@@ -1,6 +1,17 @@
 Jax.shader_program_builders['blinn-phong'] = (function() {
   function defs(options) {
+    var textureDefs = [];
+    if (options.textures) {
+      for (var i = 0; i < options.textures.length; i++) {
+        textureDefs.push(
+          "uniform sampler2D TEXTURE"+i+";"
+        );
+      }
+    }
+
     return [
+      textureDefs.join("\n"),
+            
       /* matrix uniforms */
       'uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix;',
       'uniform mat3 ivnMatrix, nMatrix;',
@@ -116,6 +127,13 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
   
   function buildFragmentSource(options) {
+    var textureColors = [];
+    for (var i = 0; options.textures && i < options.textures.length; i++) {
+      textureColors.push(
+        'final_color *= texture2D(TEXTURE'+i+', vTexCoords);'
+      );
+    }
+
     var s = [
       defs(options),
             
@@ -169,9 +187,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           the light-visible surface.
         */
         'float d = unpack_depth(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)+offset));',
-//        'return (d > s) ? 1.0 : 0.0;',
         'return (s - d > 0.00002) ? 0.0 : 1.0;',
-//            'return 0.0;',
       '}',
             
       'void main() {',
@@ -227,6 +243,9 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         '} else {',
           'final_color += materialAmbient * vBaseColor;',
         '}',
+            
+        textureColors.join("\n"),
+            
         'gl_FragColor = final_color;',
       '}'
     ];
@@ -234,7 +253,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
       
   return function(options) {
-    return {
+    var result = {
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       attributes: {
@@ -299,5 +318,17 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         }}
       }
     };
+    
+    if (options.textures)
+      for (var i = 0; i < options.textures.length; i++)
+        result.uniforms['TEXTURE'+i] = { type:"glUniform1i", i:i+2, value:function(c,m,o) {
+          /* we offset i by 2 because we use texture0 and texture1 for the shadow maps */
+          var tex = o && o.material && o.material.textures[this.i-2];
+          if (tex && tex.loaded) tex.bind(c, this.i);
+          return this.i;
+        }
+      };
+    
+    return result;
   }
 })();
