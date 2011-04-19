@@ -54,13 +54,11 @@ Jax.Shader = (function() {
   }
   
   function compile(self, context) {
-    var shaderType = self.options.shaderType;
-    
-    var builder = Jax.shader_program_builders[self.options.shaderType];
-    if (!builder) throw new Error("Could not find shader builder: "+shaderType);
+    var builder = Jax.shader_program_builders[self.type];
+    if (!builder) throw new Error("Could not find shader builder: "+self.type);
     var sources = builder(self.options);
-    if (!sources.vertex_source)   throw new Error("Shader builder '"+shaderType+"' did not return a 'vertex_source' property");
-    if (!sources.fragment_source) throw new Error("Shader builder '"+shaderType+"' did not return a 'fragment_source' property");
+    if (!sources.vertex_source)   throw new Error("Shader builder '"+self.type+"' did not return a 'vertex_source' property");
+    if (!sources.fragment_source) throw new Error("Shader builder '"+self.type+"' did not return a 'fragment_source' property");
     
     if (sources.vertex_source.join)   sources.vertex_source   = sources.vertex_source.join("\n");
     if (sources.fragment_source.join) sources.fragment_source = sources.fragment_source.join("\n");
@@ -152,14 +150,16 @@ Jax.Shader = (function() {
   }
   
   return Jax.Class.create({
-    initialize: function() {
+    initialize: function(type) {
+      this.type = type;
       this.compiled_program = {};
       this.valid = {};
     },
     
     update: function(options) {
       this.options = options;
-      for (var i in this.valid) this.valid[i] = false; // invalidate all contexts
+      for (var i in this.valid)
+        this.valid[i] = false; // invalidate all contexts
     },
     
     render: function(context, mesh, options) {

@@ -37,13 +37,13 @@ Jax.Scene.LightManager = (function() {
       return result;
     },
     
-    illuminate: function(context, objects) {
+    illuminate: function(context, objects, options) {
       for (var i = 0; i < this._lights.length; i++) {
         this._current_light = i;
         for (var j = 0; j < objects.length; j++) {
           /* TODO optimization: see if objects[j] is even affected by this._lights[i] (based on attenuation) */
           if (objects[j].isLit())
-            objects[j].render(context);
+            objects[j].render(context, options);
         }
       }
       delete this._current_light;
@@ -62,10 +62,8 @@ Jax.Scene.LightManager = (function() {
 //      context.glPolygonOffset(1.1, 4.0);
 //      context.glPolygonOffset(2,2);
 //      context.glEnable(GL_POLYGON_OFFSET_FILL);
-      for (i = 0; i < this._lights.length; i++) {
+      for (i = 0; i < this._lights.length; i++)
         this._lights[i].updateShadowMap(context, boundingRadius, objects);
-//        break;
-      }
 //      context.glDisable(GL_POLYGON_OFFSET_FILL);
 //      context.glPolygonOffset(0.0, 0.0);
     },

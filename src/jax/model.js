@@ -27,7 +27,6 @@
       initialize: function(data) {
         this.camera = new Jax.Camera();
         
-        this.shadow_caster = true;
         initProperties(this, Jax.Model.default_properties);
         if (this._klass && this._klass.resources)
           initProperties(this, this._klass.resources['default']);
@@ -144,7 +143,8 @@
   };
   
   Jax.Model.default_properties = {
-    lit: true
+    lit: true,
+    shadow_caster: true
   };
   
   Jax.Model.create = function(superclass, inner) {

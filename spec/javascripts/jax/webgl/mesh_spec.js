@@ -46,6 +46,18 @@ describe("Mesh:", function() {
       mesh = new Jax.Mesh.Quad(2);
     });
     
+    describe("with a specific material", function() {
+      beforeEach(function() { mesh.material = 'failsafe'; });
+      
+      it("should use the specific material", function() {
+        expect(mesh.getNormalizedRenderOptions().material.name).toEqual("failsafe");
+      });
+      
+      it("should override the specific material", function() {
+        expect(mesh.getNormalizedRenderOptions({material:"basic"}).material.name).toEqual("basic");
+      });
+    });
+    
     it("should be renderable", function() {
       /*
         we can't verify that it's rendering *properly* without a human to verify -- but,

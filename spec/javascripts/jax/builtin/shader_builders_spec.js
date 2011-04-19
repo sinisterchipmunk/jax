@@ -9,14 +9,22 @@ describe("Built-in Shader Builder:", function() {
     describe(shaders[i], function() {
       var shader_name = shaders[i];
       it("should compile", function() {
-        var matr = new Jax.Material({shaderType: shader_name});
-        matr.render(context, new Jax.Mesh());
+        var matr = new Jax.Material();
+        var obj = new Jax.Mesh({material:matr,shader:shader_name});
+        spyOn(matr, 'buildShader').andCallThrough();
+        obj.render(context);
+        expect(matr.buildShader).toHaveBeenCalledWith(shader_name);
       });
       
-      it("should render an object", function() {
-        var obj = new Jax.Model({mesh:new Jax.Mesh.Sphere()});
+      it("should use the shader from world", function() {
+        var obj = new Jax.Model({mesh:new Jax.Mesh.Sphere({shader:shader_name})});
+        var called = false;
+        obj.mesh.render = function(context, options) {
+          called = called || this.getNormalizedRenderOptions(options).shader == shader_name;
+        };
         context.world.addObject(obj);
         context.world.render();
+        expect(called).toBeTrue();
       });
     });
   }

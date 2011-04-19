@@ -19,12 +19,12 @@ var LightingController = (function() {
       
       // add a spotlight, like a flashlight -- we'll animate this later
       this.world.addLightSource(Jax.Scene.LightSource.find("spot_light"));
-      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0.5,0.5,1]}), shadow_caster: false, lit:false, position:[0,0,30]}));
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({color:[0.5,0.5,0.5,1]}), shadow_caster: false, lit:false, position:[0,0,30]}));
       
       // add a point light, like a candle
       var point_light = Jax.Scene.LightSource.find("point_light");
       this.world.addLightSource(point_light);
-      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0,0,1]}), shadow_caster: false, lit:false, position:point_light.getPosition()}));
+      this.world.addObject(new Jax.Model({mesh:new Jax.Mesh.Sphere({color:[0.5,0,0,1]}), shadow_caster: false, lit:false, position:point_light.getPosition()}));
       
       // add a directional light, like the sun
       this.world.addLightSource(Jax.Scene.LightSource.find("directional_light"));

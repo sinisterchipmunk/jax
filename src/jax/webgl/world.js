@@ -6,7 +6,7 @@ Jax.World = (function() {
       this.context  = context;
       this.lighting = new Jax.Scene.LightManager(context);
       this.objects  = [];
-      this.object_cache = [];
+      this.shadow_casters = [];
     },
     
     addLightSource: function(light)   { this.lighting.add(light); },
@@ -32,14 +32,20 @@ Jax.World = (function() {
           }
     },
     
+    countObjects: function() {
+      return this.objects.length;
+    },
+    
     invalidate: function() {
-      while (this.object_cache.length > 0) this.object_cache.pop();
+      while (this.shadow_casters.length > 0) this.shadow_casters.pop();
       for (var i = 0; i < this.objects.length; i++) {
         if (this.objects[i].isShadowCaster()) {
-          this.object_cache[i] = this.objects[i];
+          this.shadow_casters[i] = this.objects[i];
         }
       }
     },
+    
+    getShadowCasters: function() { return this.shadow_casters; },
     
     render: function() {
       var i;
@@ -49,21 +55,27 @@ Jax.World = (function() {
       this.context.current_pass = Jax.Scene.AMBIENT_PASS;
       this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       
+      var options = {};
       if (this.lighting.isEnabled()) {
+        options['default_shader'] = "blinn-phong";
+
         /* ambient pass */
-        for (i = 0; i < this.objects.length; i++)
-          this.objects[i].render(this.context);
+        for (i = 0; i < this.objects.length; i++) {
+          if (this.objects[i].lit)
+            this.objects[i].render(this.context, options);
+          else this.objects[i].render(this.context);
+        }
       
         /* shadowgen pass */
         this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
-        this.lighting.updateShadowMaps(this.context, this.object_cache);
+        this.lighting.updateShadowMaps(this.context, this.shadow_casters);
         
         /* illumination pass */
         this.context.glBlendFunc(GL_ONE, GL_ONE);
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
-        this.lighting.illuminate(this.context, this.objects);
+        this.lighting.illuminate(this.context, this.objects, options);
       } else {
-        var options = { default_material: "basic" };
+        options['default_shader'] = "basic";
         for (i = 0; i < this.objects.length; i++)
           this.objects[i].render(this.context, options);
       }

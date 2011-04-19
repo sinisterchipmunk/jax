@@ -12,8 +12,6 @@
 var ShadowsController = (function() {
   return Jax.Controller.create("shadows", ApplicationController, {
     index: function() {
-//      alert("Shadowcasting: WORK IN PROGRESS");
-
       /* light sources */
       var light01 = new Jax.Scene.LightSource({
         enabled:true,

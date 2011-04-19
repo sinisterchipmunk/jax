@@ -55,19 +55,6 @@ Jax.Mesh = (function() {
                     "a string representing a material in the Jax material registry");
   }
   
-  function normalizeRenderOptions(self, options) {
-    var result = Jax.Util.normalizeOptions(options, {
-      material: self.material,
-      default_material: self.default_material,
-      draw_mode: self.draw_mode || GL_TRIANGLES
-    });
-    
-    if (!result.material) result.material = result.default_material;
-    result.material = findMaterial(result.material);
-
-    return result;
-  }
-  
   function calculateBounds(self, vertices) {
     self.bounds = {left:null,right:null,top:null,bottom:null,front:null,back:null,width:null,height:null,depth:null};
     var i, v;
@@ -110,6 +97,8 @@ Jax.Mesh = (function() {
        * using:
        * 
        *     Jax.Material.find(...).
+       *     
+       * If not specified, Jax.Mesh#default_material will be used instead.
        **/
 
       /**
@@ -125,6 +114,16 @@ Jax.Mesh = (function() {
        * for a particular pass.
        **/
       this.default_material = "default";
+
+      /**
+       * Jax.Mesh#default_shader -> String
+       * This property represents the name of the shader that will be used to render this mesh if #shader
+       * isn't given a value and the render options don't override the shader.
+       * 
+       * This property can also be specified as a render option in order to specify a default
+       * for a particular pass.
+       **/
+      this.default_shader = "basic";
       
       for (var i in options)
         this[i] = options[i];
@@ -201,8 +200,25 @@ Jax.Mesh = (function() {
      **/
     render: function(context, options) {
       if (!this.isValid()) this.rebuild();
-      options = normalizeRenderOptions(this, options);
+      options = this.getNormalizedRenderOptions(options);
       options.material.render(context, this, options);
+    },
+    
+    getNormalizedRenderOptions: function(options) {
+      var result = Jax.Util.normalizeOptions(options, {
+        material: this.material,
+        default_material: this.default_material,
+        default_shader: this.default_shader,
+        shader: this.shader,
+        draw_mode: this.draw_mode || GL_TRIANGLES
+      });
+    
+      if (!result.material) result.material = result.default_material;
+      if (!result.shader) result.shader = result.default_shader;
+    
+      result.material = findMaterial(result.material);
+
+      return result;
     },
 
     /**

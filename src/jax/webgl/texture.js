@@ -3,6 +3,10 @@
  * Creates a managed WebGL texture.
  **/
 Jax.Texture = (function() {
+  function imageFailed(self, image) {
+    throw new Error("Texture image '"+self.image.src+"' failed to load!");
+  }
+  
   function imageLoaded(self, isImageArray) {
     var onload = self.options.onload || self.onload;
 
@@ -174,6 +178,7 @@ Jax.Texture = (function() {
         if (typeof(path_or_array) == "string") {
           this.image = new Image();
           this.image.onload = function() { imageLoaded(self, false); };
+          this.image.onerror = this.image.onabort = function() { imageFailed(self, this); };
           this.image.src = path_or_array;
         } else {
           var onload = function() { imageLoaded(self, true); };
@@ -182,6 +187,7 @@ Jax.Texture = (function() {
           for (var i = 0; i < path_or_array.length; i++) {
             this.images[i] = new Image();
             this.images[i].onload = onload;
+            this.images[i].onerror = this.images[i].onabort = function() { imageFailed(self, this); };
             this.images[i].src = path_or_array[i];
           }
         }

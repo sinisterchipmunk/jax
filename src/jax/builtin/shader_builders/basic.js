@@ -5,7 +5,16 @@
   circumstances. Can be a decent debugging tool, but in general, 'blinn-phong' is a more versatile shader.
  */
 Jax.shader_program_builders['basic'] = (function() {
-  function defs() {
+  function defs(options) {
+    var textureDefs = [];
+    if (options.textures) {
+      for (var i = 0; i < options.textures.length; i++) {
+        textureDefs.push(
+          "uniform sampler2D TEXTURE"+i+";"
+        );
+      }
+    }
+    
     return [
       /* matrix uniforms */
       'uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix;',
@@ -25,13 +34,14 @@ Jax.shader_program_builders['basic'] = (function() {
       'const vec4 LIGHT_DIFFUSE   = vec4(0.6, 0.6, 0.6, 1.0);',
       'const vec4 LIGHT_SPECULAR  = vec4(1.0, 1.0, 1.0, 1.0);',
       'const vec3 LIGHT_DIRECTION = vec3(-1.0, -1.0, -1.0);',
-            
+      
+      textureDefs.join("\n"),
       ''
     ].join("\n");
   }
   
   function buildVertexSource(options) {
-    return [defs(),
+    return [defs(options),
             "attribute vec2 VERTEX_TEXCOORDS;",
             "attribute vec3 VERTEX_NORMAL;",
             "attribute vec4 VERTEX_POSITION, VERTEX_COLOR;",
@@ -47,7 +57,14 @@ Jax.shader_program_builders['basic'] = (function() {
   }
   
   function buildFragmentSource(options) {
-    return [defs(),
+    var textureColors = [];
+    for (var i = 0; options.textures && i < options.textures.length; i++) {
+      textureColors.push(
+        'final_color *= texture2D(TEXTURE'+i+', vTexCoords);'
+      );
+    }
+    
+    return [defs(options),
     
             "void main(void) {",
               'vec4 final_color = materialAmbient * vBaseColor + LIGHT_AMBIENT * vBaseColor;',
@@ -63,12 +80,13 @@ Jax.shader_program_builders['basic'] = (function() {
                   'final_color += vBaseColor * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);',
                 '}',
             
+                textureColors.join("\n"),
                 'gl_FragColor = final_color;',
               '} else {',
                 /*
                   since we don't care about other lights, don't bother showing anything for them.
-                  Actually, this is just a fail-safe, because frequently there will be no lights to care about
-                  when used with this shader.
+                  Actually, this is just a fail-safe, because this shader will usually be used only during
+                  either an ambient pass, or when lighting is disabled, or when there are no lights at all.
                 */
                 'discard;',
               '}',
@@ -76,7 +94,7 @@ Jax.shader_program_builders['basic'] = (function() {
   }
   
   return function(options) {
-    return {
+    var result = {
       vertex_source: buildVertexSource(options),
       fragment_source: buildFragmentSource(options),
       attributes: {
@@ -101,5 +119,16 @@ Jax.shader_program_builders['basic'] = (function() {
         PASS_TYPE: {type:"glUniform1i",value:function(c,m){return c.current_pass;}}
       }
     };
+    
+    if (options.textures)
+      for (var i = 0; i < options.textures.length; i++)
+        result.uniforms['TEXTURE'+i] = { type:"glUniform1i", i:i, value:function(c,m,o) {
+          var tex = o && o.material && o.material.textures[this.i];
+          if (tex && tex.loaded) tex.bind(c, this.i);
+          return this.i;
+        }
+      };
+    
+    return result;
   }
 })();
