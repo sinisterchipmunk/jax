@@ -3,7 +3,7 @@
 //= require "shader_builders/color_only"
 //= require "shader_builders/blinn_phong"
 //= require "shader_builders/depthmap"
-//= require "shader_builders/paraboloid"
+//= require "shader_builders/paraboloid_depthmap"
 //= require "shader_builders/basic"
 
 /* meshes */

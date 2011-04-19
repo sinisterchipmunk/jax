@@ -1,7 +1,7 @@
 /*
   Dual paraboloid shader - used for dual paraboloid environment mapping
  */
-Jax.shader_program_builders['paraboloid'] = (function() {
+Jax.shader_program_builders['paraboloid-depthmap'] = (function() {
   function buildVertexSource(options) {
     return ["attribute vec4 vertexPosition;" +
     
