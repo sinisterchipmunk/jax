@@ -4,7 +4,10 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
     if (options.textures) {
       for (var i = 0; i < options.textures.length; i++) {
         textureDefs.push(
-          "uniform sampler2D TEXTURE"+i+";"
+          "uniform sampler2D TEXTURE"+i+";",
+          "uniform int TEXTURE"+i+"_TYPE;",
+          "uniform float TEXTURE"+i+"_SCALE_X;",
+          "uniform float TEXTURE"+i+"_SCALE_Y;"
         );
       }
     }
@@ -14,7 +17,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             
       /* matrix uniforms */
       'uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix;',
-      'uniform mat3 ivnMatrix, nMatrix;',
+      'uniform mat3 vnMatrix, nMatrix;',
       
       /* material uniforms */
       'uniform vec4 materialDiffuse, materialAmbient, materialSpecular;',
@@ -38,7 +41,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       'uniform float DP_SHADOW_NEAR, DP_SHADOW_FAR;',
 
       'varying vec2 vTexCoords;',
-      'varying vec3 vNormal, vLightDir, vSpotlightDirection;',
+      'varying vec3 vNormal, vLightDir, vSpotlightDirection, vTbnDirToLight;',
       'varying vec4 vBaseColor, vShadowCoord;',
       'varying float vDist;',
             
@@ -54,7 +57,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             
       /* attributes */
       'attribute vec2 VERTEX_TEXCOORDS;',
-      'attribute vec4 VERTEX_POSITION, VERTEX_COLOR;',
+      'attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;',
       'attribute vec3 VERTEX_NORMAL;',
        
       'void calculateDPLighting() {',
@@ -106,7 +109,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           '}',
                 
           'if (LIGHT_TYPE == '+Jax.DIRECTIONAL_LIGHT+') {',
-            'vLightDir = normalize(ivnMatrix * -LIGHT_DIRECTION);',
+            'vLightDir = normalize(vnMatrix * -LIGHT_DIRECTION);',
           '} else {',
             'if (LIGHT_TYPE == '+Jax.POINT_LIGHT+') calculateDPLighting();',
             'vec3 vec = (ivMatrix * vec4(LIGHT_POSITION, 1)).xyz - (mvMatrix * VERTEX_POSITION).xyz;',
@@ -114,9 +117,21 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             'vDist = length(vec);',
           '}',
             
+          /* tangent info for normal mapping */
+          'vec3 tangent = nMatrix * VERTEX_TANGENT.xyz;',
+          'vec3 bitangent = cross(vNormal, tangent) * VERTEX_TANGENT.w;', // w is handedness
+          'vec3 dirToEye = -(mvMatrix*VERTEX_POSITION).xyz;',
+          'vec3 tbnDirToEye = vec3(dot(dirToEye, tangent),' +
+                                  'dot(dirToEye, bitangent),' +
+                                  'dot(dirToEye, vNormal));',
+                
+          'vTbnDirToLight.x = dot(vLightDir, tangent);',  
+          'vTbnDirToLight.y = dot(vLightDir, bitangent);',  
+          'vTbnDirToLight.z = dot(vLightDir, vNormal);',  
+
           /* if it's a spotlight, calculate spotlightDirection */
           'if (LIGHT_TYPE == '+Jax.SPOT_LIGHT+') {',
-            'vSpotlightDirection = normalize(ivnMatrix * -LIGHT_DIRECTION);',
+            'vSpotlightDirection = normalize(vnMatrix * -LIGHT_DIRECTION);',
           '}',
         '}',
             
@@ -127,10 +142,17 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
   
   function buildFragmentSource(options) {
-    var textureColors = [];
+    var textureColors = ['vec3 tn; vec2 tScale;'];
     for (var i = 0; options.textures && i < options.textures.length; i++) {
       textureColors.push(
-        'final_color *= texture2D(TEXTURE'+i+', vTexCoords);'
+        'tScale = vec2(TEXTURE'+i+'_SCALE_X, TEXTURE'+i+'_SCALE_Y);',
+              
+        'if (TEXTURE'+i+'_TYPE == '+Jax.NORMAL_MAP+') {',
+          'tn = normalize(texture2D(TEXTURE'+i+', vTexCoords * tScale).xyz * 2.0 - 1.0);',
+          'final_color *= max(dot(nTbnDirToLight, tn), 0.0);',
+        '}',
+        'else',
+          'final_color *= texture2D(TEXTURE'+i+', vTexCoords * tScale);'
       );
     }
 
@@ -191,6 +213,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       '}',
             
       'void main() {',
+        'vec3 nTbnDirToLight = normalize(vTbnDirToLight);',
         'vec4 final_color = vec4(0,0,0,0);',
         'float spotEffect, att = 1.0, visibility = 1.0;',
             
@@ -239,12 +262,12 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
                 'final_color += visibility * att * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);', /* specular */
               '}',
             '}',
+
+            textureColors.join("\n"),
           '}',
         '} else {',
           'final_color += materialAmbient * vBaseColor;',
         '}',
-            
-        textureColors.join("\n"),
             
         'gl_FragColor = final_color;',
       '}'
@@ -260,11 +283,20 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         VERTEX_POSITION: function(context, mesh) { return mesh.getVertexBuffer(); },
         VERTEX_COLOR   : function(context, mesh) { return mesh.getColorBuffer();  },
         VERTEX_NORMAL  : function(context, mesh) { return mesh.getNormalBuffer(); },
-        VERTEX_TEXCOORDS:function(context, mesh) { return mesh.getTextureCoordsBuffer(); }
+        VERTEX_TEXCOORDS:function(context, mesh) { return mesh.getTextureCoordsBuffer(); },
+        VERTEX_TANGENT  : function(context, mesh,o){
+          /* getting the tangent buffer is expensive -- don't do it unless it's going to be used */
+          if (o && o.material && o.material.textures)
+            for (var i = 0; i < o.material.textures.length; i++)
+              if (o.material.textures[i].options.type == Jax.NORMAL_MAP)
+                return mesh.getTangentBuffer();
+            
+          return null;
+        }
       },
       uniforms: {
         mMatrix: { type:"glUniformMatrix4fv", value: function(c) { return c.getModelMatrix(); } },
-        ivnMatrix: { type:"glUniformMatrix3fv", value: function(c) { return mat3.transpose(mat4.toMat3(c.getViewMatrix())); }},
+        vnMatrix: { type:"glUniformMatrix3fv", value: function(c) { return mat3.transpose(mat4.toMat3(c.getViewMatrix())); }},
         ivMatrix: { type: "glUniformMatrix4fv", value: function(c) { return c.getInverseViewMatrix(); }},
         mvMatrix: { type: "glUniformMatrix4fv", value: function(context) { return context.getModelViewMatrix();  } },
         pMatrix:  { type: "glUniformMatrix4fv", value: function(context) { return context.getProjectionMatrix(); } },
@@ -320,14 +352,33 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
     };
     
     if (options.textures)
-      for (var i = 0; i < options.textures.length; i++)
-        result.uniforms['TEXTURE'+i] = { type:"glUniform1i", i:i+2, value:function(c,m,o) {
+      for (var i = 0; i < options.textures.length; i++) {
           /* we offset i by 2 because we use texture0 and texture1 for the shadow maps */
+        result.uniforms['TEXTURE'+i+'_TYPE'] = {type:"glUniform1i", i:i+2, value:function(c,m,o) {
           var tex = o && o.material && o.material.textures[this.i-2];
-          if (tex && tex.loaded) tex.bind(c, this.i);
-          return this.i;
-        }
-      };
+          if (tex && tex.options && tex.options.type) return tex.options.type;
+          return 0;
+        }};
+        
+        result.uniforms['TEXTURE'+i] = { type:"glUniform1i", i:i+2, value:function(c,m,o) {
+            var tex = o && o.material && o.material.textures[this.i-2];
+            if (tex && tex.loaded) tex.bind(c, this.i);
+            return this.i;
+          }
+        };
+
+        result.uniforms['TEXTURE'+i+"_SCALE_X"] = { type:"glUniform1f", i:i+2, value:function(c,m,o) {
+            var tex = o && o.material && o.material.textures[this.i-2];
+            return (tex && tex.options && (tex.options.scale_x || tex.options.scale)) || 1.0;
+          }
+        };
+
+        result.uniforms['TEXTURE'+i+"_SCALE_Y"] = { type:"glUniform1f", i:i+2, value:function(c,m,o) {
+            var tex = o && o.material && o.material.textures[this.i-2];
+            return (tex && tex.options && (tex.options.scale_y || tex.options.scale)) || 1.0;
+          }
+        };
+      }
     
     return result;
   }

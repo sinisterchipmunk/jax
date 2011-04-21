@@ -1,3 +1,6 @@
+Jax.NORMAL_MAP = 1;
+
+
 /**
  * class Jax.Texture
  * Creates a managed WebGL texture.
@@ -154,7 +157,8 @@ Jax.Texture = (function() {
       
       if (!options && typeof(path_or_array) == "object" && path_or_array.length == undefined) {
         options = path_or_array;
-        path_or_array = null;
+        path_or_array = options.path || null;
+        delete options.path;
       }
       
       var self = this;

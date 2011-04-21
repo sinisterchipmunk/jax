@@ -105,17 +105,11 @@ beforeEach(function() {
         case 3: vec3.set(arguments, vec); break;
         default: throw new Error("Invalid args");
       }
-      if (this.actual.length != vec.length) return false;
-      for (var i = 0; i < this.actual.length; i++)
-        if (Math.abs(this.actual[i] - vec[i]) > Math.EPSILON) return false;
-      return true;
+      return Math.equalish(this.actual, vec);
     },
     
     toEqualMatrix: function(mat) {
-      if (this.actual.length != mat.length) return false;
-      for (var i = 0; i < this.actual.length; i++)
-        if (Math.abs(this.actual[i] - mat[i]) > Math.EPSILON) return false;
-      return true;
+      return Math.equalish(this.actual, mat);
     },
     
     toHaveFace: function(v1, v2, v3) {
@@ -151,6 +145,11 @@ beforeEach(function() {
         if (match) return true;
       }
       return false;
+    },
+    
+    toBeEmpty: function() {
+      if (typeof(this.actual.length) != "number") throw new Error("Expected "+jasmine.pp(this.actual)+" to have a length"); 
+      return this.actual.length == 0;
     },
     
     toBeIlluminated: function() {

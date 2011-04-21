@@ -22,3 +22,19 @@ Math.radToDeg = Math.radToDeg || function(rad) {
 Math.degToRad = Math.degToRad || function(deg) {
   return deg * Math.PI / 180.0;
 };
+
+/**
+ * Math.equalish(a, b) -> Boolean
+ * Arguments can be either scalar or vector, but must be of the same type.
+ * Returns true if the arguments are "equal enough" after accounting for floating-point
+ * precision loss. Returns false otherwise.
+ **/
+Math.equalish = Math.equalish || function(a, b) {
+  if (!a.length && !b.length)
+    return Math.abs(a - b) <= Math.EPSILON;
+
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++)
+    if (Math.abs(a[i] - b[i]) > Math.EPSILON) return false;
+  return true;
+};

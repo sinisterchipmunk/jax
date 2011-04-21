@@ -27,6 +27,23 @@ describe("Built-in Shader Builder:", function() {
         expect(called).toBeTrue();
       });
     });
+    
+    describe(shaders[i]+" with a normal map", function() {
+      var matr;
+      beforeEach(function() { matr = new Jax.Material({texture:{type:Jax.NORMAL_MAP,path:"/public/images/normal_map.jpg"}}); });
+      
+      var shader_name = shaders[i];
+      it("should use the shader from world", function() {
+        var obj = new Jax.Model({mesh:new Jax.Mesh.Sphere({material:matr,shader:shader_name})});
+        var called = false;
+        obj.mesh.render = function(context, options) {
+          called = called || this.getNormalizedRenderOptions(options).shader == shader_name;
+        };
+        context.world.addObject(obj);
+        context.world.render();
+        expect(called).toBeTrue();
+      });
+    });
 
     describe(shaders[i]+" with 1 texture", function() {
       var matr;
