@@ -1,12 +1,6 @@
-rvm use --create --install 1.9.2@webgl >/dev/null 2>&1
-
-if [[ -s "./jax.gems" ]]; then
-  if ! rvm gemset import jax.gems >/dev/null 2>&1; then
-    echo "ERROR: Unable to bootstrap the gems" >&2
-  fi
-fi
+rvm use --create --install 1.9.2@webgl 2>&1
 
 # Bundle is available, non-custom config.
 if command -v bundle >/dev/null && ! grep -q BUNDLE_FROZEN .bundle/config 2>/dev/null ; then
-  bundle install >/dev/null 2>&1
+  bundle install
 fi
