@@ -11,7 +11,9 @@ Jax.shader_program_builders['basic'] = (function() {
       for (var i = 0; i < options.textures.length; i++) {
         textureDefs.push(
           "uniform sampler2D TEXTURE"+i+";",
-          "uniform int TEXTURE"+i+"_TYPE;"
+          "uniform int TEXTURE"+i+"_TYPE;",
+          "uniform vec2 TEXTURE"+i+"_SCALE;",
+          "uniform vec2 TEXTURE"+i+"_OFFSET;"
         );
       }
     }
@@ -73,12 +75,15 @@ Jax.shader_program_builders['basic'] = (function() {
   function buildFragmentSource(options) {
     var textureColors = ['vec3 tn;'];
     for (var i = 0; options.textures && i < options.textures.length; i++) {
+      var tc = 'vTexCoords * TEXTURE'+i+'_SCALE + TEXTURE'+i+'_OFFSET';
       textureColors.push(
         'if (TEXTURE'+i+'_TYPE == '+Jax.NORMAL_MAP+') {',
-          'tn = normalize(texture2D(TEXTURE'+i+', vTexCoords).xyz * 2.0 - 1.0);',
+          'tn = normalize(texture2D(TEXTURE'+i+', '+tc+').xyz * 2.0 - 1.0);',
           'diffuse *= max(dot(nTbnDirToLight, tn), 0.0);',
         '}',
-        'else ambient *= texture2D(TEXTURE'+i+', vTexCoords);'
+        'else',
+          'ambient *= texture2D(TEXTURE'+i+', '+tc+');',
+        ''
       );
     }
     
@@ -165,6 +170,32 @@ Jax.shader_program_builders['basic'] = (function() {
             return this.i;
           }
         };
+
+        result.uniforms['TEXTURE'+i+"_SCALE"] = { type:"glUniform2fv", i:i, value:function(c,m,o) {
+          this.scale = this.scale || new glMatrixArrayType(2);
+          var tex = o && o.material && o.material.textures[this.i];
+          if (tex && tex.options) {
+            this.scale[0] = tex.options.scale_x || tex.options.scale || 1.0;
+            this.scale[1] = tex.options.scale_y || tex.options.scale || 1.0;
+          } else {
+            this.scale[0] = 1.0;
+            this.scale[1] = 1.0;
+          }
+          return this.scale;
+        } };
+
+        result.uniforms['TEXTURE'+i+"_OFFSET"] = { type:"glUniform2fv", i:i, value:function(c,m,o) {
+          this.offset = this.offset || new glMatrixArrayType(2);
+          var tex = o && o.material && o.material.textures[this.i];
+          if (tex && tex.options) {
+            this.offset[0] = tex.options.offset_x || tex.options.offset || 1.0;
+            this.offset[1] = tex.options.offset_y || tex.options.offset || 1.0;
+          } else {
+            this.offset[0] = 1.0;
+            this.offset[1] = 1.0;
+          }
+          return this.offset;
+        } };
       }
     
     return result;

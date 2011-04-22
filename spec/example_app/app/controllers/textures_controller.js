@@ -4,11 +4,12 @@ var TexturesController = (function() {
   return Jax.Controller.create("textures", ApplicationController, {
     index: function() {
       var tex_mat = new Jax.Material({
-        ambient: [0.1,0.1,0.1,1],
+        ambient: [0.2,0.2,0.2,1],
         diffuse: [0.2,0.2,0.2,1],
+        shininess: 30,
         textures:[
-          {type:Jax.NORMAL_MAP,flip_y:true,path:"/public/images/normal_map.jpg",scale:3}
-//          "/public/images/rss.png"
+          {type:Jax.NORMAL_MAP,flip_y:false,path:"/public/images/185__normalmap.png",scale:1},
+          {path:"/public/images/rss.png",scale:8}
         ]
       });
       
@@ -23,20 +24,25 @@ var TexturesController = (function() {
         },
         attenuation: {
           constant: 0,
-          linear: 0.2,
+          linear: 0.1,
           quadratic: 0
         },
         shadowcaster: false
       }));
-      
-      this.world.addObject(new Jax.Model({position:[0,0,-20],mesh: new Jax.Mesh.Quad({size:10,material:tex_mat})}));
+
+      this.world.addObject(new Jax.Model({position:[0,0,-7.5],mesh: new Jax.Mesh.Quad({size:7.5,material:tex_mat})}));
     },
     
-    /* dragging the mouse will rotate the object */
+    /* moving the mouse will rotate the object */
     mouse_moved: function(event) {
       var camera = this.world.getObject(0).camera;
-//      camera.rotate(0.0375, [0, 0, -this.context.mouse.diffy]);
-      camera.rotate(0.0375, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
+      camera.rotate(0.0375, [0, 0, -this.context.mouse.diffx]);
+    },
+    
+    update: function(tc) {
+      var light = this.world.lighting.getLight(0).camera;
+      light.p = (light.p || 0) + tc * 2.0;
+      light.setPosition(Math.cos(light.p)*2.5, Math.sin(light.p)*2.5, -5);
     }
   });
 })();

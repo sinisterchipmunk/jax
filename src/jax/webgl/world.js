@@ -40,7 +40,7 @@ Jax.World = (function() {
       while (this.shadow_casters.length > 0) this.shadow_casters.pop();
       for (var i = 0; i < this.objects.length; i++) {
         if (this.objects[i].isShadowCaster()) {
-          this.shadow_casters[i] = this.objects[i];
+          this.shadow_casters.push(this.objects[i]);
         }
       }
     },

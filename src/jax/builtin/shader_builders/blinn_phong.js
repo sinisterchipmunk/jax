@@ -6,8 +6,8 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
         textureDefs.push(
           "uniform sampler2D TEXTURE"+i+";",
           "uniform int TEXTURE"+i+"_TYPE;",
-          "uniform float TEXTURE"+i+"_SCALE_X;",
-          "uniform float TEXTURE"+i+"_SCALE_Y;"
+          "uniform vec2 TEXTURE"+i+"_SCALE;",
+          "uniform vec2 TEXTURE"+i+"_OFFSET;"
         );
       }
     }
@@ -42,6 +42,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
 
       'varying vec2 vTexCoords;',
       'varying vec3 vNormal, vLightDir, vSpotlightDirection, vTbnDirToLight;',
+      'varying vec3 vTangent, vBitangent;',
       'varying vec4 vBaseColor, vShadowCoord;',
       'varying float vDist;',
             
@@ -118,17 +119,9 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           '}',
             
           /* tangent info for normal mapping */
-          'vec3 tangent = nMatrix * VERTEX_TANGENT.xyz;',
-          'vec3 bitangent = cross(vNormal, tangent) * VERTEX_TANGENT.w;', // w is handedness
-          'vec3 dirToEye = -(mvMatrix*VERTEX_POSITION).xyz;',
-          'vec3 tbnDirToEye = vec3(dot(dirToEye, tangent),' +
-                                  'dot(dirToEye, bitangent),' +
-                                  'dot(dirToEye, vNormal));',
+          'vTangent = nMatrix * VERTEX_TANGENT.xyz;',
+          'vBitangent = cross(vNormal, vTangent) * VERTEX_TANGENT.w;', // w is handedness
                 
-          'vTbnDirToLight.x = dot(vLightDir, tangent);',  
-          'vTbnDirToLight.y = dot(vLightDir, bitangent);',  
-          'vTbnDirToLight.z = dot(vLightDir, vNormal);',  
-
           /* if it's a spotlight, calculate spotlightDirection */
           'if (LIGHT_TYPE == '+Jax.SPOT_LIGHT+') {',
             'vSpotlightDirection = normalize(vnMatrix * -LIGHT_DIRECTION);',
@@ -142,17 +135,20 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
   }
   
   function buildFragmentSource(options) {
-    var textureColors = ['vec3 tn; vec2 tScale;'];
+    var ambientTextureColors = [], diffuseTextureColors = ['vec3 tn;'];
     for (var i = 0; options.textures && i < options.textures.length; i++) {
-      textureColors.push(
-        'tScale = vec2(TEXTURE'+i+'_SCALE_X, TEXTURE'+i+'_SCALE_Y);',
-              
+      var tc = 'vTexCoords * TEXTURE'+i+'_SCALE + TEXTURE'+i+'_OFFSET';
+      diffuseTextureColors.push(
         'if (TEXTURE'+i+'_TYPE == '+Jax.NORMAL_MAP+') {',
-          'tn = normalize(texture2D(TEXTURE'+i+', vTexCoords * tScale).xyz * 2.0 - 1.0);',
+          'tn = normalize(texture2D(TEXTURE'+i+', '+tc+').xyz * 2.0 - 1.0);',
           'final_color *= max(dot(nTbnDirToLight, tn), 0.0);',
         '}',
         'else',
-          'final_color *= texture2D(TEXTURE'+i+', vTexCoords * tScale);'
+          'final_color *= texture2D(TEXTURE'+i+', '+tc+');',
+        ''
+      );
+      ambientTextureColors.push(
+        'final_color *= vec4(1,1,1,texture2D(TEXTURE'+i+', '+tc+').a);'
       );
     }
 
@@ -213,7 +209,7 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
       '}',
             
       'void main() {',
-        'vec3 nTbnDirToLight = normalize(vTbnDirToLight);',
+        'vec3 nTbnDirToLight;// = normalize(vTbnDirToLight);',
         'vec4 final_color = vec4(0,0,0,0);',
         'float spotEffect, att = 1.0, visibility = 1.0;',
             
@@ -245,6 +241,11 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
             'vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);',
             'vec3 halfVector = normalize(nLightDir + vec3(0.0,0.0,1.0));',
             'float NdotL = max(dot(nNormal, nLightDir), 0.0);',
+            'nTbnDirToLight.x = dot(vLightDir, normalize(vTangent));',  
+            'nTbnDirToLight.y = dot(vLightDir, normalize(vBitangent));',  
+            'nTbnDirToLight.z = dot(vLightDir, nNormal);',
+            'nTbnDirToLight = normalize(nTbnDirToLight);',
+      
 
             'if (LIGHT_TYPE != '+Jax.SPOT_LIGHT+' || ',
               '(spotEffect = dot(normalize(vSpotlightDirection), nLightDir)) > SPOTLIGHT_COS_CUTOFF',
@@ -263,10 +264,11 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
               '}',
             '}',
 
-            textureColors.join("\n"),
+            diffuseTextureColors.join("\n"),
           '}',
         '} else {',
           'final_color += materialAmbient * vBaseColor;',
+          ambientTextureColors.join("\n"),
         '}',
             
         'gl_FragColor = final_color;',
@@ -367,17 +369,32 @@ Jax.shader_program_builders['blinn-phong'] = (function() {
           }
         };
 
-        result.uniforms['TEXTURE'+i+"_SCALE_X"] = { type:"glUniform1f", i:i+2, value:function(c,m,o) {
-            var tex = o && o.material && o.material.textures[this.i-2];
-            return (tex && tex.options && (tex.options.scale_x || tex.options.scale)) || 1.0;
+        result.uniforms['TEXTURE'+i+"_SCALE"] = { type:"glUniform2fv", i:i+2, value:function(c,m,o) {
+          this.scale = this.scale || new glMatrixArrayType(2);
+          var tex = o && o.material && o.material.textures[this.i-2];
+          if (tex && tex.options) {
+            this.scale[0] = tex.options.scale_x || tex.options.scale || 1.0;
+            this.scale[1] = tex.options.scale_y || tex.options.scale || 1.0;
+          } else {
+            this.scale[0] = 1.0;
+            this.scale[1] = 1.0;
           }
-        };
+          return this.scale;
+        } };
 
-        result.uniforms['TEXTURE'+i+"_SCALE_Y"] = { type:"glUniform1f", i:i+2, value:function(c,m,o) {
-            var tex = o && o.material && o.material.textures[this.i-2];
-            return (tex && tex.options && (tex.options.scale_y || tex.options.scale)) || 1.0;
+        result.uniforms['TEXTURE'+i+"_OFFSET"] = { type:"glUniform2fv", i:i+2, value:function(c,m,o) {
+          this.offset = this.offset || new glMatrixArrayType(2);
+          var tex = o && o.material && o.material.textures[this.i-2];
+          if (tex && tex.options) {
+            this.offset[0] = tex.options.offset_x || tex.options.offset || 1.0;
+            this.offset[1] = tex.options.offset_y || tex.options.offset || 1.0;
+          } else {
+            this.offset[0] = 1.0;
+            this.offset[1] = 1.0;
           }
-        };
+          return this.offset;
+        } };
+
       }
     
     return result;
