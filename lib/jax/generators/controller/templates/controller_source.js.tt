@@ -11,6 +11,6 @@ var <%=class_name%>Controller = (function() {
     // received from the user.
     mouse_clicked: function(event) {
       
-    },
+    }
   });
 })();
