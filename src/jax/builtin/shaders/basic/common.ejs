@@ -1,0 +1,22 @@
+<% for (var i = 0; i < textures.length; i++) { %>
+     uniform sampler2D TEXTURE<%=i%>;
+     uniform int TEXTURE<%=i%>_TYPE;
+     uniform vec2 TEXTURE<%=i%>_SCALE, TEXTURE<%=i%>_OFFSET;
+<% } %>
+
+uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix, vMatrix;
+uniform mat3 vnMatrix, nMatrix;
+
+uniform vec4 materialDiffuse, materialAmbient, materialSpecular;
+uniform float materialShininess;
+
+uniform int PASS_TYPE;
+
+varying vec2 vTexCoords;
+varying vec3 vNormal, vLightDir, vTbnDirToLight;
+varying vec4 vBaseColor;
+
+const vec4 LIGHT_AMBIENT = vec4(0.4,0.4,0.4,1.0);
+const vec4 LIGHT_DIFFUSE = vec4(0.6,0.6,0.6,1.0);
+const vec4 LIGHT_SPECULAR= vec4(1.0,1.0,1.0,1.0);
+const vec3 LIGHT_DIRECTION=vec3(-1.0,-1.0,-1.0);

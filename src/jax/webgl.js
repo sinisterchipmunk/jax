@@ -4,7 +4,7 @@ a new global called GL_METHODS. This will later be used for method delegation
 within Jax.Context.
  */
 
-//= require "vendor/glMatrix-0.9.5"
+//= require "vendor/glMatrix"
 
 window['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
 window['WEBGL_CONTEXT_OPTIONS'] = {stencil:true};

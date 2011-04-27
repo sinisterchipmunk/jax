@@ -58,7 +58,16 @@ end
 
 desc "compile Jax"
 task :compile do
-
+  require 'jax'
+  # generate the built-in shaders
+  # TODO since users will be able to add/edit their own shaders, why not bundle these shaders
+  # in the app itself and then drop this phase from the Jax build entirely?
+  shaders = Dir[File.expand_path("src/jax/builtin/shaders/*", File.dirname(__FILE__))]
+  shaders.each do |path|
+    next unless File.directory? path
+    Jax::Shader.from(path).save_to(File.join(File.dirname(__FILE__), "src/generated", "#{File.basename(path)}.js"))
+  end
+  
   secretary = Sprockets::Secretary.new(
           :root => File.dirname(__FILE__),
           :asset_root => "public",
@@ -68,6 +77,18 @@ task :compile do
   rm_rf "dist"
   mkdir_p "dist"
   secretary.concatenation.save_to "dist/jax.js"
+  # note we can't just add sahders to the source_files because shaders use <% %> which sprockets also happens to use.
+  # TODO see if we can't just disable the <% %> in sprockets.
+  shaders.each do |path|
+    File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
+      next unless File.directory? path
+      f.puts File.read(File.join(File.dirname(__FILE__), "src/generated", "#{File.basename(path)}.js"))
+    end
+  end
+  File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
+    f.puts File.read(File.join(File.dirname(__FILE__), "src/jax/builtin/shaders/setup.js"))
+  end
+  
   puts "generated #{File.expand_path "dist/jax.js", '.'}"
   cp File.join(File.dirname(__FILE__), "dist/jax.js"), 
      File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")

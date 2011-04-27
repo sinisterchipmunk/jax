@@ -3,9 +3,11 @@ describe("Built-in Shader Builder:", function() {
   beforeEach(function() { context = new Jax.Context(document.getElementById('canvas-element')); });
   afterEach(function() { context.dispose(); });
   
-  var shaders = Jax.Util.properties(Jax.shader_program_builders);
+  var shaders = Jax.Util.properties(Jax.shaders);
   for (var i = 0; i < shaders.length; i++)
   {
+    if (!shaders[i].getVertexShader) continue;
+    
     describe(shaders[i], function() {
       var shader_name = shaders[i];
       it("should compile", function() {
@@ -13,7 +15,7 @@ describe("Built-in Shader Builder:", function() {
         var obj = new Jax.Mesh({material:matr,shader:shader_name});
         spyOn(matr, 'buildShader').andCallThrough();
         obj.render(context);
-        expect(matr.buildShader).toHaveBeenCalledWith(shader_name);
+        expect(matr.buildShader).toHaveBeenCalledWith(shader_name, context);
       });
       
       it("should use the shader from world", function() {
@@ -56,7 +58,7 @@ describe("Built-in Shader Builder:", function() {
         var obj = new Jax.Mesh({material:matr,shader:shader_name});
         spyOn(matr, 'buildShader').andCallThrough();
         obj.render(context);
-        expect(matr.buildShader).toHaveBeenCalledWith(shader_name);
+        expect(matr.buildShader).toHaveBeenCalledWith(shader_name, context);
       });
       
       it("should use the shader from world", function() {

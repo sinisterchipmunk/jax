@@ -1,0 +1,23 @@
+attribute vec2 VERTEX_TEXCOORDS;
+attribute vec3 VERTEX_NORMAL;
+attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;
+
+void main(void) {
+  vBaseColor = VERTEX_COLOR;
+  vNormal = nMatrix * VERTEX_NORMAL;
+  vTexCoords = VERTEX_TEXCOORDS;
+
+  vec3 tangent = nMatrix * VERTEX_TANGENT.xyz;
+  vec3 bitangent = cross(vNormal, tangent) * VERTEX_TANGENT.w;
+  vec3 dirToEye = -(mvMatrix * VERTEX_POSITION).xyz;
+  vec3 tbnDirToEye = vec3(dot(dirToEye, tangent),
+                          dot(dirToEye, bitangent),
+                          dot(dirToEye, vNormal));
+                          
+  vLightDir = normalize(vnMatrix * -normalize(LIGHT_DIRECTION));
+  vTbnDirToLight.x = dot(vLightDir, tangent);
+  vTbnDirToLight.y = dot(vLightDir, bitangent);
+  vTbnDirToLight.z = dot(vLightDir, vNormal);
+
+  gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;
+}

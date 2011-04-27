@@ -1,4 +1,4 @@
-//= require "../vendor/glMatrix-0.9.5"
+//= require "../vendor/glMatrix"
 //= require "../prototype/class"
 
 /**

@@ -1,4 +1,5 @@
-//= require "vendor/glMatrix-0.9.5"
+//= require "vendor/ejs"
+//= require "vendor/glMatrix"
 //= require "prototype/class"
 //= require "core/math"
 //= require "core/util"

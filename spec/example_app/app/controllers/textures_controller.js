@@ -36,7 +36,7 @@ var TexturesController = (function() {
     /* moving the mouse will rotate the object */
     mouse_moved: function(event) {
       var camera = this.world.getObject(0).camera;
-      camera.rotate(0.0375, [0, 0, -this.context.mouse.diffx]);
+      camera.rotate(0.0375, [this.context.mouse.diffy, 0, -this.context.mouse.diffx]);
     },
     
     update: function(tc) {

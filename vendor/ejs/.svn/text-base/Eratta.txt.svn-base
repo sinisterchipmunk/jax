@@ -1,0 +1,3 @@
+05 June 2007
+- Comma on line 233 preventing EJS from working in IE6 (Thanks, Justin from jupiterit.com)
+-

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/67/trunk/test/included
+END
+prototype.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/67/trunk/test/included/prototype.js
+END
+test.css
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/9/trunk/test/included/test.css
+END
+unittest.js
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/9/trunk/test/included/unittest.js
+END

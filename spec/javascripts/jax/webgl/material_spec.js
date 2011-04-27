@@ -38,8 +38,8 @@ describe("Jax.Material", function() {
         spyOn(material, 'buildShader').andCallThrough();
         material.render(context, mesh, {shader:"blinn-phong"});
         material.render(context, mesh, {shader:"basic"});
-        expect(material.buildShader).toHaveBeenCalledWith('blinn-phong');
-        expect(material.buildShader).toHaveBeenCalledWith('basic');
+        expect(material.buildShader).toHaveBeenCalledWith('blinn-phong', context);
+        expect(material.buildShader).toHaveBeenCalledWith('basic', context);
       });
     });
   
@@ -53,7 +53,7 @@ describe("Jax.Material", function() {
       spyOn(material, 'prepareShader').andCallThrough();
       material.render(context, mesh);
       // I don't like this, but I don't know a better way to test it.
-      expect(material.prepareShader).toHaveBeenCalledWith('basic');
+      expect(material.prepareShader).toHaveBeenCalledWith('basic', context);
     });
   });
 

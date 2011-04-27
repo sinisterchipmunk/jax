@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>JMVC test file</title>
+	<script src="included/prototype.js" type="text/javascript"></script>
+	<script src="included/unittest.js" type="text/javascript"></script>
+	<link href="included/test.css" rel="stylesheet" type="text/css" />
+	<script language="javascript" type="text/javascript">
+		TEST_NAME = location.search.substring(6)
+		var test_path = 'tests/'+TEST_NAME+'.js'
+		document.write('<script type="text/javascript" src="'+test_path+'">'+'</'+'script>');
+	</script>
+</head>
+<body>
+<h1 id='title'></h1>
+<p id='description'></p>
+<!-- Log output -->
+<div id="testlog"> </div>
+
+<br/>
+<textarea id='test_template'><ul>[% animals.each(function(animal){%]
+	<li>[%= animal %]</li>
+[%});%]</ul></textarea>
+<div id='update_me'>
+	
+</div>
+<br/>
+
+</body>
+	<script language="javascript" type="text/javascript">
+		$('title').innerHTML = TEST_NAME.replace(/_/, ' ')+' test on '+JMVCTest.APPLICATION_NAME;
+		if(JMVCTest.TEST_DESCRIPTION)
+			$('description').innerHTML = JMVCTest.TEST_DESCRIPTION;
+		DATABASE_NAME = JMVCTest.APPLICATION_NAME;
+
+	</script>
+	<script src="../src/ejs.js" type="text/javascript"></script>
+	<script src="../src/view.js" type="text/javascript"></script>
+	<script src="../lib/ejs_fulljslint.js" type="text/javascript"></script>
+	<script language="javascript" type="text/javascript">
+		JMVCTest.perform_test();
+	</script>
+</html>

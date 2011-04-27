@@ -4,7 +4,6 @@
  **/
 var Jax = { };
 
-//= require "jax/vendor/glMatrix-0.9.5"
 //= require "jax/core"
 //= require "jax/anim_frame"
 //= require "jax/prototype/extensions"
@@ -67,6 +66,8 @@ var Jax = { };
  *     var customMaterial = new Jax.Material({ shaderType: 'custom' });
  **/
 Jax.shader_program_builders = {};
+
+Jax.shaders = {};
 
 /**
  * Jax.views -> Jax.ViewManager

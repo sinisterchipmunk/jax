@@ -71,9 +71,14 @@ Jax.Material = (function() {
      * Instead, it schedules the rebuild for the next render pass, when the Jax.Context is readily
      * available.
      **/
-    buildShader: function(name) {
-      if (!this.shaders[name]) this.shaders[name] = new Jax.Shader(name);
-      this.shaders[name].update(this);
+    buildShader: function(name, context) {
+      if (this.shaders[name])
+        this.shaders[name].invalidate();
+      else {
+        this.shaders[name] = new Jax.Shader.Program();
+        this.shaders[name].attach(name, context);
+      }
+      
       return this.shaders[name];
     },
     
@@ -82,10 +87,10 @@ Jax.Material = (function() {
      * 
      * If this Material has been modified, all shaders attached to it will be rebuilt.
      **/
-    updateModifiedShaders: function() {
+    updateModifiedShaders: function(context) {
       if (this.isChanged()) {
         for (var s in this.shaders)
-          this.buildShader(s);
+          this.buildShader(s, context);
         updatePrevious(this);
       }
       return this;
@@ -98,15 +103,15 @@ Jax.Material = (function() {
      * then all shaders are updated. The specified shader is either built or returned,
      * depending on whether it has already been built.
      **/
-    prepareShader: function(name) {
+    prepareShader: function(name, context) {
       var shader;
       
       if (this.shaders[name])
         shader = this.shaders[name];
       else
-        shader = this.buildShader(name);
-
-      this.updateModifiedShaders();
+        shader = this.buildShader(name, context);
+      
+      this.updateModifiedShaders(context);
       return shader;
     },
 
@@ -121,9 +126,10 @@ Jax.Material = (function() {
       this.light_count = context.world.lighting._lights.length;
       
       var shader = this.prepareShader((options && options.shader || this.shader) ||
-                                      (options && options.default_shader|| this.default_shader));
+                                      (options && options.default_shader|| this.default_shader),
+                                      context);
 
-      shader.render(context, mesh, options);
+      shader.render(context, mesh, this, options);
     },
     
     /**

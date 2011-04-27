@@ -1,0 +1,31 @@
+div.example, div.output {
+  min-width: 250px;
+  min-height: 100px;
+  border: 1px solid black;
+  margin: 5px;
+  padding-top: 0px;
+}
+
+hr {
+  clear: both;
+}
+
+div.example h3 {
+  width: 100%;
+  color: white;
+  background-color: #000066;
+  padding: 0px;
+  margin: 0px;
+}
+
+div.output h3{
+  width: 100%;
+  color: white;
+  background-color: #006600;
+  padding: 0px;
+  margin: 0px;
+}
+
+a img {
+  border: 0;
+}
