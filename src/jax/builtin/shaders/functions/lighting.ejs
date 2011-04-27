@@ -1,0 +1,127 @@
+struct {
+  vec3 position; // in eye space
+  vec3 direction; // in eye space
+  vec4 ambient, diffuse, specular;
+  float constant_attenuation, linear_attenuation, quadratic_attenuation;
+  float spotExponent;
+} LightSource light;
+
+void DirectionalLight(in vec3 normal,
+                      inout vec4 ambient,
+                      inout vec4 diffuse,
+                      inout vec4 specular)
+{
+  vec3 nLDir = normalize(light.direction);
+  vec3 halfVector = nLDir + vec3(0,0,1);
+  
+  float NdotD  = max(0.0, dot(normal, nLDir));
+  float NdotHV = max(0.0, dot(normal, halfVector));
+  
+  if (NdotD == 0.0) pf = 0.0;
+  else pf = pow(NdotHV, materialShininess);
+  
+  ambient += light.ambient;
+  diffuse += light.diffuse * NdotD;
+  specular += light.specular * pf;
+}
+
+/* Use when attenuation != (1,0,0) */
+void PointLightWithAttenuation(in vec3 ecPosition3,
+                               in vec3 normal,
+                               inout vec4 ambient,
+                               inout vec4 diffuse,
+                               inout vec4 specular)
+{
+  float NdotD; // normal . light direction
+  float NdotHV;// normal . half vector
+  float pf;    // specular factor
+  float attenuation;
+  float d;     // distance from surface to light source
+  vec3 VP;     // direction from surface to light position
+  vec3 halfVector; // direction of maximum highlights
+  
+  VP = light.position - ecPosition3;
+  d = length(VP);
+  VP = normalize(VP);
+  attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
+  halfVector = normalize(VP+vec3(0,0,1));
+  NdotD = max(0.0, dot(normal, VP));
+  NdotHV= max(0.0, dot(normal, halfVector));
+  
+  if (NdotD == 0.0) pf = 0.0;
+  else pf = pow(NdotHV, materialShininess);
+  
+  ambient += light.ambient * attenuation;
+  diffuse += light.diffuse * NdotD * attenuation;
+  specular += light.specular * pf * attenuation;
+}
+
+/* Use for better performance when attenuation == (1,0,0) */
+void PointLightWithoutAttenuation(in vec3 ecPosition3,
+                               in vec3 normal,
+                               inout vec4 ambient,
+                               inout vec4 diffuse,
+                               inout vec4 specular)
+{
+  float NdotD; // normal . light direction
+  float NdotHV;// normal . half vector
+  float pf;    // specular factor
+  float d;     // distance from surface to light source
+  vec3 VP;     // direction from surface to light position
+  vec3 halfVector; // direction of maximum highlights
+  
+  VP = light.position - ecPosition3;
+  d = length(VP);
+  VP = normalize(VP);
+  halfVector = normalize(VP+vec3(0,0,1));
+  NdotD = max(0.0, dot(normal, VP));
+  NdotHV= max(0.0, dot(normal, halfVector));
+  
+  if (NdotD == 0.0) pf = 0.0;
+  else pf = pow(NdotHV, materialShininess);
+  
+  ambient += light.ambient;
+  diffuse += light.diffuse * NdotD;
+  specular += light.specular * pf;
+}
+
+void SpotLight(in vec3 ecPosition3,
+               in vec3 normal,
+               inout vec4 ambient,
+               inout vec4 diffuse,
+               inout vec4 specular)
+{
+  float NdotD; // normal . light direction
+  float NdotHV;// normal . half vector
+  float pf;    // specular factor
+  float attenuation;
+  float d;     // distance from surface to light source
+  vec3 VP;     // direction from surface to light position
+  vec3 halfVector; // direction of maximum highlights
+  float spotDot; // cosine of angle between spotlight
+  float spotAttenuation; // spotlight attenuation factor
+  
+  VP = light.position - ecPosition3;
+  d = length(VP);
+  VP = normalize(VP);
+  attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
+  
+  // See if point on surface is inside cone of illumination
+  spotDot = dot(-VP, normalize(light.direction));
+  if (spotDot < light.spotCosCutoff)
+    spotAttenuation = 0.0;
+  else spotAttenuation = pow(spotDot, light.spotExponent);
+  
+  attenuation *= spotAttenuation;
+  
+  halfVector = normalize(VP+vec3(0,0,1));
+  NdotD = max(0.0, dot(normal, VP));
+  NdotHV= max(0.0, dot(normal, halfVector));
+  
+  if (NdotD == 0.0) pf = 0.0;
+  else pf = pow(NdotHV, materialShininess);
+  
+  ambient += light.ambient * attenuation;
+  diffuse += light.diffuse * NdotD * attenuation;
+  specular += light.specular * pf * attenuation;
+}
