@@ -16,7 +16,18 @@ varying vec2 vTexCoords;
 varying vec3 vNormal, vLightDir, vTbnDirToLight;
 varying vec4 vBaseColor;
 
-const vec4 LIGHT_AMBIENT = vec4(0.4,0.4,0.4,1.0);
-const vec4 LIGHT_DIFFUSE = vec4(0.6,0.6,0.6,1.0);
-const vec4 LIGHT_SPECULAR= vec4(1.0,1.0,1.0,1.0);
-const vec3 LIGHT_DIRECTION=vec3(-1.0,-1.0,-1.0);
+
+//= require "functions/lights"
+
+LightSource LIGHT = LightSource(
+  vec3(0), // position
+  vec3(-1.0, -1.0, -1.0), // direction
+  vec4(0.4, 0.4, 0.4, 1.0), // ambient
+  vec4(0.6, 0.6, 0.6, 1.0), // diffuse
+  vec4(1.0, 1.0, 1.0, 1.0), // specular
+  1.0,     // constant atten
+  0.0,     // linear atten
+  0.0,     // quadratic atten
+  0.0,     // spotExponent
+  0.0      // spotCosCutoff
+);

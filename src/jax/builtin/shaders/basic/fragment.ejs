@@ -1,8 +1,28 @@
 void main(void) {
-  vec4 ambient = materialAmbient * vBaseColor + LIGHT_AMBIENT * vBaseColor;
+  vec4 ambient = vec4(0);
+  vec4 diffuse = vec4(0), specular = vec4(0);
+  
   vec3 nTbnDirToLight = normalize(vTbnDirToLight);
 
-  if (PASS_TYPE != <%=Jax.Scene.ILLUMINATION_PASS%>) {
+  vec3 nNormal = normalize(vNormal);
+
+  DirectionalLight(LIGHT, nNormal, ambient, diffuse, specular);
+  
+  vec3 tn;
+  vec2 tc;
+  <% for (var i = 0; i < textures.length; i++) { %>
+    tc = vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET;
+    if (TEXTURE<%=i%>_TYPE == <%=Jax.NORMAL_MAP%>) {
+      tn = normalize(texture2D(TEXTURE<%=i%>, tc).xyz * 2.0 - 1.0);
+      diffuse *= max(dot(nTbnDirToLight, tn), 0.0);
+    } else ambient *= texture2D(TEXTURE<%=i%>, tc);
+  <% } %>
+
+  gl_FragColor = ambient  * materialAmbient  * vBaseColor +
+                 diffuse  * materialDiffuse  * vBaseColor +
+                 specular * materialSpecular * vBaseColor;
+
+  /*
     vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);
     vec3 halfVector = normalize(nLightDir + vec3(0,0,1));
     float NdotL = max(dot(nNormal, nLightDir), 0.0);
@@ -10,8 +30,8 @@ void main(void) {
 
     if (NdotL > 0.0) {
       float NdotHV = max(dot(nNormal, halfVector), 0.0);
-      diffuse += vBaseColor * NdotL * materialDiffuse * LIGHT_DIFFUSE;
-      diffuse += vBaseColor * materialSpecular * LIGHT_SPECULAR * pow(NdotHV, materialShininess);
+      diffuse += vBaseColor * NdotL * materialDiffuse * LIGHT.diffuse;
+      diffuse += vBaseColor * materialSpecular * LIGHT.specular * pow(NdotHV, materialShininess);
     }
 
     vec3 tn;
@@ -25,5 +45,6 @@ void main(void) {
     <% } %>
 
     gl_FragColor = ambient + diffuse;
-  } else discard;
+    */
+//  } else discard;
 }

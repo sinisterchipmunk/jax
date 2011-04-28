@@ -1,18 +1,20 @@
-struct {
-  vec3 position; // in eye space
-  vec3 direction; // in eye space
+const struct LightSource {
+  vec3 position; // in world space
+  vec3 direction; // in world space
   vec4 ambient, diffuse, specular;
   float constant_attenuation, linear_attenuation, quadratic_attenuation;
-  float spotExponent;
-} LightSource light;
+  float spotExponent, spotCosCutoff;
+};
 
-void DirectionalLight(in vec3 normal,
+void DirectionalLight(const in LightSource light,
+                      in vec3 normal,
                       inout vec4 ambient,
                       inout vec4 diffuse,
                       inout vec4 specular)
 {
-  vec3 nLDir = normalize(light.direction);
-  vec3 halfVector = nLDir + vec3(0,0,1);
+  vec3 nLDir = normalize(vnMatrix * -normalize(light.direction));
+  vec3 halfVector = normalize(nLDir + vec3(0,0,1));
+  float pf;
   
   float NdotD  = max(0.0, dot(normal, nLDir));
   float NdotHV = max(0.0, dot(normal, halfVector));
@@ -26,7 +28,8 @@ void DirectionalLight(in vec3 normal,
 }
 
 /* Use when attenuation != (1,0,0) */
-void PointLightWithAttenuation(in vec3 ecPosition3,
+void PointLightWithAttenuation(const in LightSource light,
+                               in vec3 ecPosition3,
                                in vec3 normal,
                                inout vec4 ambient,
                                inout vec4 diffuse,
@@ -57,11 +60,12 @@ void PointLightWithAttenuation(in vec3 ecPosition3,
 }
 
 /* Use for better performance when attenuation == (1,0,0) */
-void PointLightWithoutAttenuation(in vec3 ecPosition3,
-                               in vec3 normal,
-                               inout vec4 ambient,
-                               inout vec4 diffuse,
-                               inout vec4 specular)
+void PointLightWithoutAttenuation(const in LightSource light,
+                                  in vec3 ecPosition3,
+                                  in vec3 normal,
+                                  inout vec4 ambient,
+                                  inout vec4 diffuse,
+                                  inout vec4 specular)
 {
   float NdotD; // normal . light direction
   float NdotHV;// normal . half vector
@@ -85,7 +89,8 @@ void PointLightWithoutAttenuation(in vec3 ecPosition3,
   specular += light.specular * pf;
 }
 
-void SpotLight(in vec3 ecPosition3,
+void SpotLight(const in LightSource light,
+               in vec3 ecPosition3,
                in vec3 normal,
                inout vec4 ambient,
                inout vec4 diffuse,
