@@ -41,6 +41,28 @@ Jax.Shader = (function() {
       throw new Error(buildStackTrace(context, shader, source));
   }
   
+  function getExportedVariableName(exportPrefix, name) {
+    return "_"+exportPrefix+"_"+name;
+  }
+  
+  /*
+    preprocess shader source code to replace "import(varname, expression)" with the globalized varname if it's been
+    exported (as an attribute of material.exports || self.options.exports), or expression if it hasn't.
+   */
+  function applyImports(self, material, source) {
+    var rx = /import\((.*?), (.*?)\)/, result;
+    var exp;
+    while (result = rx.exec(source)) {
+      var name = result[1];
+      if (material && (exp = (material.exports && material.exports[name]) || (self.options.exports && self.options.exports[name]))) {
+        var exportedVariableName = getExportedVariableName(material.export_prefix || self.getName(), name);
+        source = source.replace(result[0], result[2].replace(new RegExp(name, "g"), exportedVariableName));
+      }
+      else source = source.replace(result[0], "");
+    }
+    return source;
+  }
+  
   return Jax.Class.create({
     /*
       setup: function(context, mesh, options, attributes, uniforms)
@@ -53,7 +75,7 @@ Jax.Shader = (function() {
       if (obj.vertex)   obj.vertex   = new EJS({text:obj.vertex});
       if (obj.fragment) obj.fragment = new EJS({text:obj.fragment});
       if (obj.common)   obj.common   = new EJS({text:obj.common});
-      
+
       this.options = obj;
       this.shaders = { vertex: {}, fragment: {} };
     },
@@ -82,7 +104,24 @@ Jax.Shader = (function() {
     
     getFragmentSource: function(material) {
       var defs = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
-      return this.options.fragment && (defs+this.getCommonSource(material)+this.options.fragment.render(material));
+      
+      var fragmentSource = this.options.fragment;
+      if (fragmentSource && (fragmentSource = fragmentSource.render(material))) {
+        return (defs +
+                this.getCommonSource(material) +
+                applyImports(this, material, fragmentSource));
+      }
+      return null;
+    },
+    
+    getExportDefinitions: function(exportPrefix) {
+      var exports = "";
+      if (this.options.exports) {
+        for (var name in this.options.exports) {
+          exports += this.options.exports[name]+" "+getExportedVariableName(exportPrefix, name)+";\n";
+        }
+      }
+      return exports + "\n";
     },
     
     build: function(context, material) {
@@ -141,7 +180,7 @@ Jax.Shader.AttributeDelegator = (function() {
           c.glEnableVertexAttribArray(v.location);
           c.glVertexAttribPointer(v.location, value.itemSize, GL_FLOAT, false, 0, 0);
         } else {
-          console.warn("skipping assignment of attribute %s (variables: %s)", name, JSON.stringify(variables));
+//          console.warn("skipping assignment of attribute %s (variables: %s)", name, JSON.stringify(variables));
         }
       }
       
@@ -269,7 +308,7 @@ Jax.Shader.Program = (function() {
     context.glLinkProgram(program);
     
     if (!context.glGetProgramParameter(program, GL_LINK_STATUS))
-      throw new Error("Could not initialize shader!");
+      throw new Error("Could not initialize shader!\n\n"+context.glGetProgramInfoLog(program));
     else program.linked = true;
     
     context.glUseProgram(program);
