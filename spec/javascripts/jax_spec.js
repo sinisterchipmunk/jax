@@ -5,6 +5,10 @@ window.addEventListener("load", function() {
   canvas.setAttribute("id", "canvas-element");
   canvas.style.visibility = "hidden";
   document.body.appendChild(canvas);
+  
+  var style = document.createElement('style');
+  style.innerHTML = ".resultMessage.fail { white-space:pre-line; }";
+  document.getElementsByTagName('head')[0].appendChild(style);
 }, false);
 
 describe("Jax", function() {

@@ -63,20 +63,29 @@ Jax.Shader = (function() {
     return source;
   }
   
+  function mangleUniformsAndAttributes(self, material, source) {
+    var map = self.getInputMap(material);
+    for (var name in map)
+      source = source.replace(new RegExp("(^|[^a-zA-Z0-9])"+name+"([^a-zA-Z0-9]|$)", "g"), "$1"+map[name]+"$2");
+    
+    // remove the "shared" directive
+    return source.replace(/(^|[^\w])shared\s+/g, "$1");
+  }
+  
+  function preprocess(self, material, source) {
+    source = applyImports(self, material, source);
+    source = mangleUniformsAndAttributes(self, material, source);
+    return source;
+  }
+  
   return Jax.Class.create({
-    /*
-      setup: function(context, mesh, options, attributes, uniforms)
-      common: source inserted into both shaders
-      vertex: vertex shader source
-      fragment: fragment shader source
-      name: shader name
-     */
     initialize: function(obj) {
-      if (obj.vertex)   obj.vertex   = new EJS({text:obj.vertex});
-      if (obj.fragment) obj.fragment = new EJS({text:obj.fragment});
-      if (obj.common)   obj.common   = new EJS({text:obj.common});
-
       this.options = obj;
+      
+      if (obj.vertex)   this.setRawSource(obj.vertex,   'vertex');
+      if (obj.fragment) this.setRawSource(obj.fragment, 'fragment');
+      if (obj.common)   this.setRawSource(obj.common,   'common');
+      
       this.shaders = { vertex: {}, fragment: {} };
     },
     
@@ -99,19 +108,59 @@ Jax.Shader = (function() {
     },
     
     getVertexSource: function(material) {
-      return this.options.vertex && (this.getCommonSource(material)+this.options.vertex.render(material));
+      var source = this.getRawSource(material, 'vertex');
+      return source && preprocess(this, material, source);
+    },
+    
+    getPreamble: function(options) {
+      return options && options.ignore_es_precision ? "" : "#ifdef GL_ES\nprecision highp float;\n#endif\n";
     },
     
     getFragmentSource: function(material) {
-      var defs = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
-      
-      var fragmentSource = this.options.fragment;
-      if (fragmentSource && (fragmentSource = fragmentSource.render(material))) {
-        return (defs +
+      var source = this.getRawSource(material, 'fragment');
+      return source && preprocess(this, material, source);
+    },
+    
+    getRawSource: function(material, which) {
+      var source = this.options[which];
+      if (source && (source = source.render(material))) {
+        return (this.getPreamble(material) +
                 this.getCommonSource(material) +
-                applyImports(this, material, fragmentSource));
+                source);
       }
       return null;
+    },
+    
+    setRawSource: function(source, which) { this.options[which] = source && new EJS({text:source}); },
+    
+    setVertexSource: function(source) { this.setRawSource(source, 'vertex'); },
+    
+    setFragmentSource: function(source) { this.setRawSource(source, 'fragment'); },
+    
+    getInputMap: function(options) {
+      var map = {};
+      var prefix = "";
+      
+      if (options && options.local_prefix)  prefix = options.local_prefix+"_";
+      else if (options && options.export_prefix) prefix = options.export_prefix+"_";
+      
+      var source = this.getRawSource(options, 'vertex') + "\n\n" + this.getRawSource(options, 'fragment');
+    
+      // if it's not a "shared" uniform, mangle its name.
+      var rx = new RegExp("(^|\\n)((shared\\s+)?)(uniform|attribute) (\\w+) ((?!"+prefix+")[^;]*);"), result;
+      while (result = rx.exec(source)) {
+        var shared = /shared/.test(result[2]);
+        var names = result[6].split(/,/);
+        for (var i = 0; i < names.length; i++) {
+          names[i] = names[i].replace(/^\s+/, '').replace(/\s+$/, '');
+          if (shared) map[names[i]] = names[i];
+          else map[names[i]] = prefix+names[i];
+          source = source.replace(new RegExp("(^|[^a-zA-Z0-9_])"+names[i]+"([^a-zA-Z0-9_]|$)", "g"),
+                                  "$1"+prefix+names[i]+"$2");
+        }
+      }
+      
+      return map;
     },
     
     getExportDefinitions: function(exportPrefix) {
@@ -179,7 +228,7 @@ Jax.Shader.AttributeDelegator = (function() {
           value.bind(c);
           c.glEnableVertexAttribArray(v.location);
           c.glVertexAttribPointer(v.location, value.itemSize, GL_FLOAT, false, 0, 0);
-        } else {
+//        } else {
 //          console.warn("skipping assignment of attribute %s (variables: %s)", name, JSON.stringify(variables));
         }
       }
@@ -339,11 +388,17 @@ Jax.Shader.Program = (function() {
         this.programs[i].linked = false;
     },
     
-    render: function(context, mesh, material, options) {
+    link: function(context, material) {
       var program = this.getGLProgram(context);
       
-      if (!program.linked) 
+      if (!program.linked)
         linkProgram(this, context, material, program);
+      
+      return program;
+    },
+    
+    render: function(context, mesh, material, options) {
+      var program = this.link(context, material);
       
       context.glUseProgram(program);
       
