@@ -1,4 +1,6 @@
 const struct LightSource {
+  int enabled;
+  int type;
   vec3 position; // in world space
   vec3 direction; // in world space
   vec4 ambient, diffuse, specular;
@@ -12,19 +14,22 @@ void DirectionalLight(const in LightSource light,
                       inout vec4 diffuse,
                       inout vec4 specular)
 {
-  vec3 nLDir = normalize(vnMatrix * -normalize(light.direction));
-  vec3 halfVector = normalize(nLDir + vec3(0,0,1));
-  float pf;
-  
-  float NdotD  = max(0.0, dot(normal, nLDir));
-  float NdotHV = max(0.0, dot(normal, halfVector));
-  
-  if (NdotD == 0.0) pf = 0.0;
-  else pf = pow(NdotHV, materialShininess);
-  
-  ambient += light.ambient;
-  diffuse += light.diffuse * NdotD;
-  specular += light.specular * pf;
+  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%>)
+    ambient += light.ambient;
+  else {
+    vec3 nLDir = normalize(vnMatrix * -normalize(light.direction));
+    vec3 halfVector = normalize(nLDir + vec3(0,0,1));
+    float pf;
+    
+    float NdotD  = max(0.0, dot(normal, nLDir));
+    float NdotHV = max(0.0, dot(normal, halfVector));
+    
+    if (NdotD == 0.0) pf = 0.0;
+    else pf = pow(NdotHV, materialShininess);
+    
+    diffuse += light.diffuse * NdotD;
+    specular += light.specular * pf;
+  }
 }
 
 /* Use when attenuation != (1,0,0) */
@@ -43,7 +48,7 @@ void PointLightWithAttenuation(const in LightSource light,
   vec3 VP;     // direction from surface to light position
   vec3 halfVector; // direction of maximum highlights
   
-  VP = light.position - ecPosition3;
+  VP = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
   d = length(VP);
   VP = normalize(VP);
   attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
@@ -53,10 +58,13 @@ void PointLightWithAttenuation(const in LightSource light,
   
   if (NdotD == 0.0) pf = 0.0;
   else pf = pow(NdotHV, materialShininess);
-  
-  ambient += light.ambient * attenuation;
-  diffuse += light.diffuse * NdotD * attenuation;
-  specular += light.specular * pf * attenuation;
+
+  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%>)
+    ambient += light.ambient * attenuation;
+  else {
+    diffuse += light.diffuse * NdotD * attenuation;
+    specular += light.specular * pf * attenuation;
+  }
 }
 
 /* Use for better performance when attenuation == (1,0,0) */
@@ -74,7 +82,7 @@ void PointLightWithoutAttenuation(const in LightSource light,
   vec3 VP;     // direction from surface to light position
   vec3 halfVector; // direction of maximum highlights
   
-  VP = light.position - ecPosition3;
+  VP = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
   d = length(VP);
   VP = normalize(VP);
   halfVector = normalize(VP+vec3(0,0,1));
@@ -84,9 +92,12 @@ void PointLightWithoutAttenuation(const in LightSource light,
   if (NdotD == 0.0) pf = 0.0;
   else pf = pow(NdotHV, materialShininess);
   
-  ambient += light.ambient;
-  diffuse += light.diffuse * NdotD;
-  specular += light.specular * pf;
+  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%>)
+    ambient += light.ambient;
+  else {
+    diffuse += light.diffuse * NdotD;
+    specular += light.specular * pf;
+  }
 }
 
 void SpotLight(const in LightSource light,
@@ -106,13 +117,13 @@ void SpotLight(const in LightSource light,
   float spotDot; // cosine of angle between spotlight
   float spotAttenuation; // spotlight attenuation factor
   
-  VP = light.position - ecPosition3;
+  VP = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
   d = length(VP);
   VP = normalize(VP);
   attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
   
   // See if point on surface is inside cone of illumination
-  spotDot = dot(-VP, normalize(light.direction));
+  spotDot = dot(-VP, normalize(vnMatrix*light.direction));
   if (spotDot < light.spotCosCutoff)
     spotAttenuation = 0.0;
   else spotAttenuation = pow(spotDot, light.spotExponent);
@@ -126,7 +137,10 @@ void SpotLight(const in LightSource light,
   if (NdotD == 0.0) pf = 0.0;
   else pf = pow(NdotHV, materialShininess);
   
-  ambient += light.ambient * attenuation;
-  diffuse += light.diffuse * NdotD * attenuation;
-  specular += light.specular * pf * attenuation;
+  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%>)
+    ambient += light.ambient * attenuation;
+  else {
+    diffuse += light.diffuse * NdotD * attenuation;
+    specular += light.specular * pf * attenuation;
+  }
 }

@@ -11,7 +11,7 @@ var Jax = { };
 // until first use (e.g. upon first call to model#render), then we can expose this variable.
 // Since materials are generally meant to maintain their own shaders, it may not be desirable to
 // expose it in any case.
-Jax.default_shader = "blinn-phong";
+Jax.default_shader = "basic";
 
 //= require "jax/core"
 //= require "jax/anim_frame"

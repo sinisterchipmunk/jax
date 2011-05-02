@@ -130,6 +130,7 @@ Jax.Material = (function() {
     },
     
     setUniforms: function(context, mesh, options, uniforms) {
+      var light = context.world.lighting.getLight();
       uniforms.set({
         mMatrix: context.getModelMatrix(),
         vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
@@ -146,18 +147,19 @@ Jax.Material = (function() {
     
         PASS_TYPE: context.current_pass,
         
-        LIGHT_ENABLED: context.world.lighting.getLight().isEnabled(),
-        LIGHT_DIRECTION: context.world.lighting.getDirection(),
-        LIGHT_POSITION:  context.world.lighting.getPosition(),
-        LIGHT_TYPE: context.world.lighting.getType(),
-        LIGHT_SPECULAR:context.world.lighting.getSpecularColor(),
-        LIGHT_AMBIENT: context.world.lighting.getAmbientColor(),
-        LIGHT_DIFFUSE: context.world.lighting.getDiffuseColor(),
-        SPOTLIGHT_COS_CUTOFF: context.world.lighting.getSpotCosCutoff(),
-        SPOTLIGHT_EXPONENT: context.world.lighting.getSpotExponent(),
-        LIGHT_ATTENUATION_CONSTANT: context.world.lighting.getConstantAttenuation(),
-        LIGHT_ATTENUATION_LINEAR: context.world.lighting.getLinearAttenuation(),
-        LIGHT_ATTENUATION_QUADRATIC: context.world.lighting.getQuadraticAttenuation(),
+        'LIGHT.position': light.getPosition(),
+        'LIGHT.direction': light.getDirection(),
+        'LIGHT.ambient': light.getAmbientColor(),
+        'LIGHT.diffuse': light.getDiffuseColor(),
+        'LIGHT.specular': light.getSpecularColor(),
+        'LIGHT.constant_attenuation': light.getConstantAttenuation(),
+        'LIGHT.linear_attenuation': light.getLinearAttenuation(),
+        'LIGHT.quadratic_attenuation': light.getQuadraticAttenuation(),
+        'LIGHT.spotExponent': light.getSpotExponent(),
+        'LIGHT.spotCosCutoff': light.getSpotCosCutoff(),
+        'LIGHT.enabled': light.isEnabled(),
+        'LIGHT.type': light.getType()
+        /*
             
         DP_SHADOW_NEAR: 0.1,//c.world.lighting.getLight().getDPShadowNear() || 0.1;}},
         DP_SHADOW_FAR: 500,//c.world.lighting.getLight().getDPShadowFar() || 500;}},
@@ -187,6 +189,7 @@ Jax.Material = (function() {
           }
           return 1;
         })()
+        */
       });
 
       for (var i = 0; i < this.layers.length; i++) {

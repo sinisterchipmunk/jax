@@ -7,49 +7,9 @@ shared uniform float materialShininess;
 shared uniform int PASS_TYPE;
 
 shared varying vec2 vTexCoords;
-shared varying vec3 vNormal, vLightDir, vTbnDirToLight;
+shared varying vec3 vNormal, vLightDir, vSurfacePos;
 shared varying vec4 vBaseColor;
 
+//= require "functions/lights"
 
-const struct LightSource {
-  vec3 position; // in world space
-  vec3 direction; // in world space
-  vec4 ambient, diffuse, specular;
-  float constant_attenuation, linear_attenuation, quadratic_attenuation;
-  float spotExponent, spotCosCutoff;
-};
-
-void DirectionalLight(const in LightSource light,
-                      in vec3 normal,
-                      inout vec4 ambient,
-                      inout vec4 diffuse,
-                      inout vec4 specular)
-{
-  vec3 nLDir = normalize(vnMatrix * -normalize(light.direction));
-  vec3 halfVector = normalize(nLDir + vec3(0,0,1));
-  float pf;
-  
-  float NdotD  = max(0.0, dot(normal, nLDir));
-  float NdotHV = max(0.0, dot(normal, halfVector));
-  
-  if (NdotD == 0.0) pf = 0.0;
-  else pf = pow(NdotHV, materialShininess);
-  
-  ambient += light.ambient;
-  diffuse += light.diffuse * NdotD;
-  specular += light.specular * pf;
-}
-
-
-LightSource LIGHT = LightSource(
-  vec3(0), // position
-  vec3(-1.0, -1.0, -1.0), // direction
-  vec4(0.4, 0.4, 0.4, 1.0), // ambient
-  vec4(0.6, 0.6, 0.6, 1.0), // diffuse
-  vec4(1.0, 1.0, 1.0, 1.0), // specular
-  1.0,     // constant atten
-  0.0,     // linear atten
-  0.0,     // quadratic atten
-  0.0,     // spotExponent
-  0.0      // spotCosCutoff
-);
+shared uniform LightSource LIGHT;

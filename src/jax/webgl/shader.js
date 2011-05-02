@@ -97,19 +97,22 @@ Jax.Shader = (function() {
     var map = self.getInputMap(options);
     for (var i in map) {
       if (map[i].shared) {
-        var rx = new RegExp("(shared\\s+)?"+map[i].scope+"\\s*"+map[i].type+"[^;]*?"+map[i].full_name+"[^;]*?;\n?", "g");
-        source = source.replace(rx, "");
+        if (options.skip_global_definitions && options.skip_global_definitions.indexOf(map[i].full_name) != -1) {
+          var rx = new RegExp("(shared\\s+)?"+map[i].scope+"\\s*"+map[i].type+"[^;]*?"+map[i].full_name+"[^;]*?;\n?", "g");
+          source = source.replace(rx, "");
+        }
+//        else source = source.replace(rx, map[i].scope+" "+map[i].type+" "+map[i].full_name+";\n");
       }
     }
-    return source;
+    return source.replace(/shared\s+/, '');
   }
   
   /* TODO separate preprocessing from shader and friends; perhaps a Jax.Shader.Preprocessor class? */
   function preprocess(self, options, source, isVertex) {
     source = stripSharedDefinitions(self, options, source);
 //    source = source.replace(/^\s*(shared\s+|)(uniform|attribute|varying)([^;]*)?;\n?/, '');
-    if (!options || !options.skip_global_definitions)
-      source = self.getGlobalDefinitions(options, isVertex) + source;
+//    if (!options || !options.skip_global_definitions)
+//      source = self.getGlobalDefinitions(options, isVertex) + source;
     source = applyExports(self, options, source);
     source = applyImports(self, options, source);
     source = mangleUniformsAndAttributes(self, options, source);
@@ -166,7 +169,7 @@ Jax.Shader = (function() {
         if (!options || !options.skip_export_definitions)
           result += this.getExportDefinitions(options && options.export_prefix || this.getName());
         if (!options || !options.skip_common_source)
-          result += this.getCommonSource(options);
+          result += this.getCommonSource(options) + "\n";
         result += source;
         return result;
       }

@@ -6,18 +6,9 @@ void main(void) {
   vBaseColor = VERTEX_COLOR;
   vNormal = nMatrix * VERTEX_NORMAL;
   vTexCoords = VERTEX_TEXCOORDS;
-
-  vec3 tangent = nMatrix * VERTEX_TANGENT.xyz;
-  vec3 bitangent = cross(vNormal, tangent) * VERTEX_TANGENT.w;
-  vec3 dirToEye = -(mvMatrix * VERTEX_POSITION).xyz;
-  vec3 tbnDirToEye = vec3(dot(dirToEye, tangent),
-                          dot(dirToEye, bitangent),
-                          dot(dirToEye, vNormal));
                           
   vLightDir = normalize(vnMatrix * -normalize(LIGHT.direction));
-  vTbnDirToLight.x = dot(vLightDir, tangent);
-  vTbnDirToLight.y = dot(vLightDir, bitangent);
-  vTbnDirToLight.z = dot(vLightDir, vNormal);
+  vSurfacePos = (mvMatrix * VERTEX_POSITION).xyz;
 
   gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;
 }

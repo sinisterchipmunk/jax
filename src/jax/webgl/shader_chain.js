@@ -17,8 +17,13 @@ Jax.ShaderChain = (function() {
       export_prefix: self.getName(),
       exports: self.gatherExports(),
       skip_export_definitions: true,
-      skip_global_definitions: true
+      skip_global_definitions: [] // array containing definitions so they aren't accidentally redefined
     };
+  }
+  
+  function preventRedefinition(imap, options) {
+    for (var j in imap)
+      options.skip_global_definitions.push(imap[j].full_name);
   }
   
   return Jax.Class.create(Jax.Shader.Program, {
@@ -71,13 +76,14 @@ Jax.ShaderChain = (function() {
       
       var source = "";
       source += this.getExportDefinitions(options);
-      source += this.getGlobalDefinitions(options, false);
-      
+
       for (var i = 0; i < this.phases.length; i++) {
         options.local_prefix = this.phases[i].getName()+i;
         source += "\n/**** Shader chain index "+i+": "+this.phases[i].getName()+" ****/\n";
         source += preprocessFunctions(this, this.phases[i].getName()+i, 'f', this.phases[i].getFragmentSource(options));
         source += "\n\n";
+
+        preventRedefinition(this.phases[i].getInputMap(options), options);
       }
       
       return source + this.getFragmentMain(options);
@@ -88,13 +94,14 @@ Jax.ShaderChain = (function() {
       
       var source = "";
       source += this.getExportDefinitions(options);
-      source += this.getGlobalDefinitions(options, true);
-      
+
       for (var i = 0; i < this.phases.length; i++) {
         options.local_prefix = this.phases[i].getName()+i;
         source += "\n/**** Shader chain index "+i+": "+this.phases[i].getName()+" ****/\n";
         source += preprocessFunctions(this, this.phases[i].getName()+i, 'v', this.phases[i].getVertexSource(options));
         source += "\n\n";
+        
+        preventRedefinition(this.phases[i].getInputMap(options), options);
       }
       
       return source + this.getVertexMain(options);

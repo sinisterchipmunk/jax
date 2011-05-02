@@ -62,6 +62,28 @@ var LightSource = Jax.Scene.LightSource = (function() {
       setupProjection(this);
     },
     
+    format: function() {
+      this._format = this._format || new glMatrixArrayType(Jax.Scene.LightSource.STRUCT_SIZE);
+      var i, j, len = 0, self = this;
+      function push() { for (j = 0; j < arguments.length; j++) self._format[len++] = arguments[j]; }
+      for (i = 0; i < arguments.length; i++) {
+        switch(arguments[i]) {
+          case Jax.Scene.LightSource.POSITION:              push.apply(this, this.getPosition());      break;
+          case Jax.Scene.LightSource.DIRECTION:             push.apply(this, this.getDirection());     break;
+          case Jax.Scene.LightSource.AMBIENT:               push.apply(this, this.getAmbientColor());  break;
+          case Jax.Scene.LightSource.DIFFUSE:               push.apply(this, this.getDiffuseColor());  break;
+          case Jax.Scene.LightSource.SPECULAR:              push.apply(this, this.getSpecularColor()); break;
+          case Jax.Scene.LightSource.CONSTANT_ATTENUATION:  push(this.getConstantAttenuation());       break;
+          case Jax.Scene.LightSource.LINEAR_ATTENUATION:    push(this.getLinearAttenuation());         break;
+          case Jax.Scene.LightSource.QUADRATIC_ATTENUATION: push(this.getQuadraticAttenuation());      break;
+          case Jax.Scene.LightSource.SPOTLIGHT_EXPONENT:    push(this.getSpotExponent());              break;
+          case Jax.Scene.LightSource.SPOTLIGHT_COS_CUTOFF:  push(this.getSpotCosCutoff());             break;
+          default: throw new Error("Unexpected light source format descriptor: "+arguments[i]);
+        }
+      }
+      return this._format;
+    },
+    
     getPosition: function() { setupProjection(this); return this.camera.getPosition(); },
     getDirection: function() { setupProjection(this); return this.camera.getViewVector(); },
 
@@ -202,3 +224,23 @@ var LightSource = Jax.Scene.LightSource = (function() {
     }
   });
 })();
+
+/*
+  Constants used internally when constructing the flat-array format for a light source.
+  This is so we don't need to make redundant glUniform() calls to specify the attributes of a single
+  light source.
+ */
+Jax.Scene.LightSource.POSITION              =  1;
+Jax.Scene.LightSource.DIRECTION             =  2;
+Jax.Scene.LightSource.AMBIENT               =  3;
+Jax.Scene.LightSource.DIFFUSE               =  4;
+Jax.Scene.LightSource.SPECULAR              =  5;
+Jax.Scene.LightSource.CONSTANT_ATTENUATION  =  6;
+Jax.Scene.LightSource.LINEAR_ATTENUATION    =  7;
+Jax.Scene.LightSource.QUADRATIC_ATTENUATION =  8;
+Jax.Scene.LightSource.SPOTLIGHT_EXPONENT    =  9;
+Jax.Scene.LightSource.SPOTLIGHT_COS_CUTOFF  = 10;
+
+/* The size of the light source structure, in float elements */
+Jax.Scene.LightSource.STRUCT_SIZE = 23;
+
