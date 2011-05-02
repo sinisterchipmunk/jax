@@ -23,9 +23,10 @@ describe Jax::Shader do
 #      subject.to_s.should =~ /vec4 _shader_ambient;/
 #    end
     
-    it "should produce global variable assignment" do
-      subject.to_s.should =~ /_shader_ambient = ambient;/
-    end
+    # moved to JS for greater flexibility -- doing it here we can't adjust for shader chains
+#    it "should produce global variable assignment" do
+#      subject.to_s.should =~ /_shader_ambient = ambient;/
+#    end
     
     it "should save exports to js" do
       subject.to_s.should =~ /exports: \{['"]ambient['"]:\s*['"]vec4['"]\},/

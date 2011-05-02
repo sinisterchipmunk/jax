@@ -219,16 +219,6 @@ Jax.Mesh = (function() {
        **/
       this.default_material = "default";
 
-      /**
-       * Jax.Mesh#default_shader -> String
-       * This property represents the name of the shader that will be used to render this mesh if #shader
-       * isn't given a value and the render options don't override the shader.
-       * 
-       * This property can also be specified as a render option in order to specify a default
-       * for a particular pass.
-       **/
-      this.default_shader = "basic";
-      
       for (var i in options)
         this[i] = options[i];
 
@@ -312,13 +302,13 @@ Jax.Mesh = (function() {
       var result = Jax.Util.normalizeOptions(options, {
         material: this.material,
         default_material: this.default_material,
-        default_shader: this.default_shader,
-        shader: this.shader,
+//        default_shader: this.default_shader,
+//        shader: this.shader,
         draw_mode: this.draw_mode || GL_TRIANGLES
       });
     
       if (!result.material) result.material = result.default_material;
-      if (!result.shader) result.shader = result.default_shader;
+//      if (!result.shader) result.shader = result.default_shader;
     
       result.material = findMaterial(result.material);
 

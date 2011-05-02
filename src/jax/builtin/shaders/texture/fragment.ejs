@@ -1,0 +1,5 @@
+void main(void) {
+  vec4 color = texture2D(Texture, vTexCoords);
+  import(FragColor, color *= FragColor);
+  gl_FragColor = color;
+}

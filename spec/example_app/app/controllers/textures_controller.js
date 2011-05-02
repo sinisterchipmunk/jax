@@ -8,7 +8,7 @@ var TexturesController = (function() {
         diffuse: [0.2,0.2,0.2,1],
         shininess: 30,
         textures:[
-          {type:Jax.NORMAL_MAP,flip_y:false,path:"/public/images/185__normalmap.png",scale:1},
+          {type:Jax.NORMAL_MAP,flip_y:false,path:"/public/images/185__normalmap.png"},
           {path:"/public/images/rss.png",scale:8}
         ]
       });

@@ -8,43 +8,11 @@ void main(void) {
 
   DirectionalLight(LIGHT, nNormal, ambient, diffuse, specular);
   
-  vec3 tn;
-  vec2 tc;
-  <% for (var i = 0; i < textures.length; i++) { %>
-    tc = vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET;
-    if (TEXTURE<%=i%>_TYPE == <%=Jax.NORMAL_MAP%>) {
-      tn = normalize(texture2D(TEXTURE<%=i%>, tc).xyz * 2.0 - 1.0);
-      diffuse *= max(dot(nTbnDirToLight, tn), 0.0);
-    } else ambient *= texture2D(TEXTURE<%=i%>, tc);
-  <% } %>
-
-  gl_FragColor = ambient  * materialAmbient  * vBaseColor +
-                 diffuse  * materialDiffuse  * vBaseColor +
-                 specular * materialSpecular * vBaseColor;
-
-  /*
-    vec3 nLightDir = normalize(vLightDir), nNormal = normalize(vNormal);
-    vec3 halfVector = normalize(nLightDir + vec3(0,0,1));
-    float NdotL = max(dot(nNormal, nLightDir), 0.0);
-    vec4 diffuse = vec4(0,0,0,0);
-
-    if (NdotL > 0.0) {
-      float NdotHV = max(dot(nNormal, halfVector), 0.0);
-      diffuse += vBaseColor * NdotL * materialDiffuse * LIGHT.diffuse;
-      diffuse += vBaseColor * materialSpecular * LIGHT.specular * pow(NdotHV, materialShininess);
-    }
-
-    vec3 tn;
-    vec2 tc;
-    <% for (var i = 0; i < textures.length; i++) { %>
-      tc = vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET;
-      if (TEXTURE<%=i%>_TYPE == <%=Jax.NORMAL_MAP%>) {
-        tn = normalize(texture2D(TEXTURE<%=i%>, tc).xyz * 2.0 - 1.0);
-        diffuse *= max(dot(nTbnDirToLight, tn), 0.0);
-      } else ambient *= texture2D(TEXTURE<%=i%>, tc);
-    <% } %>
-
-    gl_FragColor = ambient + diffuse;
-    */
-//  } else discard;
+  vec4 final_color = ambient  * materialAmbient  * vBaseColor +
+                     diffuse  * materialDiffuse  * vBaseColor +
+                     specular * materialSpecular * vBaseColor;
+                     
+  export(vec4, FragColor, final_color);
+  
+  gl_FragColor = final_color;
 }

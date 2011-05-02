@@ -1,8 +1,9 @@
-shared attribute vec4 VERTEX_POSITION, VERTEX_COLOR;
+shared attribute vec4 VERTEX_POSITION;
+shared attribute vec2 VERTEX_TEXCOORDS;
 
 shared uniform mat4 mvMatrix, pMatrix;
 
 void main(void) {
   gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;
-  vColor = VERTEX_COLOR;
+  vTexCoords = VERTEX_TEXCOORDS;
 }

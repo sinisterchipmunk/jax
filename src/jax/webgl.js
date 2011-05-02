@@ -77,6 +77,8 @@ window['GL_METHODS'] = {};
 
 //= require "webgl/shader_chain"
 //= require "webgl/materials/material"
+//= require "webgl/materials/texture"
+//= require "webgl/materials/normal_map"
 //= require "webgl/mesh"
 //= require "webgl/camera"
 //= require "webgl/world"

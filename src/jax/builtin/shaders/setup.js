@@ -12,13 +12,6 @@ Jax.shaders.setup = function(context, mesh, material, options, attributes, unifo
   attributes.set('VERTEX_NORMAL', mesh.getNormalBuffer());
   attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer());
 
-  for (i = 0; i < material.textures.length; i++) {
-    if (options.material.textures[i].options.type == Jax.NORMAL_MAP) {
-      attributes.set('VERTEX_TANGENT', mesh.getTangentBuffer());
-      break;
-    }
-  }
-
   uniforms.set({
     mMatrix: context.getModelMatrix(),
     vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
@@ -77,25 +70,4 @@ Jax.shaders.setup = function(context, mesh, material, options, attributes, unifo
       return 1;
     })()
   });
-
-  if (material.textures) {
-    for (i = 0; i < material.textures.length; i++) {
-      if (material.textures[i].loaded)
-        material.textures[i].bind(context, i+2);
-
-      var opts = material.textures[i].options;
-      var scale = [1.0, 1.0], offset = [0.0, 0.0];
-      scale[0] = opts && opts.scale_x || opts.scale || 1.0;
-      scale[1] = opts && opts.scale_y || opts.scale || 1.0;
-      offset[0] = opts && opts.offset_x || opts.offset || 1.0;
-      offset[1] = opts && opts.offset_y || opts.offset || 1.0;
-
-      uniforms.set(
-        'TEXTURE'+i+'_TYPE', opts && opts.type ? opts.type : 0,
-        'TEXTURE'+i, i+2,
-        'TEXTURE'+i+'_SCALE', scale,
-        'TEXTURE'+i+'_OFFSET', offset
-      );
-    }
-  }
 };

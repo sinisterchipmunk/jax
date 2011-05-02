@@ -1,1 +1,2 @@
-Jax.shaders['functions'] = new Jax.Shader({name: "functions"});
+Jax.shaders['functions'] = new Jax.Shader({exports: {},
+name: "functions"});

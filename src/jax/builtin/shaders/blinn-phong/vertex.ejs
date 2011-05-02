@@ -1,7 +1,7 @@
 /* attributes */
-attribute vec2 VERTEX_TEXCOORDS;
-attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;
-attribute vec3 VERTEX_NORMAL;
+shared attribute vec2 VERTEX_TEXCOORDS;
+shared attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;
+shared attribute vec3 VERTEX_NORMAL;
  
 void calculateDPLighting() {
 //        vShadowCoord = mvMatrix * vec4(VERTEX_POSITION.xyz, 1.0);

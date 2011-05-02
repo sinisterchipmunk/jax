@@ -1,23 +1,45 @@
-<% for (var i = 0; i < textures.length; i++) { %>
-     uniform sampler2D TEXTURE<%=i%>;
-     uniform int TEXTURE<%=i%>_TYPE;
-     uniform vec2 TEXTURE<%=i%>_SCALE, TEXTURE<%=i%>_OFFSET;
-<% } %>
+shared uniform mat4 ivMatrix, mvMatrix, pMatrix, vMatrix;
+shared uniform mat3 vnMatrix, nMatrix;
 
-uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix, vMatrix;
-uniform mat3 vnMatrix, nMatrix;
+shared uniform vec4 materialDiffuse, materialAmbient, materialSpecular;
+shared uniform float materialShininess;
 
-uniform vec4 materialDiffuse, materialAmbient, materialSpecular;
-uniform float materialShininess;
+shared uniform int PASS_TYPE;
 
-uniform int PASS_TYPE;
-
-varying vec2 vTexCoords;
-varying vec3 vNormal, vLightDir, vTbnDirToLight;
-varying vec4 vBaseColor;
+shared varying vec2 vTexCoords;
+shared varying vec3 vNormal, vLightDir, vTbnDirToLight;
+shared varying vec4 vBaseColor;
 
 
-//= require "functions/lights"
+const struct LightSource {
+  vec3 position; // in world space
+  vec3 direction; // in world space
+  vec4 ambient, diffuse, specular;
+  float constant_attenuation, linear_attenuation, quadratic_attenuation;
+  float spotExponent, spotCosCutoff;
+};
+
+void DirectionalLight(const in LightSource light,
+                      in vec3 normal,
+                      inout vec4 ambient,
+                      inout vec4 diffuse,
+                      inout vec4 specular)
+{
+  vec3 nLDir = normalize(vnMatrix * -normalize(light.direction));
+  vec3 halfVector = normalize(nLDir + vec3(0,0,1));
+  float pf;
+  
+  float NdotD  = max(0.0, dot(normal, nLDir));
+  float NdotHV = max(0.0, dot(normal, halfVector));
+  
+  if (NdotD == 0.0) pf = 0.0;
+  else pf = pow(NdotHV, materialShininess);
+  
+  ambient += light.ambient;
+  diffuse += light.diffuse * NdotD;
+  specular += light.specular * pf;
+}
+
 
 LightSource LIGHT = LightSource(
   vec3(0), // position

@@ -1,40 +1,33 @@
-<% for (var i = 0; i < textures.length; i++) { %>
-  uniform sampler2D TEXTURE<%=i%>;
-  uniform int TEXTURE<%=i%>_TYPE;
-  uniform vec2 TEXTURE<%=i%>_SCALE;
-  uniform vec2 TEXTURE<%=i%>_OFFSET;
-<% } %>
-
 /* matrix uniforms */
-uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix;
-uniform mat3 vnMatrix, nMatrix;
+shared uniform mat4 mMatrix, ivMatrix, mvMatrix, pMatrix;
+shared uniform mat3 vnMatrix, nMatrix;
 
 /* material uniforms */
-uniform vec4 materialDiffuse, materialAmbient, materialSpecular;
-uniform float materialShininess;
+shared uniform vec4 materialDiffuse, materialAmbient, materialSpecular;
+shared uniform float materialShininess;
       
-uniform int PASS_TYPE;
+shared uniform int PASS_TYPE;
       
 /* light uniforms */
-uniform vec3 LIGHT_DIRECTION, LIGHT_POSITION;
-uniform vec4 LIGHT_SPECULAR, LIGHT_AMBIENT, LIGHT_DIFFUSE;
-uniform bool LIGHT_ENABLED;
-uniform int LIGHT_TYPE;
-uniform float SPOTLIGHT_COS_CUTOFF, SPOTLIGHT_EXPONENT, LIGHT_ATTENUATION_CONSTANT, LIGHT_ATTENUATION_LINEAR,
+shared uniform vec3 LIGHT_DIRECTION, LIGHT_POSITION;
+shared uniform vec4 LIGHT_SPECULAR, LIGHT_AMBIENT, LIGHT_DIFFUSE;
+shared uniform bool LIGHT_ENABLED;
+shared uniform int LIGHT_TYPE;
+shared uniform float SPOTLIGHT_COS_CUTOFF, SPOTLIGHT_EXPONENT, LIGHT_ATTENUATION_CONSTANT, LIGHT_ATTENUATION_LINEAR,
               LIGHT_ATTENUATION_QUADRATIC;
       
 /* shadow map uniforms */
-uniform bool SHADOWMAP_ENABLED;
-uniform sampler2D SHADOWMAP0, SHADOWMAP1;
-uniform mat4 SHADOWMAP_MATRIX;
-uniform bool SHADOWMAP_PCF_ENABLED;
-uniform float DP_SHADOW_NEAR, DP_SHADOW_FAR;
+shared uniform bool SHADOWMAP_ENABLED;
+shared uniform sampler2D SHADOWMAP0, SHADOWMAP1;
+shared uniform mat4 SHADOWMAP_MATRIX;
+shared uniform bool SHADOWMAP_PCF_ENABLED;
+shared uniform float DP_SHADOW_NEAR, DP_SHADOW_FAR;
 
-varying vec2 vTexCoords;
-varying vec3 vNormal, vLightDir, vSpotlightDirection, vTbnDirToLight;
-varying vec3 vTangent, vBitangent;
-varying vec4 vBaseColor, vShadowCoord;
-varying float vDist;
+shared varying vec2 vTexCoords;
+shared varying vec3 vNormal, vLightDir, vSpotlightDirection, vTbnDirToLight;
+shared varying vec3 vTangent, vBitangent;
+shared varying vec4 vBaseColor, vShadowCoord;
+shared varying float vDist;
       
-varying vec3 vDP0, vDP1;
-varying float vDPz, vDPDepth;
+shared varying vec3 vDP0, vDP1;
+shared varying float vDPz, vDPDepth;

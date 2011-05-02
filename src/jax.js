@@ -4,6 +4,15 @@
  **/
 var Jax = { };
 
+// note: the default_shader is used immediately after Jax.Material has been defined. So, most
+// likely the end user won't be able to customize it with the expected result. Materials created
+// *after* the default shader has been changed are fine, but materials already existing
+// (such as "default") will continue to use the previous default. If default material init can be deferred
+// until first use (e.g. upon first call to model#render), then we can expose this variable.
+// Since materials are generally meant to maintain their own shaders, it may not be desirable to
+// expose it in any case.
+Jax.default_shader = "blinn-phong";
+
 //= require "jax/core"
 //= require "jax/anim_frame"
 //= require "jax/prototype/extensions"

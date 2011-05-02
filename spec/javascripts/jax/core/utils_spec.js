@@ -169,6 +169,12 @@ describe("Jax.Util", function() {
       });
     });
     
+    describe("with only 1 argument", function() {
+      it("should clone the argument", function() {
+        expect(Jax.Util.normalizeOptions({i:1}).i).toEqual(1);
+      });
+    });
+    
     describe("with a gen object left and array right", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({p:{"x":20,"y":40,"z":60}}, {p:[1,2,3]}); });
       it("should merge both into a gen object", function() {

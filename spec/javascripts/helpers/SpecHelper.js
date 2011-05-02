@@ -1,48 +1,48 @@
 beforeEach(function() {
-  function testUsesShader(spec, shader_name, world) {
+  function testUsesMaterial(spec, material_name, world) {
     if (!world)
       throw new Error("Specify a Jax.World to test against");
 
     /*
       render could execute for any number of passes, so we must accumulate the result.
-      Test passes if any shader matches. Also, we make a call to the original render func
+      Test passes if any material matches. Also, we make a call to the original render func
       so that if there are any logical errors, they will be encountered here.
     */
-    var matched = false, oldMaterialFunc;
-    var materialFunc = function(context, mesh, options) {
-      if (shader_name.test) matched = matched || shader_name.test(options.shader);
-      else matched = matched || options.shader == shader_name;
-      oldMaterialFunc.call(this, context, mesh, options);
+    var matched = false, oldMeshRenderFunc;
+    var meshRenderFunc = function(context, options) {
+      options = this.getNormalizedRenderOptions(options);
+      var name = options.material;
+      if (name.getName) name = name.getName();
+      if (material_name.test) matched = matched || material_name.test(name);
+      else matched = matched || name == material_name;
+      oldMeshRenderFunc.call(this, context, options);
     };
     var tempMesh = false;
     if (spec.actual) {
       if (!spec.actual.mesh) { tempMesh = true; spec.actual.mesh = new Jax.Mesh.Quad(); }
-      if (!spec.actual.mesh.material || typeof(spec.actual.mesh.material) == 'string')
-        spec.actual.mesh.material = Jax.Material.find(spec.actual.mesh.material || spec.actual.mesh.default_material);
-      
-      oldMaterialFunc = spec.actual.mesh.material.render;
-      spec.actual.mesh.material.render = materialFunc;
+      oldMeshRenderFunc = spec.actual.mesh.render;
+      spec.actual.mesh.render = meshRenderFunc;
     }
       
     world.render();
     
     // clean up
     if (tempMesh) delete spec.actual.mesh;
-    else spec.actual.mesh.material.render = oldMaterialFunc;
+    else spec.actual.mesh.render = oldMeshRenderFunc;
       
     spec.actual = "model";
     return matched;
   }
   
-  function testDefaultsToShader(spec, shader_name, world) {
+  function testDefaultsToMaterial(spec, material_name, world) {
     if (!world)
       throw new Error("Specify a Jax.World to test against");
 
     var matched = false, oldMeshFunc;
     var meshFunc = function(context, options) {
       options = this.getNormalizedRenderOptions(options);
-      if (shader_name.test) matched = matched || shader_name.test(options.default_shader);
-      else matched = matched || options.default_shader == shader_name;
+      if (material_name.test) matched = matched || material_name.test(options.default_material);
+      else matched = matched || options.default_material == material_name;
       oldMeshFunc.call(this, context, options);
     };
     var tempMesh = false;
@@ -193,8 +193,8 @@ beforeEach(function() {
       model.render = original_render;
     },
     
-    toUseShader: function(name, world) {
-      return testUsesShader(this, name, world);
+    toUseMaterial: function(name, world) {
+      return testUsesMaterial(this, name, world);
     },
     
     toCastShadow: function(world) {
@@ -206,11 +206,11 @@ beforeEach(function() {
         case, so far -- but this is at least better than not testing at all.
        */
       
-      return testUsesShader(this, 'depthmap', world);
+      return testUsesMaterial(this, /depthmap/, world);
     },
     
-    toDefaultToShader: function(name, world) {
-      return testDefaultsToShader(this, name, world);
+    toDefaultToMaterial: function(name, world) {
+      return testDefaultsToMaterial(this, name, world);
     }
   });
 });

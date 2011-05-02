@@ -20,16 +20,9 @@
  **/
 Jax.Material = (function() {
   function updatePrevious(self) {
-    self.previous = self.previous || {};
-    self.previous.shininess   = self.shininess;
-    self.previous.shader      = self.shader;
-    self.previous.diffuse     = self.diffuse;
-    self.previous.ambient     = self.ambient;
-    self.previous.specular    = self.specular;
-    self.previous.emissive    = self.emissive;
-    self.previous.light_count = self.light_count;
-    self.previous.lights      = self.lights;
-    self.previous.texture_count = self.textures.length;
+    self.previous = self.previous || {subshaders:[]};
+    for (var i = 0; i < self.layers.length; i++)
+      self.previous.subshaders[i] = self.layers[i].getName();
   }
   
   return Jax.Class.create({
@@ -40,27 +33,45 @@ Jax.Material = (function() {
         specular: [1.0, 1.0, 1.0, 1.0],
         emissive: [0, 0, 0, 1.0],
         shininess: 10,
-        default_shader: "basic"
+        default_shader: options && options.name || Jax.default_shader
       });
       
       this.name = options.name || options.shader || options.default_shader;
 //      if (!this.name) throw new Error("Jax.Material should at least have a {name} option");
       
+      this.shaders = {};
+      this.layers = [];
+
+      var tex;
+      if (options.texture) {
+        tex = new Jax.Texture(options.texture);
+        this.addTextureLayer(tex);
+        delete options.texture;
+      } else if (options.textures) {
+        for (i = 0; i < options.textures.length; i++) {
+          tex = new Jax.Texture(options.textures[i]);
+          this.addTextureLayer(tex);
+        }
+        delete options.textures;
+      }
+
       var i;
       for (i in options)
         this[i] = options[i];
-      
-      this.shaders = {};
-
-      this.textures = [];
-      if (this.texture) {
-        this.textures.push(new Jax.Texture(this.texture));
-        delete this.texture;
-      } else if (options.textures) {
-        for (i = 0; i < options.textures.length; i++) {
-          this.textures.push(new Jax.Texture(options.textures[i]));
-        }
+    },
+    
+    getName: function() { return this.name; },
+    
+    addTextureLayer: function(tex) {
+      var mat;
+      switch(tex.options.type) {
+        case Jax.NORMAL_MAP:
+          mat = new Jax.Material.NormalMap(tex);
+          break;
+        default:
+          mat = new Jax.Material.Texture(tex);
       }
+      this.layers.push(mat);
     },
 
     /**
@@ -71,15 +82,21 @@ Jax.Material = (function() {
      * Instead, it schedules the rebuild for the next render pass, when the Jax.Context is readily
      * available.
      **/
-    buildShader: function(name, context) {
-      if (this.shaders[name])
-        this.shaders[name].invalidate();
-      else {
-        this.shaders[name] = new Jax.Shader.Program();
-        this.shaders[name].attach(name, context);
-      }
+    buildShader: function() {
+      if (this.shaderChain)
+        this.shaderChain.removeAllShaders();
+      else
+        this.shaderChain = new Jax.ShaderChain(this.getName());
       
-      return this.shaders[name];
+      this.addShadersToChain(this.shaderChain);
+
+      return this.shaderChain;
+    },
+    
+    addShadersToChain: function(chain) {
+      chain.addShader(this.shader || this.default_shader);
+      for (var i = 0; i < this.layers.length; i++)
+        this.layers[i].addShadersToChain(chain);
     },
     
     /**
@@ -87,10 +104,9 @@ Jax.Material = (function() {
      * 
      * If this Material has been modified, all shaders attached to it will be rebuilt.
      **/
-    updateModifiedShaders: function(context) {
+    updateModifiedShaders: function() {
       if (this.isChanged()) {
-        for (var s in this.shaders)
-          this.buildShader(s, context);
+        this.buildShader();
         updatePrevious(this);
       }
       return this;
@@ -103,16 +119,90 @@ Jax.Material = (function() {
      * then all shaders are updated. The specified shader is either built or returned,
      * depending on whether it has already been built.
      **/
-    prepareShader: function(name, context) {
+    prepareShader: function() {
       var shader;
       
-      if (this.shaders[name])
-        shader = this.shaders[name];
-      else
-        shader = this.buildShader(name, context);
+      if (this.shaderChain) shader = this.shaderChain;
+      else shader = this.buildShader();
       
-      this.updateModifiedShaders(context);
+      this.updateModifiedShaders();
       return shader;
+    },
+    
+    setUniforms: function(context, mesh, options, uniforms) {
+      uniforms.set({
+        mMatrix: context.getModelMatrix(),
+        vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
+        ivMatrix: context.getInverseViewMatrix(),
+        vMatrix: context.getViewMatrix(),
+        mvMatrix: context.getModelViewMatrix(),
+        pMatrix: context.getProjectionMatrix(),
+        nMatrix: context.getNormalMatrix(),
+    
+        materialAmbient: this.ambient,
+        materialDiffuse: this.diffuse,
+        materialSpecular: this.specular,
+        materialShininess: this.shininess,
+    
+        PASS_TYPE: context.current_pass,
+        
+        LIGHT_ENABLED: context.world.lighting.getLight().isEnabled(),
+        LIGHT_DIRECTION: context.world.lighting.getDirection(),
+        LIGHT_POSITION:  context.world.lighting.getPosition(),
+        LIGHT_TYPE: context.world.lighting.getType(),
+        LIGHT_SPECULAR:context.world.lighting.getSpecularColor(),
+        LIGHT_AMBIENT: context.world.lighting.getAmbientColor(),
+        LIGHT_DIFFUSE: context.world.lighting.getDiffuseColor(),
+        SPOTLIGHT_COS_CUTOFF: context.world.lighting.getSpotCosCutoff(),
+        SPOTLIGHT_EXPONENT: context.world.lighting.getSpotExponent(),
+        LIGHT_ATTENUATION_CONSTANT: context.world.lighting.getConstantAttenuation(),
+        LIGHT_ATTENUATION_LINEAR: context.world.lighting.getLinearAttenuation(),
+        LIGHT_ATTENUATION_QUADRATIC: context.world.lighting.getQuadraticAttenuation(),
+            
+        DP_SHADOW_NEAR: 0.1,//c.world.lighting.getLight().getDPShadowNear() || 0.1;}},
+        DP_SHADOW_FAR: 500,//c.world.lighting.getLight().getDPShadowFar() || 500;}},
+        DP_DIRECTION: options &&  options.direction || 1,
+        
+        
+        SHADOWMAP_PCF_ENABLED: false,
+        SHADOWMAP_MATRIX: context.world.lighting.getLight().getShadowMatrix(),
+        SHADOWMAP_ENABLED: context.world.lighting.getLight().isShadowMapEnabled(),
+        SHADOWMAP0: (function(){
+          context.glActiveTexture(GL_TEXTURE0);
+    
+          if (context.world.lighting.getLight().getType() == Jax.POINT_LIGHT) {
+            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTextures(context)[0]);
+          } else {
+            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTexture(context));
+          }
+          return 0;
+        })(),
+        SHADOWMAP1: (function(){
+          context.glActiveTexture(GL_TEXTURE1);
+    
+          if (context.world.lighting.getLight().getType() == Jax.POINT_LIGHT) {
+            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTextures(context)[1]);
+          } else {
+            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTexture(context));
+          }
+          return 1;
+        })()
+      });
+
+      for (var i = 0; i < this.layers.length; i++) {
+        this.layers[i].setUniforms(context, mesh, options, uniforms);
+      }
+    },
+    
+    setAttributes: function(context, mesh, options, attributes) {
+      attributes.set('VERTEX_POSITION',  mesh.getVertexBuffer() || null);
+      attributes.set('VERTEX_COLOR',     mesh.getColorBuffer() || null);
+      attributes.set('VERTEX_NORMAL',    mesh.getNormalBuffer() || null);
+      attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer() || null);
+
+      for (var i = 0; i < this.layers.length; i++) {
+        this.layers[i].setAttributes(context, mesh, options, attributes);
+      }
     },
 
     /**
@@ -125,10 +215,8 @@ Jax.Material = (function() {
       this.lights = context.world.lighting._lights;
       this.light_count = context.world.lighting._lights.length;
       
-      var shader = this.prepareShader((options && options.shader || this.shader) ||
-                                      (options && options.default_shader|| this.default_shader),
-                                      context);
-
+      var shader = this.prepareShader(context);
+      
       shader.render(context, mesh, this, options);
     },
     
@@ -140,22 +228,10 @@ Jax.Material = (function() {
     isChanged: function() {
       if (!this.previous) return true;
 
-      var i;
-      for (i = 0; i < 3; i++) {
-        if (this.diffuse[i]  != this.previous.diffuse[i])  return true;
-        if (this.ambient[i]  != this.previous.ambient[i])  return true;
-        if (this.specular[i] != this.previous.specular[i]) return true;
-        if (this.emissive[i] != this.previous.emissive[i]) return true;
-      }
-      
-      if (this.shininess  != this.previous.shininess)   return true;
-      if (this.shader != this.previous.shader) return true;
-      
-      if (this.lights && this.lights.length != this.previous.light_count) return true;
-      if (!this.lights && this.previous.light_count)   return true;
-      
-      if (this.textures.length != this.previous.texture_count) return true;
-      
+      for (var i = 0; i < this.layers.length; i++)
+        if (this.previous.subshaders[i] != this.layers[i].getName())
+          return true;
+
       return false;
     }
   });
@@ -174,10 +250,7 @@ Jax.Material.find = function(name) {
   var result;
   if (result = Jax.Material.instances[name])
     return result;
-//  if (Jax.shader_program_builders[name])
-//    return Jax.Material.create(name, {shader:name});
-  throw new Error("Material {material:'"+name+"'} could not be found. "+
-                  "Perhaps you meant to use {shader:'"+name+"'} instead?");
+  throw new Error("Material {material:'"+name+"'} could not be found.");
 };
 
 /**
@@ -199,13 +272,12 @@ Jax.Material.find = function(name) {
  *     
  **/
 Jax.Material.create = function(name, options) {
-  options = Jax.Util.normalizeOptions(options, {
-    name: name,
-    shader: name
-  });
+  options = Jax.Util.normalizeOptions(options, { name: name });
   return Jax.Material.instances[name] = new Jax.Material(options);
 };
 
 Jax.Material.create('failsafe');
 Jax.Material.create("basic");
-Jax.Material.create('default');
+Jax.Material.create("default", {default_shader:'blinn-phong'});
+Jax.Material.create("depthmap", {default_shader:"depthmap"});
+Jax.Material.create("paraboloid-depthmap", {default_shader:"paraboloid-depthmap"});

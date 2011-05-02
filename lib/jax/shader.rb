@@ -71,12 +71,14 @@ class Jax::Shader
   def intercept_export_directives_without_assignment(str)
     str.gsub! /export\s*\(\s*([^\s]*),\s*([^\s]*)\s*\);?/ do |match|
       export $~[1], $~[2]
+      match # we'll do the rest on the JS side
     end
   end
   
   def intercept_export_directives_with_assignment(str)
     str.gsub! /export\s*\(\s*([^\s]*),\s*([^\s]*),\s*([^\s]*)\s*\);?/ do |match|
       export $~[1], $~[2], $~[3]
+      match # we'll do the rest on the JS side
     end
   end
   

@@ -1,17 +1,29 @@
-describe("Shader chain", function() {
+describe("Jax.ShaderChain", function() {
   var chain, material, context;
   
   beforeEach(function() {
     material = new Jax.Material();
     context = new Jax.Context('canvas-element');
+    chain = new Jax.ShaderChain("shader");
   });
   
   afterEach(function() { context.dispose(); });
   
+  describe("with multiple identical uniforms", function() {
+    beforeEach(function() {
+      chain.addShader(new Jax.Shader({vertex:"shared uniform int x; void main(void) { }",name:"one"}));
+      chain.addShader(new Jax.Shader({vertex:"shared uniform int x; void main(void) { }",name:"two"}));
+    });
+    
+    it("should not redefine the uniform", function() {
+      var source = chain.getVertexSource();
+      expect(source.split(/uniform int x;/).length).toEqual(2);
+    });
+  });
+  
   describe("with a shader that exports", function() {
     describe("and a shader that imports", function() {
       beforeEach(function() {
-        chain = new Jax.ShaderChain("shader");
         chain.addShader(new Jax.Shader({vertex:"uniform int x; void main(void) { vec3 p; _shader_position = p; }",
                                         fragment:"void main(void) { vec4 a; _shader_ambient = a; }",
                                         exports:{"ambient":"vec4", "position":"vec3"},

@@ -23,12 +23,10 @@ describe("Jax.World", function() {
   describe("with lighting disabled", function() {
     beforeEach(function() { world.lighting.disable(); });
     
-    it("should default to the 'basic' shader", function() {
+    it("should default to the 'basic' material", function() {
       var model = new Jax.Model();
       world.addObject(model);
-      model.render = function(context, options) {
-        expect(options.default_shader).toEqual("basic");
-      };
+      expect(model).toDefaultToMaterial("basic", world);
       world.render();
     });
   });
@@ -36,16 +34,16 @@ describe("Jax.World", function() {
   describe("with lighting enabled", function() {
     beforeEach(function() { world.addLightSource(new Jax.Scene.LightSource({type:Jax.DIRECTIONAL_LIGHT})); });
     
-    it("should default to the 'blinn-phong' shader", function() {
+    it("should default to the 'default' material", function() {
       var model = new Jax.Model({mesh:new Jax.Mesh.Quad()});
       world.addObject(model);
-      expect(model).toDefaultToShader('blinn-phong', world);
+      expect(model).toDefaultToMaterial('default', world);
     });
     
-    it("should use the 'blinn-phong' shader", function() {
+    xit("should use the 'default' material", function() {
       var model = new Jax.Model({mesh:new Jax.Mesh.Quad()});
       world.addObject(model);
-      expect(model).toUseShader('blinn-phong', world);
+      expect(model).toUseMaterial('default', world);
     });
     
     describe("but the object unlit", function() {
@@ -55,7 +53,7 @@ describe("Jax.World", function() {
         // notice the explicit use of "basic" here. This is so we can test that explicit "basic" types
         // get rendered as such, instead of simply being chucked into the "lighting is enabled, use blinn-phong"
         // category.
-        model = new Jax.Model({mesh:new Jax.Mesh.Sphere({shader:"basic",color:[0.5,0.5,0.5,1]}), lit:false });
+        model = new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0.5,0.5,1]}), lit:false });
       });
       
       describe("and unshadowed", function() {
@@ -63,9 +61,9 @@ describe("Jax.World", function() {
           model = new Jax.Model({mesh:new Jax.Mesh.Quad(), shadow_caster: false, lit:false});
         });
         
-        it("should use basic shader", function() {
+        xit("should use basic material", function() {
           world.addObject(model);
-          expect(model).toUseShader('basic', world);
+          expect(model).toUseMaterial('basic', world);
         });
         
         it("should not cast a shadow", function() {
@@ -80,9 +78,9 @@ describe("Jax.World", function() {
         expect(model).toCastShadow(world);
       });
       
-      it("should be rendered with basic shader", function() {
+      xit("should be rendered with basic material", function() {
         world.addObject(model);
-        expect(model).toUseShader('basic', world);
+        expect(model).toUseMaterial('basic', world);
       });
     });
   });

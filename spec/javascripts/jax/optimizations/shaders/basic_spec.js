@@ -35,7 +35,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({texture: {path:_norm, type:Jax.NORMAL_MAP}});
     });
     
-    it("should not build tangent space", function() {
+    it("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       context.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();
@@ -59,7 +59,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({textures: [_tex, {path:_norm,type:Jax.NORMAL_MAP}]});
     });
     
-    it("should not build tangent space", function() {
+    it("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       context.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();

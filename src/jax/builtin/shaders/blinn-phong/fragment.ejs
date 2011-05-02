@@ -92,21 +92,9 @@ void main() {
         }
       }
 
-      vec3 tn;
-      <% for (var i = 0; i < textures.length; i++) { %>
-          if (TEXTURE<%=i%>_TYPE == <%=Jax.NORMAL_MAP%>) {
-            tn = normalize(texture2D(TEXTURE<%=i%>, vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET).xyz * 2.0 - 1.0);
-            final_color *= max(dot(nTbnDirToLight, tn), 0.0);
-          }
-          else
-            final_color *= texture2D(TEXTURE<%=i%>, vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET);
-      <% } %>
     }
   } else {
     final_color += materialAmbient * vBaseColor;
-    <% for (var i = 0; i < textures.length; i++) { %>
-        final_color *= vec4(1,1,1,texture2D(TEXTURE<%=i%>, vTexCoords * TEXTURE<%=i%>_SCALE + TEXTURE<%=i%>_OFFSET).a);
-    <% } %>
   }
       
   gl_FragColor = final_color;

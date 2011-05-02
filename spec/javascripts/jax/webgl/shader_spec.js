@@ -22,7 +22,7 @@ describe("Jax::Shader", function() {
     });
     
     it("should add mvMatrix to the input map", function() {
-      expect(shader.getInputMap({export_prefix:"shader0"})['mvMatrix']).toEqual("mvMatrix");
+      expect(shader.getInputMap({export_prefix:"shader0"})['mvMatrix'].full_name).toEqual("mvMatrix");
     });
   });
   
@@ -47,7 +47,37 @@ describe("Jax::Shader", function() {
     });
     
     it("should add position to the input map", function() {
-      expect(shader.getInputMap({export_prefix:"shader0"})['position']).toEqual("position");
+      expect(shader.getInputMap({export_prefix:"shader0"})['position'].full_name).toEqual("position");
+    });
+  });
+  
+  describe("with shared varyings", function() {
+    beforeEach(function() {
+      shader = new Jax.Shader({
+        vertex: "shared varying vec2 tex; void main(void) { tex = vec2(1,1); }",
+        fragment: "shared varying vec2 tex; void main(void) { gl_FragCoord = tex.xy; }",
+        name: "shader"
+      });
+    });
+    
+    it("should not mangle the vertex varying name", function() {
+      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/varying vec2 tex;/);
+    });
+    
+    it("should not mangle the vertex varying reference", function() {
+      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/ tex = vec2\(1,1\);/);
+    });
+
+    it("should add tex to the input map", function() {
+      expect(shader.getInputMap({export_prefix:"shader0"})['tex'].full_name).toEqual("tex");
+    });
+
+    it("should not mangle the fragment varying name", function() {
+      expect(shader.getFragmentSource({export_prefix:"shader0"})).toMatch(/varying vec2 tex;/);
+    });
+    
+    it("should not mangle the fragment varying reference", function() {
+      expect(shader.getFragmentSource({export_prefix:"shader0"})).toMatch(/ gl_FragCoord = tex.xy;/);
     });
   });
   
@@ -55,20 +85,20 @@ describe("Jax::Shader", function() {
     beforeEach(function() {
       shader = new Jax.Shader({
         vertex: "uniform mat4 mvMatrix; void main(void) { gl_Position = mvMatrix * vec4(0,0,0,1); }",
-        name: "shader"
+        name: "shader-name"
       });
     });
     
     it("should mangle the uniform name", function() {
-      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/uniform mat4 shader0_mvMatrix;/);
+      expect(shader.getVertexSource({export_prefix:"shader-name0"})).toMatch(/uniform mat4 shader_name0_mvMatrix;/);
     });
     
     it("should mangle the uniform reference", function() {
-      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/gl_Position = shader0_mvMatrix \* vec4/);
+      expect(shader.getVertexSource({export_prefix:"shader-name0"})).toMatch(/gl_Position = shader_name0_mvMatrix \* vec4/);
     });
 
     it("should add mvMatrix to the input map", function() {
-      expect(shader.getInputMap({export_prefix:"shader0"})['mvMatrix']).toEqual("shader0_mvMatrix");
+      expect(shader.getInputMap({export_prefix:"shader-name0"})['mvMatrix'].full_name).toEqual("shader_name0_mvMatrix");
     });
   });
   
@@ -89,14 +119,44 @@ describe("Jax::Shader", function() {
     });
 
     it("should add mvMatrix to the input map", function() {
-      expect(shader.getInputMap({export_prefix:"shader0"})['position']).toEqual("shader0_position");
+      expect(shader.getInputMap({export_prefix:"shader0"})['position'].full_name).toEqual("shader0_position");
     });
   });
   
-  describe("with exports", function() {
+  describe("with varyings", function() {
     beforeEach(function() {
       shader = new Jax.Shader({
-        fragment: "void main(void) { vec4 ambient; _shader_ambient = ambient; }",
+        vertex: "varying vec2 tex; void main(void) { tex = vec2(1,1); }",
+        fragment: "varying vec2 tex; void main(void) { gl_FragCoord = tex.xy; }",
+        name: "shader"
+      });
+    });
+    
+    it("should mangle the vertex varying name", function() {
+      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/varying vec2 shader0_tex;/);
+    });
+    
+    it("should mangle the vertex varying reference", function() {
+      expect(shader.getVertexSource({export_prefix:"shader0"})).toMatch(/ shader0_tex = vec2\(1,1\);/);
+    });
+
+    it("should add tex to the input map", function() {
+      expect(shader.getInputMap({export_prefix:"shader0"})['tex'].full_name).toEqual("shader0_tex");
+    });
+
+    it("should mangle the fragment varying name", function() {
+      expect(shader.getFragmentSource({export_prefix:"shader0"})).toMatch(/varying vec2 shader0_tex;/);
+    });
+    
+    it("should mangle the fragment varying reference", function() {
+      expect(shader.getFragmentSource({export_prefix:"shader0"})).toMatch(/ gl_FragCoord = shader0_tex.xy;/);
+    });
+  });
+  
+  describe("with implicitly valued exports", function() {
+    beforeEach(function() {
+      shader = new Jax.Shader({
+        fragment: "void main(void) { vec4 ambient; export(vec4, ambient); }",
         exports: {"ambient":"vec4"},
         name: "shader"
       });
@@ -104,6 +164,55 @@ describe("Jax::Shader", function() {
     
     it("should construct export definitions", function() {
       expect(shader.getExportDefinitions('shader')).toMatch(/vec4 _shader_ambient;/);
+    });
+    
+    it("should add export definitions to source", function() {
+      expect(shader.getFragmentSource()).toMatch(/vec4 _shader_ambient;/);
+    });
+    
+    describe("and an overriding prefix", function() {
+      var options;
+      beforeEach(function() { options = { export_prefix: "test" }; });
+      
+      it("should define the overriding prefix", function() {
+        expect(shader.getFragmentSource(options)).toMatch(/vec4 _test_ambient;/);
+      });
+      
+      it("should reference the overriding prefix", function() {
+        expect(shader.getFragmentSource(options)).toMatch(/ _test_ambient = ambient;/);
+      });
+    });
+  });
+  
+  describe("with exports", function() {
+    beforeEach(function() {
+      shader = new Jax.Shader({
+//        fragment: "void main(void) { vec4 ambient; _shader_ambient = ambient; }",
+        fragment: "void main(void) { vec4 ambient; export(vec4, ambient, ambient); }",
+        exports: {"ambient":"vec4"},
+        name: "shader"
+      });
+    });
+    
+    it("should construct export definitions", function() {
+      expect(shader.getExportDefinitions('shader')).toMatch(/vec4 _shader_ambient;/);
+    });
+    
+    it("should add export definitions to source", function() {
+      expect(shader.getFragmentSource()).toMatch(/vec4 _shader_ambient;/);
+    });
+    
+    describe("and an overriding prefix", function() {
+      var options;
+      beforeEach(function() { options = { export_prefix: "test" }; });
+      
+      it("should define the overriding prefix", function() {
+        expect(shader.getFragmentSource(options)).toMatch(/vec4 _test_ambient;/);
+      });
+      
+      it("should reference the overriding prefix", function() {
+        expect(shader.getFragmentSource(options)).toMatch(/ _test_ambient = ambient;/);
+      });
     });
     
     describe("and imports", function() {
