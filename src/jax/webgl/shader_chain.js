@@ -133,8 +133,11 @@ Jax.ShaderChain = (function() {
     
     getExportDefinitions: function(options) {
       var source = "\n/** Exported shader chain variables **/\n";
+      var skip = [];
       for (var i = 0; i < this.phases.length; i++) {
-        source += this.phases[i].getExportDefinitions(options.export_prefix);
+        source += this.phases[i].getExportDefinitions(options.export_prefix, skip);
+        for (var j in this.phases[i].options.exports)
+          skip.push(j);
       }
       return source;
     },

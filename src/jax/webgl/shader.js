@@ -55,7 +55,7 @@ Jax.Shader = (function() {
     exported (as an attribute of material.exports || self.options.exports), or expression if it hasn't.
    */
   function applyImports(self, options, source) {
-    var rx = /import\((.*?), (.*?)\)/, result;
+    var rx = /import\((.*?),\s*(.*?)\)/, result;
     var exp;
     while (result = rx.exec(source)) {
       var name = result[1];
@@ -69,7 +69,7 @@ Jax.Shader = (function() {
   }
   
   function applyExports(self, options, source) {
-    var rx = /export\((.*?), (.*?)(, (.*?))?\)/, result;
+    var rx = /export\((.*?),\s*(.*?)(,\s*(.*?))?\)/, result;
     // rx should match both 'export(vec4, ambient)' and 'export(vec4, ambient, ambient)'
     var replacement, name, type, assignment;
     while (result = rx.exec(source)) {
@@ -223,11 +223,12 @@ Jax.Shader = (function() {
       return map;
     },
     
-    getExportDefinitions: function(exportPrefix) {
+    getExportDefinitions: function(exportPrefix, skip) {
       var exports = "";
       if (this.options.exports) {
         for (var name in this.options.exports) {
-          exports += this.options.exports[name]+" "+getExportedVariableName(exportPrefix, name)+";\n";
+          if (!skip || skip.indexOf(name) == -1)
+            exports += this.options.exports[name]+" "+getExportedVariableName(exportPrefix, name)+";\n";
         }
       }
       return exports + "\n";

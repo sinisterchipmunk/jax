@@ -1,5 +1,14 @@
 void main(void) {
-  vec4 color = texture2D(Texture, vTexCoords);
-  import(FragColor, color *= FragColor);
-  gl_FragColor = color;
+  vec4 a = texture2D(Texture, vTexCoords);
+  vec4 d = a;
+  vec4 s, c;
+  
+  import(ambient, a *= ambient);
+  import(diffuse, d *= diffuse);
+  import(specular,s  = specular);
+  
+  c = a + d + s;
+  
+  export(vec4, FragColor, c);
+  gl_FragColor = c;
 }

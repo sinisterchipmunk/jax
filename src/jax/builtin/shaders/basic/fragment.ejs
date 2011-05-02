@@ -25,6 +25,9 @@ void main(void) {
                      diffuse  * materialDiffuse  * vBaseColor +
                      specular * materialSpecular * vBaseColor;
 
+  export(vec4, ambient);
+  export(vec4, diffuse);
+  export(vec4, specular);
   export(vec4, FragColor, final_color);
   
   gl_FragColor = final_color;

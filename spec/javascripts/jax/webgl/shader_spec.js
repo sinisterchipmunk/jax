@@ -194,6 +194,20 @@ describe("Jax::Shader", function() {
       });
     });
     
+    describe("without spaces", function() {
+      beforeEach(function() {
+        shader = new Jax.Shader({
+          fragment: "void main(void) { vec4 ambient; export(vec4,ambient,ambient); }",
+          exports: {"ambient":"vec4"},
+          name: "shader"
+        });
+      });
+
+      it("should construct export definitions", function() {
+        expect(shader.getExportDefinitions('shader')).toMatch(/vec4 _shader_ambient;/);
+      });
+    });
+    
     it("should construct export definitions", function() {
       expect(shader.getExportDefinitions('shader')).toMatch(/vec4 _shader_ambient;/);
     });
@@ -223,6 +237,20 @@ describe("Jax::Shader", function() {
           name: "shader"
         });
       });
+    
+      describe("without spaces", function() {
+        beforeEach(function() {
+          shader = new Jax.Shader({
+            fragment: "void main(void) { vec4 a = vec4(0); import(ambient,a+=ambient); }",
+            name: "shader"
+          });
+        });
+    
+        it("should use the export", function() {
+          expect(shader.getFragmentSource({export_prefix:"shader",exports:{"ambient":"vec4"}}))
+                  .toMatch(/vec4 a = vec4\(0\); a\+=_shader_ambient;/);
+        });
+      }); 
     
       it("should use the export", function() {
         expect(shader.getFragmentSource({export_prefix:"shader",exports:{"ambient":"vec4"}}))
