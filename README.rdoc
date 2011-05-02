@@ -4,11 +4,7 @@ JAX is a working title and is subject to change. Also, it is under heavy develop
 Keep in mind that this README represents how JAX is _meant_ to work upon completion, not necessarily how it would
 work if you were to clone the git repository right now.
 
-I reserve the right to commit broken code until version 0.0.1 is officially released.
-
-This project includes an {example application}[https://github.com/sinisterchipmunk/jax/tree/master/spec/example_app],
-which is meant to represent a very common Jax application. I'm using it as a guide. Once Jax is able to turn the example
-code into a fully-functional, self-contained Web app, I hope to be ready for a first release.
+<b>I reserve the right to commit broken code until version 0.0.1 is officially released.</b>
 
 == JAX
 
@@ -20,74 +16,17 @@ It requires ruby, which you can download at: http://www.ruby-lang.org
 
 Other than that, JAX requires a few ruby gems which will be retrieved automatically when installing.
 
-== Installation
-
-First, {install ruby}[http://ruby-lang.org]. Then, run the following command:
-
-  gem install jax
-  
 == Getting Started
 
-After installing the gem, you'll need to generate a new JAX project. This is simple:
+If you're unfamiliar with Jax, a good place to start would be at the {Jax Wiki}[http://github.com/sinisterchipmunk/jax/wiki]
+where you can find tutorials, documentation, and tips.
 
-  jax new [project-name]
-  
-JAX will generate a whole bunch of files for you.
+<b>Please be aware that, like Jax itself, the Wiki is a work in progress and will be updated periodically to reflect the
+latest code changes.</b>
 
-=== app/
+== The Demo App
 
-The bulk of your WebGL application will be located in the app/
-directory. JAX is designed around the MVC (Model-View-Controller) paradigm, and the subdirectories there
-should serve to emphasize this fact.
+This project includes an {example application}[https://github.com/sinisterchipmunk/jax/tree/master/spec/example_app],
+which is meant to represent a very basic Jax application. It provides a visual testbed for various aspects of Jax
+while simultaneously demonstrating key concepts such as event processing and resource management.
 
-No one file in this location will operate on its own. Instead, the files in app/ will be combined into a
-fully-functional app a bit later on.
-
-Within the app/ directory is the following file structure:
-
-* controllers/
-  * Contains controllers, which are in charge of setting up or manipulating the scene from a high level. Tasks include
-    finding models and adding them to the scene, processing input events, and making high-level changes to models.
-* helpers/
-  * Contains helper methods used by the views. This allows you to separate presentation logic, and makes the views
-    easier to maintain. 
-* models/
-  * Contains data structures. This is where most data will be stored and manipulated.
-* resources/
-  * Contains implementations of models. For instance, there may be a model type called PointLight, and a resource
-    that is an instance of PointLight called "Sun".
-* views/
-  * Contains code specific to rendering the current scene. The current view will be rendered repeatedly, at a target
-    (but platform-dependent) rate of 60 times per second.
-
-=== config/
-
-This directory contains the default configuration setup that JAX will use. You can feel free to customize
-the files in this directory, but there's no need to do so.
-
-=== public/
-
-This is a location for you to store static files such as images, CSS stylesheets, static HTML pages and supporting
-JavaScripts. This directory is treated as a document root, so referencing a file called
-<em>/javascripts/hello_world.js</em> will actually retrieve the file
-<em>[app_root]/public/javascripts/hello_world.js</em>.
-
-== Hello, World!
-
-Following the steps above will generate an application, but it will be empty. In order to fill it with content, we need
-to generate some more files. The simplest application is always a "Hello, World" app, so let's create one of those!
-
-  jax generate controller welcome index
-
-Once again, several files will be automatically generated for you:
- 
-* app/controllers/welcome_controller.js
-  * Contains the controller itself. You should set up the scene in a controller action.
-* app/helpers/welcome_helper.js
-  * Contains helper methods which will be added to this controller's views.
-* app/views/welcome/index.js
-  * The view for the welcome controller's _index_ action.
-* spec/javascripts/controllers/welcome_controller_spec.js
-  * This is a test file. You should use it to test your controller.
-
-= incomplete
