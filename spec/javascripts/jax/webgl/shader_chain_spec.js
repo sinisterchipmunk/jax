@@ -9,6 +9,37 @@ describe("Jax.ShaderChain", function() {
   
   afterEach(function() { context.dispose(); });
   
+  describe("with a local texture", function() {
+    beforeEach(function() {
+      chain.addShader(new Jax.Shader({vertex:"uniform sampler2D Texture; void main(void) { }",name:"one"}));
+    });
+    
+    it("should rename the uniform", function() {
+      expect(chain.getVertexSource(material)).toMatch(/uniform sampler2D one0_Texture;/);
+    });
+  });
+  
+  describe("with a local float uniform", function() {
+    var prefix;
+    beforeEach(function() {
+      prefix = chain.addShader(new Jax.Shader({
+                                      vertex:"uniform float TextureScaleX; void main(void) { float f = TextureScaleX; }",
+                                      fragment:"void main(void) { }",name:"one"
+      }));
+    });
+    
+    it("should delegate to the expanded uniform name", function() {
+      chain.link(context, material);
+      chain.manifest.variable_prefix = prefix;
+      chain.manifest.set('TextureScaleX', 1);
+      var uniforms = chain.getUniformDelegator(context);
+      spyOn(uniforms, 'set');
+      chain.manifest.apply(uniforms, chain.getAttributeDelegator(context));
+      
+      expect(uniforms.set).toHaveBeenCalledWith(prefix+'TextureScaleX', 1);
+    });
+  });
+  
   describe("with multiple identical uniforms", function() {
     beforeEach(function() {
       chain.addShader(new Jax.Shader({vertex:"shared uniform int x; void main(void) { }",name:"one"}));
@@ -37,6 +68,10 @@ describe("Jax.ShaderChain", function() {
         chain.link(context, material);
         expect(chain.getMasterShader().getFragmentSource()).not.toBeNull();
         expect(chain.getMasterShader().getVertexSource()).not.toBeNull();
+      });
+      
+      it("should produce an input map", function() {
+        expect(Jax.Util.properties(chain.getInputMap(material))).toEqualVector(['one_x', 'one_y']);
       });
       
       describe(" - fragment - ", function() {

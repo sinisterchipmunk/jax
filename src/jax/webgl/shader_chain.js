@@ -45,6 +45,7 @@ Jax.ShaderChain = (function() {
         else throw new Error("Shader is not defined: "+shader);
       this.phases.push(shader);
       this.invalidate();
+      return sanitizeName(shader.getName()+(this.phases.length - 1)+"_");
     },
     
     getShaderNames: function() {
@@ -65,6 +66,7 @@ Jax.ShaderChain = (function() {
         var master = this.getMasterShader();
         master.setVertexSource(this.getVertexSource(material));
         master.setFragmentSource(this.getFragmentSource(material));
+
         program = $super(context, material);
       }
       
@@ -153,13 +155,17 @@ Jax.ShaderChain = (function() {
     },
     
     getInputMap: function(options) {
+      options = Jax.Util.normalizeOptions(options, {local_prefix:""});
       var map = {};
       for (var i = 0; i < this.phases.length; i++) {
+        options.local_prefix = this.phases[i].getName()+i;
         var _map = this.phases[i].getInputMap(options);
         for (var name in _map) {
           if (map[_map[name]]) {
-            if (map[name].type      != _map[name].type)      throw new Error("Conflicting types for variable '"+name+"' ("+map[name].type+" and "+_map[name].type+")!");
-            if (map[name].scope     != _map[name].scope)     throw new Error("Conflicting scopes for variable '"+name+"' ("+map[name].scope+" and "+_map[name].scope+")!");
+            if (map[name].type      != _map[name].type)
+              throw new Error("Conflicting types for variable '"+name+"' ("+map[name].type+" and "+_map[name].type+")!");
+            if (map[name].scope     != _map[name].scope)
+              throw new Error("Conflicting scopes for variable '"+name+"' ("+map[name].scope+" and "+_map[name].scope+")!");
           }
           else map[_map[name].full_name] = _map[name];
         }

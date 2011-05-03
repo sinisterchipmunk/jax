@@ -210,6 +210,7 @@ Jax.Shader = (function() {
         var scope = result[4];
         var type = result[5];
         var names = result[6].split(/,/);
+
         for (var i = 0; i < names.length; i++) {
           names[i] = names[i].replace(/^\s+/, '').replace(/\s+$/, '');
           if (shared) map[names[i]] = names[i];

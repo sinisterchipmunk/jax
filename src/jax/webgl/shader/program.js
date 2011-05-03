@@ -14,13 +14,25 @@ Jax.Shader.Program = (function() {
     return self.programs[context.id] = context.glCreateProgram();
   }
   
+  function addToVariableList(self, delegator) {
+    for (var name in delegator.variables) {
+      self.variable_names.push(name);
+    }
+  }
+  
+  function updateVariableList(self, context) {
+    while (self.variable_names.length > 0) self.variable_names.pop();
+    addToVariableList(self, self.getAttributeDelegator(context));
+    addToVariableList(self, self.getUniformDelegator(context));
+  }
+  
   function linkProgram(self, context, material, program) {
     /* really attach those shaders that we've pretended to have attached already */
     for (var i = 0; i < self.shaders.length; i++) {
       var shader = self.shaders[i];
       var vert = shader.getVertexShader(context),
           frag = shader.getFragmentShader(context);
-        
+      
       if (vert) {
         program.vertex = vert;
         program.vertex_shader = vert;
@@ -56,7 +68,8 @@ Jax.Shader.Program = (function() {
       this.programs = {};
       this.attribute_delegator = {};
       this.uniform_delegator = {};
-      this.manifest = new Jax.Shader.Manifest();
+      this.variable_names = [];
+      this.manifest = new Jax.Shader.Manifest(this.variable_names);
     },
     
     attach: function(shaderName, context) {
@@ -78,6 +91,9 @@ Jax.Shader.Program = (function() {
       
       if (!program.linked)
         linkProgram(this, context, material, program);
+      
+      // update list of variable names
+      updateVariableList(this, context);
       
       return program;
     },

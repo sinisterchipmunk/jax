@@ -37,8 +37,6 @@ Jax.Material = (function() {
       });
       
       this.name = options.name || options.shader || options.default_shader;
-//      if (!this.name) throw new Error("Jax.Material should at least have a {name} option");
-      
       this.shaders = {};
       this.layers = [];
 
@@ -94,7 +92,7 @@ Jax.Material = (function() {
     },
     
     addShadersToChain: function(chain) {
-      chain.addShader(this.shader || this.default_shader);
+      this.shader_variable_prefix = chain.addShader(this.shader || this.default_shader);
       for (var i = 0; i < this.layers.length; i++)
         this.layers[i].addShadersToChain(chain);
     },
@@ -116,7 +114,7 @@ Jax.Material = (function() {
      * Jax.Material#prepareShader(name) -> Jax.Shader
      * 
      * Prepares the specified shader for rendering. If this Material has been modified,
-     * then all shaders are updated. The specified shader is either built or returned,
+     * then all related shaders are updated. The specified shader is either built or returned,
      * depending on whether it has already been built.
      **/
     prepareShader: function() {
@@ -130,7 +128,9 @@ Jax.Material = (function() {
     },
     
     setUniforms: function(context, mesh, options, uniforms) {
+      uniforms.variable_prefix = this.shader_variable_prefix;
       var light = context.world.lighting.getLight();
+      
       uniforms.set({
         mMatrix: context.getModelMatrix(),
         vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
@@ -193,17 +193,20 @@ Jax.Material = (function() {
       });
 
       for (var i = 0; i < this.layers.length; i++) {
+        uniforms.variable_prefix = this.layers[i].shader_variable_prefix;
         this.layers[i].setUniforms(context, mesh, options, uniforms);
       }
     },
     
     setAttributes: function(context, mesh, options, attributes) {
+      attributes.variable_prefix = this.shader_variable_prefix;
       attributes.set('VERTEX_POSITION',  mesh.getVertexBuffer() || null);
       attributes.set('VERTEX_COLOR',     mesh.getColorBuffer() || null);
       attributes.set('VERTEX_NORMAL',    mesh.getNormalBuffer() || null);
       attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer() || null);
 
       for (var i = 0; i < this.layers.length; i++) {
+        attributes.variable_prefix = this.layers[i].shader_variable_prefix;
         this.layers[i].setAttributes(context, mesh, options, attributes);
       }
     },

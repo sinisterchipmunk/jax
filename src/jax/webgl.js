@@ -66,6 +66,7 @@ window['GL_METHODS'] = {};
     window['GL_DEPTH_COMPONENT'] = gl.DEPTH_COMPONENT || gl.DEPTH_COMPONENT16;
     window['GL_TEXTURES'] = [];
     for (i = 0; i < 32; i++) window['GL_TEXTURES'][i] = gl["TEXTURE"+i];
+    window['GL_MAX_ACTIVE_TEXTURES'] = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   }
   
   /* clean up after ourselves */
