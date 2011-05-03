@@ -9,6 +9,48 @@ describe("Jax.ShaderChain", function() {
   
   afterEach(function() { context.dispose(); });
   
+  describe("with a vertex main with 1 unqualified argument", function() {
+    beforeEach(function() {
+      chain.addShader(new Jax.Shader({vertex:"void main(vec4 pos) { }",name:"one"}));
+    });
+    
+    it("should mangle #main but keep the arguments", function() {
+      expect(chain.getVertexSource(material)).toMatch(/void one0_main_v\(vec4 pos\) \{/);
+    });
+    
+    it("should send the 3 arguments from #main", function() {
+      expect(chain.getVertexSource(material)).toMatch(/one0_main_v\(gl_Position\);/);
+    });
+  });
+
+  describe("with a fragment main with 3 unqualified arguments", function() {
+    beforeEach(function() {
+      chain.addShader(new Jax.Shader({fragment:"void main(vec4 amb, vec4 dif, vec4 spec) { }",name:"one"}));
+    });
+    
+    it("should mangle #main but keep the arguments", function() {
+      expect(chain.getFragmentSource(material)).toMatch(/void one0_main_f\(vec4 amb, vec4 dif, vec4 spec\) \{/);
+    });
+    
+    it("should send the 3 arguments from #main", function() {
+      expect(chain.getFragmentSource(material)).toMatch(/one0_main_f\(ambient, diffuse, specular\);/);
+    });
+  });
+  
+  describe("with a fragment main with 3 inout arguments", function() {
+    beforeEach(function() {
+      chain.addShader(new Jax.Shader({fragment:"void main(inout vec4 amb, inout vec4 dif, inout vec4 spec) { }",name:"one"}));
+    });
+    
+    it("should mangle #main but keep the arguments", function() {
+      expect(chain.getFragmentSource(material)).toMatch(/void one0_main_f\(inout vec4 amb, inout vec4 dif, inout vec4 spec\) \{/);
+    });
+    
+    it("should send the 3 arguments from #main", function() {
+      expect(chain.getFragmentSource(material)).toMatch(/one0_main_f\(ambient, diffuse, specular\);/);
+    });
+  });
+  
   describe("with a local texture", function() {
     beforeEach(function() {
       chain.addShader(new Jax.Shader({vertex:"uniform sampler2D Texture; void main(void) { }",name:"one"}));

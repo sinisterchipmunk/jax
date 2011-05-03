@@ -119,6 +119,16 @@ Jax.Shader = (function() {
     return source;
   }
   
+  function numArgumentsInMain(source) {
+    var result = /void\s*main\((.*?)\)\s*\{/.exec(source);
+    if (result) {
+      result = result[1].replace(/\s*/g, '');
+      if (result == "" || result == "void") return 0;
+      else return result[1].split(/,/).length;
+    }
+    else throw new Error("Could not find main() function in source!\n\n"+source);
+  }
+  
   return Jax.Class.create({
     initialize: function(obj) {
       this.options = obj;
@@ -160,6 +170,16 @@ Jax.Shader = (function() {
     getFragmentSource: function(material) {
       var source = this.getRawSource(material, 'fragment');
       return source && preprocess(this, material, source, false);
+    },
+    
+    getVertexArgumentCount: function(options) {
+      var source = this.getVertexSource(options);
+      return numArgumentsInMain(source);
+    },
+    
+    getFragmentArgumentCount: function(options) {
+      var source = this.getFragmentSource(options);
+      return numArgumentsInMain(source);
     },
     
     getRawSource: function(options, which) {

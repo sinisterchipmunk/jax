@@ -112,7 +112,10 @@ Jax.ShaderChain = (function() {
     getVertexMain: function(options) {
       var functionCalls = "";
       for (var i = 0; i < this.phases.length; i++) {
-        functionCalls += "  "+sanitizeName(this.phases[i].getName())+i+"_main_v();\n";
+        var args = "";
+        if (this.phases[i].getVertexArgumentCount() > 0)
+          args = "gl_Position";  
+        functionCalls += "  "+sanitizeName(this.phases[i].getName())+i+"_main_v("+args+");\n";
       }
       
       return "/**** Shader chain generated #main ****/\n" +
@@ -123,13 +126,21 @@ Jax.ShaderChain = (function() {
     
     getFragmentMain: function(options) {
       var functionCalls = "";
+      var lastTookArguments = false;
       for (var i = 0; i < this.phases.length; i++) {
-        functionCalls += "  "+sanitizeName(this.phases[i].getName())+i+"_main_f();\n";
+        var args = "";
+        if (this.phases[i].getFragmentArgumentCount() > 0) {
+          lastTookArguments = true;
+          args = "ambient, diffuse, specular";
+        } else lastTookArguments = false;
+        functionCalls += "  "+sanitizeName(this.phases[i].getName())+i+"_main_f("+args+");\n";
       }
       
       return "/**** Shader chain generated #main ****/\n" +
              "void main(void) {\n" +
+               "vec4 ambient = vec4(1.0,1.0,1.0,1.0), diffuse = vec4(1.0,1.0,1.0,1.0), specular = vec4(1.0,1.0,1.0,1.0);\n" +
                functionCalls +
+               (lastTookArguments ? "gl_FragColor = ambient + diffuse + specular;\n" : "") +
              "}\n";
     },
     
