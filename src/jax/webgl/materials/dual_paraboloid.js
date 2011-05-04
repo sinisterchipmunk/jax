@@ -1,6 +1,5 @@
 Jax.Material.DualParaboloid = Jax.Class.create(Jax.Material, {
-  initialize: function($super, texture) {
-    this.texture = texture;
+  initialize: function($super) {
     $super({shader:"paraboloid-depthmap"});
   },
   

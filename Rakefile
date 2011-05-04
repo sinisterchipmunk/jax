@@ -85,10 +85,7 @@ task :compile do
       f.puts File.read(File.join(File.dirname(__FILE__), "src/generated", "#{File.basename(path)}.js"))
     end
   end
-  File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
-    f.puts File.read(File.join(File.dirname(__FILE__), "src/jax/builtin/shaders/setup.js"))
-  end
-  
+
   puts "generated #{File.expand_path "dist/jax.js", '.'}"
   cp File.join(File.dirname(__FILE__), "dist/jax.js"), 
      File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")

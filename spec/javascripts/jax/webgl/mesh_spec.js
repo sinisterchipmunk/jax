@@ -47,14 +47,14 @@ describe("Mesh:", function() {
     });
     
     describe("with a specific material", function() {
-      beforeEach(function() { mesh.material = 'failsafe'; });
+      beforeEach(function() { mesh.material = 'basic'; });
       
       it("should use the specific material", function() {
-        expect(mesh.getNormalizedRenderOptions().material.name).toEqual("failsafe");
+        expect(mesh.getNormalizedRenderOptions().material.getName()).toEqual("basic");
       });
       
       it("should override the specific material", function() {
-        expect(mesh.getNormalizedRenderOptions({material:"basic"}).material.name).toEqual("basic");
+        expect(mesh.getNormalizedRenderOptions({material:"depthmap"}).material.name).toEqual("depthmap");
       });
     });
     

@@ -278,7 +278,6 @@ Jax.Material.all = function() {
 //= require "materials/shadow_map"
 //= require "materials/dual_paraboloid"
 
-Jax.Material.create('failsafe');
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});
 Jax.Material.create("depthmap", {default_shader:"depthmap"});
