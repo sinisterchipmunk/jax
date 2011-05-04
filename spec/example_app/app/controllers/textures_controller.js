@@ -8,13 +8,11 @@ var TexturesController = (function() {
         diffuse: [0.2,0.2,0.2,1],
         shininess: 30,
         textures:[
-//          {type:Jax.NORMAL_MAP,flip_y:false,path:"/public/images/185__normalmap.png"},
-          {path:"/public/images/rss.png",scale:8}
+          {type:Jax.NORMAL_MAP,flip_y:false,path:"/public/images/185__normalmap.png"},
+          {path:"/public/images/rss.png",scale:4}
+//          {type:Jax.NORMAL_MAP,flip_y:true,path:"/public/images/face_norm.jpg"},
         ]
       });
-      
-//      var program = tex_mat.prepareShader();
-//      alert(program.getVertexSource(tex_mat));
       
       this.world.addLightSource(new Jax.Scene.LightSource({
         type: Jax.POINT_LIGHT,
@@ -23,7 +21,7 @@ var TexturesController = (function() {
         color: {
           ambient: [0,0,0,1],
           diffuse: [0.5,0.5,0.5,1],
-          specular:[0.5,0.5,0.5,1]
+          specular:[0.0,0.0,0.0,1]
         },
         attenuation: {
           constant: 0,
@@ -44,8 +42,8 @@ var TexturesController = (function() {
     
     update: function(tc) {
       var light = this.world.lighting.getLight(0).camera;
-      light.p = (light.p || 0) + tc * 2.0;
-      light.setPosition(Math.cos(light.p)*2.5, Math.sin(light.p)*2.5, -5);
+      light.p = (light.p || 0) + tc * 1.0;
+      light.setPosition(Math.cos(light.p)*2.5, Math.sin(light.p)*2.5, -6.5);
     }
   });
 })();

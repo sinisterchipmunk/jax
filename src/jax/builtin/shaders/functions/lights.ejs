@@ -8,6 +8,16 @@ const struct LightSource {
   float spotExponent, spotCosCutoff;
 };
 
+float calcAttenuation(const in LightSource light,
+                      in vec3 ecPosition3,
+                      out vec3 lightDirection)
+{
+  lightDirection = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
+  float d = length(lightDirection);
+  
+  return 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
+}
+
 void DirectionalLight(const in LightSource light,
                       in vec3 normal,
                       inout vec4 ambient,
@@ -44,14 +54,12 @@ void PointLightWithAttenuation(const in LightSource light,
   float NdotHV;// normal . half vector
   float pf;    // specular factor
   float attenuation;
-  float d;     // distance from surface to light source
   vec3 VP;     // direction from surface to light position
   vec3 halfVector; // direction of maximum highlights
   
-  VP = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
-  d = length(VP);
+  attenuation = calcAttenuation(light, ecPosition3, VP);
   VP = normalize(VP);
-  attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
+  
   halfVector = normalize(VP+vec3(0,0,1));
   NdotD = max(0.0, dot(normal, VP));
   NdotHV= max(0.0, dot(normal, halfVector));
@@ -111,16 +119,13 @@ void SpotLight(const in LightSource light,
   float NdotHV;// normal . half vector
   float pf;    // specular factor
   float attenuation;
-  float d;     // distance from surface to light source
   vec3 VP;     // direction from surface to light position
   vec3 halfVector; // direction of maximum highlights
   float spotDot; // cosine of angle between spotlight
   float spotAttenuation; // spotlight attenuation factor
   
-  VP = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
-  d = length(VP);
+  attenuation = calcAttenuation(light, ecPosition3, VP);
   VP = normalize(VP);
-  attenuation = 1.0 / (light.constant_attenuation + light.linear_attenuation * d + light.quadratic_attenuation * d * d);
   
   // See if point on surface is inside cone of illumination
   spotDot = dot(-VP, normalize(vnMatrix*light.direction));

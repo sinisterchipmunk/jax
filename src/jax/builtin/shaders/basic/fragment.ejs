@@ -1,5 +1,5 @@
-void main(void) {
-  vec4 ambient = vec4(0), diffuse = vec4(0), specular = vec4(0);
+void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
+  ambient = diffuse = specular = vec4(0);
   
   vec3 nNormal = normalize(vNormal);
 
@@ -20,15 +20,7 @@ void main(void) {
     return;
   }
   
-
-  vec4 final_color = ambient  * materialAmbient  * vBaseColor +
-                     diffuse  * materialDiffuse  * vBaseColor +
-                     specular * materialSpecular * vBaseColor;
-
-  export(vec4, ambient);
-  export(vec4, diffuse);
-  export(vec4, specular);
-  export(vec4, FragColor, final_color);
-  
-  gl_FragColor = final_color;
+  ambient *= materialAmbient * vBaseColor;
+  diffuse *= materialDiffuse * vBaseColor;
+  specular *= materialSpecular * vBaseColor;
 }
