@@ -1,0 +1,74 @@
+//= require "functions/depth_map"
+
+float dp_lookup() {
+  float map_depth, depth;
+  vec4 rgba_depth;
+      
+  if (vDPz > 0.0) {
+    rgba_depth = texture2D(SHADOWMAP0, vDP0.xy);
+    depth = vDPDepth;//P0.z;
+  } else {
+    rgba_depth = texture2D(SHADOWMAP1, vDP1.xy);
+    depth = vDPDepth;//P1.z;
+  }
+      
+      
+  map_depth = unpack_depth(rgba_depth);
+      
+  if (map_depth + 0.00005 < depth) return 0.0;
+  else return 1.0;
+}
+      
+float pcf_lookup(float s, vec2 offset) {
+  /*
+    s is the projected depth of the current vShadowCoord relative to the shadow's camera. This represents
+    a *potentially* shadowed surface about to be drawn.
+    
+    d is the actual depth stored within the SHADOWMAP texture (representing the visible surface).
+  
+    if the surface to be drawn is further back than the light-visible surface, then the surface is
+    shadowed because it has a greater depth. Less-or-equal depth means it's either in front of, or it *is*
+    the light-visible surface.
+  */
+  float d = unpack_depth(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)+offset));
+  return (s - d > 0.00002) ? 0.0 : 1.0;
+}
+
+void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
+//ambient = vec4(0);
+  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%> || !SHADOWMAP_ENABLED) return;
+  
+  float visibility = 1.0;
+  float s = vShadowCoord.z / vShadowCoord.w;
+  if (LIGHT.type == <%=Jax.POINT_LIGHT%>) {
+    visibility = dp_lookup();
+  } else {
+    if (!SHADOWMAP_PCF_ENABLED)
+      visibility = pcf_lookup(s, vec2(0.0,0.0));
+    else {
+      /* do PCF filtering */
+      float dx, dy;
+      visibility = 0.0;
+      for (float dx = -1.5; dx <= 1.5; dx += 1.0)
+        for (float dy = -1.5; dy <= 1.5; dy += 1.0)
+          visibility += pcf_lookup(s, vec2(dx/2048.0, dy/2048.0));
+      visibility /= 16.0;
+    }
+  }
+
+//  if (vDPz > 0.0) {
+//    diffuse = texture2D(SHADOWMAP0, vDP0.xy);
+//  } else {
+//    diffuse = texture2D(SHADOWMAP1, vDP1.xy);
+//  }
+//  specular = vec4(0);
+
+  diffuse *= visibility;
+  specular *= visibility;
+
+//diffuse = vec4(vShadowCoord.xy/vShadowCoord.w, 0, 1);
+//diffuse = max(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)), texture2D(SHADOWMAP1, (vShadowCoord.xy/vShadowCoord.w)));
+//  diffuse  = vec4(visibility);
+//  specular = vec4(0);
+//  specular *= visibility;
+}

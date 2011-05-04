@@ -197,7 +197,8 @@ Jax.Framebuffer = (function() {
       context.glViewport(0,0,this.options.width,this.options.height);
     },
     
-    getTextureBuffer: function(context, index) { return this.getHandle(context) && this.getHandle(context).textures[index].getHandle(context); },
+    getTextureBuffer: function(context, index) { return this.getHandle(context) && this.getHandle(context).textures[index]; },
+    getTextureBufferHandle: function(context, index) { return this.getTextureBuffer().getHandle(context); },
     
     getHandle: function(context) { return this.handles[context.id]; },
     setHandle: function(context, handle) { this.handles[context.id] = handle; }

@@ -1,4 +1,4 @@
-//= require "../shader"
+//= require "shader"
 
 /**
  * class Jax.Material
@@ -36,6 +36,14 @@ Jax.Material = (function() {
         default_shader: options && options.name || Jax.default_shader
       });
       
+      this.diffuse = options.diffuse;
+      this.ambient = options.ambient;
+      this.specular = options.specular;
+      this.emissive = options.emissive;
+      this.shininess = options.shininess;
+      this.default_shader = options.default_shader;
+      this.shader = options.shader;
+      
       this.name = options.name || options.shader || options.default_shader;
       this.shaders = {};
       this.layers = [];
@@ -52,10 +60,6 @@ Jax.Material = (function() {
         }
         delete options.textures;
       }
-
-      var i;
-      for (i in options)
-        this[i] = options[i];
     },
     
     getName: function() { return this.name; },
@@ -69,7 +73,11 @@ Jax.Material = (function() {
         default:
           mat = new Jax.Material.Texture(tex);
       }
-      this.layers.push(mat);
+      this.addLayer(mat);
+    },
+    
+    addLayer: function(layer) {
+      this.layers.push(layer);
     },
 
     /**
@@ -159,37 +167,6 @@ Jax.Material = (function() {
         'LIGHT.spotCosCutoff': light.getSpotCosCutoff(),
         'LIGHT.enabled': light.isEnabled(),
         'LIGHT.type': light.getType()
-        /*
-            
-        DP_SHADOW_NEAR: 0.1,//c.world.lighting.getLight().getDPShadowNear() || 0.1;}},
-        DP_SHADOW_FAR: 500,//c.world.lighting.getLight().getDPShadowFar() || 500;}},
-        DP_DIRECTION: options &&  options.direction || 1,
-        
-        
-        SHADOWMAP_PCF_ENABLED: false,
-        SHADOWMAP_MATRIX: context.world.lighting.getLight().getShadowMatrix(),
-        SHADOWMAP_ENABLED: context.world.lighting.getLight().isShadowMapEnabled(),
-        SHADOWMAP0: (function(){
-          context.glActiveTexture(GL_TEXTURE0);
-    
-          if (context.world.lighting.getLight().getType() == Jax.POINT_LIGHT) {
-            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTextures(context)[0]);
-          } else {
-            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTexture(context));
-          }
-          return 0;
-        })(),
-        SHADOWMAP1: (function(){
-          context.glActiveTexture(GL_TEXTURE1);
-    
-          if (context.world.lighting.getLight().getType() == Jax.POINT_LIGHT) {
-            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTextures(context)[1]);
-          } else {
-            context.glBindTexture(GL_TEXTURE_2D, context.world.lighting.getLight().getShadowMapTexture(context));
-          }
-          return 1;
-        })()
-        */
       });
 
       for (var i = 0; i < this.layers.length; i++) {
@@ -279,11 +256,30 @@ Jax.Material.find = function(name) {
  **/
 Jax.Material.create = function(name, options) {
   options = Jax.Util.normalizeOptions(options, { name: name });
-  return Jax.Material.instances[name] = new Jax.Material(options);
+  var klass = Jax.Material;
+  if (options.type) klass = klass[options.type];
+  if (!klass) throw new Error("Material type '"+options.type+"' not found!");
+  return Jax.Material.instances[name] = new klass(options);
 };
+
+/**
+ * Jax.Material.all() -> Array
+ * 
+ * Returns an array containing the names of all Materials currently registered
+ * with Jax. Note that this does not include one-off materials created directly,
+ * for example, using "new Jax.Material()".
+ **/
+Jax.Material.all = function() {
+  return Jax.Util.properties(Jax.Material.instances);
+};
+
+//= require "materials/texture"
+//= require "materials/normal_map"
+//= require "materials/shadow_map"
+//= require "materials/dual_paraboloid"
 
 Jax.Material.create('failsafe');
 Jax.Material.create("basic");
-Jax.Material.create("default", {default_shader:'blinn-phong'});
+Jax.Material.create("default", {default_shader:'basic'});
 Jax.Material.create("depthmap", {default_shader:"depthmap"});
-Jax.Material.create("paraboloid-depthmap", {default_shader:"paraboloid-depthmap"});
+Jax.Material.create("paraboloid-depthmap", {type:"DualParaboloid",default_shader:"paraboloid-depthmap"});
