@@ -8,6 +8,11 @@ Jax.Events = (function() {
       
       addEventListener: function(name, callback) {
         this.getEventListeners(name).push(callback);
+        return this.getEventListeners(name).length - 1;
+      },
+      
+      removeEventListener: function(name, index) {
+        this.getEventListeners(name).splice(index, 1);
       },
       
       fireEvent: function(name, event_object) {

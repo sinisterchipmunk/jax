@@ -37,12 +37,20 @@ Jax.World = (function() {
     },
     
     invalidate: function() {
-      while (this.shadow_casters.length > 0) this.shadow_casters.pop();
+      while (this.shadow_casters.length > 0) {
+        /* TODO we still need to unregister the camera event listener */
+        this.shadow_casters.pop();
+      }
+      
       for (var i = 0; i < this.objects.length; i++) {
+        var self = this;
+        var updated = function() { self.shadowmaps_valid = false; };
         if (this.objects[i].isShadowCaster()) {
+          this.objects[i].camera.addEventListener('matrixUpdated', updated);
           this.shadow_casters.push(this.objects[i]);
         }
       }
+      this.shadowmaps_valid = false;
     },
     
     getShadowCasters: function() { return this.shadow_casters; },
@@ -66,7 +74,10 @@ Jax.World = (function() {
       
         /* shadowgen pass */
         this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
-        this.lighting.updateShadowMaps(this.context, this.shadow_casters);
+        if (!this.shadowmaps_valid) {
+          this.lighting.updateShadowMaps(this.context, this.shadow_casters);
+          this.shadowmaps_valid = true;
+        }
         
         /* illumination pass */
         this.context.glBlendFunc(GL_ONE, GL_ONE);
