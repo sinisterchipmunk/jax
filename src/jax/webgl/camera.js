@@ -477,8 +477,10 @@ Jax.Camera = (function() {
      * Causes the camera to strafe, or move "sideways" along the right vector.
      **/
     strafe: function(distance) {
-      mat4.translate(this.matrices.mv, vec3.scale(storeVecBuf(this, RIGHT), distance), this.matrices.mv);
-      this.fireEvent('matrixUpdated');
+      this._tmp[FORWARD][0] = 1;
+      this._tmp[FORWARD][1] = 0;
+      this._tmp[FORWARD][2] = 0;
+      this.move(distance, this._tmp[FORWARD]);
       return this;
     },
 
@@ -491,7 +493,12 @@ Jax.Camera = (function() {
      *                     the camera is pointing.
      **/
     move: function(distance, direction) {
-      direction = direction || storeVecBuf(this, VIEW);
+      if (!direction) {
+        direction = this._tmp[FORWARD];
+        direction[0] = 0;
+        direction[1] = 0;
+        direction[2] = -1;
+      }
       mat4.translate(this.matrices.mv, vec3.scale(direction, distance), this.matrices.mv);
       this.fireEvent('matrixUpdated');
       return this;
