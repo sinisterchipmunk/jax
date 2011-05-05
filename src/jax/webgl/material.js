@@ -35,14 +35,10 @@ Jax.Material = (function() {
         shininess: 10,
         default_shader: options && options.name || Jax.default_shader
       });
-      
-      this.diffuse = options.diffuse;
-      this.ambient = options.ambient;
-      this.specular = options.specular;
-      this.emissive = options.emissive;
-      this.shininess = options.shininess;
-      this.default_shader = options.default_shader;
-      this.shader = options.shader;
+
+      for (var i in options) { this[i] = options[i]; }
+      this.option_properties = Jax.Util.properties(options);
+      this.protected_properties = ['name', 'shader', 'default_shader', 'shaders', 'layers'];
       
       this.name = options.name || options.shader || options.default_shader;
       this.shaders = {};
@@ -78,6 +74,13 @@ Jax.Material = (function() {
     
     addLayer: function(layer) {
       this.layers.push(layer);
+
+      for (var i = 0; i < layer.option_properties.length; i++) {
+        var name = layer.option_properties[i];
+        if (this.protected_properties.indexOf(name) == -1 && this[name] == undefined) {
+          this[name] = layer[name];
+        }
+      }
     },
 
     /**
@@ -277,6 +280,7 @@ Jax.Material.all = function() {
 //= require "materials/normal_map"
 //= require "materials/shadow_map"
 //= require "materials/dual_paraboloid"
+//= require "materials/fog"
 
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});
