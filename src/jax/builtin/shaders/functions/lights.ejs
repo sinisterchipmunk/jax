@@ -12,6 +12,7 @@ float calcAttenuation(const in LightSource light,
                       in vec3 ecPosition3,
                       out vec3 lightDirection)
 {
+//  lightDirection = vec3(vnMatrix * -light.position) - ecPosition3;
   lightDirection = vec3(ivMatrix * vec4(light.position, 1.0)) - ecPosition3;
   float d = length(lightDirection);
   

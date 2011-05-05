@@ -8,12 +8,12 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   else
     if (LIGHT.type == <%=Jax.POINT_LIGHT%>)
       if (LIGHT.constant_attenuation == 1.0 && LIGHT.linear_attenuation == 0.0 && LIGHT.quadratic_attenuation == 0.0)
-        PointLightWithoutAttenuation(LIGHT, vSurfacePos, vNormal, ambient, diffuse, specular);
+        PointLightWithoutAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
       else
-        PointLightWithAttenuation(LIGHT, vSurfacePos, vNormal, ambient, diffuse, specular);
+        PointLightWithAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
   else
     if (LIGHT.type == <%=Jax.SPOT_LIGHT%>)
-      SpotLight(LIGHT, vSurfacePos, vNormal, ambient, diffuse, specular);
+      SpotLight(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
   else
   { // error condition, output 100% red
     gl_FragColor = vec4(1,0,0,1);
