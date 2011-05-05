@@ -12,6 +12,28 @@ describe("Texture", function() {
     }); 
   };
   
+  describe("NPOT", function() {
+    beforeEach(function() {
+      tex = new Jax.Texture("/public/images/brickwall.jpg");
+    });
+    
+    _it("should automatically use NPOT-compatible options", function() {
+      expect(tex.options.mag_filter).toEqual(GL_LINEAR);
+      expect(tex.options.min_filter).toEqual(GL_LINEAR);
+      expect(tex.options.wrap_s).toEqual(GL_CLAMP_TO_EDGE);
+      expect(tex.options.wrap_t).toEqual(GL_CLAMP_TO_EDGE);
+      expect(tex.options.generate_mipmap).toBeFalsy();
+    });
+    
+    _it("should render successfully", function() {
+      var matr = new Jax.Material.Texture(tex);
+      var m = new Jax.Model({mesh: new Jax.Mesh.Quad({material: matr})});
+      var context = new Jax.Context('canvas-element');
+      m.render(context);
+      context.dispose();
+    });
+  });
+  
   describe("cube map", function() {
     describe("with no image", function() {
       beforeEach(function() {

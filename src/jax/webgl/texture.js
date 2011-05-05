@@ -10,8 +10,20 @@ Jax.Texture = (function() {
     throw new Error("Texture image '"+self.image.src+"' failed to load!");
   }
   
-  function imageLoaded(self, isImageArray) {
+  function isPoT(s) {
+    return s && (s & -s == s);
+  }
+  
+  function imageLoaded(self, isImageArray, img) {
     var onload = self.options.onload || self.onload;
+    
+    if (!isPoT(img.width) || !isPoT(img.height)) {
+      self.options.mag_filter = GL_LINEAR;
+      self.options.min_filter = GL_LINEAR;
+      self.options.wrap_s = GL_CLAMP_TO_EDGE;
+      self.options.wrap_t = GL_CLAMP_TO_EDGE;
+      self.options.generate_mipmap = false;
+    }
 
     if (!isImageArray) {
       if (onload) onload.call(self, self.image);
@@ -181,11 +193,11 @@ Jax.Texture = (function() {
       if (path_or_array) {
         if (typeof(path_or_array) == "string") {
           this.image = new Image();
-          this.image.onload = function() { imageLoaded(self, false); };
+          this.image.onload = function() { imageLoaded(self, false, this); };
           this.image.onerror = this.image.onabort = function() { imageFailed(self, this); };
           this.image.src = path_or_array;
         } else {
-          var onload = function() { imageLoaded(self, true); };
+          var onload = function() { imageLoaded(self, true, this); };
           this.images = [];
           this.images.load_count = 0;
           for (var i = 0; i < path_or_array.length; i++) {
