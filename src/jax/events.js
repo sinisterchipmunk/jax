@@ -17,8 +17,9 @@ Jax.EVENT_METHODS = (function() {
     var keyboard = self.keyboard;
 
     evt = evt || window.event || {};
-    evt.context = self;
-    evt.canvas = self.canvas;
+    // we don't really need these since controllers have this.context
+//    evt.context = self;
+//    evt.canvas = self.canvas;
     keyboard.last = evt;
 
     /*
@@ -70,6 +71,12 @@ Jax.EVENT_METHODS = (function() {
         if (mouse.down.count <= 0) mouse.down = null;
       }
     }
+    
+    evt.x = mouse.x;
+    evt.y = mouse.y;
+    evt.diffx = mouse.diffx;
+    evt.diffy = mouse.diffy;
+    evt.down = mouse.down;
 
     return evt;
   }
@@ -101,6 +108,13 @@ Jax.EVENT_METHODS = (function() {
     }
     return true;
   }
+  
+  // Tag names which, when active, should cause key input to be IGNORED. The implication is that while
+  // one of these tags has focus, the user doesn't want to be controlling his character because s/he is
+  // trying to type something.
+  var ignoreKeyTagNames = [
+          'input', 'form', 'textarea', 'label', 'fieldset', 'legend', 'select', 'optgroup', 'option', 'button'
+  ];
 
   return {
     setupEventListeners: function() {
@@ -125,6 +139,13 @@ Jax.EVENT_METHODS = (function() {
         return dispatchEvent(self, evt);
       };
       var keyfunc       = function(evt) {
+        if (evt.which) evt.str = String.fromCharCode(evt.which);
+        if (document.activeElement) {
+          if (ignoreKeyTagNames.indexOf(document.activeElement.tagName) != -1)
+          { // user is probably trying to type, so don't capture this input
+            return;
+          }
+        }
         if (!self.current_controller) return;
         evt = buildKeyEvent(self, evt);
         return dispatchEvent(self, evt);
@@ -138,9 +159,9 @@ Jax.EVENT_METHODS = (function() {
         canvas.addEventListener('mouseout',  mousefunc,     false);
         canvas.addEventListener('mouseover', mousefunc,     false);
         canvas.addEventListener('mouseup',   mousefunc,     false);
-        canvas.addEventListener('keydown',   keyfunc,       false);
-        canvas.addEventListener('keypress',  keyfunc,       false);
-        canvas.addEventListener('keyup',     keyfunc,       false);
+        document.addEventListener('keydown',   keyfunc,       false);
+        document.addEventListener('keypress',  keyfunc,       false);
+        document.addEventListener('keyup',     keyfunc,       false);
       } else {
         /* IE */
         canvas.attachEvent('onclick',     mousefunc    );
@@ -149,9 +170,9 @@ Jax.EVENT_METHODS = (function() {
         canvas.attachEvent('onmouseout',  mousefunc    );
         canvas.attachEvent('onmouseover', mousefunc    );
         canvas.attachEvent('onmouseup',   mousefunc    );
-        canvas.attachEvent('onkeydown',   keyfunc      );
-        canvas.attachEvent('onkeypress',  keyfunc      );
-        canvas.attachEvent('onkeyup',     keyfunc      );
+        document.attachEvent('onkeydown',   keyfunc      );
+        document.attachEvent('onkeypress',  keyfunc      );
+        document.attachEvent('onkeyup',     keyfunc      );
       }
     }
   };
