@@ -30,9 +30,20 @@ module Jax
           directory 'public'
         end
 
+        def git
+          if File.exist? '.git'
+            say_status :exist, 'git', :blue
+          else
+            `git init`
+            `git add *`
+            say_status :init, 'git', :green
+          end
+        end
+
         def jasmine
           say_status :init, 'jasmine', :green
-          `jasmine init`
+          # use Bundler to do this, to avoid ActiveSupport version mismatch errors
+          `BUNDLE_GEMFILE="#{File.join(File.dirname(__FILE__), "../../../../Gemfile")}" bundle exec jasmine init`
         end
         
         def jax_spec_helper
@@ -76,16 +87,6 @@ module Jax
           copy_file "spec/javascripts/support/spec_layout.html.erb"
         end
         
-        def git
-          if File.exist? '.git'
-            say_status :exist, 'git', :blue
-          else
-            `git init`
-            `git add *`
-            say_status :init, 'git', :green
-          end
-        end
-
         protected
         def self.banner
           "jax new #{self.arguments.map { |a| a.usage }.join(' ')}"
