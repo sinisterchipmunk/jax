@@ -34,6 +34,12 @@ namespace :jax do
     Jax::Packager.invoke
   end
   
+  desc "Upgrade the Jax javascript libraries to the latest version"
+  task :update do
+    FileUtils.cp File.join(File.dirname(__FILE__), "../../../lib/jax/generators/app/templates/public/javascripts/jax.js"),
+                 File.join(Jax.root, 'public/javascripts/jax.js')
+  end
+  
   task :generated_files do
     # resources
     Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
