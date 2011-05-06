@@ -138,26 +138,29 @@ Jax.Material = (function() {
       return shader;
     },
     
-    setUniforms: function(context, mesh, options, uniforms) {
-      uniforms.variable_prefix = this.shader_variable_prefix;
+    setUniforms: function(context, mesh, options, uniforms) {},
+    setAttributes: function(context, mesh, options, attributes) { },
+    
+    setShaderVariables: function(context, mesh, options, manifest) {
       var light = context.world.lighting.getLight();
-      
-      uniforms.set({
+      manifest.variable_prefix = this.shader_variable_prefix;
+
+      manifest.set({
         mMatrix: context.getModelMatrix(),
         vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
-        ivMatrix: context.getInverseViewMatrix(),
-        vMatrix: context.getViewMatrix(),
-        mvMatrix: context.getModelViewMatrix(),
-        pMatrix: context.getProjectionMatrix(),
-        nMatrix: context.getNormalMatrix(),
-    
+        ivMatrix:  context.getInverseViewMatrix(),
+        vMatrix:   context.getViewMatrix(),
+        mvMatrix:  context.getModelViewMatrix(),
+        pMatrix:   context.getProjectionMatrix(),
+        nMatrix:   context.getNormalMatrix(),
+        
+        PASS_TYPE: context.current_pass,
+        
         materialAmbient: this.ambient,
         materialDiffuse: this.diffuse,
         materialSpecular: this.specular,
         materialShininess: this.shininess,
     
-        PASS_TYPE: context.current_pass,
-        
         'LIGHT.position': light.getPosition(),
         'LIGHT.direction': light.getDirection(),
         'LIGHT.ambient': light.getAmbientColor(),
@@ -171,26 +174,22 @@ Jax.Material = (function() {
         'LIGHT.enabled': light.isEnabled(),
         'LIGHT.type': light.getType()
       });
+      manifest.set('VERTEX_POSITION',  mesh.getVertexBuffer() || null);
+      manifest.set('VERTEX_COLOR',     mesh.getColorBuffer() || null);
+      manifest.set('VERTEX_NORMAL',    mesh.getNormalBuffer() || null);
+      manifest.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer() || null);
+
+      
+      this.setUniforms(context, mesh, options, manifest);
+      this.setAttributes(context, mesh, options, manifest);
 
       for (var i = 0; i < this.layers.length; i++) {
-        uniforms.variable_prefix = this.layers[i].shader_variable_prefix;
-        this.layers[i].setUniforms(context, mesh, options, uniforms);
+        manifest.variable_prefix = this.layers[i].shader_variable_prefix;
+        this.layers[i].setUniforms(context, mesh, options, manifest);
+        this.layers[i].setAttributes(context, mesh, options, manifest);
       }
     },
     
-    setAttributes: function(context, mesh, options, attributes) {
-      attributes.variable_prefix = this.shader_variable_prefix;
-      attributes.set('VERTEX_POSITION',  mesh.getVertexBuffer() || null);
-      attributes.set('VERTEX_COLOR',     mesh.getColorBuffer() || null);
-      attributes.set('VERTEX_NORMAL',    mesh.getNormalBuffer() || null);
-      attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer() || null);
-
-      for (var i = 0; i < this.layers.length; i++) {
-        attributes.variable_prefix = this.layers[i].shader_variable_prefix;
-        this.layers[i].setAttributes(context, mesh, options, attributes);
-      }
-    },
-
     /**
      * Jax.Material#render(context, mesh) -> undefined
      * Renders the specified object to the specified context, using this material.
@@ -259,8 +258,10 @@ Jax.Material.find = function(name) {
  **/
 Jax.Material.create = function(name, options) {
   options = Jax.Util.normalizeOptions(options, { name: name });
+  
   var klass = Jax.Material;
   if (options.type) klass = klass[options.type];
+  
   if (!klass) throw new Error("Material type '"+options.type+"' not found!");
   return Jax.Material.instances[name] = new klass(options);
 };

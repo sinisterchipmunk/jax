@@ -99,8 +99,7 @@ Jax.Shader.Program = (function() {
     },
     
     setShaderVariables: function(context, mesh, material, options) {
-      material.setUniforms(context, mesh, options, this.manifest);
-      material.setAttributes(context, mesh, options, this.manifest);
+      material.setShaderVariables(context, mesh, options, this.manifest);
       this.manifest.apply(this.getUniformDelegator(context), this.getAttributeDelegator(context));
     },
     
