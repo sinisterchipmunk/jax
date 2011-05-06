@@ -15,9 +15,7 @@ var ShadowsController = (function() {
       /* light sources */
       var light01 = new Jax.Scene.LightSource({
         enabled:true,
-        type: Jax.SPOT_LIGHT,
-//        type: Jax.POINT_LIGHT,
-//        type: Jax.DIRECTIONAL_LIGHT,
+        type: Jax.POINT_LIGHT,
         angle: 20.0,
         position: [0,150,150],
         direction: [-1,-1,-1],
@@ -43,6 +41,7 @@ var ShadowsController = (function() {
         diffuse: [0.4,0.9,0.4,1],
         specular: [0.4,0.4,0.4,1]
       });
+      floor_mat.addLayer(new Jax.Material.ShadowMap());
       
       var torus_mat = new Jax.Material({
         shaderType: "blinn-phong",
@@ -51,6 +50,7 @@ var ShadowsController = (function() {
         diffuse: [0.9,0.3,0.3,1],
         specular:[0.6,0.6,0.6,1]
       });
+      torus_mat.addLayer(new Jax.Material.ShadowMap());
       
       var sphere_mat = new Jax.Material({
         shaderType: "blinn-phong",
@@ -59,6 +59,7 @@ var ShadowsController = (function() {
         diffuse: [0.3,0.3,0.9,1],
         specular:[0.4,0.4,0.4,1]
       });
+      sphere_mat.addLayer(new Jax.Material.ShadowMap());
 
       /* objects */
       this.world.addObject(new Jax.Model({mesh: new Jax.Mesh.Plane({size:500,segments:20,material:floor_mat})}));
