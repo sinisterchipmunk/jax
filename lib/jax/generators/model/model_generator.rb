@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module Model
-      class ModelGenerator < Thor::Group
+      class ModelGenerator < Jax::Generators::Command
         include Thor::Actions
         argument :model_name
 
@@ -25,10 +25,6 @@ module Jax
         end
         
         protected
-        def self.banner
-          "jax generate model #{self.arguments.map { |a| a.usage }.join(' ')}"
-        end
-
         def file_name
           model_name.underscore
         end

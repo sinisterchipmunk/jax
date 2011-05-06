@@ -1,6 +1,6 @@
 Jax.Material.NormalMap = Jax.Class.create(Jax.Material, {
   initialize: function($super, map) {
-    this.map = map;
+    this.map = Jax.Material.Texture.normalizeTexture(map);
     $super({shader:"normal_map"});
   },
   

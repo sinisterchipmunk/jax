@@ -67,3 +67,10 @@ Jax.update_speed = 15;
 Jax.max_lights = 32;
 
 //= require "jax/builtin/all.js"
+
+/*
+  FIXME Resource manager looks for an object in the global namespace, so using Jax.Scene.LightSource
+  instead of just LightSource results in a broken resource load.
+ */
+var LightSource = Jax.Scene.LightSource;
+var Material = Jax.Material;

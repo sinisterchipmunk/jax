@@ -4,6 +4,53 @@ describe("Jax.Material", function() {
   
   beforeEach(function() { mesh = new Jax.Mesh(); context = new Jax.Context('canvas-element'); });
   afterEach(function() { context.dispose(); });
+  
+  describe("constructed as though from a Resource", function() {
+    beforeEach(function() {
+      material = new Jax.Material({
+        name: "lighting_with_shadows",
+        "ambient":{"red":1.0,"green":2.0,"blue":3.0,"alpha":4.0},
+        "diffuse":{"red":0.2,"green":0.3,"blue":0.4,"alpha":0.5},
+        "specular":{"red":0.6,"green":0.7,"blue":0.8,"alpha":0.9},
+        "shininess":128,
+        "layers":[
+          {"type":"Texture","path":"/public/images/rock.png","flip_y":false,"scale":1},
+          {"type":"NormalMap","path":"/public/images/rockNormal.png","flip_y":false,"scale":1},
+          {"type":"ShadowMap"}
+        ]
+      });
+    });
+    
+    it("should be usable", function() {
+      material.render(context, mesh, {});
+    });
+    
+    it("should have the correct name", function() {
+      expect(material.getName()).toEqual("lighting_with_shadows");
+    });
+    
+    it("should use the default shader", function() {
+      expect(material.default_shader).toEqual(Jax.default_shader);
+    });
+    
+    it("should have the correct ambient", function() { expect(material.ambient).toEqualVector([1,2,3,4]); });
+    it("should have the correct diffuse", function() { expect(material.diffuse).toEqualVector([0.2,0.3,0.4,0.5]); });
+    it("should have the correct specular", function() { expect(material.specular).toEqualVector([0.6,0.7,0.8,0.9]); });
+    it("should have the correct shininess", function() { expect(material.shininess).toEqual(128); });
+    it("should have 3 layers", function() { expect(material.layers.length).toEqual(3); });
+    
+    it("should have a texture map layer", function() {
+      expect(material.layers[0].klass).toEqual(Jax.Material.Texture);
+    });
+
+    it("should have a normal map layer", function() {
+      expect(material.layers[1].klass).toEqual(Jax.Material.NormalMap);
+    });
+
+    it("should have a shadow map layer", function() {
+      expect(material.layers[2].klass).toEqual(Jax.Material.ShadowMap);
+    });
+  });
 
   describe("with one texture specified by string", function() {
     beforeEach(function() { material = new Jax.Material({texture: _img}); });

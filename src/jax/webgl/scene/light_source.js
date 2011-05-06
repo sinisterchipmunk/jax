@@ -2,11 +2,7 @@ Jax.POINT_LIGHT       = 1;
 Jax.SPOT_LIGHT        = 2;
 Jax.DIRECTIONAL_LIGHT = 3;
 
-/*
-  FIXME Resource manager looks for an object in the global namespace, so using Jax.Scene.LightSource
-  instead of just LightSource results in a broken resource load.
- */
-var LightSource = Jax.Scene.LightSource = (function() {
+Jax.Scene.LightSource = (function() {
   function setupProjection(self) {
     if (self.camera.projection) return;
     

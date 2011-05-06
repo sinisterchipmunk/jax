@@ -33,8 +33,12 @@ Jax.Material = (function() {
         specular:[1,1,1,1],
         emissive: [0, 0, 0, 1.0],
         shininess: 10,
-        default_shader: options && options.name || Jax.default_shader
+        default_shader: Jax.default_shader
       });
+      options.ambient = Jax.Util.colorize(options.ambient);
+      options.diffuse = Jax.Util.colorize(options.diffuse);
+      options.specular = Jax.Util.colorize(options.specular);
+      options.emissive = Jax.Util.colorize(options.emissive);
 
       for (var i in options) { this[i] = options[i]; }
       this.option_properties = Jax.Util.properties(options);
@@ -55,6 +59,21 @@ Jax.Material = (function() {
           this.addTextureLayer(tex);
         }
         delete options.textures;
+      }
+      
+      if (options.layers) {
+        for (i = 0; i < options.layers.length; i++) {
+          if (options.layers[i].isKindOf && options.layers[i].isKindOf(Jax.Material))
+            this.addLayer(options.layers[i]);
+          else {
+            if (options.layers[i].type) {
+              var klass = Jax.Material[options.layers[i].type];
+              if (!klass) throw new Error("Could not find material layer type: "+options.layers[i].type);
+              delete options.layers[i].type;
+              this.addLayer(new klass(options.layers[i]));
+            }
+          }
+        }
       }
     },
     
@@ -275,6 +294,13 @@ Jax.Material.create = function(name, options) {
  **/
 Jax.Material.all = function() {
   return Jax.Util.properties(Jax.Material.instances);
+};
+
+Jax.Material.addResources = function(resources) {
+  for (var i in resources) {
+    if (Jax.Material.instances[i]) throw new Error("Duplicate material resource ID: "+i);
+    Jax.Material.create(i, resources[i]);
+  }
 };
 
 //= require "materials/texture"

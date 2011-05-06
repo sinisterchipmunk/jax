@@ -38,7 +38,7 @@ Jax.Util = {
   },
 
   /**
-   * Jax.Util.colorize(object) -> vec3
+   * Jax.Util.colorize(object) -> vec4
    * - object (Object): any Object
    *
    * Analyzes the input object and returns a 4-component color vector based on its contents. Input can be any of the

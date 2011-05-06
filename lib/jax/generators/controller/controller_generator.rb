@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module Controller
-      class ControllerGenerator < Thor::Group
+      class ControllerGenerator < Jax::Generators::Command
         include Thor::Actions
         argument :controller_name
         attr_reader :actions, :action_name
@@ -47,10 +47,6 @@ module Jax
         end
 
         protected
-        def self.banner
-          "jax generate controller #{self.arguments.map { |a| a.usage }.join(' ')}"
-        end
-
         def file_name
           controller_name.underscore
         end

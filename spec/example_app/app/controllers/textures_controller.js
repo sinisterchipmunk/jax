@@ -3,31 +3,9 @@
 var TexturesController = (function() {
   return Jax.Controller.create("textures", ApplicationController, {
     index: function() {
-      var tex_mat = new Jax.Material({
-        shininess: 30,
-        textures:[
-          {path:"/public/images/rock.png"},
-          {type:Jax.NORMAL_MAP,flip_y:true,path:"/public/images/rockNormal.png"}
-        ]
-      });
+      var tex_mat = Jax.Material.find("bricks");
       
-      this.world.addLightSource(new Jax.Scene.LightSource({
-        type: Jax.POINT_LIGHT,
-        position: [2,0,-15],
-        direction: [0,0,-1],
-        color: {
-          ambient: [0.2,0.2,0.2,1],
-          diffuse: [0.5,0.5,0.5,1],
-          specular:[0.2,0.2,0.2,1]
-        },
-        attenuation: {
-          constant: 0,
-          linear: 0.15,
-          quadratic: 0
-        },
-        shadowcaster: false
-      }));
-
+      this.world.addLightSource(Jax.Scene.LightSource.find("textures_point"));
       this.world.addObject(new Jax.Model({position:[0,0,-7.5],mesh: new Jax.Mesh.Quad({size:7.5,material:tex_mat})}));
     },
     
@@ -39,7 +17,7 @@ var TexturesController = (function() {
     
     update: function(tc) {
       var light = this.world.lighting.getLight(0).camera;
-      light.p = (light.p || 0) + tc * 1.0;
+      light.p = (light.p || 0) + tc;
       light.setPosition(Math.cos(light.p)*2.5, Math.sin(light.p)*2.5, -6.0);
     }
   });
