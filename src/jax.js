@@ -1,3 +1,5 @@
+//= require "jax/compatibility"
+
 /**
  * Jax
  * Root namespace containing all Jax data
