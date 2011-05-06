@@ -28,9 +28,9 @@ Jax.Material = (function() {
   return Jax.Class.create({
     initialize: function(options) {
       options = Jax.Util.normalizeOptions(options, {
-        diffuse: [0.8, 0.8, 0.8, 1.0],
-        ambient: [0.02, 0.02, 0.02, 1.0],
-        specular: [1.0, 1.0, 1.0, 1.0],
+        ambient: [1,1,1,1],
+        diffuse: [1,1,1,1],
+        specular:[1,1,1,1],
         emissive: [0, 0, 0, 1.0],
         shininess: 10,
         default_shader: options && options.name || Jax.default_shader

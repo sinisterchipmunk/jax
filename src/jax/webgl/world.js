@@ -76,9 +76,10 @@ Jax.World = (function() {
         /* ambient pass */
         for (i = 0; i < this.objects.length; i++) {
           if (this.objects[i].lit)
-            this.objects[i].render(this.context, lit);
+            ;//this.objects[i].render(this.context, lit);
           else this.objects[i].render(this.context, unlit);
         }
+        this.lighting.ambient(this.context, this.objects, lit);
       
         /* shadowgen pass */
         this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;

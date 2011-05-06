@@ -49,6 +49,18 @@ Jax.Scene.LightManager = (function() {
       delete this._current_light;
     },
     
+    ambient: function(context, objects, options) {
+      for (var i = 0; i < this._lights.length; i++) {
+        this._current_light = i;
+        for (var j = 0; j < objects.length; j++) {
+          /* TODO optimization: see if objects[j] is even affected by this._lights[i] (based on attenuation) */
+          if (objects[j].isLit())
+            objects[j].render(context, options);
+        }
+      }
+      delete this._current_light;
+    },
+    
     updateShadowMaps: function(context, objects) {
       var boundingRadius = null;
       var i, j;

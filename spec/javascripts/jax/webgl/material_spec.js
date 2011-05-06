@@ -50,11 +50,6 @@ describe("Jax.Material", function() {
 //      });
     });
   
-    it("should have light-gray diffuse", function() { expect(material.diffuse).toEqual([0.8,0.8,0.8, 1.0]);    });
-    it("should have dark-gray ambient",  function() { expect(material.ambient).toEqual([0.02,0.02,0.02, 1.0]); });
-    it("should have white specular",     function() { expect(material.specular).toEqual([1,1,1, 1.0]);         });
-    it("should have light-gray emissive",function() { expect(material.emissive).toEqual([0,0,0, 1.0]);         });
-    it("should have glossiness 10",      function() { expect(material.shininess).toEqual(10);                  });
     
 //    it("should use basic shader", function() {
 //      spyOn(material, 'prepareShader').andCallThrough();
