@@ -2,7 +2,7 @@ const float LOG2 = 1.442695;
 
 void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   float fog;
-  float distance = gl_FragCoord.z / gl_FragCoord.w;
+  float distance = length(gl_FragCoord.z / gl_FragCoord.w);
 
   if (Algorithm == <%=Jax.LINEAR%>) {
     fog = (End - distance) * Scale;

@@ -36,6 +36,20 @@ module Jax
               ]
             when 'ShadowMap'
               ['type: ShadowMap']
+            when 'Fog'
+              ['type: Fog',
+               'color:',
+               '  red:   1.0',
+               '  green: 1.0',
+               '  blue:  1.0',
+               '  alpha: 1.0',
+               'algorithm: EXP2',
+               '# start and end are used by algorithm LINEAR',
+               'start: 10.0',
+               'end: 100.0',
+               '# density is used by algorithms EXPONENTIAL and EXP2',
+               'density: 0.0015'
+              ]
             else raise ArgumentError, "Unexpected material processor type: "+name
           end.join("\n    ")
         end

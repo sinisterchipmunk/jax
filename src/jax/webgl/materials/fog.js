@@ -12,6 +12,13 @@ Jax.Material.Fog = Jax.Class.create(Jax.Material, {
       density: 0.0015,
       color:[1,1,1,1]
     });
+    options.color = Jax.Util.colorize(options.color);
+    options.color = [options.color[0],options.color[1],options.color[2],options.color[3]];
+    if (typeof(options.algorithm) == "string") {
+      var name = options.algorithm;
+      options.algorithm = Jax[name];
+      if (!options.algorithm) throw new Error("Jax: Fog algorithm must be one of LINEAR, EXPONENTIAL, or EXP2");
+    }
     $super(options);
   },
   

@@ -16,7 +16,9 @@ describe("Jax.Material", function() {
         "layers":[
           {"type":"Texture","path":"/public/images/rock.png","flip_y":false,"scale":1},
           {"type":"NormalMap","path":"/public/images/rockNormal.png","flip_y":false,"scale":1},
-          {"type":"ShadowMap"}
+          {"type":"ShadowMap"},
+          {"type":"Fog","algorithm":"EXP2","start":10.0,"end":100.0,"density":0.0015,
+            color:{"red":1.0,"green":1.0,"blue":1.0,"alpha":1.0}}
         ]
       });
     });
@@ -37,7 +39,7 @@ describe("Jax.Material", function() {
     it("should have the correct diffuse", function() { expect(material.diffuse).toEqualVector([0.2,0.3,0.4,0.5]); });
     it("should have the correct specular", function() { expect(material.specular).toEqualVector([0.6,0.7,0.8,0.9]); });
     it("should have the correct shininess", function() { expect(material.shininess).toEqual(128); });
-    it("should have 3 layers", function() { expect(material.layers.length).toEqual(3); });
+    it("should have 4 layers", function() { expect(material.layers.length).toEqual(4); });
     
     it("should have a texture map layer", function() {
       expect(material.layers[0].klass).toEqual(Jax.Material.Texture);
@@ -49,6 +51,10 @@ describe("Jax.Material", function() {
 
     it("should have a shadow map layer", function() {
       expect(material.layers[2].klass).toEqual(Jax.Material.ShadowMap);
+    });
+
+    it("should have a fog layer", function() {
+      expect(material.layers[3].klass).toEqual(Jax.Material.Fog);
     });
   });
 
