@@ -28,6 +28,8 @@ describe "Rake Tasks:" do
     File.open("config/routes.rb", "w") do |f|
       f.puts "TestApp.routes.map do\n  root 'welcome'\nmap 'another/index'\nend"
     end
+    FileUtils.mkdir_p "public/images"
+    FileUtils.touch "public/images/test.png"
   end
 
   after :all do
@@ -39,7 +41,11 @@ describe "Rake Tasks:" do
     before(:each) { rake('jax:package') }
     
     context "javascript" do
-      subject { File.read(File.expand_path('pkg/test_app.js')) }
+      subject { File.read(File.expand_path('pkg/javascripts/test_app.js')) }
+      
+      it "should install assets" do
+        File.should exist('pkg/images/test.png')
+      end
       
       it "should contain views" do
         subject.should =~ /Jax.views.push\('welcome\/index'/

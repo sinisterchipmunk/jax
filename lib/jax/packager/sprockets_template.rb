@@ -6,7 +6,12 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
   
   def template
     @template ||= begin
-      template = ['Jax.environment = Jax.PRODUCTION;']
+      template = [
+        'Jax.environment = Jax.PRODUCTION;',
+        '',
+        '//= provide "public/"',
+        ''
+      ]
       Dir[Jax.root.join("app/**/*.js")].each do |jsfi|
         if File.file?(jsfi)
           relative_path = jsfi.sub(/^#{Regexp::escape Jax.root.to_s}[\/\\]?/, '')

@@ -16,7 +16,7 @@ class Jax::Packager
       
       puts
       puts "Build complete! Package is available at: "
-      puts "    #{package.path}"
+      puts "    #{package.pkg_path}"
       puts
     end
   end
@@ -31,16 +31,18 @@ class Jax::Packager
     Jax::ResourceCompiler.new.save(file)
     Jax.application.routes.compile(file)
     file.close
+    
+    @secretary.install_assets
   end
   
   def initialize(pkg_path)
     @pkg_path = pkg_path
     @manifest = []
     
-    @path = File.join(@pkg_path, "#{Jax.application.class.name.underscore}.js")
+    @path = File.join(@pkg_path, "javascripts/#{Jax.application.class.name.underscore}.js")
     @secretary = Sprockets::Secretary.new(
             :root => Jax.root,
-#            :asset_root => "public",
+            :asset_root => @pkg_path.to_s,
             :load_path => [Jax.root.to_s],
             :source_files => []
     )
