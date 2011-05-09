@@ -189,6 +189,12 @@ Jax.Texture = (function() {
         colorspace_conversion: true,
         onload: null
       });
+      
+      var i;
+      var enums = ['min_filter', 'mag_filter', 'mipmap_hint', 'format', 'target', 'data_type', 'wrap_s', 'wrap_t'];
+      for (i = 0; i < enums.length; i++)
+        if (typeof(this.options[enums[i]]) == "string")
+          this.options[enums[i]] = window[this.options[enums[i]]];
 
       if (path_or_array) {
         if (typeof(path_or_array) == "string") {
@@ -200,7 +206,7 @@ Jax.Texture = (function() {
           var onload = function() { imageLoaded(self, true, this); };
           this.images = [];
           this.images.load_count = 0;
-          for (var i = 0; i < path_or_array.length; i++) {
+          for (i = 0; i < path_or_array.length; i++) {
             this.images[i] = new Image();
             this.images[i].onload = onload;
             this.images[i].onerror = this.images[i].onabort = function() { imageFailed(self, this); };

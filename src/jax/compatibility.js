@@ -5,6 +5,7 @@
 if (typeof(KeyEvent) == "undefined") {
   // KeyEvent constants taken from Firefox 3.6
   KeyEvent = {
+    fake: true,
     DOM_VK_CANCEL : 3,
     DOM_VK_HELP : 6,
     DOM_VK_BACK_SPACE : 8,

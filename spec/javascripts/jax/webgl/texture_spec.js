@@ -12,6 +12,31 @@ describe("Texture", function() {
     }); 
   };
   
+  describe("using strings instead of enums", function() {
+    // which is what happens when loaded from a resource
+    it("should detect enums", function() {
+      var tex = new Jax.Texture({
+        min_filter: 'GL_NEAREST',
+        mag_filter: 'GL_NEAREST',
+        mipmap_hint: 'GL_DONT_CARE',
+        format: 'GL_RGBA',
+        target: 'GL_TEXTURE_2D',
+        data_type: 'GL_UNSIGNED_BYTE',
+        wrap_s: 'GL_REPEAT',
+        wrap_t: 'GL_REPEAT'
+      });
+      
+      expect(tex.options.min_filter).toEqual(GL_NEAREST);
+      expect(tex.options.mag_filter).toEqual(GL_NEAREST);
+      expect(tex.options.mipmap_hint).toEqual(GL_DONT_CARE);
+      expect(tex.options.format).toEqual(GL_RGBA);
+      expect(tex.options.target).toEqual(GL_TEXTURE_2D);
+      expect(tex.options.data_type).toEqual(GL_UNSIGNED_BYTE);
+      expect(tex.options.wrap_s).toEqual(GL_REPEAT);
+      expect(tex.options.wrap_t).toEqual(GL_REPEAT);
+    });
+  });
+  
   describe("NPOT", function() {
     beforeEach(function() {
       tex = new Jax.Texture("/public/images/brickwall.jpg");

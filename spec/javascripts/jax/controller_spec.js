@@ -56,7 +56,7 @@ describe("Jax.Controller", function() {
       /* UIEvents - DOMActivate, DOMFocusIn, DOMFocusOut */
       /* KeyEvents / UIEvents - keydown, keypress, keyup */
       /* initUIEvent - type, bubbles, cancelable windowObject, detail */
-      if (window.KeyEvent) {
+      if (window.KeyEvent && !KeyEvent.fake) {
         evt = document.createEvent('KeyEvents');
         // type, bubbles, cancelable, windowObject, ctrlKey, altKey, shiftKey, metaKey, keyCode, charCode
         evt.initKeyEvent(type, true, true, window, false, false, false, false, 13, 0);
