@@ -11,7 +11,7 @@ describe("Material segment 'texture'", function() {
   afterEach(function() { context.dispose(); });
   
   it("should compile successfully", function() {
-    matr.addLayer(new Jax.Material.Texture(new Jax.Texture("/public/images/rss.png")));
+    matr.addLayer(new Jax.Material.Texture(new Jax.Texture("/images/rss.png")));
     
     new Jax.Mesh({material:matr}).render(context);
     expect(matr.prepareShader).toHaveBeenCalled();

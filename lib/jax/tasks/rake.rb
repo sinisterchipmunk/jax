@@ -1,32 +1,8 @@
 require 'rake'
 require 'jasmine'
+require File.expand_path('../monkeypatch/jasmine', File.dirname(__FILE__))
 
 include FileUtils
-
-module Jasmine
-  class RunAdapter
-    alias _run run
-    #noinspection RubyUnusedLocalVariable
-    def run(focused_suite = nil)
-      # regenerate volatile files
-      Rake::Task['jax:generated_files'].execute
-      
-      custom_file = Jax.root.join("spec/javascripts/support/spec_layout.html.erb")
-      return _run(focused_suite) if !File.file?(custom_file)
-      
-      # overridden method so that we can use a custom html file
-      jasmine_files = @jasmine_files
-      css_files = @jasmine_stylesheets + (@config.css_files || [])
-      js_files = @config.js_files(focused_suite)
-      body = ERB.new(File.read(custom_file)).result(binding)
-      [
-        200,
-        { 'Content-Type' => 'text/html' },
-        [body]
-      ]
-    end
-  end
-end
 
 namespace :jax do
   desc "Generate a standalone Web app"
@@ -40,7 +16,7 @@ namespace :jax do
                  File.join(Jax.root, 'public/javascripts/jax.js')
   end
   
-  task :generated_files do
+  task :generate_files do
     # resources
     Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
     
@@ -53,4 +29,4 @@ namespace :jax do
 end
 
 # make jasmine call gather_resources first, so that resources can be tested
-task :jasmine => 'jax:generated_files'
+task :jasmine => 'jax:generate_files'

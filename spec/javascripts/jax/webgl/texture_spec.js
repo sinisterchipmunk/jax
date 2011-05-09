@@ -1,5 +1,5 @@
 describe("Texture", function() {
-  var _img = "/public/images/rss.png";
+  var _img = "/images/rss.png";
   
   var c; // Jax context
   var tex;
@@ -39,7 +39,7 @@ describe("Texture", function() {
   
   describe("NPOT", function() {
     beforeEach(function() {
-      tex = new Jax.Texture("/public/images/brickwall.jpg");
+      tex = new Jax.Texture("/images/brickwall.jpg");
     });
     
     _it("should automatically use NPOT-compatible options", function() {

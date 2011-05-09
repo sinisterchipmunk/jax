@@ -23,7 +23,8 @@ describe("Jax.World", function() {
   describe("with lighting disabled", function() {
     beforeEach(function() { world.lighting.disable(); });
     
-    it("should default to the 'basic' material", function() {
+    // we no longer switch materials in Jax.World depending on lighting. "Basic" and "default" are the same, now.
+    xit("should default to the 'basic' material", function() {
       var model = new Jax.Model();
       world.addObject(model);
       expect(model).toDefaultToMaterial("basic", world);

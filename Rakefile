@@ -1,3 +1,7 @@
+# used to flag auto-compile. Just makes my life easier.
+$JAX_DEVELOPMENT = true
+$JAX_RAKE = true
+
 begin
   require 'bundler'
   Bundler::GemHelper.install_tasks
@@ -42,19 +46,7 @@ end
 #end
 
 load 'jasmine/tasks/jasmine.rake'
-
-module Jasmine
-  class RunAdapter
-    alias _run run
-    #noinspection RubyUnusedLocalVariable
-    def run(focused_suite = nil)
-      # overridden method so that we can run the Jax compile task before each request
-      # this way we don't have to regenerate every time we make a development change
-      Rake::Task['compile'].execute
-      _run(focused_suite)
-    end
-  end
-end
+require File.expand_path("lib/jax/monkeypatch/jasmine", File.dirname(__FILE__))
 
 desc "compile Jax"
 task :compile do

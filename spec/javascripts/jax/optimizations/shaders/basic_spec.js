@@ -1,6 +1,6 @@
 describe("Opt: Basic shader", function() {
   var model, context;
-  var _tex = "/public/images/rss.png", _norm = "/public/images/normal_map.jpg";
+  var _tex = "/images/rss.png", _norm = "/images/normal_map.jpg";
   
   beforeEach(function() {
     context = new Jax.Context('canvas-element');

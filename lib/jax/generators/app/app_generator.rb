@@ -65,6 +65,21 @@ module Jax
           
           insert_into_file 'spec/javascripts/support/jasmine.yml', "    - helpers/**/*.js",
                            :after => /^helpers\:\n/
+          
+          append_to_file 'spec/javascripts/support/jasmine.yml', [
+                  '',
+                  '# root_dir',
+                  '#',
+                  '# Root directory path. Files in this directory will be mounted in the web server\'s root ("/") path.',
+                  '# Default: project directory',
+                  '#',
+                  '# EXAMPLE:',
+                  '#',
+                  '# root_dir: public',
+                  '#',
+                  'root_dir: public',
+                  ''
+          ].join("\n")
         end
 
         def script_jax

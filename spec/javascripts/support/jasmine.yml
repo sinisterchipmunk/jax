@@ -11,7 +11,6 @@
 #   - dist/**/*.js
 #
 src_files:
-#    - dist/prototype.js
     - dist/jax.js
 #    - public/javascripts/**/*.js
 
@@ -73,3 +72,14 @@ src_dir:
 # spec_dir: spec/javascripts
 #
 spec_dir:
+
+# root_dir
+#
+# Root directory path. Files in this directory will be mounted in the web server's root ("/") path.
+# Default: project directory
+#
+# EXAMPLE:
+#
+# root_dir: public
+#
+root_dir: public

@@ -1,6 +1,6 @@
 describe("Jax.Material", function() {
   var material, context, mesh;
-  var _img = "/public/images/rss.png";
+  var _img = "/images/rss.png";
   
   beforeEach(function() { mesh = new Jax.Mesh(); context = new Jax.Context('canvas-element'); });
   afterEach(function() { context.dispose(); });
@@ -14,8 +14,8 @@ describe("Jax.Material", function() {
         "specular":{"red":0.6,"green":0.7,"blue":0.8,"alpha":0.9},
         "shininess":128,
         "layers":[
-          {"type":"Texture","path":"/public/images/rock.png","flip_y":false,"scale":1},
-          {"type":"NormalMap","path":"/public/images/rockNormal.png","flip_y":false,"scale":1},
+          {"type":"Texture","path":"/images/rock.png","flip_y":false,"scale":1},
+          {"type":"NormalMap","path":"/images/rockNormal.png","flip_y":false,"scale":1},
           {"type":"ShadowMap"},
           {"type":"Fog","algorithm":"EXP2","start":10.0,"end":100.0,"density":0.0015,
             color:{"red":1.0,"green":1.0,"blue":1.0,"alpha":1.0}}
@@ -61,7 +61,7 @@ describe("Jax.Material", function() {
   describe("with one texture specified by string", function() {
     beforeEach(function() { material = new Jax.Material({texture: _img}); });
     it("should have texture layer", function() {
-      expect(material.layers[0].texture.image.src).toMatch(/\/public\/images\/rss\.png$/);
+      expect(material.layers[0].texture.image.src).toMatch(/\/images\/rss\.png$/);
     });
   });
   
@@ -69,8 +69,8 @@ describe("Jax.Material", function() {
     beforeEach(function() { material = new Jax.Material({textures: [_img, _img]}); });
     
     it("should have 2 texture layers", function() {
-      expect(material.layers[0].texture.image.src).toMatch(/\/public\/images\/rss\.png$/);
-      expect(material.layers[1].texture.image.src).toMatch(/\/public\/images\/rss\.png$/);
+      expect(material.layers[0].texture.image.src).toMatch(/\/images\/rss\.png$/);
+      expect(material.layers[1].texture.image.src).toMatch(/\/images\/rss\.png$/);
     });
   });
   

@@ -23,12 +23,12 @@ shininess: 30
 
 layers:
   - type: Texture
-    path: "/public/images/rock.png"
+    path: "/images/rock.png"
     flip_y: false
     scale: 1
 
   - type: NormalMap
-    path: "/public/images/rockNormal.png"
+    path: "/images/rockNormal.png"
     flip_y: false
     scale: 1
 
