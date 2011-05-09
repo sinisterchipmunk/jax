@@ -1,10 +1,8 @@
-//= require "jax/compatibility"
-
 /**
  * Jax
  * Root namespace containing all Jax data
  **/
-var Jax = { };
+var Jax = { PRODUCTION: 1 };
 
 // note: the default_shader is used immediately after Jax.Material has been defined. So, most
 // likely the end user won't be able to customize it with the expected result. Materials created
@@ -15,6 +13,7 @@ var Jax = { };
 // expose it in any case.
 Jax.default_shader = "basic";
 
+//= require "jax/compatibility"
 //= require "jax/core"
 //= require "jax/anim_frame"
 //= require "jax/prototype/extensions"

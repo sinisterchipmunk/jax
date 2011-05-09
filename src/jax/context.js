@@ -218,7 +218,7 @@ Jax.Context = (function() {
   
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */
-      if (Jax.environment == "production") return; /* TODO expose Jax.environment to application */
+      if (Jax.environment == "production") return;
 
       var error = this.glGetError();
       if (error != GL_NO_ERROR)
