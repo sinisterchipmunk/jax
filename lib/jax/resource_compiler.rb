@@ -24,7 +24,7 @@ class Jax::ResourceCompiler
       model_name = File.basename(File.dirname(yml)).singularize
       resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
       resources[model_name] ||= {}
-      resources[model_name].merge!({ resource_id => camelize_keys(YAML::load(File.read(yml))) })
+      resources[model_name].merge!({ resource_id => camelize_keys(YAML::load(File.read(yml)) || {}) })
       resources
     end
   end
