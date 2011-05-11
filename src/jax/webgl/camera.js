@@ -213,11 +213,20 @@ Jax.Camera = (function() {
     },
 
     /**
-     * Jax.Camera#orient(viewVector, upVector[, positionVector]) -> undefined
+     * Jax.Camera#setDirection(vector) -> Jax.Camera
+     * - vector (vec3): the new direction that the camera will be pointing,
+     *                  in world space
+     **/
+    setDirection: function(vector) {
+      return this.orient(vector);
+    },
+
+    /**
+     * Jax.Camera#orient(viewVector, upVector[, positionVector]) -> Jax.Camera
      * - viewVector (vec3): the new direction that the camera will be pointing
      * - upVector (vec3): the new "up" direction perpendicular to the view
      * - positionVector (vec3): optionally, a new position for the camera
-     * Jax.Camera#orient(vx, vy, vz, ux, uy, uz[, px, py, pz]) -> undefined
+     * Jax.Camera#orient(vx, vy, vz, ux, uy, uz[, px, py, pz]) -> Jax.Camera
      * 
      * Reorients this camera to be looking in the specified direction.
      * Optionally, repositions this camera.
@@ -263,6 +272,7 @@ Jax.Camera = (function() {
       
       vec3.add(pos,view,view);
       this.lookAt(view, up, pos);
+      return this;
     },
     
     lookAt: function(point, up, pos) {
