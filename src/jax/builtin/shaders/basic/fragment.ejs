@@ -3,21 +3,25 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   
   vec3 nNormal = normalize(vNormal);
 
-  if (LIGHT.type == <%=Jax.DIRECTIONAL_LIGHT%>)
-    DirectionalLight(LIGHT, nNormal, ambient, diffuse, specular);
-  else
-    if (LIGHT.type == <%=Jax.POINT_LIGHT%>)
-      if (LIGHT.constant_attenuation == 1.0 && LIGHT.linear_attenuation == 0.0 && LIGHT.quadratic_attenuation == 0.0)
-        PointLightWithoutAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
-      else
-        PointLightWithAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
-  else
-    if (LIGHT.type == <%=Jax.SPOT_LIGHT%>)
-      SpotLight(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
-  else
-  { // error condition, output 100% red
-    gl_FragColor = vec4(1,0,0,1);
-    return;
+  if (LIGHTING_ENABLED) {
+    if (LIGHT.type == <%=Jax.DIRECTIONAL_LIGHT%>)
+      DirectionalLight(LIGHT, nNormal, ambient, diffuse, specular);
+    else
+      if (LIGHT.type == <%=Jax.POINT_LIGHT%>)
+        if (LIGHT.constant_attenuation == 1.0 && LIGHT.linear_attenuation == 0.0 && LIGHT.quadratic_attenuation == 0.0)
+          PointLightWithoutAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+        else
+          PointLightWithAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+    else
+      if (LIGHT.type == <%=Jax.SPOT_LIGHT%>)
+        SpotLight(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+    else
+    { // error condition, output 100% red
+      gl_FragColor = vec4(1,0,0,1);
+      return;
+    }
+  } else {
+    ambient = diffuse = specular = vec4(1,1,1,1);
   }
 
   // is this correct??

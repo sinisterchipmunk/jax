@@ -180,6 +180,7 @@ Jax.Material = (function() {
         materialSpecular: this.specular,
         materialShininess: this.shininess,
     
+        'LIGHTING_ENABLED': context.world.lighting.isEnabled() && !(options.unlit),
         'LIGHT.position': light.getPosition(),
         'LIGHT.direction': light.getDirection(),
         'LIGHT.ambient': light.getAmbientColor(),

@@ -70,12 +70,13 @@ Jax.World = (function() {
 
       this.context.current_pass = Jax.Scene.AMBIENT_PASS;
       this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      var unlit = {unlit:true};
       
       if (this.lighting.isEnabled()) {
         /* ambient pass */
         for (i = 0; i < this.objects.length; i++) {
           if (!this.objects[i].lit)
-            this.objects[i].render(this.context);
+            this.objects[i].render(this.context, unlit);
         }
         this.lighting.ambient(this.context, this.objects);
       
@@ -92,7 +93,7 @@ Jax.World = (function() {
         this.lighting.illuminate(this.context, this.objects);
       } else {
         for (i = 0; i < this.objects.length; i++)
-          this.objects[i].render(this.context);
+          this.objects[i].render(this.context, unlit);
       }
     },
     
