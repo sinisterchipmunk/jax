@@ -57,7 +57,8 @@ Jax.Util = {
    **/
   colorize: function(data) {
     if (data) {
-      var res = new glMatrixArrayType(4);
+      var res = [0,0,0,0];
+
       if (typeof(data) == "string") {
         var components = data.split(/[,\s]+/);
         if (components.length >= 3) {

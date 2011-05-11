@@ -1,5 +1,28 @@
 describe("Jax.Model", function() {
   var model;
+  
+  describe("as a resource", function() {
+    // do these things only once, because we're going to see how one model instance interacts with another
+    var klass, res_data = { "name": {one: { value : 1 } } };
+    klass = Jax.Model.create({});
+    klass.addResources(res_data);
+
+    beforeEach(function() {
+      model = klass.find("name");
+    });
+    
+    it("should find new resource instances instead of existing ones", function() {
+      model.two = 2;
+      model = klass.find("name");
+      expect(model.two).toBeUndefined();
+    });
+    
+    it("should not alter the original resource data", function() {
+      model.one.value = 2;
+      model = klass.find("name");
+      expect(model.one.value).not.toEqual(2);
+    });
+  });
     
   describe("without any custom methods", function() {
     beforeEach(function() {

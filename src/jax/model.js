@@ -4,6 +4,9 @@
  **/
 (function() {
   function initProperties(self, data) {
+    // to make sure sub-properties of data are standalone objects, so that the original data can't be tainted
+    data = Jax.Util.normalizeOptions(data, {});
+    
     var attribute;
         
     if (data) {
