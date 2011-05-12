@@ -39,25 +39,15 @@ end
 load 'jasmine/tasks/jasmine.rake'
 require File.expand_path("lib/jax/monkeypatch/jasmine", File.dirname(__FILE__))
 
+require File.join(File.dirname(__FILE__), "lib/jax")
+JAX_ROOT = File.dirname(__FILE__)
+# put a dummy Application in place
+class Development < Jax::Application
+end
+
+
 desc "compile Jax"
 task :compile do
-  require 'jax'
-
-  JAX_ROOT = File.dirname(__FILE__)
-  # put a dummy Application in place
-  class Development < Jax::Application
-  end
-
-
-  # generate the built-in shaders
-  # TODO since users will be able to add/edit their own shaders, why not bundle these shaders
-  # in the app itself and then drop this phase from the Jax build entirely?
-  shader_base = File.join(File.dirname(__FILE__), "tmp/shaders")
-  mkdir_p shader_base unless File.directory?(shader_base)
-  Jax.application.shaders.each do |shader|
-    shader.save_to(File.join(shader_base, "#{shader.name}.js"))
-  end
-  
   secretary = Sprockets::Secretary.new(
           :root => File.dirname(__FILE__),
           :asset_root => "public",
@@ -67,12 +57,11 @@ task :compile do
   rm_rf "dist"
   mkdir_p "dist"
   secretary.concatenation.save_to "dist/jax.js"
-  # note we can't just add sahders to the source_files because shaders use <% %> which sprockets also happens to use.
-  # TODO see if we can't just disable the <% %> in sprockets.
-  File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
-    Jax.application.shaders.each do |shader|
-      f.puts File.read(File.join(shader_base, "#{shader.name}.js"))
-    end
+
+  # generate the built-in shaders for testing against (these are not added to the real jax dist because they are
+  # regenerated in the user's app)
+  File.open(File.join(File.dirname(__FILE__), "tmp/shaders.js"), "a+") do |f|
+    Jax.application.shaders.each { |shader| shader.save_to f }
   end
 
   puts "generated #{File.expand_path "dist/jax.js", '.'}"
@@ -95,7 +84,6 @@ end
 namespace :doc do
   desc "build the Jax JavaScript documentation"
   task :js do
-    require File.join(File.dirname(__FILE__), "lib/jax")
     FileUtils.rm_rf 'doc'
     
     PDoc.run({

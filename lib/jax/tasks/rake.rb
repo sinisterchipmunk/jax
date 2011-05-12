@@ -21,6 +21,7 @@ namespace :jax do
     Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
     
     # routes
+    File.open("tmp/shaders.js", "w") { |file| Jax.application.shaders.each { |shader| shader.save_to file } }
     Jax.application.config.routes.reload!
     File.open(Jax.root.join("tmp/routes.js"), 'w') do |f|
       Jax.application.config.routes.compile(f)

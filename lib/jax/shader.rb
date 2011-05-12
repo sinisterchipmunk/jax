@@ -22,8 +22,11 @@ class Jax::Shader
     manifest && manifest['options'] || {}
   end
   
-  def save_to(filename)
-    File.open(filename, "w") { |f| f.puts to_s }
+  def save_to(file_or_filename)
+    if file_or_filename.kind_of?(String)
+      File.open(filename, "w") { |f| f.puts to_s }
+    else file_or_filename.puts to_s
+    end
   end
   
   class << self

@@ -28,8 +28,10 @@ class Jax::Packager
     @secretary.concatenation.save_to @path
     
     file = File.open(@path, "a")
+    Jax.application.shaders.each { |shader| shader.save_to file }
     Jax::ResourceCompiler.new.save(file)
     Jax.application.routes.compile(file)
+    
     file.close
     
     @secretary.install_assets

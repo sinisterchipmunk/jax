@@ -12,7 +12,7 @@
 #
 src_files:
     - dist/jax.js
-#    - public/javascripts/**/*.js
+    - tmp/shaders.js
 
 # stylesheets
 #
