@@ -1,5 +1,18 @@
 /* Defines constants, functions, etc. that may exist in one browser but not in another */
 
+/*
+  Object.keys defined only in the newest browsers. If they're going to fail, let them fail due to HTML5 incompatibility
+  and not standards compat.
+ */
+if (!Object.keys) {
+  Object.keys = function(object) {
+    var arr = [];
+    for (var i in object)
+      arr.push(i);
+    return arr;
+  };
+}
+
 
 /* KeyEvent in Firefox contains various keyCode constants, but they are missing in Chrome. */
 if (typeof(KeyEvent) == "undefined") {
