@@ -10,7 +10,7 @@ EXPECTED_FILES = %w(
   config/application.rb
   config/routes.rb 
   config/boot.rb
-  public/       
+  public/webgl_not_supported.html       
   script/jax
   spec/javascripts/helpers/SpecHelper.js
   spec/javascripts/support/jasmine.yml

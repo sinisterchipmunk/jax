@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>WebGL is not supported!</title>
+  </head>
+  <body>
+    <h1>Uh-oh!</h1>
+    
+    <p>
+      Unfortunately, WebGL appears to be unavailable! Please verify that you have the latest release of a WebGL-compatible
+      browser such as <a href="http://www.firefox.com">FireFox 4.0</a> or <a href="http://chrome.google.com">Chrome 11</a>.
+    </p>
+  
+    <p>
+      If you are certain you already have a WebGL-compatible browser, please verify that WebGL is enabled and supported
+      by your system. You could also try upgrading to your graphics drivers to the latest version.
+    </p>
+  
+    <h2>Your Browser Information</h2>
+
+    <script type="text/javascript">
+      var fields = ['appCodeName', 'appName', 'appVersion', 'cookieEnabled', 'platform', 'userAgent'];
+      for (var i = 0; i < fields.length; i++)
+        document.writeln("<p>"+fields[i]+": "+navigator[fields[i]]+"</p>");
+    </script>
+  </body>
+</html>

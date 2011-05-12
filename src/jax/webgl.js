@@ -24,7 +24,12 @@ window['GL_METHODS'] = {};
   }
   body.appendChild(canvas);
 
-  var gl = canvas.getContext(WEBGL_CONTEXT_NAME);
+  try {
+    var gl = canvas.getContext(WEBGL_CONTEXT_NAME);
+  } catch(e) {
+    document.location.pathname = "/webgl_not_supported.html";
+    throw new Error("WebGL is disabled or not supported by this browser!");
+  }
 
   if (gl) {
     for (var method_name in gl)
