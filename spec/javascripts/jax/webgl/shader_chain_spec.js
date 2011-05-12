@@ -65,7 +65,7 @@ describe("Jax.ShaderChain", function() {
     var prefix;
     beforeEach(function() {
       prefix = chain.addShader(new Jax.Shader({
-                                      vertex:"uniform float TextureScaleX; void main(void) { float f = TextureScaleX; }",
+                                      vertex:"uniform float TextureScaleX; void main(void) { float f = TextureScaleX; gl_Position = vec4(0,0,0,1); }",
                                       fragment:"void main(void) { }",name:"one"
       }));
     });
@@ -97,7 +97,7 @@ describe("Jax.ShaderChain", function() {
   describe("with a shader that exports", function() {
     describe("and a shader that imports", function() {
       beforeEach(function() {
-        chain.addShader(new Jax.Shader({vertex:"uniform int x; void main(void) { vec3 p; _shader_position = p; }",
+        chain.addShader(new Jax.Shader({vertex:"uniform int x; void main(void) { vec3 p; _shader_position = p;  gl_Position = vec4(0,0,0,1); }",
                                         fragment:"void main(void) { vec4 a; _shader_ambient = a; }",
                                         exports:{"ambient":"vec4", "position":"vec3"},
                                         name:"one"}));
