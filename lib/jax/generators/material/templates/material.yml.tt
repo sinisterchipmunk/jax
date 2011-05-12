@@ -20,8 +20,11 @@ specular:
   alpha: 1.0
 
 shininess: 30
-<%if !chain.empty?%>
-layers:<%chain.each do |n|%>
-  - <%=default_options(n)%>
-<%end%>
-<%end%>
+
+<%if !chain.empty? -%>
+layers:
+  <%- chain.each do |n| -%>
+  - type: <%=shader(n).name.camelize%>
+    <%=shader(n).default_options.to_yaml.lines.to_a[1..-1].join("    ")%>
+  <%- end -%>
+<%end-%>

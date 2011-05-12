@@ -1,15 +1,25 @@
 class Jax::Shader
   attr_reader :common, :fragment, :vertex
-  attr_accessor :name, :path, :exports
+  attr_accessor :name, :path, :exports, :manifest
   
-  def initialize(path)
+  def initialize(path, name = File.basename(path))
     @exports = {}
-    @name = File.basename(path)
-    @path = File.dirname(path)
+    @name = name
+    @path = path
+    
+    detect_sources
+  end
+  
+  def description
+    manifest && manifest['description']
   end
   
   def to_s
     "Jax.shaders['#{name}'] = new Jax.Shader(#{js_options.gsub(/<%/, '<%')});"
+  end
+  
+  def default_options
+    manifest && manifest['options'] || {}
   end
   
   def save_to(filename)
@@ -19,13 +29,7 @@ class Jax::Shader
   class << self
     def from(path)
       raise ArgumentError, "Expected path to be a directory" unless File.directory? path
-      shader = new(path)
-      %w(common fragment vertex).each do |name|
-        if File.file?(file = File.join(path, "#{name}.ejs"))
-          shader.send("#{name}=", File.read(file))
-        end
-      end
-      shader
+      new(path)
     end
   end
   
@@ -51,6 +55,26 @@ class Jax::Shader
   end
   
   private
+  def detect_sources
+    detect_ejs
+    detect_manifest
+  end
+  
+  def detect_manifest
+    if File.file?(file = File.join(path, "manifest.yml"))
+      yml = YAML::load(File.read(file))
+      @manifest = yml || {}
+    end
+  end
+  
+  def detect_ejs
+    %w(common fragment vertex).each do |name|
+      if File.file?(file = File.join(path, "#{name}.ejs"))
+        send("#{name}=", File.read(file))
+      end
+    end
+  end
+  
   def intercept_import_directives(str)
     str.gsub! /import\s*\(\s*([^\s]*)\s*\)/ do
       export_name($~[1])
@@ -90,7 +114,7 @@ class Jax::Shader
   def include_dependencies(str)
     # look for Sprockets-style require directives
     str.gsub! /\/\/=\s*require\s*['"]([^'"]*)['"]/m do |sub|
-      File.read(File.join(@path, "#{$~[1]}.ejs")) + "\n"
+      File.read(File.join(path, "#{$~[1]}.ejs")) + "\n"
     end
   end
   

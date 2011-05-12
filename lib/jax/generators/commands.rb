@@ -2,6 +2,7 @@
 
 require 'thor'
 require 'thor/group'
+require File.expand_path('../../jax', File.dirname(__FILE__))
 
 module Jax
   module Generators
@@ -21,7 +22,8 @@ module Jax
         
         def start(given_args=ARGV, config={})
           if (given_args.length == 0)
-            puts File.read(File.expand_path("USAGE", base_path))
+            usage = ERB.new(File.read(File.expand_path("USAGE", base_path)), nil, '-')
+            puts usage.result(binding)
           else
             super
           end

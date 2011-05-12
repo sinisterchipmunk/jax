@@ -22,3 +22,7 @@ module Jax
     end
   end
 end
+
+if defined?(APP_PATH) && Jax.application.nil?
+  require APP_PATH
+end

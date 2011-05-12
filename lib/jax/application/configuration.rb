@@ -3,7 +3,11 @@ class Jax::Application::Configuration
   
   def initialize
     @view_paths = ['app/views']
-    @root = nil
+    if defined?(JAX_ROOT)
+      @root = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? Pathname.new(JAX_ROOT).expand_path : Pathname.new(JAX_ROOT).realpath
+    else
+      @root = nil
+    end
   end
   
   def routes
@@ -12,5 +16,12 @@ class Jax::Application::Configuration
       Jax::Routes.load!
     end
     @routes
+  end
+  
+  def shader_load_paths
+    @shader_load_paths ||= [
+      File.expand_path('../../../builtin/shaders', File.dirname(__FILE__)),
+      "app/shaders"
+    ]
   end
 end

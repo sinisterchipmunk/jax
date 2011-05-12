@@ -304,11 +304,11 @@ Jax.Material.addResources = function(resources) {
   }
 };
 
-//= require "materials/texture"
-//= require "materials/normal_map"
-//= require "materials/shadow_map"
-//= require "materials/dual_paraboloid"
-//= require "materials/fog"
+//= require "../../../builtin/shaders/texture/material"
+//= require "../../../builtin/shaders/normal_map/material"
+//= require "../../../builtin/shaders/shadow_map/material"
+//= require "../../../builtin/shaders/paraboloid-depthmap/material"
+//= require "../../../builtin/shaders/fog/material"
 
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});

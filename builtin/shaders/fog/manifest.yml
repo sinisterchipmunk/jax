@@ -1,0 +1,12 @@
+description: A fog effect.
+
+options:
+  color:
+    red: 1.0
+    green: 1.0
+    blue: 1.0
+    alpha: 1.0
+  algorithm: EXP2
+  start: 10.0
+  end: 100.0
+  density: 0.0015

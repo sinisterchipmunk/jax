@@ -36,45 +36,42 @@ rescue LoadError
   require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
 end
 
-# get projects that aren't gems or git repos
-#gl_matrix = File.expand_path("vendor/glMatrix-0.9.5.js", File.dirname(__FILE__))
-#if !File.file?(gl_matrix)
-#  require 'open-uri'
-#  open("http://glmatrix.googlecode.com/files/glMatrix-0.9.5.min.js") do |i|
-#    File.open(gl_matrix, "w") { |o| o.print i.read }
-#  end
-#end
-
 load 'jasmine/tasks/jasmine.rake'
 require File.expand_path("lib/jax/monkeypatch/jasmine", File.dirname(__FILE__))
 
 desc "compile Jax"
 task :compile do
   require 'jax'
+
+  JAX_ROOT = File.dirname(__FILE__)
+  # put a dummy Application in place
+  class Development < Jax::Application
+  end
+
+
   # generate the built-in shaders
   # TODO since users will be able to add/edit their own shaders, why not bundle these shaders
   # in the app itself and then drop this phase from the Jax build entirely?
-  shaders = Dir[File.expand_path("src/jax/builtin/shaders/*", File.dirname(__FILE__))]
-  shaders.each do |path|
-    next unless File.directory? path
-    Jax::Shader.from(path).save_to(File.join(File.dirname(__FILE__), "src/generated", "#{File.basename(path)}.js"))
+  shader_base = File.join(File.dirname(__FILE__), "tmp/shaders")
+  mkdir_p shader_base unless File.directory?(shader_base)
+  Jax.application.shaders.each do |shader|
+    shader.save_to(File.join(shader_base, "#{shader.name}.js"))
   end
   
   secretary = Sprockets::Secretary.new(
           :root => File.dirname(__FILE__),
           :asset_root => "public",
           :load_path => ["src"],
-          :source_files => ["src/jax.js"]
+          :source_files => ["src/jax.js", "builtin/**/*.js"]
   )
   rm_rf "dist"
   mkdir_p "dist"
   secretary.concatenation.save_to "dist/jax.js"
   # note we can't just add sahders to the source_files because shaders use <% %> which sprockets also happens to use.
   # TODO see if we can't just disable the <% %> in sprockets.
-  shaders.each do |path|
-    File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
-      next unless File.directory? path
-      f.puts File.read(File.join(File.dirname(__FILE__), "src/generated", "#{File.basename(path)}.js"))
+  File.open(File.join(File.dirname(__FILE__), "dist/jax.js"), "a+") do |f|
+    Jax.application.shaders.each do |shader|
+      f.puts File.read(File.join(shader_base, "#{shader.name}.js"))
     end
   end
 

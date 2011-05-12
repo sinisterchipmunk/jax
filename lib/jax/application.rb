@@ -43,6 +43,36 @@ module Jax
     delegate :config, :to => "self.class"
     delegate :root, :to => :config
     delegate :routes, :to => :config
+    
+    def shaders
+      @shaders ||= begin
+        shaders = []
+
+        shader_paths.each do |name, path|
+          shaders << Jax::Shader.from(path)
+        end
+        
+        def shaders.find(name)
+          select { |s| s.name == name }.first
+        end
+
+        shaders
+      end
+    end
+    
+    def shader_paths
+      shader_paths = {}
+      config.shader_load_paths.each do |path|
+        full_path = File.directory?(path) ? path : File.expand_path(path, config.root)
+        glob = File.join(full_path, "*/{fragment,vertex}.ejs")
+        Dir[glob].each do |dir|
+          shader_base = File.dirname(dir)
+          shader_name = File.basename(shader_base)
+          shader_paths[shader_name] = shader_base
+        end
+      end
+      shader_paths
+    end
 
     def find_root_with_flag(flag, default=nil)
       root_path = self.class.called_from
