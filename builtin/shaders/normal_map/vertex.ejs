@@ -24,23 +24,23 @@ void main(void) {
   
   vAttenuation = 1.0;
   
-  if (LIGHT.type == <%=Jax.POINT_LIGHT%>)
-    if (LIGHT.constant_attenuation == 1.0 && LIGHT.linear_attenuation == 0.0 && LIGHT.quadratic_attenuation == 0.0) {
+  if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>)
+    if (LIGHT_ATTENUATION_CONSTANT == 1.0 && LIGHT_ATTENUATION_LINEAR == 0.0 && LIGHT_ATTENUATION_QUADRATIC == 0.0) {
       // no change to attenuation, but we still need P
-      p = vec3(ivMatrix * vec4(LIGHT.position, 1.0)) - ecPosition;
+      p = vec3(ivMatrix * vec4(LIGHT_POSITION, 1.0)) - ecPosition;
     }
     else {
       // attenuation calculation figures out P for us, so we may as well use it
-      vAttenuation = calcAttenuation(LIGHT, ecPosition, p);
+      vAttenuation = calcAttenuation(ecPosition, p);
     }
   else
-    if (LIGHT.type == <%=Jax.SPOT_LIGHT%>) {
+    if (LIGHT_TYPE == <%=Jax.SPOT_LIGHT%>) {
       // attenuation calculation figures out P for us, so we may as well use it
-      vAttenuation = calcAttenuation(LIGHT, ecPosition, p);
+      vAttenuation = calcAttenuation(ecPosition, p);
     }
     else
     { // directional light -- all we need is P
-      p = vec3(vnMatrix * -normalize(LIGHT.direction));
+      p = vec3(vnMatrix * -normalize(LIGHT_DIRECTION));
     }
     
     

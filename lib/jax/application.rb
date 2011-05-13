@@ -45,7 +45,7 @@ module Jax
     delegate :routes, :to => :config
     
     def shaders
-      @shaders ||= begin
+#      @shaders ||= begin
         shaders = []
 
         shader_paths.each do |name, path|
@@ -57,7 +57,7 @@ module Jax
         end
 
         shaders
-      end
+#      end
     end
     
     def shader_paths

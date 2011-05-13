@@ -4,17 +4,17 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   vec3 nNormal = normalize(vNormal);
 
   if (LIGHTING_ENABLED) {
-    if (LIGHT.type == <%=Jax.DIRECTIONAL_LIGHT%>)
-      DirectionalLight(LIGHT, nNormal, ambient, diffuse, specular);
+    if (LIGHT_TYPE == <%=Jax.DIRECTIONAL_LIGHT%>)
+      DirectionalLight(nNormal, ambient, diffuse, specular);
     else
-      if (LIGHT.type == <%=Jax.POINT_LIGHT%>)
-        if (LIGHT.constant_attenuation == 1.0 && LIGHT.linear_attenuation == 0.0 && LIGHT.quadratic_attenuation == 0.0)
-          PointLightWithoutAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+      if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>)
+        if (LIGHT_ATTENUATION_CONSTANT == 1.0 && LIGHT_ATTENUATION_LINEAR == 0.0 && LIGHT_ATTENUATION_QUADRATIC == 0.0)
+          PointLightWithoutAttenuation(vSurfacePos, nNormal, ambient, diffuse, specular);
         else
-          PointLightWithAttenuation(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+          PointLightWithAttenuation(vSurfacePos, nNormal, ambient, diffuse, specular);
     else
-      if (LIGHT.type == <%=Jax.SPOT_LIGHT%>)
-        SpotLight(LIGHT, vSurfacePos, nNormal, ambient, diffuse, specular);
+      if (LIGHT_TYPE == <%=Jax.SPOT_LIGHT%>)
+        SpotLight(vSurfacePos, nNormal, ambient, diffuse, specular);
     else
     { // error condition, output 100% red
       gl_FragColor = vec4(1,0,0,1);

@@ -60,7 +60,8 @@ task :compile do
 
   # generate the built-in shaders for testing against (these are not added to the real jax dist because they are
   # regenerated in the user's app)
-  File.open(File.join(File.dirname(__FILE__), "tmp/shaders.js"), "a+") do |f|
+  rm File.join(File.dirname(__FILE__), "tmp/shaders.js")
+  File.open(File.join(File.dirname(__FILE__), "tmp/shaders.js"), "w") do |f|
     Jax.application.shaders.each { |shader| shader.save_to f }
   end
 

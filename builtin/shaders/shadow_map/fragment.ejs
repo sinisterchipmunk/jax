@@ -40,7 +40,7 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   
   float visibility = 1.0;
   float s = vShadowCoord.z / vShadowCoord.w;
-  if (LIGHT.type == <%=Jax.POINT_LIGHT%>) {
+  if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
     visibility = dp_lookup();
   } else {
     if (!SHADOWMAP_PCF_ENABLED)
@@ -56,19 +56,6 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
     }
   }
 
-//  if (vDPz > 0.0) {
-//    diffuse = texture2D(SHADOWMAP0, vDP0.xy);
-//  } else {
-//    diffuse = texture2D(SHADOWMAP1, vDP1.xy);
-//  }
-//  specular = vec4(0);
-
   diffuse *= visibility;
   specular *= visibility;
-
-//diffuse = vec4(vShadowCoord.xy/vShadowCoord.w, 0, 1);
-//diffuse = max(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)), texture2D(SHADOWMAP1, (vShadowCoord.xy/vShadowCoord.w)));
-//  diffuse  = vec4(visibility);
-//  specular = vec4(0);
-//  specular *= visibility;
 }
