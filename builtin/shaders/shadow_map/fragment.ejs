@@ -4,12 +4,12 @@ float dp_lookup() {
   float map_depth, depth;
   vec4 rgba_depth;
       
-  if (vDPz > 0.0) {
+  if (vDP0.w > 0.0) {
     rgba_depth = texture2D(SHADOWMAP0, vDP0.xy);
-    depth = vDPDepth;//P0.z;
+    depth = vDP1.w;//P0.z;
   } else {
     rgba_depth = texture2D(SHADOWMAP1, vDP1.xy);
-    depth = vDPDepth;//P1.z;
+    depth = vDP1.w;//P1.z;
   }
       
       
@@ -30,28 +30,33 @@ float pcf_lookup(float s, vec2 offset) {
     shadowed because it has a greater depth. Less-or-equal depth means it's either in front of, or it *is*
     the light-visible surface.
   */
-  float d = unpack_depth(texture2D(SHADOWMAP0, (vShadowCoord.xy/vShadowCoord.w)+offset));
+  vec2 texcoord = (vShadowCoord.xy/vShadowCoord.w)+offset;
+  vec4 rgba_depth = texture2D(SHADOWMAP0, texcoord);
+  float d = unpack_depth(rgba_depth);
   return (s - d > 0.00002) ? 0.0 : 1.0;
 }
 
 void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
 //ambient = vec4(0);
   if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%> || !SHADOWMAP_ENABLED) return;
-  
   float visibility = 1.0;
   float s = vShadowCoord.z / vShadowCoord.w;
   if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
     visibility = dp_lookup();
   } else {
+    vec2 offset = vec2(0.0, 0.0);
     if (!SHADOWMAP_PCF_ENABLED)
-      visibility = pcf_lookup(s, vec2(0.0,0.0));
+      visibility = pcf_lookup(s, offset);
     else {
-      /* do PCF filtering */
+      // do PCF filtering
       float dx, dy;
       visibility = 0.0;
       for (float dx = -1.5; dx <= 1.5; dx += 1.0)
-        for (float dy = -1.5; dy <= 1.5; dy += 1.0)
-          visibility += pcf_lookup(s, vec2(dx/2048.0, dy/2048.0));
+        for (float dy = -1.5; dy <= 1.5; dy += 1.0) {
+          offset.x = dx/2048.0;
+          offset.y = dy/2048.0;
+          visibility += pcf_lookup(s, offset);
+        }
       visibility /= 16.0;
     }
   }
