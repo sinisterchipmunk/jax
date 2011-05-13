@@ -64,9 +64,21 @@ Jax.ShaderChain = (function() {
       
       if (!program.linked) {
         var master = this.getMasterShader();
+        
+        var numVaryings = this.countVaryings(material),
+            numUniforms = this.countUniforms(material),
+            numAttributes = this.countAttributes(material);
+        
+        if (numVaryings > Jax.Shader.max_varyings)
+          throw new RangeError("Varyings ("+numVaryings+") exceed maximum number of varyings ("+Jax.Shader.max_varyings+") supported by GPU! Try using a shorter chain.");
+        if (numUniforms > Jax.Shader.max_uniforms)
+          throw new RangeError("Uniforms ("+numUniforms+") exceed maximum number of uniforms ("+Jax.Shader.max_uniforms+") supported by GPU! Try using a shorter chain.");
+        if (numAttributes > Jax.Shader.max_attributes)
+          throw new RangeError("Attributes ("+numAttributes+") exceed maximum number of attributes ("+Jax.Shader.max_attributes+") supported by GPU! Try using a shorter chain.");
+
         master.setVertexSource(this.getVertexSource(material));
         master.setFragmentSource(this.getFragmentSource(material));
-
+        
         program = $super(context, material);
       }
       
@@ -183,6 +195,21 @@ Jax.ShaderChain = (function() {
       }
       return map;
     },
+    
+    countVariables: function(scope, options) {
+      var map = this.getInputMap(options);
+      var count = 0;
+      for (var i in map) {
+        if (map[i].scope == scope) count++;
+      }
+      return count;
+    },
+    
+    countVaryings: function(options) { return this.countVariables("varying", options); },
+    
+    countAttributes: function(options) { return this.countVariables("attribute", options); },
+    
+    countUniforms: function(options) { return this.countVariables("uniform", options); },
     
     gatherExports: function() {
       var result = {};

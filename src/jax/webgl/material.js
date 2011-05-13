@@ -25,6 +25,21 @@ Jax.Material = (function() {
       self.previous.subshaders[i] = self.layers[i].getName();
   }
   
+  function instantiate_layer(options) {
+    if (options.isKindOf && options.isKindOf(Jax.Material))
+      return options;
+    else {
+      if (options.type) {
+        var klass = Jax.Material[options.type];
+        if (!klass) throw new Error("Could not find material layer type: "+options.type);
+        delete options.type;
+        return new klass(options);
+      }
+      else
+        throw new Error("Could not create layer: property 'type' was missing!");
+    }
+  }
+  
   return Jax.Class.create({
     initialize: function(options) {
       options = Jax.Util.normalizeOptions(options, {
@@ -63,16 +78,7 @@ Jax.Material = (function() {
       
       if (options.layers) {
         for (i = 0; i < options.layers.length; i++) {
-          if (options.layers[i].isKindOf && options.layers[i].isKindOf(Jax.Material))
-            this.addLayer(options.layers[i]);
-          else {
-            if (options.layers[i].type) {
-              var klass = Jax.Material[options.layers[i].type];
-              if (!klass) throw new Error("Could not find material layer type: "+options.layers[i].type);
-              delete options.layers[i].type;
-              this.addLayer(new klass(options.layers[i]));
-            }
-          }
+          this.addLayer(instantiate_layer(options.layers[i]));
         }
       }
     },
@@ -92,6 +98,7 @@ Jax.Material = (function() {
     },
     
     addLayer: function(layer) {
+      if (!layer.option_properties) layer = instantiate_layer(layer);
       this.layers.push(layer);
 
       for (var i = 0; i < layer.option_properties.length; i++) {
@@ -220,9 +227,27 @@ Jax.Material = (function() {
       this.lights = context.world.lighting._lights;
       this.light_count = context.world.lighting._lights.length;
       
-      var shader = this.prepareShader(context);
-      
-      shader.render(context, mesh, this, options);
+      try {
+        var shader = this.prepareShader(context);
+        
+        shader.render(context, mesh, this, options);
+      } catch(error) {
+        if (error instanceof RangeError) {
+          // we've hit hardware limits. Back off a layer. If we are down to no layers, raise a coherent error.
+          if (this.layers.length > 0) {
+            var message = "WARNING: Hardware limits reached, removing material layer '"+name+"' (original message: "+error+")";
+
+            if (window.console)
+              console.log(message);
+            else
+              setTimeout(function() { throw new Error(message); }, 1);
+            
+            this.layers.pop();
+            this.render(context, mesh, options);
+          }
+          else throw error;
+        }
+      }
     },
     
     /**
@@ -233,6 +258,8 @@ Jax.Material = (function() {
     isChanged: function() {
       if (!this.previous) return true;
 
+      if (this.previous.subshaders.length != this.layers.length) return true;
+      
       for (var i = 0; i < this.layers.length; i++)
         if (this.previous.subshaders[i] != this.layers[i].getName())
           return true;

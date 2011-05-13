@@ -28,7 +28,7 @@ window['GL_METHODS'] = {};
     var gl = canvas.getContext(WEBGL_CONTEXT_NAME);
   } catch(e) {
     document.location.pathname = "/webgl_not_supported.html";
-    throw new Error("WebGL is disabled or not supported by this browser!");
+    throw new Error("WebGL is disabled or is not supported by this browser!");
   }
 
   if (gl) {
@@ -71,23 +71,28 @@ window['GL_METHODS'] = {};
     }
 
     /* define some extra globals that the above didn't generate */
-    window['GL_MAX_VERTEX_ATTRIBS'] = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+//    window['GL_MAX_VERTEX_ATTRIBS'] = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
     window['GL_DEPTH_COMPONENT'] = gl.DEPTH_COMPONENT || gl.DEPTH_COMPONENT16;
     window['GL_TEXTURES'] = [];
     for (i = 0; i < 32; i++) window['GL_TEXTURES'][i] = gl["TEXTURE"+i];
     window['GL_MAX_ACTIVE_TEXTURES'] = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   }
-  
+
+  /* import other webgl files */
+  /*
+    note that because of the positioning here, all files in the webgl/ subdirectory will have access to a
+    private, temporary 'gl' context which will be unloaded after they have been loaded into memory.
+   */
+  //= require "webgl/shader_chain"
+  //= require "webgl/material"
+  //= require "webgl/mesh"
+  //= require "webgl/camera"
+  //= require "webgl/world"
+  //= require "webgl/texture"
+
   /* clean up after ourselves */
   if (temporaryBody)
     body.parentNode.removeChild(body);
+  else
+    body.removeChild(canvas);
 })();
-
-/* import other webgl files */
-
-//= require "webgl/shader_chain"
-//= require "webgl/material"
-//= require "webgl/mesh"
-//= require "webgl/camera"
-//= require "webgl/world"
-//= require "webgl/texture"
