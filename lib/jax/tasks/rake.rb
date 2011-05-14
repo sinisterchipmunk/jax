@@ -14,6 +14,7 @@ namespace :jax do
   task :update do
     FileUtils.cp File.join(File.dirname(__FILE__), "../../../lib/jax/generators/app/templates/public/javascripts/jax.js"),
                  File.join(Jax.root, 'public/javascripts/jax.js')
+    puts "Jax updated at public/javascripts/jax.js !"
   end
   
   task :generate_files do
