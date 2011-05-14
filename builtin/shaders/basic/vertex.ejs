@@ -7,7 +7,6 @@ void main(void) {
   vNormal = nMatrix * VERTEX_NORMAL;
   vTexCoords = VERTEX_TEXCOORDS;
                           
-  vLightDir = normalize(vnMatrix * -normalize(LIGHT_DIRECTION));
   vSurfacePos = (mvMatrix * VERTEX_POSITION).xyz;
 
   gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;

@@ -129,9 +129,13 @@ Jax.Material = (function() {
     },
     
     addShadersToChain: function(chain) {
-      this.shader_variable_prefix = chain.addShader(this.shader || this.default_shader);
+      this.shader_variable_prefix = chain.addShader(this.getBaseShader());
       for (var i = 0; i < this.layers.length; i++)
         this.layers[i].addShadersToChain(chain);
+    },
+    
+    getBaseShader: function() {
+      return (this.shader || this.default_shader);
     },
     
     /**
@@ -168,7 +172,6 @@ Jax.Material = (function() {
     setAttributes: function(context, mesh, options, attributes) { },
     
     setShaderVariables: function(context, mesh, options, manifest) {
-      var light = context.world.lighting.getLight();
       manifest.variable_prefix = this.shader_variable_prefix;
 
       manifest.set({
@@ -185,21 +188,7 @@ Jax.Material = (function() {
         materialAmbient: this.ambient,
         materialDiffuse: this.diffuse,
         materialSpecular: this.specular,
-        materialShininess: this.shininess,
-    
-        LIGHTING_ENABLED: context.world.lighting.isEnabled() && !(options.unlit),
-        LIGHT_POSITION: light.getPosition(),
-        LIGHT_DIRECTION: light.getDirection(),
-        LIGHT_AMBIENT: light.getAmbientColor(),
-        LIGHT_DIFFUSE: light.getDiffuseColor(),
-        LIGHT_SPECULAR: light.getSpecularColor(),
-        LIGHT_ATTENUATION_CONSTANT: light.getConstantAttenuation(),
-        LIGHT_ATTENUATION_LINEAR: light.getLinearAttenuation(),
-        LIGHT_ATTENUATION_QUADRATIC: light.getQuadraticAttenuation(),
-        LIGHT_SPOT_EXPONENT: light.getSpotExponent(),
-        LIGHT_SPOT_COS_CUTOFF: light.getSpotCosCutoff(),
-        LIGHT_ENABLED: light.isEnabled(),
-        LIGHT_TYPE: light.getType()
+        materialShininess: this.shininess
       });
       manifest.set('VERTEX_POSITION',  mesh.getVertexBuffer() || null);
       manifest.set('VERTEX_COLOR',     mesh.getColorBuffer() || null);
@@ -235,18 +224,61 @@ Jax.Material = (function() {
         if (error instanceof RangeError) {
           // we've hit hardware limits. Back off a layer. If we are down to no layers, raise a coherent error.
           if (this.layers.length > 0) {
-            var message = "WARNING: Hardware limits reached, removing material layer '"+name+"' (original message: "+error+")";
-
-            if (window.console)
-              console.log(message);
-            else
-              setTimeout(function() { throw new Error(message); }, 1);
-            
-            this.layers.pop();
+            this.adaptShaderToHardwareLimits(shader, error);
             this.render(context, mesh, options);
           }
           else throw error;
         }
+        else throw error;
+      }
+    },
+    
+    adaptShaderToHardwareLimits: function(shader, error) {
+      function log(msg) {
+        if (window.console)
+          console.log(msg);
+        else
+          setTimeout(function() { throw new Error(msg); }, 1);
+      }
+            
+      log("WARNING: Hardware limits reached for material '"+this.getName()+"'! (original message: "+error+")");
+      
+      /*
+        choose which shader(s) to remove. We know off the bat that we can remove any shaders which would
+        push us over the threshold on their own (e.g. not combined with any except 'basic'), so let's remove
+        those first.
+      */
+      
+      var map = shader.getPerShaderInputMap(this);
+      
+      var uniformsRemaining = Jax.Shader.max_uniforms - map[this.getBaseShader()].uniforms.length;
+      var varyingsRemaining = Jax.Shader.max_varyings - map[this.getBaseShader()].varyings.length;
+      var attributesRemaining = Jax.Shader.max_attributes - map[this.getBaseShader()].attributes.length;
+      
+      // we'll use these to determine if we *still* need to pop at the end.
+      var totalUniformsInUse = 0, totalVaryingsInUse = 0, totalAttributesInUse = 0;
+      
+      for (var i = 0; i < this.layers.length; i++) {
+        var entry = map[this.layers[i].getBaseShader()];
+
+        if (entry.uniforms.length > uniformsRemaining || entry.varyings.length > varyingsRemaining ||
+                entry.attributes.length > attributesRemaining)
+        {
+          log("WARNING: Removing shader '"+this.layers[i].getName()+"' due to hardware limitations!");
+          this.layers.splice(i, 1);
+          i = 0;
+        } else {
+          totalUniformsInUse += entry.uniforms.length;
+          totalVaryingsInUse += entry.varyings.length;
+          totalAttributesInUse += entry.attributes.length;
+        }
+      }
+      
+      if (totalUniformsInUse > uniformsRemaining || totalVaryingsInUse > varyingsRemaining ||
+              totalAttributesInUse > attributesRemaining)
+      {
+        log("WARNING: Removing shader '"+this.layers[this.layers.length-1].getName()+"' due to hardware limitations!");
+        this.layers.pop();
       }
     },
     

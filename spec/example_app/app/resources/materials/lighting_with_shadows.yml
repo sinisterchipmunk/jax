@@ -22,5 +22,6 @@ specular:
 shininess: 128
 
 layers:
+  - type: Lighting
   - type: ShadowMap
 

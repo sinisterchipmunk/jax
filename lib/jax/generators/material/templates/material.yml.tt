@@ -21,8 +21,11 @@ specular:
 
 shininess: 30
 
-<%if !chain.empty? -%>
 layers:
+  # remove Lighting to conserve video memory if you don't need/want support for light sources
+  - type: Lighting
+
+<%if !chain.empty? -%>
   <%- chain.each do |n| -%>
   - type: <%=shader(n).name.camelize%>
     <%=shader(n).default_options.to_yaml.lines.to_a[1..-1].join("    ")%>

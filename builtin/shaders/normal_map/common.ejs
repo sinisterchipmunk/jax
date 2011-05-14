@@ -1,7 +1,9 @@
+//= require "../functions/lights"
+
 uniform sampler2D NormalMap;
 
-shared uniform mat4 mvMatrix, pMatrix;
-shared uniform mat3 nMatrix, vMatrix;
+shared uniform mat4 mvMatrix, pMatrix, vMatrix;
+shared uniform mat3 nMatrix;
 
 shared varying vec2 vTexCoords;
 

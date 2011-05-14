@@ -177,6 +177,35 @@ Jax.ShaderChain = (function() {
       return source;
     },
     
+    getPerShaderInputMap: function(options) {
+      options = Jax.Util.normalizeOptions(options, {local_prefix:""});
+      var map = {};
+      var tracking_map = {};
+      var name;
+      for (var i = 0; i < this.phases.length; i++) {
+        name = this.phases[i].getName();
+        var entry = (map[name] = map[name] || { uniforms: [], attributes: [], varyings: [] });
+
+        options.local_prefix = this.phases[i].getName()+i;
+        
+        var _map = this.phases[i].getInputMap(options);
+        for (name in _map) {
+          var variable = _map[name];
+          // ignore anything that's already been defined, as it's primarily required by a shader with
+          // higher priority (implied that the fact that it came first in the list of phases)
+          if (!tracking_map[variable.full_name]) {
+            if (variable.scope == 'uniform')        entry.uniforms.push(variable);
+            else if (variable.scope == 'attribute') entry.attributes.push(variable);
+            else if (variable.scope == 'varying')   entry.varyings.push(variable);
+            else throw new Error("unhandled variable scope: "+JSON.stringify(variable));
+
+            tracking_map[variable.full_name] = 1;
+          }
+        }
+      }
+      return map;
+    },
+    
     getInputMap: function(options) {
       options = Jax.Util.normalizeOptions(options, {local_prefix:""});
       var map = {};
@@ -184,13 +213,14 @@ Jax.ShaderChain = (function() {
         options.local_prefix = this.phases[i].getName()+i;
         var _map = this.phases[i].getInputMap(options);
         for (var name in _map) {
-          if (map[_map[name]]) {
-            if (map[name].type      != _map[name].type)
-              throw new Error("Conflicting types for variable '"+name+"' ("+map[name].type+" and "+_map[name].type+")!");
-            if (map[name].scope     != _map[name].scope)
-              throw new Error("Conflicting scopes for variable '"+name+"' ("+map[name].scope+" and "+_map[name].scope+")!");
+          var variable = _map[name];
+          if (map[variable.full_name]) {
+            if (map[name].type      != variable.type)
+              throw new Error("Conflicting types for variable '"+name+"' ("+map[name].type+" and "+variable.type+")!");
+            if (map[name].scope     != variable.scope)
+              throw new Error("Conflicting scopes for variable '"+name+"' ("+map[name].scope+" and "+variable.scope+")!");
           }
-          else map[_map[name].full_name] = _map[name];
+          else map[variable.full_name] = variable;
         }
       }
       return map;

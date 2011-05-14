@@ -117,7 +117,15 @@ class Jax::Shader
   def include_dependencies(str)
     # look for Sprockets-style require directives
     str.gsub! /\/\/=\s*require\s*['"]([^'"]*)['"]/m do |sub|
-      File.read(File.join(path, "#{$~[1]}.ejs")) + "\n"
+      filename = $~[1]
+      macro_name = "dependency_#{filename}".underscore.gsub(/[^a-zA-Z0-9_]/, '_')
+      <<-end_code
+      #ifndef #{macro_name}
+      #define #{macro_name}
+      
+      #{File.read(File.join(path, "#{filename}.ejs"))}
+      #endif
+      end_code
     end
   end
   

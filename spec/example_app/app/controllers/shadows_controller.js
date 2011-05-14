@@ -41,6 +41,7 @@ var ShadowsController = (function() {
         diffuse: [0.4,0.9,0.4,1],
         specular: [0.4,0.4,0.4,1]
       });
+      floor_mat.addLayer(new Jax.Material.Lighting());
       floor_mat.addLayer(new Jax.Material.ShadowMap());
       
       var torus_mat = new Jax.Material({
@@ -50,6 +51,7 @@ var ShadowsController = (function() {
         diffuse: [0.9,0.3,0.3,1],
         specular:[0.6,0.6,0.6,1]
       });
+      torus_mat.addLayer(new Jax.Material.Lighting());
       torus_mat.addLayer(new Jax.Material.ShadowMap());
       
       var sphere_mat = new Jax.Material({
@@ -59,6 +61,7 @@ var ShadowsController = (function() {
         diffuse: [0.3,0.3,0.9,1],
         specular:[0.4,0.4,0.4,1]
       });
+      sphere_mat.addLayer(new Jax.Material.Lighting());
       sphere_mat.addLayer(new Jax.Material.ShadowMap());
 
       /* objects */

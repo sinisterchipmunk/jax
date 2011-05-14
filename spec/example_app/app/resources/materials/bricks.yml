@@ -22,6 +22,8 @@ specular:
 shininess: 30
 
 layers:
+  - type: Lighting
+  
   - type: Texture
     path: "/images/rock.png"
     flip_y: false

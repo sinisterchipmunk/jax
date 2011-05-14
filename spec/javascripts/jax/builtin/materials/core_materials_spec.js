@@ -24,6 +24,18 @@ describe("Core Materials", function() {
         new Jax.Mesh({material:matr}).render(context);
         expect(matr.prepareShader).toHaveBeenCalled();
       });
+      
+      it("should coexist with all other builtins", function() {
+        var m = new Jax.Material();
+        if (name != "basic" && name != "default")
+          m.addLayer(Jax.Material.find(name));
+        
+        for (var j = 0; j < mats.length; j++)
+          if (mats[j] != "basic" && mats[j] != "default")
+            m.addLayer(Jax.Material.find(mats[j]));
+        
+        new Jax.Mesh({material:m}).render(context);
+      });
     });
   }
 });
