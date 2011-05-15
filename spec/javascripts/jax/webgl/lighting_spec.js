@@ -9,10 +9,13 @@ describe("LightManager", function() {
     });
     
     it("should not allow more than Jax.max_lights", function() {
+      var max = Jax.max_lights;
+      Jax.max_lights = 32;
       for (var i = 0; i < Jax.max_lights; i++)
         mgr.add(new Jax.Scene.LightSource());
       expect(function() { mgr.add(new Jax.Scene.LightSource()); }).
               toThrow(new Error("Maximum number of light sources in a scene has been exceeded! Try removing some first."));
+      Jax.max_lights = max;
     });
 
     describe("with one custom light", function() {

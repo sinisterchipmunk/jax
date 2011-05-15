@@ -61,9 +61,18 @@ Jax.render_speed = 15;
  **/
 Jax.update_speed = 15;
 
-// should this really exist? technically, the phong shader supports any number
-// of lights, so this is really down to client limitations.
-Jax.max_lights = 32;
+
+/**
+ * Jax.max_lights -> Number
+ *
+ * If set, Jax will raise an error whenever more than this number of light sources
+ * are activated at one time.
+ *
+ * By default, there is no limit to the number of lights Jax can support. (This
+ * property is undefined by default.)
+ **/
+Jax.max_lights = undefined;
+
 
 //= require "jax/builtin/all.js"
 
