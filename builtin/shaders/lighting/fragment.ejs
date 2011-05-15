@@ -21,7 +21,8 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
       return;
     }
   } else {
-    _ambient = _diffuse = _specular = vec4(1,1,1,1);
+    _ambient = vec4(1,1,1,1);
+    _diffuse = _specular = vec4(0,0,0,0);
   }
 
   // is this correct??
