@@ -1,0 +1,115 @@
+<% content_for :page_title do %>
+  Jax Guides
+<% end %>
+
+<% content_for :header_section do %>
+  <h2>Jax Guides</h2>
+  
+  <p>
+    These guides are designed to make you immediately productive with Jax,
+    and to help you understand how all of the pieces fit together.
+  </p>
+<% end %>
+
+<% content_for :index_section do %>
+<div id="subCol">
+  <dl>
+    <dd class="work-in-progress">Guides marked with this icon are currently being worked on. While they might still be useful to you, they may contain incomplete information and even errors. You can help by reviewing them and posting your comments and corrections to the author.</dd>
+  </dl>
+</div>
+<% end %>
+
+<h3>Start Here</h3>
+
+<dl>
+<%= guide('Getting Started with Jax', 'getting_started.html', :work_in_progress => true) do %>
+  <p>Everything you need to know to install Jax and create your first application.</p>
+<% end %>
+</dl>
+
+<h3>Models</h3>
+
+<dl>
+<%= guide("Jax Models", 'models.html', :work_in_progress => true) do %>
+  <p>This guide covers how you can use Jax models to keep your application organized.</p>
+<% end %>
+
+<%= guide("Resources", 'resources.html', :work_in_progress => true) do %>
+  <p>This guide covers how you to keep your data separate from the rest of your application, preventing potential headaches down the road.</p>
+<% end %>
+
+</dl>
+
+<h3>Views</h3>
+
+<dl>
+<%= guide("Jax Views", 'views.html', :work_in_progress => true) do %>
+  <p>This guide covers the role of Views in a Jax application, and how you can alter them to produce interesting results.</p>
+<% end %>
+
+</dl>
+
+<h3>Controllers</h3>
+
+<dl>
+<%= guide("Jax Controller Overview", 'jax_controller_overview.html', :work_in_progress => true) do %>
+  <p>This guide covers how controllers work and how they are used to handle scene setup, teardown and input events.</p>
+<% end %>
+
+<%= guide("Controller Routing", 'controller_routing.html', :work_in_progress => true) do %>
+  <p>How to use the routing information to control which controllers are triggered first, and whether that happens automatically.</p>
+<% end %>
+</dl>
+
+<h3>Digging Deeper</h3>
+
+<dl>
+
+<%= guide("Materials", 'materials.html', :work_in_progress => true) do %>
+  <p>This guide demonstrates how to create, use and dynamically alter Materials in Jax.</p>
+<% end %>
+
+<%= guide("Lighting", 'lighting.html', :work_in_progress => true) do %>
+  <p>This guide shows how to make the most of lighting support in Jax, and outlines potential caveats.</p>
+<% end %>
+
+<%= guide("Texturing", 'texturing.html', :work_in_progress => true) do %>
+  <p>This guide describes how to create and use textures.</p>
+<% end %>
+
+<%= guide("Normal Mapping", 'normal_mapping.html', :work_in_progress => true) do %>
+  <p>This guide explains what normal mapping is, and how you can use it within Jax to make your objects look far more detailed and realistic.</p>
+<% end %>
+
+<%= guide("Shadow Mapping", 'shadow_mapping.html', :work_in_progress => true) do %>
+  <p>This guide explains the concept of shadow mapping, the pros and cons to enabling it, and how to do it in Jax.</p>
+<% end %>
+
+<%= guide("Testing Jax Applications", 'testing.html', :work_in_progress => true) do %>
+  <p>This is a rather comprehensive guide to doing both unit and functional tests in Jax. It covers everything from &quot;What is a test?&quot; to the testing APIs. Enjoy.</p>
+<% end %>
+
+<%= guide("Debugging Jax Applications", 'debugging_jax_applications.html', :work_in_progress => true) do %>
+  <p>This guide describes how to debug Jax applications. It covers the different ways of achieving this and how to understand what is happening "behind the scenes" of your code.</p>
+<% end %>
+
+<%= guide("Performance Testing Jax Applications", 'performance_testing.html', :work_in_progress => true) do %>
+  <p>This guide covers the various ways of performance testing a Jax application.</p>
+<% end %>
+
+<%= guide("Configuring Jax Applications", 'configuring.html', :work_in_progress => true) do %>
+  <p>This guide covers the basic configuration settings for a Jax application.</p>
+<% end %>
+
+<%= guide("Jax Command Line Tools and Rake tasks", 'command_line.html', :work_in_progress => true) do %>
+  <p>This guide covers the command line tools and rake tasks provided by Jax.</p>
+<% end %>
+</dl>
+
+<h3>Contributing to Jax</h3>
+
+<dl>
+  <%= guide("Contributing to Jax", 'contributing_to_jax.html', :work_in_progress => true) do %>
+    <p>Jax is a powerful and featureful framework, but there will always be room for improvement. This guide explains how you can get involved in the development of Jax.</p>
+  <% end %>
+</dl>

@@ -1,0 +1,620 @@
+h2. Getting Started with Jax
+
+This guide will show you how to start developing WebGL applications using Jax. It covers the following topics:
+
+* Installing Jax and creating a new Jax application
+* The layout of a Jax application
+* The MVC (Model, View, Controller) architecture and how it applies to Jax
+* How to quickly generate the starting pieces of a Jax application
+  
+endprologue.
+
+NOTE: Paths in this guide are relative to a Jax application unless otherwise specified.
+
+h3. Assumptions
+
+This guide is designed for beginners who want to get started on Jax applications from scratch. It does not assume you have any prior experience with Jax, but it does assume you are a JavaScript developer. Jax is a framework written largely in JavaScript, and without an understanding of basic JavaScript principles, you will be facing a steep learning curve.
+
+The guide also assumes you have the following software installed:
+
+* The "Ruby":http://ruby-lang.org language.
+* The "RubyGems":http://rubyforge.org/frs/?group_id=126 packaging system.
+
+h3. What is Jax?
+
+Jax is a development framework for JavaScript-driven WebGL applications. It is designed to make WebGL application development easier by making assumptions about what every WebGL application must be capable of. For instance, every WebGL application must manage one or more WebGL Contexts. Jax completely automates this task.
+
+Jax has been heavily influenced by the popular Ruby on Rails web application framework, and borrows most of its key philosophies from Rails. These concepts include the following:
+
+* Opinionation. Like Rails, Jax is opinionated software, which means that it makes an assumption that there is a "best" way to do things. If you embrace the approaches that Jax makes, you will likely discover that you can write WebGL applications in a fraction of the time it took without Jax.
+* DRY -- "Don't Repeat Yourself" -- means that constantly repeating the same code is a Bad Thing, and Jax makes every effort to remove the need to do this. JavaScript is itself a not-very-DRY language, (count the number of times you see the word "function"!), so there's a limit to how DRY a Jax application can be. That doesn't stop Jax from trying, however.
+* Convention Over Configuration -- means that Jax is going to make a lot of assumptions about what you want to do and how you want to do it. Jax won't stop you from manual configuration, but it provides a lot of defaults to try and guess what you want before you get that far.
+  
+In addition to these points, Jax makes the assumption that smaller files are easier to maintain. JavaScript code tends to quickly grow very large and unwieldy, and it doesn't take long for it to become so convoluted that even its original authors have trouble maintaining it. Jax resolves this problem by splitting what would be a few monolithic source files into many smaller, more specialized files, and places these files into categories according to their function.
+
+h4. The MVC Architecture
+
+At the heart of Jax is the Model, View, Controller (usually just called MVC) architecture. This cleanly organizes the code base into three distinct regions, making it (usually) plainly obvious where a particular code change should take place and making the entire application far easier to maintain.
+
+h5. Models
+
+Models represent containers for data and the rules governing how that data is to be manipulated. In Jax, once it is determined that an action should take place, it is up to the model to actually perform the action. If, for instance, a "Monster" is expected to take damage from an attack, it is up to the "Monster" model to modify the appropriate data, perhaps begin an appropriate animation sequence, and do anything else related to taking damage.
+
+The bulk of your application's business logic will be concentrated in the models.
+
+h5. Views
+
+Views are a presentation layer; they do not manipulate data, handle user input, or contain any other non-presentation logic. In the case of Jax, views are used to render the current scene and are rarely any different from one another. A view could be changed, for instance, to add motion blur or other visual effects to the scene.
+
+h5. Controllers
+
+Controllers are the managers of your application. They tell models what to do and when to do it; in Jax, they are responsible for setting up the scene and tearing it down. They also handle all forms of user input, and can even be called automatically over time.
+
+h3. Creating a New Jax Project
+
+This guide will walk you through creating a sample application from scratch. The application will create a 3D "dungeon" that the player can move around in. It will be a first-person application, rendered as if through the eyes of the player's character.
+
+h4. Installing Jax
+
+The first step to creating any Jax application is to make sure Jax itself is installed. Assuming you have already set up its primary dependencies, "Ruby":http://www.ruby-lang.org and "RubyGems":http://rubyforge.org/frs/?group_id=126, this should be as simple as running the following command:
+
+<shell>
+Usually, run this as the root user:
+# gem install jax
+</shell>
+
+This will install Jax and a number of other Ruby Gems that it relies upon.
+
+WARNING: Jax is still in development. It hasn't yet been publicly released, so the above command <em>will not work</em> yet. If you want to try Jax out prior to its official release, you're going to have to "jump through a few extra hoops":https://github.com/sinisterchipmunk/jax/wiki/Your-First-Application%3A-Getting-Started to get it installed from the source repository.
+
+h4. Creating the Dungeon Application
+
+Now that Jax is installed, we can go ahead and generate the Dungeon application. Start a terminal or command prompt, switch to a directory you have permission to write to, and enter the following command:
+
+<shell>
+$ jax new dungeon
+</shell>
+
+This will create a Jax application called Dungeon in the +dungeon+ directory. You'll want to change into that directory for the remainder of this guide:
+
+<shell>
+$ cd dungeon
+</shell>
+
+The files that Jax has created, and descriptions of what they are for, are given below:
+
+| File/Folder | Purpose |
+| Gemfile     | Specifies the gems your Jax application depends on. |
+| Rakefile    | Contains batch programs that can be run from a terminal with the +rake+ command. |
+| app/        | Contains the majority of your application code, including controllers, models, views, and so forth. |
+| config/     | Contains general application configuration options which control how Jax functions behind the scenes. |
+| public/     | Contains static assets that your application depends on, such as stylesheets, images, 3D models, and so on. Also contains the Jax core javascripts. |
+| script/     | Contains the jax script that starts your application and invokes code generators. You can also place custom scripts here. |
+| spec/       | Contains test files, or _specs_, used to test your Jax application. |
+| tmp/        | Contains temporary files. These files are generated by Jax when building or testing your application, and will be frequently overwritten. |
+
+h4. Installing the Required Gems
+
+Jax applications manage their gem dependencies using "Bundler":http://gembundler.com. Since our application doesn't
+require any dependencies other than Jax itself, we can go ahead and lock in place the version of Jax we intend to use
+by running:
+
+<shell>
+$ bundle install
+</shell>
+
+h3. Jax Lives!
+
+The next thing we need to do is start the Jax application server. Do that with the following command:
+
+<shell>
+$ rake jasmine
+</shell>
+
+_Jasmine_ is the name of the test suite which will be used to run your JavaScript unit tests. You can learn more about Jasmine by "visiting its home on GitHub":https://github.com/pivotal/jasmine-gem.
+
+h4. The Development Environment
+
+In Jax, Jasmine doubles as both the test suite and the development environment. Jax alters the Jasmine run template to include an HTML5 canvas element and the necessary JavaScript code to create a Jax context, so every time you refresh the browser, you'll both run the Jasmine test suite and see your Jax application in action.
+
+Open a browser and point it to the Jasmine suite, "http://localhost:8888":http://localhost:8888, and you will see a white Canvas and some passing (green) unit tests.
+
+!images/getting_started/clean_passing_jasmine_suite.png(The Default Jasmine Suite)!
+
+Let's take a moment to explain what you're seeing. At the top-left, the Jasmine and Jax versions are shown. "Jasmine" is a link to the Jasmine homepage, where you can find more documentation. Below these headers is a green element displaying the number of specs (tests), how many failures were encountered, and how long it took to execute. To the right of this same element is a link that you can click to re-run the test suite, and above that are some checkboxes you can use to change what Jasmine is showing you.
+
+When tests fail, they take up a large chunk of the screen. The idea is that you should never have failing specs, unless you're in the middle of making them pass. If the specs are passing, then they'll take up a minimum of real estate on the screen and leave room for the Jax context, where you can _see_ your code in action.
+
+By default, the Jax development environment is purposely kept very simple. You can customize the HTML elements by altering the file +spec/javascripts/support/spec_layout.html.erb+, if your Jax application expects certain additional HTML elements to exist.
+
+TIP. You should almost never have to restart the Jasmine server. Every time you reload the test suite, Jax rebuilds your application, so the resulting JavaScript file is always up-to-date.
+
+h4. Tea Time
+
+One of the most common tests you'll find in graphics programming is rendering the obligatory Teapot. Many frameworks have the Utah Teapot built into them, and Jax is no exception. (If you want, you can also read some interesting information on the "origin of the Utah Teapot":http://en.wikipedia.org/wiki/Utah_teapot back in 1975.)
+
+h5. Generating the Controller
+
+So let's get started on this graphical "Hello, World". First, we need to generate a controller, which will be responsible for setting up the teapot scene. By convention, we'll name the controller after the type of scene it represents:
+
+<shell>
+$ jax generate controller teapot index
+</shell>
+
+Notice we added an extra argument: +index+. Controllers consist of JavaScript functions called _actions_, and this extra argument tells Jax to create an action in our Teapot controller called +index+. Actions are used by controllers to accomplish a given task. By convention, the +index+ action will be used to set up a scene for the first time. In this case, it will be responsible for creating a Teapot and positioning it within the scene.
+
+h5. Setting the Default Route
+
+When you generated the Teapot controller, you may have noticed that Jax inserted a line into the +config/routes.rb+ file. The line it inserted will register the controller with Jax so that it knows how to find the controller when it is needed. However, it doesn't actually tell Jax _when_ the controller is needed. Instead of doing this manually, we'd prefer Jax to start at the Teapot controller by default. Therefore, we need to edit the +config/routes.rb+ file and add a _root_. Add the following to the second line of this file:
+
+<ruby>
+root 'teapot'
+</ruby>
+
+Your +config/routes.rb+ file, with the automatically-generated comments omitted, should now look like this:
+
+<ruby>
+Dungeon.routes.map do
+  root 'teapot'
+  map 'teapot/index'
+end
+</ruby>
+
+h5. Adding the Teapot
+
+Refreshing your development page, you should see the Jax canvas turn from white to black. This means that Jax is now invoking your controller, and is causing WebGL to render to the canvas. Unfortunately, there's nothing to render because your controller hasn't yet set up the scene, so the result is just a black image.
+
+In order to add some color, you need to edit your +app/controllers/teapot_controller.js+ file. Inside of the +index+ function, add the following JavaScript code:
+
+<js>
+var teapot = new Jax.Model({
+  position: [0, 0, -5],
+  mesh: new Jax.Mesh.Teapot()
+});
+this.world.addObject(teapot);
+</js>
+
+By default, Jax positions the camera at the origin at (0, 0, 0), looking along the negative Z axis. (This is in line with OpenGL and, more importantly, WebGL standards.)
+
+Therefore, the above code will create a new Teapot object, position it 5 units in "front" of the camera, and add it to the scene (which Jax calls +world+).
+
+Reload your suite again, and you'll see the fruits of your labor!
+
+h5. Using Materials for Color
+
+We have a teapot, but we don't have a very _impressive_ teapot. In fact, it looks rather flat, uninspiring and _white_.
+Let's change that. In a terminal, run the following command within your Jax application:
+
+<shell>
+$ jax generate material teapot
+</shell>
+
+This will generate a Jax material. By default, Jax will also add in support for scene lighting.
+
+TIP: This guide won't cover Jax materials in depth, but they're very powerful and very versatile. For more information regarding Jax materials, see the "Jax Material Guide":materials.html.
+
+Edit the newly-generated material file, +app/resources/material/teapot.yml+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0. This will produce a completely opaque, red teapot.
+
+Again, edit the +app/controllers/teapot_controller.js+ file and alter this line:
+
+<js>
+  mesh: new Jax.Mesh.Teapot()
+</js>
+
+Replace it with the following:
+
+<js>
+  mesh: new Jax.Mesh.Teapot({ material: Material.find("teapot") });
+</js>
+
+Reload your suite again, and the teapot will turn red.
+
+h4. Using Light Sources
+
+To add a more realistic shading effect to the teapot, we'll need to add some light sources. Jax supports three kinds of lights:
+
+* Directional
+* Point
+* Spot
+
+TIP: Lighting support requires a fair number of shader variables. Nearly all video cards on the market should support it, but it _does_ exceed the theoretical lowest potential limit on shader variables. Jax will automatically drop lighting support if it can't be used, and render the scene without it; therefore, if your model changes its color but still looks "flat", try viewing it on a machine with more modern hardware.
+
+h5. Directional Lights
+
+Directional lights have no point of origin. They shine in the same direction upon every object in the scene. In the real world, they don't exist, but in the virtual world, they are useful for simulating very powerful, distant entities such as the sun.
+
+Let's start simple by adding a directional light to our scene. First, from the command line, use the light source generator:
+
+<shell>
+$ jax generate light sun directional
+</shell>
+
+Edit the file it generates, +app/resources/light_sources/sun.yml+, and change the +direction+ field to look like this:
+
+<yaml>
+direction:
+  x: -1
+  y: -1
+  z: -1
+</yaml>
+
+This tells the light to shine left, down, and forward relative to world space. (Remember that, currently, our camera is unmodified, so world space and camera space are the same thing. When we get around to rotating the camera, the difference between camera and world space will become more important.)
+
+Now that we have defined our light, we just need the controller to add it to the scene. Edit your controller file at +app/controllers/teapot_controller.js+ and add the following line to the +index+ action:
+
+<js>
+this.world.addLightSource(LightSource.find("sun"));
+</js>
+
+Reload your scene, and you should finally be starting to see some detail!
+
+h5. Point Lights
+
+These are omnidirectional lights that have an origin at a specific point in world space. They shine in all directions from their position, and every object (indeed, every pixel) is lit at a different angle. In the real world, this is technically the only kind of light.
+
+Point lights are useful for simulating relatively small light sources like candles. Let's add one now. Once again, run the light source generator:
+
+<shell>
+$ jax generate light candle point
+</shell>
+
+Edit the generated file, +app/resources/light_sources/candle.yml+, and change the +position+ field to look like this:
+
+<yaml>
+position:
+  x: -1.2
+  y: -1.2
+  z: -4.0
+</yaml>
+
+This will position the candle very close to the teapot indeed -- just barely to the left, bottom, and front of it.
+
+In the same file, let's alter the color of the light itself. Candles are often a reddish-yellow color, so let's make ours the same:
+
+<yaml>
+color:
+  ambient:
+    red: 0.6
+    green: 0.6
+    blue: 0.0
+    alpha: 1.0
+
+  diffuse:
+    red: 1.0
+    green: 1.0
+    blue: 0.0
+    alpha: 1.0
+
+  specular:
+    red: 0.2
+    green: 0.2
+    blue: 0.0
+    alpha: 1.0
+</yaml>
+
+Reload the scene again and you should see your candle's effect upon the teapot.
+
+h5. Spot Lights
+
+These are just like point lights, except they have a cutoff angle. In the real world, they're analogous to flashlights in that their lit area is cone-shaped and has a specific direction. They are useful for simulating flashlights, automobile headlights, and so on.
+
+We'll use the spot light to simulate a searchlight.
+
+Generate the spot light in the same manner as the last two:
+
+<shell>
+$ jax generate light searchlight spot
+</shell>
+
+This time, we'll alter the position and direction to shine toward, but not directly upon, the teapot; we'll also alter the color so that the light is blue, the angle of the spotlight (that is, the width of the cone), and the spot exponent, which represents how fast light fades out from the center of the cone. With a spot exponent of zero, the spotlight's cone should be quite clearly defined.
+
+The file to edit is +app/resources/light_sources/searchlight.yml+:
+
+<yaml>
+position:
+  x: 0
+  y: 0
+  z: 2
+
+direction:
+  x: 0.35
+  y: 0
+  z: -1
+
+type: SPOT_LIGHT
+
+# the cone is approx. 20 degrees wide, in radians
+angle: 0.35
+
+# this light has very sharp edges.
+spot_exponent: 0
+
+attenuation:
+  constant: 1.0
+  linear: 0
+  quadratic: 0
+
+color:
+  ambient:
+    red: 0
+    green: 0
+    blue: 0.2
+    alpha: 1
+
+  diffuse:
+    red: 0
+    green: 0
+    blue: 1.0
+    alpha: 1.0
+
+  specular:
+    red: 0
+    green: 0
+    blue: 0.5
+    alpha: 1.0
+</yaml>
+
+Like the others, add this light to the scene in +app/controllers/teapot_controller.js+:
+
+<js>
+this.world.addLightSource(LightSource.find("searchlight"));
+</js>
+
+Once again, you're ready to reload the scene. Note how only half of the teapot has a blue tinge; the other half is unaffected. The blue is produced by the spotlight.
+
+Take some time to alter the various lighting settings, above, and note the differences in the results.
+
+WARNING: Jax supports an arbitrary number of light sources; that is, there's no hard limit on how many lights you can have in your scene. However, be aware that the scene must be rendered once <em>for each light source</em>, so you can expect to take a significant performance hit by simply tossing lights around without carefully considering the implications. Always keep in mind the quality of the hardware you're targeting; the more light sources you activate, the lower the framerate on your clients' systems.
+
+h4. Making the Most of Models
+
+So far, we've only made use of the controller and the view. (We've only actually altered the controller, because the
+view that Jax generates is fine for most applications.)
+
+Now we'd like to add some lower-level business logic to our application. In particular, we'll make the teapot rotate in
+place. This sort of logic is exactly what models are designed to encapsulate.
+
+So far, we've been using a model created on-the-fly with the following code:
+
+<js>
+var teapot = new Jax.Model({
+  position: [0, 0, -5],
+  mesh: new Jax.Mesh.Teapot({
+    material: Material.find("teapot")
+  })
+});
+</js>
+
+There's nothing wrong with doing this as long as you don't need any logic beyond what Jax.Model gives you. However,
+the code to cause the model to rotate is very much model-specific behavior. It would be bad form to define this within
+the controller, even if we're defining it on the model. (Note that this is very much possible -- it's just bad practice.)
+
+h5. Generating the Model
+
+Instead, let's generate an appropriate Teapot model from the terminal:
+
+<shell>
+$ jax generate model teapot
+</shell>
+
+This will generate a model file at +app/models/teapot.js+ as well as a <em>default resource</em> at +app/resources/teapots/default.yml+.
+
+h5. Resources
+
+Models in Jax actually result from the combination of two files: first is the model source code, the JavaScript file which determines the rules governing how the model can be used; second is the resource file, which specifies the raw data behind a given model.
+
+A good way to think of resources is as database entries, even though they actually occupy a file on the file system. While the model itself may represent a database table, the resource files each describe exactly one record within that table.
+
+When a model is first generated, Jax also generates a <em>default resource</em>. The default resource is loaded for <em>each and every resource</em>, and specifies <em>default values</em> for the various fields. This allows the individual resource files to completely omit certain attributes, instead allowing the <em>default resource</em> to specify what those attributes should default to.
+
+In the case of our teapot, we're going to set a default size for all Teapot models to use. First, edit the resource file. You'll see that, save for a few comments, it's completely empty. Add the following:
+
+<yaml>
+size: 1.0
+rotation_speed: 1.0 # in radians per second
+</yaml>
+
+Now, create a new file alongside +app/resources/teapot/default.yml+ called +app/resources/teapot/actual.yml+. Inside that file, we'll specify the position of the teapot we plan to use:
+
+<yaml>
+position:
+  x: 0
+  y: 0
+  z: -5
+</yaml>
+
+You'll notice that we've specified the exact same position that the current teapot already occupies.
+
+h5. Model Source
+
+Now that we have some attributes to deal with, we need to add a little bit of logic to the model source in +app/models/teapot.js+. Open that file up and add the following code to the +after_initialize+ function:
+
+<js>
+this.mesh = new Jax.Mesh.Teapot({
+  size: this.size,
+  material: Material.find("teapot")
+});
+</js>
+
+The above code will pass the teapot's +size+ attribute into its mesh.
+
+TIP: The mesh is used for rendering -- we'll discuss it in detail later on. For now, just understand that without a Mesh, a model technically _exists_, but it is invisible. The Mesh is the actual 3D data used by WebGL to draw the object, in this case a teapot.
+
+NOTE: Notice that we didn't do anything with the +position+ attribute, which we created in +app/resources/teapot/actual.yml+. This is because Jax is smart enough to use basic attributes such as +position+ and +direction+ to orient the model without the need for us to explicitly get involved. If we _did_ want to deal with the +position+ attribute directly, we'd have to be careful about it because it is only specified on an _instance_ of the model; the <em>default resource</em> doesn't include the +position+ attribute, so it's quite possible to create a teapot that has no +position+. (In that case, Jax would place it at the origin.)
+
+h5. Using the Model
+
+We've now done all the setup necessary to expose our new model to Jax. The only thing left is to _use_ it. Edit your controller, +app/controllers/teapot_controller.js+, and replace the following code:
+
+<js>
+var teapot = new Jax.Model({
+  position: [0, 0, -5],
+  mesh: new Jax.Mesh.Teapot({
+    material: Material.find("teapot")
+  })
+});
+this.world.addObject(teapot);
+</js>
+
+with:
+
+<js>
+this.world.addObject(Teapot.find("actual"));
+</js>
+
+Now, when you reload your Jax suite, you should see exactly the same image as before -- except that now, the teapot is being loaded from a resource file instead of being created on-the-fly.
+
+In addition to being more organized, less confusing and easier to maintain, this gives you a strong foundation upon which to build more complicated model-specific logic. Perfect, because that's what we're going to do next.
+
+IMPORTANT: When you call +Teapot.find+, Jax is actually <em>creating a new instance</em> of the resource. That means, if you call +Teapot.find+ twice with the same name, you'll get two completely separate instances of the same model! This is quite powerful for creating many instances of a model that are all expected to look and act similarly, such as generic monsters, but can be confusing if you assume that +Teapot.find+ will return a single instance more than once.
+
+h5. Adding Model Logic
+
+Once again, edit the +app/models/teapot.js+ model source file. Following the +after_initialize+ method, add a new one called +update+. It takes a single +timechange+ argument. Don't forget to put a comma after the closing curly-brace for +after_initialize+, or you'll have a JavaScript syntax error! Here's what your entire model file should now look like:
+
+<js>
+/**
+ * class Teapot < Jax.Model
+ *
+ **/
+var Teapot = (function() {
+  return Jax.Model.create({
+    after_initialize: function() {
+      this.mesh = new Jax.Mesh.Teapot({
+        size: this.size,
+        material: Material.find("teapot")
+      });
+    },
+
+    update: function(timechange) {
+      // we're going to add more code here!
+    }
+  });
+})();
+</js>
+
+As the comment in the model file indicates, we're going to insert some code into the +update+ function. But first, let's talk about that function.
+
++update+ is a special function made available to all models _and_ all controllers. If Jax detects that such a method exists, it will call the +update+ method every few milliseconds. The +timechange+ argument is the amount of time, in seconds, since the last time +update+ was called.
+
+NOTE: The +timechange+ argument is crucial because you can use it to track changes over time. For instance, when we calculate an object's rotation, we'll multiply the total amount of rotation by +timechange+. If you don't do this, the code will still work, but it will run faster on some computers than it will on others (dependent upon framerate). By multiplying against time elapsed, you control the speed of rotation so that it is the same on all devices, regardless of the relative speed of the device.
+
+Add the following code to the +update+ method to cause the teapot to rotate at the speed specified in its resource file:
+
+<js>
+var rotation_axis = [0, 1, 0];
+this.camera.rotate(this.rotation_speed * timechange, rotation_axis);
+</js>
+
+This will cause the teapot to rotate about the Y axis at a speed of +rotation_speed+ radians per second. Because the speed was specified in the resource files, you now have enough code in place to actually create several different teapots rotating at different speeds! Just add resource files for each teapot you intend to use; remember to set the individual teapots up in the +teapot_controller.js+ file, and you're all set!
+
+h3. Handling Input
+
+Nearly every application is going to have to deal with user input at one time or another. If it doesn't, it can never become more than yet another WebGL demo with a rotating globe.
+
+Since we're working toward creating a dungeon in which the user can freely navigate, it would be a good idea to go ahead and add those navigational controls now. We already have a point of reference -- the rotating teapot -- but our scene has not gotten too complex yet, so this is a perfect time to think about camera controls.
+
+User input is meant to be handled entirely within the controller, so edit +app/controllers/teapot_controller.js+. We'll be focusing on the controller pretty explicitly for awhile.
+
+h4. Mouse Events
+
+For this guide, we're going to allow the user to _rotate_ the camera in-place (as if turning their head) only when the mouse is _dragged_. Jax actually supports virtually every possible mouse event, and they are all handled identically to what we're about to do.
+
+NOTE: Most first-person applications track whether the mouse was _moved_ instead of just when it was _dragged_, but this is a bit of a sticking point with WebGL. The HTML5 standard provides no way to capture mouse input once the mouse itself is blocked from movement; that is, if you move the mouse to the left-hand side of the screen and continue to move it leftward, there will be no way to tell when you are attempting to move it past the edge of the screen. Similarly, there is no way under the current standard to reposition the mouse toward the center of the screen; this would pose too many security issues. Therefore, traditional "mouse-look" is not currently possible because mouse events will suddenly stop firing when the mouse becomes blocked by the screen dimensions. A cheap and cumbersome, but theoretically workable, solution is to listen to mouse _drag_ events instead of mouse _move_ events. This forces the user to move the mouse back to its origin before dragging again, thus not breaking the application. (This issue alone is probably going to pose significant design frustrations for WebGL-based first-person application developers.)
+
+In your controller, define a new action called +mouse_dragged+. It takes a single +event+ argument:
+
+<js>
+mouse_dragged: function(event) {
+  this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
+  this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+}
+</js>
+
+This simply rotates 0.01 radians for every pixel the mouse is moved. The reason we use the mouse Y axis for the rotation X axis and vice versa, is because we are specifying the axis to rotate _about_. In 3D, rotating about the Y axis results in camera movement along the X axis (looking "left" or "right"). Conversely, rotating about the X axis results in movement along the Y axis (looking "up" or "down").
+
+A good way to remember the difference is to hold your hands out in front of you, as if holding a ball. (Hold a real ball, if you have one handy!) Rotate the "ball" left and right; which axis are you pivoting on? It's the up/down axis that holds still, so it's the up/down (Y) axis that you're actually rotating _about_.
+
+Rotating about the Z axis is to rotate about a line drawn straight out in front of you, and results in a "tilt" clockwise or counter-clockwise.
+
+If you reload your test suite, you'll now see that you can drag the mouse to cause the appropriate rotation.
+
+The last line in the mouse_dragged function may be a bit confusing. The most effective way to see what it does is to simply comment that last line out, reload your test suite, and see how the camera functions. You'll notice that first of all, you can rotate the camera into a completely upside-down state; not ideal for a first-person application, but quite appropriate for a flight simulator.
+
+The second thing you may notice with the last line commented out is that the camera has a way of losing its "up" axis, as if you'd rotated about the Z axis. This is due to floating point imprecision. In many applications, it's no big deal, but it's probably not a good thing to allow players to lose their sense of "up" in a first-person environment. A quick and dirty, but effective, way to work around this is to explicitly reorient the camera so that "up" is always pointing in the same hard-coded direction (usually, along the positive Y axis). That's what that last line was responsible for. After doing the appropriate camera rotations, it gathered the new view direction from the camera, and restricted it to be in line with the world "up" axis.
+
+As we eluded to before, Jax can handle a lot more than +mouse_dragged+ events. Here's the full list:
+
+| Event         | Condition |
+| mouse_entered | When the mouse enters the WebGL canvas |
+| mouse_exited  | When the mouse exits the WebGL canvas |
+| mouse_clicked | When the mouse is clicked over the WebGL canvas |
+| mouse_moved   | When the mouse is moved while no buttons are pressed |
+| mouse_dragged | When the mouse is moved while at least one button is pressed |
+| mouse_pressed | When a button on the mouse is pressed |
+| mouse_released| When a button on the mouse is released |
+
+Any or all of these can be handled just like the +mouse_dragged+ example, above, by merely defining a function of the appropriate name. In all cases, the function may take a single +event+ argument.
+
+h4. Keyboard Events
+
+Keyboard events are generally easier to map because there are no confusing axes to worry about; however, handling them properly involves a little more source code than mouse events.
+
+The best way to handle keyboard events is to detect when a key is pressed and when it is released, _not_ to continually poll whether it is "currently pressed". However, this approach, while more efficient, is more difficult to code for, because it involves setting tracking variables which determine the amount of total movement to apply.
+
+For instance, if the user presses the "forward" key, but then simultaneously presses the "backward" key, they should cancel each other out. On the other hand, pressing the "forward" key while simultaneously pressing the "strafe right" key should produce a diagonal forward-right movement.
+
+In your +app/controllers/teapot_controller.js+ file, add the private tracking variable just above the +return+ statement. The first few lines of the controller should now look like this:
+
+<js>
+//= require "application_controller"
+
+var TeapotController = (function() {
+  var movement = { forward: 0, backward: 0, left: 0, right: 0 };
+
+  return Jax.Controller.create("teapot", ApplicationController, {
+    /* the rest of the controller code */
+</js>
+
+With this variable in place, create two more actions for handling +key_down+ and +key_released+ events:
+
+<js>
+key_down: function(event) {
+  switch(event.keyCode) {
+    case KeyEvent.DOM_VK_W: movement.forward = 1; break;
+    case KeyEvent.DOM_VK_S: movement.backward = -1; break;
+    case KeyEvent.DOM_VK_A: movement.left = -1; break;
+    case KeyEvent.DOM_VK_D: movement.right = 1; break;
+  }
+},
+
+key_released: function(event) {
+  switch(event.keyCode) {
+    case KeyEvent.DOM_VK_W: movement.forward = 0; break;
+    case KeyEvent.DOM_VK_S: movement.backward = 0; break;
+    case KeyEvent.DOM_VK_A: movement.left = 0; break;
+    case KeyEvent.DOM_VK_D: movement.right = 0; break;
+  }
+},
+</js>
+
+NOTE: If you're an experienced JavaScript keyboard-input-handling guru, you'll note that the +KeyEvent+ object exists only in FireFox. Well, fret not! Jax has already looked into this potential gotcha, and defines a compatibility layer for you. So code on!
+
+If you reload your test suite, you won't get any errors, but nothing will _happen_. That's because all we're doing is updating our tracking variable; we're not actually using it.
+
+To make use of the tracking variable, add one more method:
+
+<js>
+update: function(timechange) {
+  var speed = 1.5 * timechange;
+
+  this.player.camera.move((movement.forward + movement.backward) * speed);
+  this.player.camera.strafe((movement.left + movement.right) * speed);
+},
+</js>
+
+Similarly to the +update+ method of our +Teapot+ model, the controller's +update+ method will be called by Jax once every few milliseconds. In it, we simply move in the total direction represented by the combination of our four tracking values: forward and backward, left and right. Since one is always negative (if pressed) and the other is always positive (if pressed), they will cancel each other out if both are pressed at once, and the camera will not move.
+
+If the camera _does_ move, it will do so at a speed of 1.5 units per second.
+
+NOTE: Astute readers will note that there's nothing technically keeping us from maintaining a handle to the +Teapot+ that we added in the +index+ action, and simply rotating it from the controller's +update+ method rather than doing so from within the model. While this is technically true, it would be considered bad practice to manipulate the model that way because you would in effect be moving model-level logic into the controller. If, however, you were to move the model based on <em>user input</em>, then it would be perfectly acceptable to do so via the controller. In general, only deal with set-up, tear-down and user input within the controller. Virtually everything else should happen in the models.

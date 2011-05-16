@@ -112,5 +112,32 @@ namespace :doc do
   end
 end
 
+namespace :guides do
+  desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
+  task :generate do
+    rm_rf "guides/output"
+    ENV["WARN_BROKEN_LINKS"] = "1" # authors can't disable this
+    ruby "guides/jax_guides.rb"
+  end
+
+  desc 'Validate guides, use ONLY=foo to process just "foo.html"'
+  task :validate do
+    ruby "guides/w3c_validator.rb"
+  end
+  
+  desc "Publish the guides"
+  task :publish => 'guides:generate' do
+    require 'rake/contrib/sshpublisher'
+    mkdir_p 'pkg'
+    `tar -czf pkg/guides.gz guides/output`
+    Rake::SshFilePublisher.new("guides.jax.thoughtsincomputation.com", "~/jax/guides/public", "pkg", "guides.gz").upload
+    `ssh guides.jax.thoughtsincomputation.com 'cd ~/jax/guides/public/ && tar -xvzf guides.gz && mv guides/output/* . && rm -rf guides*'`
+  end
+end
+
+# 'Guides' tasks & code borrowed from Railties.
+desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
+task :guides => 'guides:generate'
+
 task :jasmine => :compile
 task :default => :compile

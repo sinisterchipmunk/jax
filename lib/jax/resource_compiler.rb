@@ -23,8 +23,10 @@ class Jax::ResourceCompiler
     Dir[Jax.root.join("app/resources/**/*.yml")].inject({}) do |resources, yml|
       model_name = File.basename(File.dirname(yml)).singularize
       resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
+      hash = YAML::load(File.read(yml)) || {}
+
       resources[model_name] ||= {}
-      resources[model_name].merge!({ resource_id => camelize_keys(YAML::load(File.read(yml)) || {}) })
+      resources[model_name].merge!({ resource_id => hash })
       resources
     end
   end

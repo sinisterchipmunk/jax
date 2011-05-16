@@ -12,13 +12,19 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
-  s.add_dependency "thor", "~> 0.14.6"
-  s.add_dependency 'jasmine', '~> 1.0.2.0'
+  s.add_dependency "thor",          '~> 0.14.6'
+  s.add_dependency 'jasmine',       '~> 1.0.2.0'
   s.add_dependency 'activesupport', '~> 3.0'
-  s.add_dependency "i18n", "~> 0.5.0" # FIXME Jax doesn't really require this but ActiveSupport won't load without it!
-  s.add_dependency 'sprockets', "~> 1.0.2"
+  s.add_dependency "i18n",          '~> 0.5.0' # FIXME Jax doesn't really require this but ActiveSupport won't load without it!
+  s.add_dependency 'sprockets',     '~> 1.0.2'
+  
   s.add_development_dependency 'rspec',     '~> 2.0'
   s.add_development_dependency 'coderay',   '~> 0.9.7'
+  
+  # required by guides
+  s.add_development_dependency 'actionpack',     '~> 3.0'
+  s.add_development_dependency 'RedCloth',       '~> 4.2'
+  s.add_development_dependency 'w3c_validators', '~> 1.1.1'
 
   # required by pdoc
   s.add_development_dependency 'treetop',   '~> 1.4.9'

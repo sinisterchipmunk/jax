@@ -8,3 +8,4 @@ doc
 .*.pdoc.yaml
 .hg
 tmp/
+guides/output
