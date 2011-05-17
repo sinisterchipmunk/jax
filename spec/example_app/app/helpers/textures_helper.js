@@ -1,3 +1,3 @@
-var TexturesHelper = Jax.ViewHelper.create({
+var TexturesHelper = Jax.Helper.create({
 
 });

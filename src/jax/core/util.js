@@ -194,5 +194,33 @@ Jax.Util = {
         return i;
     }
     return "(unrecognized enum: "+glEnum+" [0x"+parseInt(glEnum).toString(16)+"])";
+  },
+
+  /**
+   * Jax.Util.addRequestedHelpers(klass) -> Array
+   * - klass (Jax.Class): A class into which to mix the helpers.
+   *
+   * First, if +ApplicationHelper+ is defined, it is automatically mixed into the specified class.
+   *
+   * Then, the class is searched for a #helpers method; if it exists, it is expected to return an array of
+   * Helpers (created with +Jax.Helper.create({...})+ ). Each element in the array returned by #helpers is
+   * then mixed into the class.
+   *
+   * An array of all helpers that were just mixed into the target class is returned.
+   **/
+  addRequestedHelpers: function(klass) {
+    var helpers = [];
+    if (typeof(ApplicationHelper) != "undefined") {
+      helpers.push(ApplicationHelper);
+      klass.addMethods(ApplicationHelper);
+    }
+    if (klass.prototype.helpers) {
+      var helper_array = klass.prototype.helpers.call(klass);
+      for (var i = 0; i < helper_array.length; i++) {
+        helpers.push(helper_array[i]);
+        klass.addMethods(helper_array[i]);
+      }
+    }
+    return helpers;
   }
 };

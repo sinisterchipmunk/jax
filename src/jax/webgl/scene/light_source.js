@@ -40,7 +40,7 @@ Jax.Scene.LightSource = (function() {
           linear: 0.02,
           quadratic: 0
         },
-        spotExponent: 0,
+        spot_exponent: 0,
         shadowcaster: true
       });
       
@@ -49,6 +49,9 @@ Jax.Scene.LightSource = (function() {
       data.color.diffuse = Jax.Util.colorize(data.color.diffuse);
       data.color.specular= Jax.Util.colorize(data.color.specular);
       $super(data);
+
+      this.spotExponent = this.spot_exponent;
+      delete this.spot_exponent;
 
       this.shadowMatrix = mat4.create();
       

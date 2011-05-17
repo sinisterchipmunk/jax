@@ -79,7 +79,7 @@ describe("Jax.Controller", function() {
         mouse_exited:   function(evt) { },
         mouse_entered:  function(evt) { },
         mouse_released: function(evt) { },
-        key_down:       function(evt) { },
+        key_typed:      function(evt) { },
         key_pressed:    function(evt) { },
         key_released:   function(evt) { }
       };
@@ -94,7 +94,7 @@ describe("Jax.Controller", function() {
 
     it("should dispatch key pressed events", function() {
       doKeyEvent('keypress');
-      expect(instance.key_pressed).toHaveBeenCalled();
+      expect(instance.key_typed).toHaveBeenCalled();
     });
 
     it("should dispatch key released events", function() {
@@ -104,7 +104,7 @@ describe("Jax.Controller", function() {
 
     it("should dispatch key down events", function() {
       doKeyEvent('keydown');
-      expect(instance.key_down).toHaveBeenCalled();
+      expect(instance.key_pressed).toHaveBeenCalled();
     });
 
     it("should dispatch mouse released events", function() {

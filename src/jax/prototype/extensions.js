@@ -107,6 +107,8 @@
     var klass = original_create.apply(Jax.Class, arguments);
     klass.prototype.klass = klass;
     klass.addMethods(Jax.Class.InstanceMethods);
+    Jax.Util.addRequestedHelpers(klass);
+
     return klass;
   };
   

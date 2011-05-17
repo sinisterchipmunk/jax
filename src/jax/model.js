@@ -156,7 +156,7 @@
     else       klass = Jax.Class.create(Jax.Model, superclass);
     
     klass.addMethods({_klass:klass});
-    
+
     Object.extend(klass, model_class_methods);
     return klass;
   };

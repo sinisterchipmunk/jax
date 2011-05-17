@@ -96,15 +96,15 @@ Jax.EVENT_METHODS = (function() {
       case "mouseout":  target = "mouse_exited";  break;
       case "mouseover": target = "mouse_entered"; break;
       case "mouseup":   target = "mouse_released";break;
-      case "keydown":   target = "key_down";      break;
-      case "keypress":  target = "key_pressed";   break;
+      case "keydown":   target = "key_pressed";   break;
+      case "keypress":  target = "key_typed";     break;
       case "keyup":     target = "key_released";  break;
       default: return true; // don't dispatch this event to the controller
     }
-    if (self.current_controller[target])
-    {
+
+    if (self.current_controller[target]) {
       var result = self.current_controller[target](evt);
-      if (typeof(result) != "undefined") return result;
+      if (result != undefined) return result;
     }
     return true;
   }

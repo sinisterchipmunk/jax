@@ -558,7 +558,7 @@ Any or all of these can be handled just like the +mouse_dragged+ example, above,
 
 h4. Keyboard Events
 
-Keyboard events are generally easier to map because there are no confusing axes to worry about; however, handling them properly involves a little more source code than mouse events.
+Keyboard events are generally easier to map because there's no need to worry about translating two-dimensional movements into three; however, handling them properly involves a little more source code than mouse events.
 
 The best way to handle keyboard events is to detect when a key is pressed and when it is released, _not_ to continually poll whether it is "currently pressed". However, this approach, while more efficient, is more difficult to code for, because it involves setting tracking variables which determine the amount of total movement to apply.
 
@@ -576,10 +576,10 @@ var TeapotController = (function() {
     /* the rest of the controller code */
 </js>
 
-With this variable in place, create two more actions for handling +key_down+ and +key_released+ events:
+With this variable in place, create two more actions for handling +key_pressed+ and +key_released+ events:
 
 <js>
-key_down: function(event) {
+key_pressed: function(event) {
   switch(event.keyCode) {
     case KeyEvent.DOM_VK_W: movement.forward = 1; break;
     case KeyEvent.DOM_VK_S: movement.backward = -1; break;
@@ -618,3 +618,123 @@ Similarly to the +update+ method of our +Teapot+ model, the controller's +update
 If the camera _does_ move, it will do so at a speed of 1.5 units per second.
 
 NOTE: Astute readers will note that there's nothing technically keeping us from maintaining a handle to the +Teapot+ that we added in the +index+ action, and simply rotating it from the controller's +update+ method rather than doing so from within the model. While this is technically true, it would be considered bad practice to manipulate the model that way because you would in effect be moving model-level logic into the controller. If, however, you were to move the model based on <em>user input</em>, then it would be perfectly acceptable to do so via the controller. In general, only deal with set-up, tear-down and user input within the controller. Virtually everything else should happen in the models.
+
+Here is a table listing the keyboard events you can handle within a Jax application, and the conditions under which they are fired:
+
+| Event        | Condition |
+| key_pressed  | Fired when a physical keyboard button is pressed. Do not confuse this with +key_typed+. If the button is held down, additional +key_pressed+ events are *not* fired. |
+| key_typed    | Fired when a character is typed. If the button is held down, additional +key_typed+ events will be fired -- one for each corresponding character. |
+| key_released | Fired when a physical keyboard button is released. |
+
+IMPORTANT: Unlike mouse events, which only fire in direct relation to the HTML +canvas+ element, keyboard events will fire whenever the corresponding event occurs anywhere in the document -- _except_ when a form input element is focused. If an element is accepting input from the user, Jax will not capture those events, so you'll have to revert to standard HTML event capturing.
+
+h3. Scaffolding
+
+You've just completed a very common process in Jax. So common, in fact, that it has its own special generator. We can generate a _scaffold_ to have Jax build a controller, model and material for us. As you can imagine, scaffolding is most useful in situations where the controller name and the model name are the same, as is the case with our Dungeon:
+
+<shell>
+$ jax generate scaffold dungeon
+</shell>
+
+The _scaffold_ generator will create the following files:
+
+| File                                                    | Purpose |
+| app/models/dungeon.js                                   | The +Dungeon+ model |
+| app/controllers/dungeon_controller.js                   | The +Dungeon+ controller |
+| app/views/dungeon/index.js                              | The +Dungeon+ controller's primary view |
+| app/helpers/dungeon_helper.js                           | Helper code for +Dungeon+ |
+| app/resources/dungeons/default.yml                      | The default resource for the +Dungeon+ model |
+| config/routes.rb                                        | Inserts the route mapping for the +Dungeon+ controller |
+| spec/javascripts/controllers/dungeon_controller_spec.js | Tests for the +Dungeon+ controller |
+| spec/javascripts/models/dungeon.js                      | Tests for the +Dungeon+ model |
+
+h3. Helpers
+
+In both models and controllers, it's easy to end up duplicating previous efforts. For instance, in this example we're going to use exactly the same keyboard and mouse input handling for the +Dungeon+ controller as we have already written for the +Teapot+ controller.
+
+Though it might seem tempting to copy-and-paste the code from one controller into the other, Jax frowns upon this. As an interpreted language, one of JavaScript's greatest strengths is also its greatest weakness. Code is not evaluated until it is time to execute it, so if there is an error in the code, you won't know it until it actually runs. Therefore, every line of additional code in an application should be carefully thought out because every line of code potentially introduces another point of failure. Following this line of thought, copy and paste is a very bad thing that should only be done in extreme circumstances. What's more, copying code in this way is a quick path to a maintenance nightmare; if you have to change anything, you'll have to make the same changes elsewhere, and this problem only grows as more controllers and models are added to the mix.
+
+Fortunately, Jax presents a solution to the code redundancy problem: Helpers.
+
+Helpers are modules of code which can be easily mixed in with other elements of your project. You can name helpers whatever you want and create as many as you want. By default, whenever you generate a controller, Jax creates a corresponding helper to go with it. You can rename this file if you like, or not.
+
+By default, even if a helper of the same name exists, no helpers will be used. If you wish to take advantage of a helper, you must ask for it explicitly. This is easy to do, and it's the exact same process to include a helper into a model as it is to include one into a controller.
+
+h4. Extract the Code
+
+First, we need to extract the code we want into the helper we want to use. Rename the file +app/helpers/teapot_helper.js+:
+
+<shell>
+$ mv app/helpers/teapot_helper.js app/helpers/user_input_helper.js
+</shell>
+
+Now, edit that file and change _TeapotHelper_ to _UserInputHelper_. The file should now look like this:
+
+<js>
+var UserInputHelper = (function() {
+  return Jax.Helper.create({
+
+  });
+})();
+</js>
+
+Cut all of the mouse and keyboard input code, including the +update+ method, out of the +Teapot+ controller, and paste it into the +UserInputHelper+. Don't forget to include the tracking variable!
+
+The complete +UserInputHelper+:
+
+<js>
+var UserInputHelper = (function() {
+  var movement = { forward: 0, backward: 0, left: 0, right: 0 };
+
+  return Jax.Helper.create({
+    mouse_dragged: function(event) {
+      this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
+      this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+    },
+
+    key_pressed: function(event) {
+      switch(event.keyCode) {
+        case KeyEvent.DOM_VK_W: movement.forward = 1; break;
+        case KeyEvent.DOM_VK_S: movement.backward = -1; break;
+        case KeyEvent.DOM_VK_A: movement.left = -1; break;
+        case KeyEvent.DOM_VK_D: movement.right = 1; break;
+      }
+    },
+
+    key_released: function(event) {
+      switch(event.keyCode) {
+        case KeyEvent.DOM_VK_W: movement.forward = 0; break;
+        case KeyEvent.DOM_VK_S: movement.backward = 0; break;
+        case KeyEvent.DOM_VK_A: movement.left = 0; break;
+        case KeyEvent.DOM_VK_D: movement.right = 0; break;
+      }
+    },
+
+    update: function(timechange) {
+      var speed = 1.5 * timechange;
+
+      this.player.camera.move((movement.forward + movement.backward) * speed);
+      this.player.camera.strafe((movement.left + movement.right) * speed);
+    }
+  });
+})();
+</js>
+
+h4. Call the Helper
+
+With all of the copied code removed from the +Teapot+ controller, it should now be looking pretty sparse once more. Don't worry -- we're about to pull all of that functionality right back into the controller, but we're going to do it in a more modular way.
+
+Since Jax won't just automatically include the helper for us, we need to tell it to do so. Define a new function in your controller called +helpers+. It's a very simple function that just returns a hard-coded array of helpers:
+
+<js>
+helpers: function() {
+  return [ UserInputHelper ];
+}
+</js>
+
+That's it! Jax will detect the presence of this function and use it to mix in the helper methods with this controller <em>as if they were defined by the controller itself</em>.
+
+NOTE: A special exception is the +ApplicationHelper+, which is one of the default files generated with every Jax application. The +ApplicationHelper+ will automatically be mixed into _all_ controllers and models, unless you delete the +ApplicationHelper+.
+
+If you reload your Jax suite, you'll see that you can still navigate around the rotating teapot just as before. There's no logical difference, but the code is much more organized, easier to maintain and introduces fewer points of failure by virtue of requiring less code.
+

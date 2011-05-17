@@ -151,7 +151,7 @@
         Jax.routes.map(controller_name+"/"+method_name, klass, method_name);
       }
     }
-    
+
     return klass;
   };
 })();
