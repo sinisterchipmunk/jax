@@ -217,7 +217,7 @@ To add a more realistic shading effect to the teapot, we'll need to add some lig
 * Point
 * Spot
 
-TIP: Lighting support requires a fair number of shader variables. Nearly all video cards on the market should support it, but it _does_ exceed the theoretical lowest potential limit on shader variables. Jax will automatically drop lighting support if it can't be used, and render the scene without it; therefore, if your model changes its color but still looks "flat", try viewing it on a machine with more modern hardware.
+TIP: Lighting support requires a fair number of shader variables. Nearly all video cards on the market should support it, but it _does_ exceed the theoretical lowest potential limit on shader variables. Jax will automatically drop lighting support if it can't be used, and render the scene without it. If, after completing this section, your model still looks "flat", try viewing it on a different machine.
 
 h5. Directional Lights
 
@@ -407,7 +407,7 @@ A good way to think of resources is as database entries, even though they actual
 
 When a model is first generated, Jax also generates a <em>default resource</em>. The default resource is loaded for <em>each and every resource</em>, and specifies <em>default values</em> for the various fields. This allows the individual resource files to completely omit certain attributes, instead allowing the <em>default resource</em> to specify what those attributes should default to.
 
-In the case of our teapot, we're going to set a default size for all Teapot models to use. First, edit the resource file. You'll see that, save for a few comments, it's completely empty. Add the following:
+In the case of our teapot, we're going to set a default size and speed of rotation for all Teapot models to use. First, edit the resource file. You'll see that, save for a few comments, it's completely empty. Add the following:
 
 <yaml>
 size: 1.0

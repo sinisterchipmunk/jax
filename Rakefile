@@ -101,7 +101,7 @@ namespace :doc do
       :bust_cache  => false,
       :name => 'Jax WebGL Framework',
       :short_name => 'Jax',
-      :home_url => 'http://jax.thoughtsincomputation.com',
+      :home_url => 'http://jaxgl.com',
       :version => Jax::VERSION,
 #      :index_header => "",
 #      :footer => '',
@@ -130,8 +130,8 @@ namespace :guides do
     require 'rake/contrib/sshpublisher'
     mkdir_p 'pkg'
     `tar -czf pkg/guides.gz guides/output`
-    Rake::SshFilePublisher.new("guides.jax.thoughtsincomputation.com", "~/jax/guides/public", "pkg", "guides.gz").upload
-    `ssh guides.jax.thoughtsincomputation.com 'cd ~/jax/guides/public/ && tar -xvzf guides.gz && mv guides/output/* . && rm -rf guides*'`
+    Rake::SshFilePublisher.new("jaxgl.com", "~/guides/public", "pkg", "guides.gz").upload
+    `ssh jaxgl.com 'cd ~/guides/public/ && tar -xvzf guides.gz && mv guides/output/* . && rm -rf guides*'`
   end
 end
 

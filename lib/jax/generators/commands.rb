@@ -62,6 +62,13 @@ class JaxGeneratorInvoker < Thor
   def material(*args)
     Jax::Generators::Material::MaterialGenerator.start(args)
   end
+
+  desc "scaffold", "generates a controller, model and material, all with the same name"
+  def scaffold(name)
+    Jax::Generators::Controller::ControllerGenerator.start([name, 'index'])
+    Jax::Generators::Model::ModelGenerator.start([name])
+    Jax::Generators::Material::MaterialGenerator.start([name])
+  end
 end
 
 class JaxGenerator < Thor
