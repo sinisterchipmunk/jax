@@ -8,7 +8,7 @@ describe Jax::Shader do
   end
   
   it "should set path" do
-    subject.path.should == "path/to"  
+    subject.path.should == "path/to/shader"
   end
   
   context "with an export" do

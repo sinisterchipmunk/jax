@@ -12,11 +12,10 @@ EXPECTED_FILES = %w(
   config/boot.rb
   public/webgl_not_supported.html       
   script/jax
-  spec/javascripts/helpers/SpecHelper.js
   spec/javascripts/support/jasmine.yml
   spec/javascripts/support/jasmine_runner.rb
   spec/javascripts/support/spec_layout.html.erb
-  spec/javascripts/helpers/jax_spec_helper.js
+  spec/javascripts/support/spec_helpers/jax_spec_helper.js
   Rakefile 
   Gemfile
 )

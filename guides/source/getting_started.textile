@@ -630,7 +630,7 @@ IMPORTANT: Unlike mouse events, which only fire in direct relation to the HTML +
 
 h3. Scaffolding
 
-You've just completed a very common process in Jax. So common, in fact, that it has its own special generator. We can generate a _scaffold_ to have Jax build a controller, model and material for us. As you can imagine, scaffolding is most useful in situations where the controller name and the model name are the same, as is the case with our Dungeon:
+You've just completed a very common process in Jax. So common, in fact, that it has its own generator. We can generate a _scaffold_ to have Jax build a controller, model and material for us. As you can imagine, scaffolding is most useful in situations where the controller name and the model name are the same, as is the case with our Dungeon:
 
 <shell>
 $ jax generate scaffold dungeon
@@ -640,25 +640,29 @@ The _scaffold_ generator will create the following files:
 
 | File                                                    | Purpose |
 | app/models/dungeon.js                                   | The +Dungeon+ model |
-| app/controllers/dungeon_controller.js                   | The +Dungeon+ controller |
-| app/views/dungeon/index.js                              | The +Dungeon+ controller's primary view |
-| app/helpers/dungeon_helper.js                           | Helper code for +Dungeon+ |
+| app/controllers/dungeon_controller.js                   | The +DungeonController+ |
+| app/views/dungeon/index.js                              | The +DungeonController+'s primary view |
+| app/helpers/dungeon_helper.js                           | Helper code for +DungeonHelper+ |
 | app/resources/dungeons/default.yml                      | The default resource for the +Dungeon+ model |
-| config/routes.rb                                        | Inserts the route mapping for the +Dungeon+ controller |
-| spec/javascripts/controllers/dungeon_controller_spec.js | Tests for the +Dungeon+ controller |
+| app/resources/materials/dungeon.yml                     | A default material for the +Dungeon+'s mesh |
+| config/routes.rb                                        | Inserts the route mapping for the +DungeonController+ |
+| spec/javascripts/controllers/dungeon_controller_spec.js | Tests for the +DungeonController+ |
 | spec/javascripts/models/dungeon.js                      | Tests for the +Dungeon+ model |
+| spec/javascripts/helpers/dungeon_helper.js              | Tests for the +DungeonHelper+ helper |
 
 h3. Helpers
 
-In both models and controllers, it's easy to end up duplicating previous efforts. For instance, in this example we're going to use exactly the same keyboard and mouse input handling for the +Dungeon+ controller as we have already written for the +Teapot+ controller.
+In both models and controllers, it's easy to end up duplicating previous efforts. For instance, in this example we're going to use exactly the same keyboard and mouse input handling for the +Dungeon+ controller as we have already implemented for the +Teapot+ controller.
 
-Though it might seem tempting to copy-and-paste the code from one controller into the other, Jax frowns upon this. As an interpreted language, one of JavaScript's greatest strengths is also its greatest weakness. Code is not evaluated until it is time to execute it, so if there is an error in the code, you won't know it until it actually runs. Therefore, every line of additional code in an application should be carefully thought out because every line of code potentially introduces another point of failure. Following this line of thought, copy and paste is a very bad thing that should only be done in extreme circumstances. What's more, copying code in this way is a quick path to a maintenance nightmare; if you have to change anything, you'll have to make the same changes elsewhere, and this problem only grows as more controllers and models are added to the mix.
+Though it might seem tempting to copy-and-paste the code from one controller into the other, Jax frowns upon this. As an interpreted language, one of JavaScript's greatest strengths is also its greatest weakness. Code is not evaluated until it is time to execute it, so if there is an error in the code, you won't know it until it actually runs. Therefore, every line of additional code in an application should be carefully thought out because every line of code potentially introduces another point of failure. Following this line of thought, copy and paste is a very dangerous tool that should only be done in extreme circumstances. What's more, copying code in this way is a quick path to a maintenance nightmare; if you have to change anything, you'll have to make the same changes elsewhere, and this problem only grows more complex as more controllers and models are added to the mix.
 
-Fortunately, Jax presents a solution to the code redundancy problem: Helpers.
+Fortunately, Jax presents a solution to this redundancy problem: Helpers.
 
-Helpers are modules of code which can be easily mixed in with other elements of your project. You can name helpers whatever you want and create as many as you want. By default, whenever you generate a controller, Jax creates a corresponding helper to go with it. You can rename this file if you like, or not.
+Helpers are modules of code which can be easily mixed in with other elements of your project. You can name helpers whatever you want and create as many as you want. By default, whenever you generate a controller, Jax creates a corresponding helper to go with it. You can rename this file if you like, or completely remove it.
 
-By default, even if a helper of the same name exists, no helpers will be used. If you wish to take advantage of a helper, you must ask for it explicitly. This is easy to do, and it's the exact same process to include a helper into a model as it is to include one into a controller.
+By default, even if a helper is named similarly, it will not be used. If you wish to take advantage of a helper, you must ask for it explicitly. This is easy to do, and it's the exact same process to include a helper into a model as it is to include one into a controller.
+
+NOTE: A special exception is the +ApplicationHelper+, which is one of the default files generated with every Jax application. The +ApplicationHelper+ will automatically be mixed into _all_ controllers and models, unless you delete the +ApplicationHelper+.
 
 h4. Extract the Code
 
@@ -733,8 +737,6 @@ helpers: function() {
 </js>
 
 That's it! Jax will detect the presence of this function and use it to mix in the helper methods with this controller <em>as if they were defined by the controller itself</em>.
-
-NOTE: A special exception is the +ApplicationHelper+, which is one of the default files generated with every Jax application. The +ApplicationHelper+ will automatically be mixed into _all_ controllers and models, unless you delete the +ApplicationHelper+.
 
 If you reload your Jax suite, you'll see that you can still navigate around the rotating teapot just as before. There's no logical difference, but the code is much more organized, easier to maintain and introduces fewer points of failure by virtue of requiring less code.
 

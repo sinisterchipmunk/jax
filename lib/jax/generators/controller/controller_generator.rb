@@ -26,12 +26,11 @@ module Jax
           template 'helper.js.tt', File.join("app/helpers", "#{file_name}_helper.js")
         end
         
-        def test
-          # TODO we should generate tests for views and helpers, as well. Maybe write some test helpers to facilitate
-          # testing each of these separately, a la rspec-rails.
-          template 'test.js.tt', File.join('spec/javascripts/controllers', "#{file_name}_controller_spec.js")
+        def tests
+          template 'controller_test.js.tt', File.join('spec/javascripts/controllers', "#{file_name}_controller_spec.js")
+          template 'helper_test.js.tt', File.join('spec/javascripts/helpers', "#{file_name}_helper_spec.js")
         end
-        
+
         def views
           actions.each do |action|
             @action_name = action

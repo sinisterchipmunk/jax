@@ -30,60 +30,14 @@ module Jax
           directory 'public'
         end
 
-        def git
-          if File.exist? '.git'
-            say_status :exist, 'git', :blue
-          else
-            `git init`
-            `git add *`
-            say_status :init, 'git', :green
-          end
-        end
-
-        def jasmine
-          say_status :init, 'jasmine', :green
-          # use Bundler to do this, to avoid ActiveSupport version mismatch errors
-          `BUNDLE_GEMFILE="#{File.join(File.dirname(__FILE__), "../../../../Gemfile")}" bundle exec jasmine init`
-        end
-        
-        def jax_spec_helper
-          copy_file "spec/javascripts/helpers/jax_spec_helper.js", "spec/javascripts/helpers/jax_spec_helper.js"
+        def spec
+          directory 'spec'
         end
         
         def rakefile
-          insert_into_file 'Rakefile', File.read(File.expand_path("../templates/Rakefile", __FILE__)), :before => /\A/
+          copy_file 'Rakefile'
         end
         
-        def jasmine_yml
-          source_files = %w(
-            public/javascripts/jax
-            public/javascripts/**/*.js
-            app/helpers/*.js
-            app/**/*
-            tmp/**/*
-          )
-          source = source_files.collect { |s| "    - #{s}.js" }.join("\n")
-          insert_into_file 'spec/javascripts/support/jasmine.yml', source+"\n", :after => /^src_files\:\n/
-          
-          insert_into_file 'spec/javascripts/support/jasmine.yml', "    - helpers/**/*.js",
-                           :after => /^helpers\:\n/
-          
-          append_to_file 'spec/javascripts/support/jasmine.yml', [
-                  '',
-                  '# root_dir',
-                  '#',
-                  '# Root directory path. Files in this directory will be mounted in the web server\'s root ("/") path.',
-                  '# Default: project directory',
-                  '#',
-                  '# EXAMPLE:',
-                  '#',
-                  '# root_dir: public',
-                  '#',
-                  'root_dir: public',
-                  ''
-          ].join("\n")
-        end
-
         def script_jax
           copy_file "script/jax", "script/jax"
         end
@@ -100,10 +54,16 @@ module Jax
           end
         end
         
-        def spec_layout
-          copy_file "spec/javascripts/support/spec_layout.html.erb"
+        def git
+          if File.exist? '.git'
+            say_status :exist, 'git', :blue
+          else
+            `git init`
+            `git add *`
+            say_status :init, 'git', :green
+          end
         end
-        
+
         protected
         def self.banner
           "jax new #{self.arguments.map { |a| a.usage }.join(' ')}"
