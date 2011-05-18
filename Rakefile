@@ -131,7 +131,7 @@ namespace :guides do
     mkdir_p 'pkg'
     `tar -czf pkg/guides.gz guides/output`
     Rake::SshFilePublisher.new("jaxgl.com", "~/guides/public", "pkg", "guides.gz").upload
-    `ssh jaxgl.com 'cd ~/guides/public/ && tar -xvzf guides.gz && mv guides/output/* . && rm -rf guides*'`
+    `ssh jaxgl.com 'cd ~/guides/public/ && tar -xvzf guides.gz && cp -rf guides/output/* . && rm -rf guides*'`
   end
 end
 
