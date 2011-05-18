@@ -60,12 +60,12 @@ The first step to creating any Jax application is to make sure Jax itself is ins
 
 <shell>
 Usually, run this as the root user:
-# gem install jax
+# gem install jax --pre
 </shell>
 
 This will install Jax and a number of other Ruby Gems that it relies upon.
 
-WARNING: Jax is still in development. It hasn't yet been publicly released, so the above command <em>will not work</em> yet. If you want to try Jax out prior to its official release, you're going to have to "jump through a few extra hoops":https://github.com/sinisterchipmunk/jax/wiki/Your-First-Application%3A-Getting-Started to get it installed from the source repository.
+INFO: You need to specify the <tt>--pre</tt> flag because Jax is in a pre-release state. When the first version of Jax is officially released, you won't need this flag.
 
 h4. Creating the Dungeon Application
 
