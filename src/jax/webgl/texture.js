@@ -11,7 +11,7 @@ Jax.Texture = (function() {
   }
   
   function isPoT(s) {
-    return s && (s & -s == s);
+    return s && (s & -s) == s;
   }
   
   function imageLoaded(self, isImageArray, img) {
