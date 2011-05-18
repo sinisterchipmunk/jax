@@ -1,6 +1,8 @@
 //= require "application_controller"
 
 var TexturesController = (function() {
+  var movement = { forward: 0, backward: 0, left: 0, right: 0 };
+  
   return Jax.Controller.create("textures", ApplicationController, {
     index: function() {
       var tex_mat = Jax.Material.find("bricks");
@@ -9,13 +11,39 @@ var TexturesController = (function() {
       this.world.addObject(new Jax.Model({position:[0,0,-7.5],mesh: new Jax.Mesh.Quad({size:7.5,material:tex_mat})}));
     },
     
-    /* moving the mouse will rotate the object */
+    key_pressed: function(event) {
+      switch(event.keyCode) {
+        case KeyEvent.DOM_VK_W: movement.forward = 1; break;
+        case KeyEvent.DOM_VK_S: movement.backward = -1; break;
+        case KeyEvent.DOM_VK_A: movement.left = -1; break;
+        case KeyEvent.DOM_VK_D: movement.right = 1; break;
+      }
+    },
+
+    key_released: function(event) {
+      switch(event.keyCode) {
+        case KeyEvent.DOM_VK_W: movement.forward = 0; break;
+        case KeyEvent.DOM_VK_S: movement.backward = 0; break;
+        case KeyEvent.DOM_VK_A: movement.left = 0; break;
+        case KeyEvent.DOM_VK_D: movement.right = 0; break;
+      }
+    },
+
     mouse_moved: function(event) {
+      this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
+      this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+    },
+    
+    mouse_dragged: function(event) {
       var camera = this.world.getObject(0).camera;
       camera.rotate(0.0375, [this.context.mouse.diffy, 0, -this.context.mouse.diffx]);
     },
     
     update: function(tc) {
+      var speed = 1.5 * tc;
+      this.player.camera.move((movement.forward + movement.backward) * speed);
+      this.player.camera.strafe((movement.left + movement.right) * speed);
+
       var light = this.world.lighting.getLight(0).camera;
       light.p = (light.p || 0) + tc;
       light.setPosition(Math.cos(light.p)*2.5, Math.sin(light.p)*2.5, -6.0);
