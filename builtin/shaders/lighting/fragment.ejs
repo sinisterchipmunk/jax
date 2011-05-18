@@ -26,7 +26,7 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   }
 
   // is this correct??
-  _ambient.a = 1.0;
+  if (_ambient.a != 0.0) _ambient.a = 1.0;
   
   ambient *= _ambient;
   diffuse *= _diffuse;
