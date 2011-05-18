@@ -6,6 +6,7 @@ module Jax
       class MaterialGenerator < Jax::Generators::Command
         include Thor::Actions
         argument :name, :desc => "The name of this material", :banner => "[name]"
+        class_option :append, :default => false, :type => :boolean
         
         def initialize(args = [], *other)
           chain.unshift args.pop while args.length > 1 # name is arg0
@@ -15,9 +16,30 @@ module Jax
         def self.source_root
           File.expand_path("templates", File.dirname(__FILE__))
         end
-                
+             
         def material
-          template 'material.yml.tt', File.join("app/resources/materials", "#{file_name}.yml")
+          filename = File.join("app/resources/materials", "#{file_name}.yml")
+          
+          if options[:append]
+            tmp = "tmp/amendment.#{file_name}.yml"
+            template 'append.yml.tt', tmp, :verbose => false
+            
+            if File.file?(filename)
+              say_status :append, filename, :green
+            else
+              say_status :missing, filename, :red
+              return
+            end
+            
+            File.open(filename, "a+") { |f| f.puts File.read(tmp) }
+            
+            # doesn't append if the end of the file matches string identically - usually useful, but in this case troublesome.
+            # append_to_file File.join("app/resources/materials", "#{file_name}.yml"), File.read("tmp/amendment.#{file_name}.yml")
+            
+            remove_file tmp, :verbose => false
+          else
+            template 'material.yml.tt', filename
+          end
         end
         
         protected

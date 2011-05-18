@@ -60,6 +60,8 @@ class JaxGeneratorInvoker < Thor
   
   desc "material", "generates a new material"
   def material(*args)
+    args = ARGV.dup
+    2.times { args.shift }
     Jax::Generators::Material::MaterialGenerator.start(args)
   end
 

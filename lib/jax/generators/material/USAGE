@@ -22,3 +22,8 @@ material that uses three textures and two normal maps:
 
   jax generate material NAME texture texture texture normal_map normal_map
 
+You can also pass the --append option to update an existing material rather
+than generate an all-new one:
+
+  jax generate material NAME --append texture
+
