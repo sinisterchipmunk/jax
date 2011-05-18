@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
+  s.add_dependency 'bundler',       '~> 1.0.10'
   s.add_dependency "thor",          '~> 0.14.6'
   s.add_dependency 'jasmine',       '~> 1.0.2.0'
   s.add_dependency 'activesupport', '~> 3.0'
