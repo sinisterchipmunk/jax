@@ -140,4 +140,5 @@ desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 task :jasmine => :compile
+task :build   => :compile
 task :default => :compile
