@@ -193,7 +193,15 @@ This will generate a Jax material. By default, Jax will also add in support for 
 
 TIP: This guide won't cover Jax materials in depth, but they're very powerful and very versatile. For more information regarding Jax materials, see the "Jax Material Guide":materials.html.
 
-Edit the newly-generated material file, +app/resources/material/teapot.yml+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0. This will produce a completely opaque, red teapot.
+Edit the newly-generated material file, +app/resources/material/teapot.yml+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0. This will produce a completely opaque, red teapot:
+
+<yaml>
+ambient:
+  red: 1.0
+  green: 0.0
+  blue: 0.0
+  alpha: 1.0
+</yaml>
 
 Again, edit the +app/controllers/teapot_controller.js+ file and alter this line:
 
@@ -291,6 +299,12 @@ color:
     blue: 0.0
     alpha: 1.0
 </yaml>
+
+The last step is, again, to add the light source to the scene from the controller +app/controllers/teapot_controller.js+:
+
+<js>
+this.world.addLightSource(LightSource.find("candle"));
+</js>
 
 Reload the scene again and you should see your candle's effect upon the teapot.
 
@@ -646,8 +660,8 @@ The _scaffold_ generator will create the following files:
 | app/resources/dungeons/default.yml                      | The default resource for the +Dungeon+ model |
 | app/resources/materials/dungeon.yml                     | A default material for the +Dungeon+'s mesh |
 | config/routes.rb                                        | Inserts the route mapping for the +DungeonController+ |
-| spec/javascripts/controllers/dungeon_controller_spec.js | Tests for the +DungeonController+ |
 | spec/javascripts/models/dungeon.js                      | Tests for the +Dungeon+ model |
+| spec/javascripts/controllers/dungeon_controller_spec.js | Tests for the +DungeonController+ |
 | spec/javascripts/helpers/dungeon_helper.js              | Tests for the +DungeonHelper+ helper |
 
 h3. Helpers
@@ -666,13 +680,7 @@ NOTE: A special exception is the +ApplicationHelper+, which is one of the defaul
 
 h4. Extract the Code
 
-First, we need to extract the code we want into the helper we want to use. Rename the file +app/helpers/teapot_helper.js+:
-
-<shell>
-$ mv app/helpers/teapot_helper.js app/helpers/user_input_helper.js
-</shell>
-
-Now, edit that file and change _TeapotHelper_ to _UserInputHelper_. The file should now look like this:
+First, we need to extract the code we want into the helper we want to use. Create a new file called +app/helpers/user_input_helper.js+ and make it look like this:
 
 <js>
 var UserInputHelper = (function() {
@@ -682,7 +690,7 @@ var UserInputHelper = (function() {
 })();
 </js>
 
-Cut all of the mouse and keyboard input code, including the +update+ method, out of the +Teapot+ controller, and paste it into the +UserInputHelper+. Don't forget to include the tracking variable!
+Cut all of the mouse and keyboard input code, including the +update+ method, out of the +Teapot+ controller, and paste it into the +UserInputHelper+. Don't forget to include the tracking variable +movement+!
 
 The complete +UserInputHelper+:
 
@@ -740,3 +748,424 @@ That's it! Jax will detect the presence of this function and use it to mix in th
 
 If you reload your Jax suite, you'll see that you can still navigate around the rotating teapot just as before. There's no logical difference, but the code is much more organized, easier to maintain and introduces fewer points of failure by virtue of requiring less code.
 
+h3. The Dungeon
+
+We're now ready to build up our dungeon. First, we need a way to tell Jax what the dungeon should look like. It would also be a good idea to mark out where we plan to place light sources, where the player should start, and what direction the camera should be facing at the start of the demo. All of these things represent dungeon data, so we can put them into our resource file.
+
+h4. Define the Resource
+
+Create the file +app/resources/dungeons/first.yml+ and add the following content:
+
+<yaml>
+map:
+  - XXXXXXXXX
+  - X XXX  'X
+  - X'    X X
+  - XXXXXXXXX
+  
+starting:
+  position: 1, 1
+  direction: 0, 1
+</yaml>
+
+NOTE: It's usually a good idea to define the obvious components of a model in its resource file before starting to add any model logic. By the time you've decided what data to store, you'll often have a good idea of how you want to parse it. This doesn't mean you can't come back and alter it as needed, of course.
+
+As you can see, we've decided to have an attribute +map+ which is an array of strings. Each character in each string can be one of the letter X, empty space, or an apostrophe ('). The apostrophes will represent point lights, which we'll use to light up the dungeon. The X's mark walls, while white space represent passable hallways.
+
+The other attribute we've created is called +starting+, and contains two sub-attributes: +position+ and +direction+. Notice that we've specified both of these as vectors in two dimensions, not three. This is because the map itself is laid out in two dimensions; we'll do the necessary conversions into 3D (by simply setting the third component to 0) in a moment.
+
+h4. Write Some Tests
+
+After you decide on a format for your resources, you should write some basic tests to make sure that it is parsed as you expect it to be. This provides a little added peace-of-mind that Jax is doing its job, but more importantly, it exposes the layers of functionality that you have yet to write. You may be surprised to find that quite a bit of your "work" has already been taken care of for you!
+
+NOTE: This guide will only touch on the basics of unit testing in Jax; for a much more detailed guide on testing your Jax applications, see the "testing guide":testing.html.
+
+Deciding on what level of detail to test is a minor black art. If you write tests that are too vague, you'll end up with flimsy specs that let you get away with writing unstable code and introduce hard-to-debug issues. On the other hand, if the tests are too specific, you'll find yourself having to go back and modify the them every time you make a minor change to the resource, such as setting +position+ to (1, 2) instead of (1, 1). Worse, constantly switching back and forth between tests and data often leads developers to begin ignoring their tests entirely, which is just as bad as not testing at all.
+
+As a rule of thumb, try to test the _structure_ of your resource without testing its _content_. For example, instead of making sure an array contains the values [1, 0, 1], simply make sure that it _is_ an array, and that it contains exactly three values.
+
+There are 3 basic conditions that we should spec out for our +Dungeon+ resource. They are:
+
+# It should have a map, which should be an array of strings
+# It should have a starting position and direction
+# The starting position and direction should both be converted into 3-dimensional vectors, not left as strings or 2-dimensional vectors.
+
+Edit your +spec/javascripts/models/dungeon_spec.js+ file. Just after the +var model;+ declaration, we'll create a test specifically for the _first_ +Dungeon+ resource. Insert the following code beginning on line 3:
+
+<js>
+describe("'first' resource", function() {
+  beforeEach(function() { model = Dungeon.find("first"); });
+  
+  it("should have a map, which should be a an array of strings", function() {
+    var map = model.map;
+    expect(map.length).toBeGreaterThan(0);
+    for (var i = 0; i < map.length; i++)
+      expect(typeof map[i]).toEqual('string');
+  });
+  
+  it("should have a 3-element starting position", function() {
+    expect(model.starting.position.length).toEqual(3);
+  });
+  
+  it("should have a 3-element starting direction", function() {
+    expect(model.starting.direction.length).toEqual(3);
+  });
+});
+</js>
+
+Reloading your suite, you'll now have some failing tests. Notice that only two are failing, however. The first one is passing! This is because Jax has automatically converted the dungeon's +map+ attribute into an array of strings.
+
+h4. Adding Business Logic
+
+Two of our tests are still failing because the model doesn't know how to translate the starting +position+ and +direction+ attributes into 3-dimensional vectors.
+
+Open your +app/models/dungeon.js+ file. On line 6, just above <tt>return Jax.Model.Create ...</tt>, add the following private method:
+
+<js>
+function parse(str) {
+  var vec = str.split(/,\s*/);
+  return [parseFloat(vec[0]), 0.0, parseFloat(vec[1])];
+}
+</js>
+
+This method is _private_ because it is declared within a generic function (see the line just preceding it), making it accessible only to code that is _also_ in the same function. That limits the scope of the +parseVectorString+ function just to the +Dungeon+ model.
+
+Now, on line 12, within the +after_initialize+ method body, add the following:
+
+<js>
+if (this.starting) {
+  this.starting.position = parse(this.starting.position);
+  this.starting.direction = parse(this.starting.direction);
+}
+</js>
+
+WARNING: The reason we test to see if +this.starting+ exists is because we didn't add a corresponding entry to the dungeon's +default.yml+ file. This means that it's possible to instantiate a dungeon without any +starting+ attribute. Had we moved the +starting+ attribute into the +default+ resource, we would not have to make this check.
+
+Here's the complete +app/models/dungeon.js+ source code listing:
+
+<js>
+/**
+ * class Dungeon < Jax.Model
+ *
+ **/
+var Dungeon = (function() {
+  function parse(str) {
+    var vec = str.split(/,\s*/);
+    return [parseFloat(vec[0]), 0.0, parseFloat(vec[1])];
+  }
+
+  return Jax.Model.create({
+    after_initialize: function() {
+      if (this.starting) {
+        this.starting.position = parse(this.starting.position);
+        this.starting.direction = parse(this.starting.direction);
+      }
+    }
+  });
+})();
+</js>
+
+h4. The Mesh
+
+As you saw with the _Teacup_ example, in order to draw on the screen, we must first define a Mesh. Meshes represent the 3D data used by WebGL. Previously, we used a built-in type of Mesh -- the +Teapot+. There are a growing number of built-in meshes that you can use for simple objects, and they are listed in the table below:
+
+| Mesh type | Description | Usage Example |
+| Cube      | Six perpendicular Quads forming a closed box. The faces of the Cube point outward. | <tt>new Jax.Mesh.Cube({width:1, height:2, depth:3});</tt> |
+| Plane     | An arbitrary number of Quads placed adjacently to form one large, multi-polygon square. | <tt>new Jax.Mesh.Plane({width:500, height:500, x_segments:20, y_segments:20});</tt> |
+| Quad      | A single-polygon square. | <tt>new Jax.Mesh.Quad({width:1, height:1});</tt> |
+| Sphere    | A multi-polygon mesh approximating the shape of a ball. Slices and stacks comprise the number of polygons; the more slices and stacks, the more perfect the sphere will be. | <tt>new Jax.Mesh.Sphere({slices:30, stacks:30, radius:1});</tt> |
+| Teapot    | A Jax implementation of the "Utah Teapot":http://en.wikipedia.org/wiki/Utah_teapot. | <tt>new Jax.Mesh.Teapot({size:1});</tt> |
+| Torus     | A "donut"-shaped mesh. The number of polygons is comprised of the number of sides and rings; the more polygons, the more perfect the torus will be. | <tt>new Jax.Mesh.Torus({inner_radius:0.6, outer_radius:1.8, sides:128, rings:256});</tt> |
+
+Unfortunately, no graphics library can pre-build every possible mesh -- and besides, you probably wouldn't want them to try. Whether you store your meshes in static files and load them with AJAX, or write algorithms to build them dynamically, one way or another you're going to need to know how to build your own Mesh.
+
+WARNING: Meshes are confusing. You're going to need to deal with raw 3D data and you're going to need to use some math to put it all together. If you are new to graphical programming, you should brush up on the principles of basic mesh construction before continuing.
+
+h5. A Simple Mesh Example
+
+As mesh construction goes, Jax is pretty easy to use. Here's how you would create a Quad mesh:
+
+<js>
+var QuadMesh = Jax.Class.create(Jax.Mesh, {
+  init: function(vertices, colors, textureCoords, normals, vertexIndices) {
+    this.draw_mode = GL_TRIANGLE_STRIP;
+    
+    var size = 1.0; // 1 unit high, 1 unit wide
+    var width = size / 2, height = size / 2;
+    
+    vertices.push(-width,  height, 0);
+    vertices.push(-width, -height, 0);
+    vertices.push( width,  height, 0);
+    vertices.push( width, -height, 0);
+
+    colors.push(1,1,1,1);
+    colors.push(1,1,1,1);
+    colors.push(1,1,1,1);
+    colors.push(1,1,1,1);
+        
+    textureCoords.push(0, 1);
+    textureCoords.push(0, 0);
+    textureCoords.push(1, 1);
+    textureCoords.push(1, 0);
+    
+    normals.push(0,0,1);
+    normals.push(0,0,1);
+    normals.push(0,0,1);
+    normals.push(0,0,1);
+    
+    vertexIndices.push(0, 1, 2, 3);
+  }
+});
+</js>
+
+Most of the above should look familiar if you've ever dealt with 3D models before.
+
+First, we tell Jax to create a new mesh type by inheriting from the base +Jax.Mesh+ class. There's nothing special about this that you haven't seen elsewhere already.
+
+We only need to add one function, +init+, to the mesh. When Jax determines that it's time to build (or rebuild) the mesh, it will call +init+ with a number of arguments. All of these arguments are arrays. Although they are all effectively optional, omitting them will limit their compatibility with certain shaders:
+
+| Argument   | Description                       | If Empty... |
+| +vertices+ | Vertex coordinate data. Must be stored in multiples of 3 (X, Y, Z). | ... the mesh can't be rendered. |
+| +colors+   | Per-vertex color information. Must be stored in multiples of 4 (red, green, blue, alpha transparency) and must have one color per vertex stored in +vertices+. | ... the color data will default to all 1's (pure white, completely opaque). |
+| +textureCoords+ | Texture coordinate information. Multiples of 2 (U, V). Must specify one texture coordinate per vertex. Individual materials may scale these numbers as needed. | ... the mesh cannot be rendered with any texture-based shaders. Attempting to do so will probably result in a GL_INVALID_OPERATION error. |
+| +normals+ | Directional vectors representing the direction each vertex is pointing. Multiples of 3 (X, Y, Z). Must specify one normal per vertex. | ... the mesh cannot be lit effectively, and trying to render with lighting support or any other normals-based shader may result in a GL_INVALID_OPERATION error. Also, since tangent space cannot be calculated without normal data, normal maps and other shaders relying on tangent vectors will probably fail. |
+| +vertexIndices+ | Vertex index data. Stored in multiples of 1, each index is an integer value pointing to a vertex to be drawn. For instance, index 0 represents <tt>vertices[0..2]</tt>; index 1 represents <tt>vertices[3..5]</tt>; and so on. Note that each index corresponds identically to color index, textureCoords index, and so on. | If left empty, Jax will automatically use the +vertices+ data sequentially as if the vertex indices were equal to <tt>[0, 1, 2, ... n]</tt>. No errors should occur, though the mesh may not be rendered properly if the vertex data is not meant to be rendered sequentially. |
+
+INFO: In order to achieve maximum compatibility, you should do your best not to leave any of the data arrays empty, except perhaps +vertexIndices+ if your mesh doesn't rely on vertex indices.
+
+h5. The Dungeon Mesh
+
+Now that you have enough information to construct a mesh in Jax, it's time for us to build the mesh to be used for the dungeon. Remember the +map+ attribute of the +Dungeon+ model? We're now going to iterate through that map and dynamically build our dungeon mesh from it.
+
+INFO: Meshes do not have to be dynamically generated in the same way as we are doing with the +Dungeon+, but they do need to be given data from _somewhere_. You could load this data directly from a JSON file retrieved via AJAX, or build the mesh in a completely different way. The best approach to mesh building depends entirely upon the needs and expectations of your application.
+
+In the +after_initialize+ method of your +app/models/dungeon.js+ file, add the following code:
+
+<js>
+if (this.map) {
+  var map = this.map;
+  this.mesh = new Jax.Mesh({
+    init: function(vertices, colors, texcoords, normals, indices) {
+      var ofs = 0.5; // offset from center of each grid node
+      var row;
+
+      function drawSideWall(x, z, side) {
+        x += ofs*side;
+        //             triangle 1                                  triangle 2
+        vertices.push (x,-ofs,z-ofs,  x,-ofs,z+ofs,  x,ofs,z-ofs,  x,ofs,z-ofs,  x,-ofs,z+ofs,  x,ofs,z+ofs);
+        colors.push   (1,0,0,1,       1,0,0,1,       1,0,0,1,      1,0,0,1,      1,0,0,1,       1,0,0,1);
+        texcoords.push(0,0,           1,0,           0,1,          0,1,          1,0,           1,1);
+        normals.push  (-side,0,0,     -side,0,0,     -side,0,0,    -side,0,0,    -side,0,0,     -side,0,0);
+      }
+
+      function drawFrontWall(x, z, side) {
+        z -= ofs*side;
+        //             triangle 1                                  triangle 2
+        vertices.push (x-ofs,-ofs,z,  x+ofs,-ofs,z,  x-ofs,ofs,z,  x-ofs,ofs,z,  x+ofs,-ofs,z,  x+ofs,ofs,z);
+        colors.push   (0,0,1,1,       0,0,1,1,       0,0,1,1,      0,0,1,1,      0,0,1,1,       0,0,1,1);
+        texcoords.push(0,0,           1,0,           0,1,          0,1,          1,0,           1,1);
+        normals.push  (0,0,side,      0,0,side,      0,0,side,     0,0,side,     0,0,side,      0,0,side);
+      }
+
+      for (var y = 0; y < map.length; y++) {
+        row = map[y];
+        for (var x = 0; x < row.length; x++) {
+          var ch = row[x];
+          if (ch == 'X') {
+          } else {
+            /* walls */
+            if (x == 0            || row[x-1]    == 'X') drawSideWall(x, y, -1);   // left
+            if (y == 0            || map[y-1][x] == 'X') drawFrontWall(x, y, 1);   // front
+            if (x == row.length-1 || row[x+1]    == 'X') drawSideWall(x, y, 1);    // right
+            if (y == map.length-1 || map[y+1][x] == 'X') drawFrontWall(x, y, -1);  // back
+
+            /* floor */
+            vertices.push(x-0.5,-0.5,y+0.5,  x-0.5,-0.5,y-0.5,  x+0.5,-0.5,y-0.5); // tri 1
+            vertices.push(x-0.5,-0.5,y+0.5,  x+0.5,-0.5,y-0.5,  x+0.5,-0.5,y+0.5); // tri 2
+            colors.push(1,1,1,1,  1,1,1,1,  1,1,1,1,  1,1,1,1,  1,1,1,1,  1,1,1,1);
+            texcoords.push(0,1,  0,0,  1,0,  0,1,  1,0,  1,1);
+            normals.push(0,1,0,  0,1,0,  0,1,0,  0,1,0,  0,1,0,  0,1,0);
+
+            /* ceiling */
+            vertices.push(x-0.5, 0.5,y+0.5,  x-0.5, 0.5,y-0.5,  x+0.5, 0.5,y-0.5); // tri 1
+            vertices.push(x-0.5, 0.5,y+0.5,  x+0.5, 0.5,y-0.5,  x+0.5, 0.5,y+0.5); // tri 2
+            colors.push(1,1,0,1,  1,1,0,1,  1,1,0,1,  1,1,0,1,  1,1,0,1,  1,1,0,1);
+            texcoords.push(0,1,  0,0,  1,0,  0,1,  1,0,  1,1);
+            normals.push(0,-1,0,  0,-1,0,  0,-1,0,  0,-1,0,  0,-1,0,  0,-1,0);
+          }
+        }
+      }
+    }
+  });
+  
+  this.mesh.material = Material.find("dungeon");
+}
+</js>
+
+h4. Drawing the Scene
+
+Now that we have our mesh, our model, its basic material and some input handling code in place, all we have to do is call these components from the controller. Doing so involves nothing you haven't already seen before in this guide. Here's the complete source code for +app/controllers/dungeon_controller.js+:
+
+<js>
+//= require "application_controller"
+
+var DungeonController = (function() {
+  return Jax.Controller.create("dungeon", ApplicationController, {
+    index: function() {
+      var dungeon = Dungeon.find("first");
+      this.world.addObject(dungeon);
+      this.player.camera.setPosition(dungeon.starting.position);
+      this.player.camera.setDirection(dungeon.starting.direction);
+    },
+    
+    helpers: function() { return [UserInputHelper]; }
+  });
+})();
+</js>
+
+Don't forget to change the +root+ in +config/routes.rb+. Your +config/routes.rb+ file should now look like:
+
+<js>
+Dungeon.routes.map do
+  map 'dungeon/index'
+  map 'teapot/index'
+  root 'dungeon'
+end
+</js>
+
+After making this change and reloading your Jax suite, you should be standing within (and able to walk / look around in) your new, brightly-colored Dungeon!
+
+h3. Adding Texture
+
+The dungeon is functional, but it's not very believable. In fact, a rainbow-colored dungeon isn't much of a dungeon at all! We made each wall a starkly different color for the purposes of this tutorial, but realistically, you'd probably never do this. Instead, you'd make it look more like the environment you're targeting, and the most basic way to do this is with texturing.
+
+h4. Updating the Material
+
+When we generated our +Dungeon+ scaffold, Jax created a basic material for us. However, that material only supports basic color and lighting. We could edit the material file by hand, but there are a lot of options, and they're different from shader to shader. Rather than force you to commit them all to memory or constantly look up the Jax documentation, you can rerun the Jax +material+ generator with the <tt>--append</tt> option:
+
+<shell>
+$ jax generate material dungeon texture --append
+</shell>
+
+NOTE: Any shaders that you invoke using the <tt>--append</tt> command will be _added_ to the list of shaders used by +material+. This command won't replace any shaders and cannot be used to remove any. Running the example above twice will produce a material that expects two separate textures.
+
+h4. Selecting a Texture
+
+We're going to use the texture below for the walls of the dungeon. Save this image into your Jax application as +public/images/rock.png+:
+
+!images/getting_started/rock.png(The Dungeon Wall Texture)!
+
+Now edit the +app/resources/materials/dungeon.yml+ file. Scroll to the bottom, and change the texture's +path+ to the path of the dungeon texture:
+
+<yaml>
+- type: Texture
+  path: /images/rock.png
+  # ...
+</yaml>
+
+Reload, and you'll see textured walls! However, all is not quite ideal. The walls of the dungeon are now textured, but they are still tinged with their original colors. This is because the per-vertex color data hasn't changed. Jax, receiving conflicting information about the mesh, has merged the two data sets. Actually, it's pretty normal for a graphics library to do this, because it allows you to do special coloring on a mesh irrespective of the textures used.
+
+To undo the colored walls, simply edit the +app/models/dungeon.js+ file and replace all the 0's in calls to +colors.push(...)+ to 1's. Reload, and all of the walls should be the expected color.
+
+h3. Light Sources
+
+Our dungeon is looking good, but we're not quite there, yet. We still need to add our point lights to the scene. Fortunately, as you saw with the Teacup example, adding lights is a piece of cake! First we need to generate the light source:
+
+<shell>
+$ jax generate light torch point
+</shell>
+
+Now we just need to add the light source to the appropriate locations in the scene. However, the appropriate locations are determined by the model. The controller shouldn't necessarily care about where the lights are positioned, as long as they are positioned appropriately. Since these lights are directly associated with the dungeon, it makes sense for the controller to delegate this job to the dungeon.
+
+In the +index+ action of the +app/controllers/dungeon_controller.js+ file, add the following line:
+
+<js>
+dungeon.addTorches(this.world);
+</js>
+
+h4. More Model Logic
+
+We've just instructed the controller to call a method of +Dungeon+ that doesn't exist. Obviously, the next step is to define that method in +app/models/dungeon.js+:
+
+<js>
+addTorches: function(world) {
+  var map = this.map;
+  if (map) {
+    for (var z = 0; z < map.length; z++) {
+      var row = map[z];
+      for (var x = 0; x < row.length; x++) {
+        // each apostrophe (') represents a light source
+        if (row[x] == "'") {
+          var torch = LightSource.find("torch");
+          torch.camera.setPosition(x, 0, z);
+          world.addLightSource(torch);
+        }
+      }
+    }
+  }
+}
+</js>
+
+What this code does is search through the map looking for light sources (denoted by an apostrophe). When it finds one, it instantiates a new point light form the +torch+ resource, sets its position and then adds it to the scene. Since all the walls and floors are offset by half a unit in each direction, the point light will be positioned directly in the middle of the hallway.
+
+INFO: Nearly every tangible object in Jax has an internal camera. This tracks its position as well as its orientation. Models, light sources, anything that can be added to the world can be positioned and oriented in exactly the same way.
+
+h3. Finishing Touches
+
+There are a few things we could do to improve the Dungeon scene somewhat. First of all, the torch lights work well but some areas are rather dark. Instead of just adding more apostrophes to the map, we could create one additional point light that follows the player around as if they were holding a torch.
+
+Second, it would be nice to add even more detail to the scene. Even state-of-the-art hardware can only model so much complexity, but we can fake it by adding normal mapping.
+
+h4. The Lantern
+
+It might be preferable for the player to hold a light source somewhat different than those attached to the walls, just in case we need to tweak the color, attenuation, and so forth. Since it's not particularly troublesome to do so, let's just generate a new point light called +lantern+:
+
+<shell>
+$ jax generate light lantern point
+</shell>
+
+Now, add it to the world via the controller in the +index+ action of +app/controllers/dungeon_controller.js+:
+
+<js>
+this.player.lantern = LightSource.find("lantern");
+this.world.addLightSource(this.player.lantern);
+</js>
+
+Now that the light source _exists_, we need to make it follow the player around. Since our +update+ method is part of the +UserInputHelper+, we'll want to add a condition to verify that the player actually _has_ a lantern, or else we'll accidentally break our Teapot demo.
+
+NOTE: This, incidentally, is why unit testing is so important for both models and controllers. We're skipping a lot of testing in order to reduce the length and complexity of this guide, but in a real-world application you should absolutely be testing every possible component. You are encouraged to take a look at the "Testing Guide":testing.html when you have completed this one.
+
+Add this code to the end of the +update+ method in the +app/helpers/user_input_helper.js+ file:
+
+<js>
+if (this.player.lantern) {
+  // reposition the lantern to the player's location
+  this.player.lantern.camera.setPosition(this.player.camera.getPosition());
+}
+</js>
+
+Perfect! Now it's a quite well-lit dungeon indeed. If you prefer a darker dungeon, you can make the lights less illuminating by playing with the attenuation and color settings for the light sources. To get the most out of lights, you should also take a look at the "Lighting Guide":lighting.html.
+
+h4. Normal Mapping
+
+Normal mapping, also called DOT3 bump mapping, is a technique that converts a specially-encoded texture image into directional vectors, or _normals_, which are then used in lighting calculations. The end result is a surface that looks far more detailed than it really is. If you look at a single-polygon Quad with normal mapping, it may _look_ like it is composed of many thousands of polygons; however, if you look at that same quad from a severe angle, you'll see that it is still, in fact, quite flat. Normal mapping makes the (usually correct) assumption that these extreme angles will be few and far between, and manages to pull off some very impressive-looking effects without sacrificing much in the way of graphics processing power.
+
+In order to implement normal mapping, we'll first need a normal map. Save this image to +public/images/rock_normal.png+:
+
+!images/getting_started/rock_normal.png(The Dungeon Wall Normal Map)!
+
+Now append a +normal_map+ shader to your existing dungeon wall material:
+
+<shell>
+$ jax generate material dungeon normal_map --append
+</shell>
+
+Finally, edit the +app/resources/materials/dungeon.yml+ file and set the path to the normal map image:
+
+<yaml>
+- type: NormalMap
+  path: /images/rock_normal.png
+  # ...
+</yaml>
+
+Believe it or not, you're done setting up normal mapping! We've already got all of our lights, meshes and whatnot in place, so all you have to do now is reload your application to see the normal map in action.
