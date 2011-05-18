@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Colin MacKenzie IV"]
   s.email       = ["sinisterchipmunk@gmail.com"]
-  s.homepage    = ""
+  s.homepage    = "http://jaxgl.com"
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
