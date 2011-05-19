@@ -1,3 +1,8 @@
+/**
+ * class Jax.Shader
+ *
+ * Wraps around a WebGL shader program.
+ **/
 Jax.Shader = (function() {
   function buildStackTrace(context, glShader, source) {
     source = source.split(/\n/);

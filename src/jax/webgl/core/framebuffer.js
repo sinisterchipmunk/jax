@@ -1,3 +1,8 @@
+/**
+ * class Jax.Framebuffer
+ *
+ * Used for rendering images off-screen and capturing the result.
+ **/
 Jax.Framebuffer = (function() {
   function build(context, self) {
     var handle = context.glCreateFramebuffer();

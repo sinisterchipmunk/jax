@@ -1,10 +1,10 @@
 /**
- class Jax.Shader.Manifest
-   
- Used to track variable assignments. After all assignments have been made just prior to committing a render phase,
- the manifest will be used to actually pass variable values into the shader. This keeps from specifying shader
- values more than once. Manifest can also be used to cache values between render passes, because its values are
- never reset.
+ * class Jax.Shader.Manifest
+ *   
+ * Used to track variable assignments. After all assignments have been made just prior to committing a render phase,
+ * the manifest will be used to actually pass variable values into the shader. This keeps from specifying shader
+ * values more than once. Manifest can also be used to cache values between render passes, because its values are
+ * never reset.
  **/
 Jax.Shader.Manifest = Jax.Class.create({
   initialize: function(existing) {

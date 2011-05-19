@@ -130,20 +130,24 @@ Jax.MatrixStack = (function() {
      * 
      * See also Jax.MatrixStack#pop()
      **/
-    push: function() { pushMatrix(this); },
+    push: function() { pushMatrix(this); return this; },
 
     /**
+     * Jax.MatrixStack#pop() -> Jax.MatrixStack
+     *
      * Reverts back to an earlier matrix stack, effectively undoing any changes that have been made
      * since the most recent call to Jax.MatrixStack#push().
+     *
+     * See also Jax.MatrixStack#push()
      **/
-    pop: function() { this.depth--; },
+    pop: function() { this.depth--; return this; },
 
     /**
      * Jax.MatrixStack#reset() -> Jax.MatrixStack
      * 
      * Resets the stack depth to zero, effectively undoing all calls to #push().
      **/
-    reset: function() { this.depth = 0; },
+    reset: function() { this.depth = 0; return this; },
 
     /**
      * Jax.MatrixStack#loadModelMatrix(matr) -> Jax.MatrixStack
