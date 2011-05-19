@@ -67,7 +67,7 @@ task :compile do
   end
 
   puts "generated #{File.expand_path "dist/jax.js", '.'}"
-  cp File.join(File.dirname(__FILE__), "dist/jax.js"), 
+  cp File.join(File.dirname(__FILE__), "dist/jax.js"),
      File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")
   
   puts "(project built)"
@@ -77,6 +77,8 @@ desc "compile and minify Jax into dist/jax.js and dist/jax-min.js"
 task :minify => :compile do
   puts "(minifying...)"
   if system("java", "-jar", File.join(File.dirname(__FILE__), "vendor/yuicompressor-2.4.2.jar"), "dist/jax.js", "-o", "dist/jax-min.js")
+    cp File.join(File.dirname(__FILE__), "dist/jax-min.js"),
+       File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")
     puts "(done.)"
   else
     puts "(Error while minifying!)"
@@ -142,3 +144,7 @@ task :guides => 'guides:generate'
 task :jasmine => :compile
 task :build   => :compile
 task :default => :compile
+
+# we should do this before v0.0.1 but will make issues harder to track,
+# so let's hold off while in prerelease :
+# task :release => :minify
