@@ -5,6 +5,7 @@ $JAX_RAKE = true
 begin
   require 'bundler'
   Bundler::GemHelper.install_tasks
+  Bundler.setup
 rescue LoadError
   puts " *** You don't seem to have Bundler installed. ***"
   puts "     Please run the following command:"
@@ -113,7 +114,6 @@ namespace :doc do
 end
 
 namespace :guides do
-  desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
   task :generate do
     rm_rf "guides/output"
     ENV["WARN_BROKEN_LINKS"] = "1" # authors can't disable this
