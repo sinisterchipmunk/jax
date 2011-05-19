@@ -1,4 +1,5 @@
 require 'active_support/core_ext'
+require 'rbconfig'
 require File.join(File.dirname(__FILE__), "../../../jax")
 
 module Jax
@@ -55,13 +56,23 @@ module Jax
         end
         
         def git
-          if File.exist? '.git'
-            say_status :exist, 'git', :blue
+          void = RbConfig::CONFIG['host_os'] =~ /msdos|mswin|djgpp|mingw/ ? 'NUL' : '/dev/null'
+          if system "git --version >>#{void} 2>&1"
+            if File.exist? '.git'
+              say_status :exist, 'git', :blue
+            else
+              `git init`
+              `git add *`
+              say_status :init, 'git', :green
+            end
           else
-            `git init`
-            `git add *`
-            say_status :init, 'git', :green
+            say_status :warn, "Git does not seem to be installed. Skipping...", :yellow
           end
+        end
+        
+        def done
+          # to clarify that everything is fine, just in case the user got warnings about git
+          say_status :complete, "Done!", :green
         end
 
         protected
