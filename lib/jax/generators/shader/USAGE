@@ -1,0 +1,4 @@
+Usage:
+  jax generate shader NAME
+
+Generates a new custom shader, which can then be used in materials.

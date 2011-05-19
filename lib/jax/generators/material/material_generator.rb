@@ -61,7 +61,7 @@ module Jax
         end
         
         def banner
-          "jax generate light #{self.arguments.map { |a| a.usage }.join(' ')}"
+          "jax generate material #{self.arguments.map { |a| a.usage }.join(' ')}"
         end
 
         def file_name

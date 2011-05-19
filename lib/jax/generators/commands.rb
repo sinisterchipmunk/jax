@@ -19,11 +19,15 @@ module Jax
         def base_path=(path)
           @base_path = path
         end
+
+        def usage
+          usage = ERB.new(File.read(File.expand_path("USAGE", base_path)), nil, '-')
+          usage.result(binding)
+        end
         
         def start(given_args=ARGV, config={})
           if (given_args.length == 0)
-            usage = ERB.new(File.read(File.expand_path("USAGE", base_path)), nil, '-')
-            puts usage.result(binding)
+            puts usage
           else
             super
           end
@@ -35,6 +39,7 @@ module Jax
     autoload :Model,      File.join(File.dirname(__FILE__), "model/model_generator")
     autoload :LightSource,File.join(File.dirname(__FILE__), "light_source/light_source_generator")
     autoload :Material,   File.join(File.dirname(__FILE__), "material/material_generator")
+    autoload :Shader,     File.join(File.dirname(__FILE__), "shader/shader_generator")
   end
 end
 
@@ -66,16 +71,24 @@ class JaxGeneratorInvoker < Thor
   end
 
   desc "scaffold", "generates a controller, model and material, all with the same name"
-  def scaffold(name)
+  def scaffold(*name)
+    name = name.shift || []
     Jax::Generators::Controller::ControllerGenerator.start([name, 'index'])
     Jax::Generators::Model::ModelGenerator.start([name])
     Jax::Generators::Material::MaterialGenerator.start([name])
   end
+
+  desc "shader", "generates a new custom shader"
+  def shader(*name)
+    Jax::Generators::Shader::ShaderGenerator.start(name)
+  end
 end
 
 class JaxGenerator < Thor
-  desc "generate", "generates a controller, model, light source, or material"
+  desc "generate", "generates a controller, model, light source, material or shader"
   def generate(*args)
     JaxGeneratorInvoker.start(args)
+  rescue ArgumentError
+    puts $!.message
   end
 end
