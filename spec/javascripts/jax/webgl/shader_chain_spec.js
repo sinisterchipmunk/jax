@@ -25,7 +25,7 @@ describe("Jax.ShaderChain", function() {
 
   describe("with a fragment main with 3 unqualified arguments", function() {
     beforeEach(function() {
-      chain.addShader(new Jax.Shader({fragment:"void main(vec4 amb, vec4 dif, vec4 spec) { }",name:"one"}));
+      chain.addShader(new Jax.Shader({fragment:"/* comment with void main(void) in it*/\nvoid main(vec4 amb, vec4 dif, vec4 spec) { }",name:"one"}));
     });
     
     it("should mangle #main but keep the arguments", function() {

@@ -119,8 +119,13 @@ Jax.Shader = (function() {
     return source;
   }
   
+  function sourceWithoutComments(source) {
+    return source.replace(/\/\*.*\*\//g, "");
+  }
+  
   function numArgumentsInMain(source) {
-    var result = /void\s*main\((.*?)\)\s*\{/.exec(source);
+    // if a comment contains 'void main' in it, we'll get false positives
+    var result = /void\s*main\((.*?)\)\s*\{/.exec(sourceWithoutComments(source));
     if (result) {
       result = result[1].replace(/\s*/g, '');
       if (result == "" || result == "void") return 0;

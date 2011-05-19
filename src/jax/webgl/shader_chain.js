@@ -8,7 +8,7 @@ Jax.ShaderChain = (function() {
   function preprocessFunctions(self, prefix, suffix, source) {
     /* TODO mangle all function and structure names to prevent conflicts -- right now we only mangle main() */
     
-    return source.replace(/void\s*main\s*\(/, 'void '+sanitizeName(prefix)+'_main_'+sanitizeName(suffix)+'(');
+    return source.replace(/void\s*main\s*\(/g, 'void '+sanitizeName(prefix)+'_main_'+sanitizeName(suffix)+'(');
   }
   
   function preprocessorOptions(self) {
