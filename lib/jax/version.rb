@@ -3,7 +3,7 @@ module Jax
     MAJOR = 0
     MINOR = 0
     TINY  = 0
-    PATCH = 3
+    PATCH = 4
 
     STRING = PATCH == 0 ? "#{MAJOR}.#{MINOR}.#{TINY}" : "#{MAJOR}.#{MINOR}.#{TINY}.#{PATCH}"
   end
