@@ -54,6 +54,11 @@ h3. Creating a New Jax Project
 
 This guide will walk you through creating a sample application from scratch. The application will create a 3D "dungeon" that the player can move around in. It will be a first-person application, rendered as if through the eyes of the player's character.
 
+Here's a screenshot of the finished dungeon scene:
+
+!images/getting_started/dungeon-complete.png(The Dungeon)!
+
+
 h4. Installing Jax
 
 The first step to creating any Jax application is to make sure Jax itself is installed. Assuming you have already set up its primary dependencies, "Ruby":http://www.ruby-lang.org and "RubyGems":http://rubyforge.org/frs/?group_id=126, this should be as simple as running the following command:
@@ -178,6 +183,8 @@ Therefore, the above code will create a new Teapot object, position it 5 units i
 
 Reload your suite again, and you'll see the fruits of your labor!
 
+!images/getting_started/teapot-white.png(The Default Teapot)!
+
 h5. Using Materials for Color
 
 We have a teapot, but we don't have a very _impressive_ teapot. In fact, it looks rather flat, uninspiring and _white_.
@@ -214,6 +221,9 @@ Replace it with the following:
 </js>
 
 This will produce a completely opaque, red teapot. It looks depressingly two-dimensional because it's composed entirely of a single color. Next, we'll make it look more like the 3D object it really is!
+
+<img src="images/getting_started/teapot-red-nolight.png" style="width:300px;height:200px;float:left;margin-right:2em;"/>
+<img src="images/getting_started/teapot-red-spot-point-directional.png" style="width:300px;height:200px;clear:right;"/>
 
 h4. Using Light Sources
 
@@ -258,6 +268,9 @@ This tells the light to shine left, down, and backward relative to world space.
 INFO: Remember that, currently, our camera is unmodified, so world space and camera space are the same thing. When we get around to rotating the camera, the difference between camera and world space will become more important. For more information about the various spaces and the differences between them, take a look at the "Matrices Guide":matrices.html.
 
 Reload your scene, and you should finally be starting to see some detail!
+
+!images/getting_started/teapot-red-directional.png(Teapot With Directional Light)!
+
 
 h5. Point Lights
 
@@ -313,6 +326,9 @@ color:
 </yaml>
 
 Reload the scene again and you should see your candle's effect upon the teapot.
+
+!images/getting_started/teapot-red-directional-point.png(Teapot With Directional and Point Lights)!
+
 
 h5. Spot Lights
 
@@ -388,6 +404,9 @@ Once again, you're ready to reload the scene. Note how the spotlight is bright i
 Take some time to alter the various lighting settings, above, and note the differences in the results.
 
 WARNING: Jax supports an arbitrary number of light sources; that is, there's no hard limit on how many lights you can have in your scene. However, be aware that the scene must be rendered once <em>for each light source</em>, so you can expect to take a significant performance hit by simply tossing lights around without carefully considering the implications. Always keep in mind the quality of the hardware you're targeting; the more light sources you activate, the lower the framerate on your clients' systems.
+
+!images/getting_started/teapot-red-spot-point-directional.png(Teapot With Directional, Spot and Point Lights)!
+
 
 h4. Making the Most of Models
 
@@ -1043,6 +1062,9 @@ end
 
 After making this change and reloading your Jax suite, you should be standing within (and able to walk / look around in) your new, brightly-colored Dungeon!
 
+!images/getting_started/dungeon-rainbow.png(A Brightly Colored Dungeon)!
+
+
 h3. Adding Texture
 
 The dungeon is functional, but it's not very believable. In fact, a rainbow-colored dungeon isn't much of a dungeon at all! We made each wall a starkly different color for the purposes of this tutorial, but realistically, you'd probably never do this. Instead, you'd make it look more like the environment you're targeting, and the most basic way to do this is with texturing.
@@ -1074,6 +1096,10 @@ Now edit the +app/resources/materials/dungeon.yml+ file. Scroll to the bottom, a
 Reload, and you'll see textured walls! However, all is not quite ideal. The walls of the dungeon are now textured, but they are still tinged with their original colors. This is because the per-vertex color data hasn't changed. Jax, receiving conflicting information about the mesh, has merged the two data sets. Actually, it's pretty normal for a graphics library to do this, because it allows you to do special coloring on a mesh irrespective of the textures used.
 
 <strong>To undo the colored walls, simply edit the +app/models/dungeon.js+ file and replace all the 0's in calls to +colors.push(...)+ to 1's. Reload, and all of the walls should be the expected color.</strong>
+
+<img src="images/getting_started/dungeon-rainbow-textured.png" style="width:300px;height:200px;margin-right:2em;float:left;" />
+<img src="images/getting_started/dungeon-textured.png" style="clear:right;width:300px;height:200px;" />
+
 
 h3. Light Sources
 
@@ -1117,6 +1143,9 @@ addTorches: function(world) {
 What this code does is search through the map looking for light sources (denoted by an apostrophe). When it finds one, it instantiates a new point light form the +torch+ resource, sets its position and then adds it to the scene. Since all the walls and floors are offset by half a unit in each direction, the point light will be positioned directly in the middle of the hallway.
 
 INFO: Nearly every tangible object in Jax has an internal camera. This tracks its position as well as its orientation. Models, light sources, anything that can be added to the world can be positioned and oriented in exactly the same way. In addition, since each Camera tracks its own frustum, (you don't need to know what this is right now), each object can "see" the other objects in the scene. This is very useful for AI programming.
+
+!images/getting_started/dungeon-textured-lighting.png(Dungeon with Texture and Lighting)!
+
 
 h3. Finishing Touches
 
@@ -1176,4 +1205,6 @@ Finally, edit the +app/resources/materials/dungeon.yml+ file and set the path to
   # ...
 </yaml>
 
-Believe it or not, you're done setting up normal mapping! We've already got all of our lights, meshes and whatnot in place, so all you have to do now is reload your application to see the normal map in action.
+You're done setting up normal mapping! We've already got all of our lights, meshes and whatnot in place, so all you have to do now is reload your application to see the normal map in action.
+
+!images/getting_started/dungeon-normal-map.png(Dungeon with Normal Mapping)!
