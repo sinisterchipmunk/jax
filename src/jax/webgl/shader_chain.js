@@ -148,11 +148,18 @@ Jax.ShaderChain = (function() {
         functionCalls += "  "+sanitizeName(this.phases[i].getName())+i+"_main_f("+args+");\n";
       }
       
+      var colors = "#ifdef PASS_TYPE\n"
+                 + "  if (PASS_TYPE == "+Jax.Scene.ILLUMINATION_PASS+") gl_FragColor = ambient + diffuse + specular;\n"
+                 + "  else gl_FragColor = ambient;\n"
+                 + "#else\n"
+                 + "  gl_FragColor = ambient + diffuse + specular;\n"
+                 + "#endif\n";
+                 
       return "/**** Shader chain generated #main ****/\n" +
              "void main(void) {\n" +
                "vec4 ambient = vec4(1.0,1.0,1.0,1.0), diffuse = vec4(1.0,1.0,1.0,1.0), specular = vec4(1.0,1.0,1.0,1.0);\n" +
                functionCalls +
-               (lastTookArguments ? "gl_FragColor = ambient + diffuse + specular;\n" : "") +
+               (lastTookArguments ? colors : "") +
              "}\n";
     },
     

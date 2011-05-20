@@ -36,11 +36,15 @@
 <% end %>
 
 <%= guide("Lighting", 'lighting.html', :work_in_progress => true) do %>
-  <p>This guide shows how to make the most of lighting support in Jax, and outlines potential caveats.</p>
+  <p>This guide shows how to make the most of lighting support in Jax, and outlines potential caveats. It will also discuss how to prevent certain objects from being lit at all, and in what circumstances you'd want to do this.</p>
 <% end %>
 
 <%= guide("Custom Shaders", 'shaders.html', :work_in_progress => true) do %>
   <p>This guide shows how to add and use your own shaders to add advanced custom visual effects.</p>
+<% end %>
+
+<%= guide("Matrices", "matrices.html", :work_in_progress => true) do%>
+  <p>This guide explains all of the various matrices and "spaces", and how they relate to one another. It will help you understand the difference between world space, camera space and object space; and how a 3D object goes from a set of vertices in object space to a translated, rotated and scaled image on your computer screen.</p>
 <% end %>
 
 <%= guide("Testing Jax Applications", 'testing.html', :work_in_progress => true) do %>

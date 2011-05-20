@@ -38,13 +38,16 @@ Jax.Scene.LightManager = (function() {
     },
     
     illuminate: function(context, objects, options) {
+      // Use alpha blending for the first pass, and additive blending for subsequent passes.
+      this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       for (var i = 0; i < this._lights.length; i++) {
-        this._current_light = i;
         for (var j = 0; j < objects.length; j++) {
+          this._current_light = i;
           /* TODO optimization: see if objects[j] is even affected by this._lights[i] (based on attenuation) */
           if (objects[j].isLit())
             objects[j].render(context, options);
         }
+        this.context.glBlendFunc(GL_ONE, GL_ONE);
       }
       delete this._current_light;
     },

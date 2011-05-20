@@ -74,11 +74,16 @@ Jax.World = (function() {
       
       if (this.lighting.isEnabled()) {
         /* ambient pass */
-        for (i = 0; i < this.objects.length; i++) {
+        /*
+          So.... I see a legit need for an ambient pass for A) unlit objects and B)
+          scene lighting. But jax doesn't yet support scene lighting so really only
+          unlit objects need an ambient pass. For lit objects, why not let
+          lighting take care of (ambient + diffuse + specular) all at once?
+        */
+        for (i = 0; i < this.objects.length; i++)
           if (!this.objects[i].lit)
             this.objects[i].render(this.context, unlit);
-        }
-        this.lighting.ambient(this.context, this.objects);
+        // this.lighting.ambient(this.context, this.objects);
       
         /* shadowgen pass */
         this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
@@ -88,7 +93,6 @@ Jax.World = (function() {
         }
         
         /* illumination pass */
-        this.context.glBlendFunc(GL_ONE, GL_ONE);
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
         this.lighting.illuminate(this.context, this.objects);
       } else {

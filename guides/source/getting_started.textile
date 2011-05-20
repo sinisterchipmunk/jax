@@ -191,7 +191,7 @@ This will generate a Jax material. By default, Jax will also add in support for 
 
 TIP: This guide won't cover Jax materials in depth, but they're very powerful and very versatile. For more information regarding Jax materials, see the "Jax Material Guide":materials.html.
 
-Edit the newly-generated material file, +app/resources/material/teapot.yml+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0. This will produce a completely opaque, red teapot:
+Edit the newly-generated material file, +app/resources/material/teapot.yml+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0.
 
 <yaml>
 ambient:
@@ -210,10 +210,10 @@ Again, edit the +app/controllers/teapot_controller.js+ file and alter this line:
 Replace it with the following:
 
 <js>
-  mesh: new Jax.Mesh.Teapot({ material: Material.find("teapot") });
+  mesh: new Jax.Mesh.Teapot({ material: Material.find("teapot") })
 </js>
 
-Reload your suite again, and the teapot will turn red.
+This will produce a completely opaque, red teapot. It looks depressingly two-dimensional because it's composed entirely of a single color. Next, we'll make it look more like the 3D object it really is!
 
 h4. Using Light Sources
 
@@ -235,22 +235,27 @@ Let's start simple by adding a directional light to our scene. First, from the c
 $ jax generate light sun directional
 </shell>
 
-Edit the file it generates, +app/resources/light_sources/sun.yml+, and change the +direction+ field to look like this:
+Next, we need the controller to add it to the scene. Edit your controller file at +app/controllers/teapot_controller.js+ and add the following line to the +index+ action:
+
+<js>
+index: function() {
+  // ...
+  this.world.addLightSource(LightSource.find("sun"));
+}
+</js>
+
+Now edit the file the generator created, +app/resources/light_sources/sun.yml+, and change the +direction+ field to look like this:
 
 <yaml>
 direction:
   x: -1
   y: -1
-  z: -1
+  z:  1
 </yaml>
 
-This tells the light to shine left, down, and forward relative to world space. (Remember that, currently, our camera is unmodified, so world space and camera space are the same thing. When we get around to rotating the camera, the difference between camera and world space will become more important.)
+This tells the light to shine left, down, and backward relative to world space.
 
-Now that we have defined our light, we just need the controller to add it to the scene. Edit your controller file at +app/controllers/teapot_controller.js+ and add the following line to the +index+ action:
-
-<js>
-this.world.addLightSource(LightSource.find("sun"));
-</js>
+INFO: Remember that, currently, our camera is unmodified, so world space and camera space are the same thing. When we get around to rotating the camera, the difference between camera and world space will become more important. For more information about the various spaces and the differences between them, take a look at the "Matrices Guide":matrices.html.
 
 Reload your scene, and you should finally be starting to see some detail!
 
@@ -264,7 +269,16 @@ Point lights are useful for simulating relatively small light sources like candl
 $ jax generate light candle point
 </shell>
 
-Edit the generated file, +app/resources/light_sources/candle.yml+, and change the +position+ field to look like this:
+Again, add the light source to the scene from the controller +app/controllers/teapot_controller.js+:
+
+<js>
+index: function() {
+  // ...
+  this.world.addLightSource(LightSource.find("candle"));
+}
+</js>
+
+And again, edit the generated file, +app/resources/light_sources/candle.yml+, and change the +position+ field to look like this:
 
 <yaml>
 position:
@@ -298,12 +312,6 @@ color:
     alpha: 1.0
 </yaml>
 
-The last step is, again, to add the light source to the scene from the controller +app/controllers/teapot_controller.js+:
-
-<js>
-this.world.addLightSource(LightSource.find("candle"));
-</js>
-
 Reload the scene again and you should see your candle's effect upon the teapot.
 
 h5. Spot Lights
@@ -318,7 +326,16 @@ Generate the spot light in the same manner as the last two:
 $ jax generate light searchlight spot
 </shell>
 
-This time, we'll alter the position and direction to shine toward, but not directly upon, the teapot; we'll also alter the color so that the light is blue, the angle of the spotlight (that is, the width of the cone), and the spot exponent, which represents how fast light fades out from the center of the cone. With a spot exponent of zero, the spotlight's cone should be quite clearly defined.
+Like the others, add this light to the scene in +app/controllers/teapot_controller.js+:
+
+<js>
+index: function() {
+  // ...
+  this.world.addLightSource(LightSource.find("searchlight"));
+}
+</js>
+
+This time, we'll alter the position and direction to shine toward, but not directly upon, the teapot; we'll also alter the color, the angle of the spotlight (that is, the width of the cone), and the spot exponent, which represents how fast light fades out from the center of the cone. With a spot exponent of zero, the spotlight's cone should be quite clearly defined.
 
 The file to edit is +app/resources/light_sources/searchlight.yml+:
 
@@ -326,20 +343,20 @@ The file to edit is +app/resources/light_sources/searchlight.yml+:
 position:
   x: 0
   y: 0
-  z: 2
+  z: -3.25
 
 direction:
-  x: 0.35
-  y: 0
+  x: 0.05
+  y: -0.025
   z: -1
 
 type: SPOT_LIGHT
 
 # the cone is approx. 20 degrees wide, in radians
-angle: 0.35
+angle: 0.349
 
-# this light has very sharp edges.
-spot_exponent: 0
+# this light has fairly sharp edges.
+spot_exponent: 8
 
 attenuation:
   constant: 1.0
@@ -350,7 +367,7 @@ color:
   ambient:
     red: 0
     green: 0
-    blue: 0.2
+    blue: 0.4
     alpha: 1
 
   diffuse:
@@ -361,18 +378,12 @@ color:
 
   specular:
     red: 0
-    green: 0
-    blue: 0.5
+    green: 1
+    blue: 0
     alpha: 1.0
 </yaml>
 
-Like the others, add this light to the scene in +app/controllers/teapot_controller.js+:
-
-<js>
-this.world.addLightSource(LightSource.find("searchlight"));
-</js>
-
-Once again, you're ready to reload the scene. Note how only half of the teapot has a blue tinge; the other half is unaffected. The blue is produced by the spotlight.
+Once again, you're ready to reload the scene. Note how the spotlight is bright in the center, but begins to fade a little bit toward the edges. The amount of fading is controlled with the +spot_exponent+ setting. In general, a higher number will produce a spotlight that fades more quickly, while a lower number will produce sharper edges. A spotlight with a spot exponent of 0 will have extremely sharp edges.
 
 Take some time to alter the various lighting settings, above, and note the differences in the results.
 
@@ -380,8 +391,7 @@ WARNING: Jax supports an arbitrary number of light sources; that is, there's no 
 
 h4. Making the Most of Models
 
-So far, we've only made use of the controller and the view. (We've only actually altered the controller, because the
-view that Jax generates is fine for most applications.)
+So far, we've only made use of the controller and the view. (We've only actually altered the controller, because the view that Jax generates is fine for most applications.)
 
 Now we'd like to add some lower-level business logic to our application. In particular, we'll make the teapot rotate in
 place. This sort of logic is exactly what models are designed to encapsulate.
@@ -1063,7 +1073,7 @@ Now edit the +app/resources/materials/dungeon.yml+ file. Scroll to the bottom, a
 
 Reload, and you'll see textured walls! However, all is not quite ideal. The walls of the dungeon are now textured, but they are still tinged with their original colors. This is because the per-vertex color data hasn't changed. Jax, receiving conflicting information about the mesh, has merged the two data sets. Actually, it's pretty normal for a graphics library to do this, because it allows you to do special coloring on a mesh irrespective of the textures used.
 
-To undo the colored walls, simply edit the +app/models/dungeon.js+ file and replace all the 0's in calls to +colors.push(...)+ to 1's. Reload, and all of the walls should be the expected color.
+<strong>To undo the colored walls, simply edit the +app/models/dungeon.js+ file and replace all the 0's in calls to +colors.push(...)+ to 1's. Reload, and all of the walls should be the expected color.</strong>
 
 h3. Light Sources
 
@@ -1106,7 +1116,7 @@ addTorches: function(world) {
 
 What this code does is search through the map looking for light sources (denoted by an apostrophe). When it finds one, it instantiates a new point light form the +torch+ resource, sets its position and then adds it to the scene. Since all the walls and floors are offset by half a unit in each direction, the point light will be positioned directly in the middle of the hallway.
 
-INFO: Nearly every tangible object in Jax has an internal camera. This tracks its position as well as its orientation. Models, light sources, anything that can be added to the world can be positioned and oriented in exactly the same way.
+INFO: Nearly every tangible object in Jax has an internal camera. This tracks its position as well as its orientation. Models, light sources, anything that can be added to the world can be positioned and oriented in exactly the same way. In addition, since each Camera tracks its own frustum, (you don't need to know what this is right now), each object can "see" the other objects in the scene. This is very useful for AI programming.
 
 h3. Finishing Touches
 

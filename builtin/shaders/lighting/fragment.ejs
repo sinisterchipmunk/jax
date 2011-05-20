@@ -12,23 +12,29 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
           PointLightWithoutAttenuation(vSurfacePos, nNormal, _ambient, _diffuse, _specular);
         else
           PointLightWithAttenuation(vSurfacePos, nNormal, _ambient, _diffuse, _specular);
-    else
-      if (LIGHT_TYPE == <%=Jax.SPOT_LIGHT%>)
-        SpotLight(vSurfacePos, nNormal, _ambient, _diffuse, _specular);
-    else
-    { // error condition, output 100% red
-      gl_FragColor = vec4(1,0,0,1);
-      return;
-    }
+      else
+        if (LIGHT_TYPE == <%=Jax.SPOT_LIGHT%>)
+          SpotLight(vSurfacePos, nNormal, _ambient, _diffuse, _specular);
+        else
+        { // error condition, output 100% red
+          gl_FragColor = vec4(1,0,0,1);
+          return;
+        }
   } else {
     _ambient = vec4(1,1,1,1);
     _diffuse = _specular = vec4(0,0,0,0);
   }
 
-  // is this correct??
-  if (_ambient.a != 0.0) _ambient.a = 1.0;
-  
-  ambient *= _ambient;
-  diffuse *= _diffuse;
-  specular *= _specular;
+  /*
+    Light colors will be multiplied by material colors. Light can't really be transparent,
+    so we'll use alpha to represent intensity. This means we must multiply resultant light
+    colors by light alpha, and then hard-code alpha 1 to avoid polluting transparency.
+    
+    The reason we use LIGHT_*.a instead of _*.a is because _*.a has been tainted by attenuation.
+    A light's intensity, regardless of distance or relative brightness, has not actually changed;
+    attenuation has been factored into color already; we don't want to square the atten amt.
+  */
+  ambient *= vec4(_ambient.rgb * LIGHT_AMBIENT.a, 1.0);
+  diffuse *= vec4(_diffuse.rgb * LIGHT_DIFFUSE.a, 1.0);
+  specular *= vec4(_specular.rgb * LIGHT_SPECULAR.a, 1.0);
 }
