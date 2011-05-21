@@ -1,3 +1,5 @@
+require "active_support/core_ext"
+
 module Jax
   autoload :Generators,       File.join(File.dirname(__FILE__), "jax/generators/commands")
   autoload :VERSION,          File.join(File.dirname(__FILE__), "jax/version")
@@ -20,6 +22,8 @@ module Jax
     def root
       application && application.root
     end
+    
+    delegate :shader_load_paths, :to => :application
   end
 end
 

@@ -1,5 +1,5 @@
 description: |
-  Noise
+  Causes the object to have "blob-like" edges, like a thick liquid
 
 
 # Add an 'options' attribute if your shader's Material can accept

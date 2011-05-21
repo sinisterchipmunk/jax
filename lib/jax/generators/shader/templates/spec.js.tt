@@ -5,6 +5,10 @@ describe("Shader '<%=file_name%>'", function() {
     context = new Jax.Context('webgl-canvas');
     mesh = new Jax.Mesh.Quad();
   });
+  
+  /* dispose the context so it doesn't continue using
+     resources after the tests have completed */
+  afterEach(function() { context.dispose(); });
 
   describe("stand-alone", function() {
     beforeEach(function() { mesh.material = new Jax.Material.<%=class_name%>(); });

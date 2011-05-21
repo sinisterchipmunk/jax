@@ -1,9 +1,7 @@
-require "active_support/core_ext"
-
 module Jax
   class Application
     autoload :Configuration, "jax/application/configuration"
-    
+
     class << self
       def inherited(base)
         raise "You cannot have more than one Jax::Application" if Jax.application
@@ -43,6 +41,7 @@ module Jax
     delegate :config, :to => "self.class"
     delegate :root, :to => :config
     delegate :routes, :to => :config
+    delegate :shader_load_paths, :to => :config
     
     def shaders
 #      @shaders ||= begin
@@ -62,7 +61,7 @@ module Jax
     
     def shader_paths
       shader_paths = {}
-      config.shader_load_paths.each do |path|
+      shader_load_paths.each do |path|
         full_path = File.directory?(path) ? path : File.expand_path(path, config.root)
         glob = File.join(full_path, "*/{fragment,vertex}.ejs")
         Dir[glob].each do |dir|
@@ -73,7 +72,7 @@ module Jax
       end
       shader_paths
     end
-
+    
     def find_root_with_flag(flag, default=nil)
       root_path = self.class.called_from
   

@@ -118,14 +118,26 @@ class Jax::Shader
     # look for Sprockets-style require directives
     str.gsub! /\/\/=\s*require\s*['"]([^'"]*)['"]/m do |sub|
       filename = $~[1]
-      macro_name = "dependency_#{filename}".underscore.gsub(/[^a-zA-Z0-9_]/, '_')
-      <<-end_code
-      #ifndef #{macro_name}
-      #define #{macro_name}
+      found = false
+      paths = Jax.shader_load_paths
+      result = nil
+      for path in paths
+        if File.file?(real = File.join(path, "#{filename}.ejs"))
+          found = true
+          macro_name = "dependency_#{filename}".underscore.gsub(/[^a-zA-Z0-9_]/, '_')
+          result = <<-end_code
+          #ifndef #{macro_name}
+          #define #{macro_name}
       
-      #{File.read(File.join(path, "#{filename}.ejs"))}
-      #endif
-      end_code
+          #{File.read(real)}
+          #endif
+          end_code
+          break
+        end
+      end
+      
+      raise "Required file '#{filename}.ejs' not found in load paths #{paths.inspect} for shader '#{name}'!" if !found
+      result
     end
   end
   
