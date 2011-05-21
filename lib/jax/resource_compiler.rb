@@ -5,7 +5,7 @@ class Jax::ResourceCompiler
     if destination_file.kind_of?(IO)
       save_resources destination_file, resources
     else
-      mkdir_p File.dirname(destination_file)
+      mkdir_p File.dirname(destination_file) unless File.exist?(File.dirname(destination_file))
       File.open destination_file, "w" do |f|
         save_resources f, resources
       end
