@@ -1,0 +1,14 @@
+* 0.0.0.5 *
+
+* Jax now checks JS version against gem version and reports on mismatches
+
+* Perlin noise functions added -- just do this in your shader:
+  //= require "functions/noise"
+
+* Split 'paraboloid-depthmap' shader into 2 separate shaders: 'paraboloid' and 'depthmap'
+  This makes it possible to reuse paraboloids for environment mapping.
+
+* Shader dependencies are now loaded via Jax.shader_load_paths, which can be multiple
+  different directories (e.g. Jax builtin + app/shaders)
+
+* Added CHANGELOG. :)
