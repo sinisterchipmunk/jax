@@ -36,7 +36,7 @@ Jax.default_shader = "basic";
 //= require "jax/route_set"
 //= require "jax/view"
 //= require "jax/context"
-/*= require "jax/noise"*/
+//= require "jax/noise"
 
 Jax.shaders = {};
 
