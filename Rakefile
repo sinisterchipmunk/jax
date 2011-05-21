@@ -49,6 +49,10 @@ end
 
 desc "compile Jax"
 task :compile do
+  # generate constants file
+  erb = ERB.new(File.read(File.join(File.dirname(__FILE__), "src/constants.yml.erb")))
+  File.open(File.join(File.dirname(__FILE__), "src/constants.yml"), "w") { |f| f.puts erb.result(binding) }
+  
   secretary = Sprockets::Secretary.new(
           :root => File.dirname(__FILE__),
           :asset_root => "public",

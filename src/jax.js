@@ -2,7 +2,19 @@
  * Jax
  * Root namespace containing all Jax data
  **/
-var Jax = { PRODUCTION: 1 };
+var Jax = { PRODUCTION: 1, VERSION: "<%=JAX_VERSION%>" };
+
+/* Called by Jax applications as of version 0.0.0.5 to alert the user to incomplete upgrades */
+Jax.doVersionCheck = function(targetVersion) {
+  // don't do this in production cause that would be a Bad Idea
+  if (Jax.environment && Jax.environment == Jax.PRODUCTION) return;
+  
+  if (Jax.VERSION != targetVersion) {
+    alert("Jax version mismatch!\n\n" +
+          "Your Jax gem is version "+targetVersion+", but the Jax JS library is version "+Jax.VERSION+"!\n\n" +
+          "Please run `rake jax:update` at the command line to fix this issue.");
+  }
+};
 
 // note: the default_shader is used immediately after Jax.Material has been defined. So, most
 // likely the end user won't be able to customize it with the expected result. Materials created
@@ -24,6 +36,7 @@ Jax.default_shader = "basic";
 //= require "jax/route_set"
 //= require "jax/view"
 //= require "jax/context"
+/*= require "jax/noise"*/
 
 Jax.shaders = {};
 
