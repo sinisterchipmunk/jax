@@ -154,6 +154,7 @@ Jax.Scene.LightSource = (function() {
         fieldOfView = 60;
         this.camera.perspective({near:nearPlane,far:nearPlane+(2.0*sceneBoundingRadius),fov:fieldOfView,width:2048,height:2048});
       } else if (this.type == Jax.POINT_LIGHT) {
+        var paraboloid_depthmap = Jax.Material.find("paraboloid-depthmap");
         
         context.glDisable(GL_BLEND);
         context.glEnable(GL_CULL_FACE);
@@ -170,7 +171,7 @@ Jax.Scene.LightSource = (function() {
             mat4.set(context.getInverseViewMatrix(), sm);
             
             for (var i = 0; i < objects.length; i++) {
-              objects[i].render(context, {material:'paraboloid-depthmap', direction:1});
+              objects[i].render(context, {material:paraboloid_depthmap, direction:1});
             }
           });
 
@@ -180,7 +181,7 @@ Jax.Scene.LightSource = (function() {
             context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             context.loadViewMatrix(self.camera.getModelViewMatrix());
             for (var i = 0; i < objects.length; i++) {
-              objects[i].render(context, {material:'paraboloid-depthmap',direction:-1});
+              objects[i].render(context, {material:paraboloid_depthmap,direction:-1});
             }
           });
   

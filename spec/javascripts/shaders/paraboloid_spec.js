@@ -1,10 +1,10 @@
-describe("Material segment 'dual_paraboloid'", function() {
+describe("Material segment 'paraboloid'", function() {
   var context;
   var matr;
   
   beforeEach(function() {
     context = new Jax.Context(document.getElementById('canvas-element'));
-    matr = new Jax.Material.DualParaboloid();
+    matr = new Jax.Material.Paraboloid();
     spyOn(matr, 'prepareShader').andCallThrough();
   });
   

@@ -22,5 +22,6 @@ void main(void) {
   pos.w = 1.0;
 
   vPos = pos;
+  export(vec4, Position, pos);
   gl_Position = pos;
 }

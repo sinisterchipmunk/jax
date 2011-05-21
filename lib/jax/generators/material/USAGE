@@ -14,7 +14,7 @@ exceeds the capabilities of the graphics processor.
 Processors supported by your application:
 
 <%supported_shaders.each do |shader| -%>
-  - <%=shader.name.ljust(20)%> : <%=shader.description.gsub(/\n/, "\n"+" "*25)%>
+  - <%=shader.name.ljust(20)%> : <%=shader.description.strip.gsub(/\n/, "\n"+" "*25)%>
 <%end -%>
 
 You can specify a shader more than once. For instance, you can create a

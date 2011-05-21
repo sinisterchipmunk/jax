@@ -27,6 +27,7 @@ describe("Core Materials", function() {
       
       it("should coexist with all other builtins", function() {
         var m = new Jax.Material();
+
         if (name != "basic" && name != "default")
           m.addLayer(Jax.Material.find(name));
         

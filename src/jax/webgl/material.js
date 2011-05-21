@@ -366,10 +366,11 @@ Jax.Material.addResources = function(resources) {
 //= require "../../../builtin/shaders/texture/material"
 //= require "../../../builtin/shaders/normal_map/material"
 //= require "../../../builtin/shaders/shadow_map/material"
-//= require "../../../builtin/shaders/paraboloid-depthmap/material"
+//= require "../../../builtin/shaders/depthmap/material"
+//= require "../../../builtin/shaders/paraboloid/material"
 //= require "../../../builtin/shaders/fog/material"
 
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});
 Jax.Material.create("depthmap", {default_shader:"depthmap"});
-Jax.Material.create("paraboloid-depthmap", {type:"DualParaboloid",default_shader:"paraboloid-depthmap"});
+Jax.Material.create("paraboloid-depthmap", {type:"Paraboloid",default_shader:"paraboloid",layers:[{type:"Depthmap"}]});
