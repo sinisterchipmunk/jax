@@ -72,7 +72,8 @@
 </head>
 <body>
 <div id="jax_banner">
-  Jax
+  <!-- or we could use <%%=Jax::Version::STRING%> for the Rubygem version -->
+  Jax v<script type="text/javascript">document.write(Jax.VERSION);</script>
 </div>
 <div id="jax_nav">
   <a href="#" onclick="context.redirectTo('/');return false;">Lighting w/Multiple Sources</a> |
