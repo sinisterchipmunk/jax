@@ -15,7 +15,7 @@ Math.radToDeg = Math.radToDeg || function(rad) {
   return rad * 180.0 / Math.PI;
 };
 
-/**
+/** alias of: Math.radToDeg
  * Math.radToDeg(rad) -> Number
  * Helper to convert radians to degrees.
  **/
@@ -29,7 +29,7 @@ Math.degToRad = Math.degToRad || function(deg) {
   return deg * Math.PI / 180.0;
 };
 
-/**
+/** alias of: Math.degToRad
  * Math.deg2rad(deg) -> Number
  * Helper to convert degrees to radians.
  **/

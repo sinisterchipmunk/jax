@@ -116,13 +116,18 @@ Jax.Context = (function() {
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
     },
-    
+
+    /**
+     * Jax.Context#hasStencil() -> Boolean
+     *
+     * Returns true if this context supports stencil operations.
+     **/
     hasStencil: function() {
       return !!this.gl.stencil;
     },
 
     /**
-     * Jax.Context#redirectTo(path) -> Controller
+     * Jax.Context#redirectTo(path) -> Jax.Controller
      * - path (String): the path to redirect to
      * 
      * Redirects to the specified route, and then returns the Jax.Controller that
@@ -146,11 +151,23 @@ Jax.Context = (function() {
       
       return this.current_controller;
     },
-    
+
+    /**
+     * Jax.Context#update(timechange) -> Jax.Context
+     * - timechange (Number): the amount of time, in seconds, since the previous update
+     *
+     * Automatically called over time, this function will trigger an update
+     * of all controllers and objects attached to this context.
+     *
+     * You can programmatically trigger updates to these objects by calling
+     * this method directly. Doing this is useful for constructing consistent
+     * test cases.
+     **/
     update: function(timechange) {
       if (this.current_controller && this.current_controller.update)
         this.current_controller.update(timechange);
       this.world.update(timechange);
+      return this;
     },
 
     /**
@@ -186,11 +203,30 @@ Jax.Context = (function() {
     isDisposed: function() {
       return !!this.disposed;
     },
-    
+
+    /**
+     * Jax.Context#pushMatrix(yield_to) -> Jax.Context
+     * - yield_to (Function): a function to be called
+     *
+     * Pushes a new level onto the matrix stack and then calls the given function.
+     * After the function completes, the matrix stack is reverted back to its
+     * original state, effectively undoing any modifications made to the matrices
+     * in the meantime.
+     *
+     * Example:
+     *
+     *     context.pushMatrix(function() {
+     *       context.loadModelMatrix(Jax.IDENTITY_MATRIX);
+     *       context.multViewMatrix(this.camera.getTransformationMatrix());
+     *       // do some rendering
+     *     });
+     *     // matrix is restored to its previous state
+     **/
     pushMatrix: function(yield_to) {
       this.matrix_stack.push();
       yield_to();
       this.matrix_stack.pop();
+      return this;
     },
     
     /**

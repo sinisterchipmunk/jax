@@ -1,3 +1,7 @@
+/**
+ * Jax.EVENT_METHODS -> Object
+ * Contains event handling methods which are added to +Jax.Context+.
+ **/
 Jax.EVENT_METHODS = (function() {
   function getCumulativeOffset(element) {
     var valueT = 0, valueL = 0;

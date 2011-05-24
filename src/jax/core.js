@@ -5,9 +5,12 @@
 //= require "core/util"
 //= require "core/matrix_stack"
 
-// a global debugAssert method that will do nothing in production, and fail if expr is false
-// in any other run mode. If msg is given, an error with that message is raised. Otherwise,
-// a more generic error is raised.
+/**
+ * Global#debugAssert(expr[, msg]) -> undefined
+ * a global debugAssert method that will do nothing in production, and fail if expr is false
+ * in any other run mode. If msg is given, an error with that message is raised. Otherwise,
+ * a more generic error is raised.
+ **/
 window.debugAssert = function(expr, msg) {
   if (Jax.environment != "production" && !expr)
   {

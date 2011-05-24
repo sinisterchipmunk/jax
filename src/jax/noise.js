@@ -1,3 +1,16 @@
+/**
+ * class Jax.Noise
+ * Constructs several textures to be used in vertex shaders involving Perlin noise.
+ *
+ * Example:
+ *
+ *     var noise = new Jax.Noise();
+ *     var program = new Jax.Shader.Program({...});
+ *     program.manifest.set('perm', noise.perm);
+ *     program.manifest.set('simplex', noise.simplex);
+ *     program.manifest.set('grad', noise.grad);
+ *
+ **/
 Jax.Noise = (function() {
   var perm/*[256]*/ = [151,160,137,91,90,15,
     131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,

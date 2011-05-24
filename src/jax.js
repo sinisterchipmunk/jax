@@ -1,4 +1,9 @@
 /**
+ * Global
+ * Objects and functions defined here are available in the global (window) scope.
+ **/
+
+/**
  * Jax
  * Root namespace containing all Jax data
  **/

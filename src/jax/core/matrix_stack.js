@@ -2,7 +2,7 @@
 //= require "../prototype/class"
 
 /**
- * Jax.IDENTITY_MATRIX
+ * Jax.IDENTITY_MATRIX -> mat4
  * A cache of the identity matrix so that we're not constantly allocating identities.
  **/
 Jax.IDENTITY_MATRIX = mat4.identity(mat4.create());
