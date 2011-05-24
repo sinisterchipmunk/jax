@@ -21,8 +21,8 @@ specular:
 
 shininess: 30
 
+type: Blob
+
 layers:
   # remove Lighting to conserve video memory if you don't need/want support for light sources
   - type: Lighting
-
-  - type: Blob
