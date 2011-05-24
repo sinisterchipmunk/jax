@@ -40,7 +40,7 @@ Jax.Mesh.Cube = Jax.Class.create(Jax.Mesh, {
     {
       var qverts = [], qcolor = [], qtex = [], qnorm = [];
       this.sides[i].mesh.init(qverts, qcolor, qtex, qnorm, []);
-      matrix = this.sides[i].camera.getModelViewMatrix();
+      matrix = this.sides[i].camera.getTransformationMatrix();
 
       // unfortunately quads are rendered in triangle strips; we need to translate that
       // into triangles, because there's no support at this time for ending one triangle

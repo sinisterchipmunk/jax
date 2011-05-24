@@ -86,7 +86,7 @@ Jax.Context = (function() {
   function reloadMatrices(self) {
     self.matrix_stack.reset(); // reset depth
     self.matrix_stack.loadModelMatrix(Jax.IDENTITY_MATRIX);
-    self.matrix_stack.loadViewMatrix(self.player.camera.getModelViewMatrix());
+    self.matrix_stack.loadViewMatrix(self.player.camera.getTransformationMatrix());
     self.matrix_stack.loadProjectionMatrix(self.player.camera.getProjectionMatrix());
   }
   

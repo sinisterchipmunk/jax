@@ -361,12 +361,12 @@ Jax.Camera = (function() {
     },
 
     /**
-     * Jax.Camera#getModelViewMatrix() -> mat4
+     * Jax.Camera#getTransformationMatrix() -> mat4
      * 
-     * Returns the ModelView matrix. This matrix represents the camera's position and
+     * Returns the transformation matrix. This matrix represents the camera's position and
      * orientation in the world.
      **/
-    getModelViewMatrix: function() { return this.matrices.mv; },
+    getTransformationMatrix: function() { return this.matrices.mv; },
 
     /**
      * Jax.Camera#getProjectionMatrix() -> mat4
@@ -377,16 +377,16 @@ Jax.Camera = (function() {
     getProjectionMatrix: function() { return this.matrices.p; },
 
     /**
-     * Jax.Camera#getNormalMatrix() -> mat4
+     * Jax.Camera#getNormalMatrix() -> mat3
      * 
      * Returns the normal matrix, which is defined as the transpose of the inverse of the
-     * ModelView matrix.
+     * transformation matrix.
      * 
      * This matrix is commonly used in lighting calculations.
      **/
     getNormalMatrix: function() {
       if (!this.normal_matrix_up_to_date) {
-        mat4.toInverseMat3(this.getModelViewMatrix(), this.matrices.n);
+        mat4.toInverseMat3(this.getTransformationMatrix(), this.matrices.n);
         mat3.transpose(this.matrices.n);
       }
       this.normal_matrix_up_to_date = true;

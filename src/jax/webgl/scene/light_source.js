@@ -167,7 +167,7 @@ Jax.Scene.LightSource = (function() {
             // front paraboloid
             self.framebuffers[0].viewport(context);
             context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            context.loadViewMatrix(self.camera.getModelViewMatrix());
+            context.loadViewMatrix(self.camera.getTransformationMatrix());
             mat4.set(context.getInverseViewMatrix(), sm);
             
             for (var i = 0; i < objects.length; i++) {
@@ -179,7 +179,7 @@ Jax.Scene.LightSource = (function() {
             // back paraboloid
             self.framebuffers[1].viewport(context);
             context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            context.loadViewMatrix(self.camera.getModelViewMatrix());
+            context.loadViewMatrix(self.camera.getTransformationMatrix());
             for (var i = 0; i < objects.length; i++) {
               objects[i].render(context, {material:paraboloid_depthmap,direction:-1});
             }
@@ -203,7 +203,7 @@ Jax.Scene.LightSource = (function() {
         context.pushMatrix(function() {
           self.framebuffers[0].viewport(context);
           context.matrix_stack.loadProjectionMatrix(self.camera.getProjectionMatrix());
-          context.matrix_stack.loadViewMatrix(self.camera.getModelViewMatrix());
+          context.matrix_stack.loadViewMatrix(self.camera.getTransformationMatrix());
           mat4.identity(sm);
           sm[0] = sm[5] = sm[10] = sm[12] = sm[13] = sm[14] = 0.5;
           mat4.multiply(sm, context.getModelViewProjectionMatrix());
