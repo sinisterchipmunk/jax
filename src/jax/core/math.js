@@ -17,11 +17,23 @@ Math.radToDeg = Math.radToDeg || function(rad) {
 
 /**
  * Math.radToDeg(rad) -> Number
+ * Helper to convert radians to degrees.
+ **/
+Math.rad2deg = Math.rad2deg || Math.radToDeg;
+
+/**
+ * Math.degToRad(deg) -> Number
  * Helper to convert degrees to radians.
  **/
 Math.degToRad = Math.degToRad || function(deg) {
   return deg * Math.PI / 180.0;
 };
+
+/**
+ * Math.deg2rad(deg) -> Number
+ * Helper to convert degrees to radians.
+ **/
+Math.deg2rad = Math.deg2rad || Math.degToRad;
 
 /**
  * Math.equalish(a, b) -> Boolean
