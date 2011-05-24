@@ -1,5 +1,8 @@
-// If an epsilon isn't defined, define it. This is used for fuzzy equality with floats,
-// because of floating point imprecision.
+/**
+ * Math.EPSILON = 0.00001
+ * This is a very small number, used for testing fuzzy equality with floats due to
+ * floating point imprecision.
+ **/
 Math.EPSILON = Math.EPSILON || 0.00001;
 
 /**

@@ -2,7 +2,8 @@
 //= require "../prototype/class"
 
 /**
- * Jax.IDENTITY_MATRIX -> mat4
+ * Jax.IDENTITY_MATRIX = mat4.identity(mat4.create())
+ *
  * A cache of the identity matrix so that we're not constantly allocating identities.
  **/
 Jax.IDENTITY_MATRIX = mat4.identity(mat4.create());
@@ -18,7 +19,7 @@ Jax.IDENTITY_MATRIX = mat4.identity(mat4.create());
  * itself is returned instead of a copy of the instance. That gives you the power to make changes
  * directly to the matrix, instead of doing them via the stack. For instance, instead of calling
  * Jax.MatrixStack#loadMatrix(), you could just as easily call mat4#set() using one of the
- * matrices here as an argument. However, in doing so you will lose the auto-updating of other
+ * matrices here as an argument. *However*, in doing so you will lose the auto-updating of other
  * matrices, so you must be very careful about how you modify matrices.
  *
  * For example, it would be very easy to use mat4.multiply() to change the model matrix. In doing
