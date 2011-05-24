@@ -1,3 +1,30 @@
+/**
+ * class Jax.Mesh.Plane < Jax.Mesh
+ *
+ * Constructs a multi-polygonal flat plane treating the center of
+ * the plane as the origin.
+ *
+ * Options:
+ *
+ * * width : the width of the cube in units. Defaults to +size+.
+ * * depth : the depth of the cube in units. Defaults to +size+.
+ * * size : a value to use for any of the other dimensional options if
+ * they are unspecified. Defaults to 500.0.
+ * * x_segments : the number of vertices along the plane's X axis.
+ * Defaults to +segments+.
+ * * z_segments : the number of vertices along the plane's Z axis.
+ * Defaults to +segments+.
+ * * segments : a value to use for any of the other segment count options
+ * if they are unspecified. Defaults to 20.
+ *
+ * Examples:
+ *
+ *     new Jax.Mesh.Plane();
+ *     new Jax.Mesh.Plane({size:2});
+ *     new Jax.Mesh.Plane({width:2});
+ *     new Jax.Mesh.Plane({width:2,x_segments:2});
+ *
+ **/
 Jax.Mesh.Plane = Jax.Class.create(Jax.Mesh, {
   initialize: function($super, options) {
     options = options || {};

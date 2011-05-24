@@ -1,3 +1,21 @@
+/**
+ * class Jax.Mesh.Torus < Jax.Mesh
+ *
+ * A torus is a donut-shaped mesh.
+ *
+ * Options:
+ *
+ * * inner_radius, default: 0.6
+ * * outer_radius, default: 1.8
+ * * sides, default: 128
+ * * rings, default: 256
+ *
+ * Examples:
+ *
+ *     new Jax.Mesh.Torus();
+ *     new Jax.Mesh.Torus({inner_radius: 1.0, outer_radius:3.0});
+ *
+ **/
 Jax.Mesh.Torus = Jax.Class.create(Jax.Mesh, {
   initialize: function($super, options) {
     options = options || {};

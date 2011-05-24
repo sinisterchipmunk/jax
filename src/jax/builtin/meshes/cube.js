@@ -1,3 +1,24 @@
+/**
+ * class Jax.Mesh.Cube < Jax.Mesh
+ *
+ * Constructs a 6-sided Cube mesh.
+ *
+ * Options:
+ *
+ * * width : the width of the cube in units. Defaults to +size+.
+ * * height : the height of the cube in units. Defaults to +size+.
+ * * depth : the depth of the cube in units. Defaults to +size+.
+ * * size : a value to use for any of the other options if
+ * they are unspecified. Defaults to 1.0.
+ *
+ * Example:
+ *
+ *     new Jax.Mesh.Cube();                  //=> 1x1x1
+ *     new Jax.Mesh.Cube({size:2});          //=> 2x2x2
+ *     new Jax.Mesh.Cube({width:2});         //=> 2x1x1
+ *     new Jax.Mesh.Cube({width:2,depth:3}); //=> 2x1x3
+ *
+ **/
 Jax.Mesh.Cube = Jax.Class.create(Jax.Mesh, {
   initialize: function($super, options) {
     var size = options && options.size || 1.0;

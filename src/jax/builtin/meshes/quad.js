@@ -5,10 +5,16 @@
  * 
  * This mesh is generally used for testing purposes, or for simple, textured objects like smoke particles.
  *
+ * Options:
+ *
+ * * width : the width of this quad in units along the X axis. Defaults to +size+.
+ * * height : the height of this quad in units along the Y axis. Defaults to +size+.
+ * * size : a value to use for both width and height. Defaults to 1.0.
+ *
  * Examples:
  * 
  *     var quad = new Jax.Mesh.Quad({width: 2, height: 1});
- *     var quad = new Jax.Mesh.Quad(1.5);
+ *     var quad = new Jax.Mesh.Quad({size:1.5});
  * 
  **/
 Jax.Mesh.Quad = (function() {

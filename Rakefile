@@ -92,7 +92,7 @@ end
 namespace :doc do
   desc "build the Jax JavaScript documentation"
   task :js do
-    FileUtils.rm_rf 'doc'
+    #FileUtils.rm_rf 'doc'
     
     PDoc.run({
       :source_files => [File.join('src', 'jax.js')] + Dir[File.join('src', 'jax', '**', '*.js')],
@@ -115,7 +115,7 @@ namespace :doc do
 #      :assets => 'doc_assets'
     })
 
-    Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
+    #Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
   end
 end
 

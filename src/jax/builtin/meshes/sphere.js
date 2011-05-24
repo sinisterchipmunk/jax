@@ -1,3 +1,22 @@
+/**
+ * class Jax.Mesh.Sphere < Jax.Mesh
+ *
+ * A spherical mesh.
+ *
+ * Takes 3 options:
+ *
+ * * radius: the size of this sphere. Defaults to 1.
+ * * slices: the number of lines of longitude. The higher this value is, the smoother and more perfect the sphere will
+ *           appear but the more hardware-intensive rendering it will be. Defaults to 30.
+ * * stacks: The number of lines of latitude. The higher this value is, the smoother and more perfect the sphere will
+ *           appear but the more hardware-intensive rendering it will be. Defaults to 30.
+ *
+ * Examples:
+ *
+ *     new Jax.Mesh.Sphere({radius:2.0});
+ *     new Jax.Mesh.Sphere({slices:8, stacks:8, radius: 10.0});
+ *
+ **/
 Jax.Mesh.Sphere = Jax.Class.create(Jax.Mesh, {
   initialize: function($super, options) {
     options = options || {};
