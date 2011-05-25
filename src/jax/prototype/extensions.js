@@ -1,5 +1,3 @@
-/* My own custom extensions to Prototype */
-
 //= require "class"
 
 (function() {
@@ -112,12 +110,32 @@
     return klass;
   };
   
-  /*
-    class method #delegate
-    usages:
-      klass.delegate(/^(get|load|mult)(.*)Matrix$/).into("matrix_stack");
-      klass.delegate("getProjectionMatrix", "loadModelMatrix").into("matrix_stack");
-   */
+  /**
+   * Jax.Class.delegate() -> undefined
+   *
+   * This is a class method of all Jax classes.
+   *
+   * Delegates one or more methods into properties of the class. For instance,
+   * the following:
+   * 
+   *     MyClass.delegate("sayHello").into("person");
+   *
+   * will create a +sayHello+ method in the +MyClass+ class that internally calls
+   * 
+   *     this.person.sayHello(...)
+   *
+   * and returns the results.
+   *
+   * There are several other variants:
+   *
+   *     klass.delegate(/regular expression/).into("property_name");
+   *       // delegates any method name in +property_name+ that matches the expression
+   * 
+   *     klass.delegate("one", "two").into("property_name");
+   *       // delegates both 'one' and 'two' methods into +property_name+
+   *
+   *
+   **/
   Jax.Class.Methods.delegate = function() {
     return new Delegator(this, arguments);
   };
