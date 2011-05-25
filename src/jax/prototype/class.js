@@ -1,5 +1,8 @@
 //= require "core"
 
+/**
+ * Jax.Class
+ **/
 Jax.Class = (function() {
   var emptyFunction = function() { };
 

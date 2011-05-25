@@ -92,10 +92,12 @@ end
 namespace :doc do
   desc "build the Jax JavaScript documentation"
   task :js do
-    #FileUtils.rm_rf 'doc'
+    FileUtils.rm_rf 'doc'
     
     PDoc.run({
-      :source_files => [File.join('src', 'jax.js')] + Dir[File.join('src', 'jax', '**', '*.js')],
+      :source_files => (['src/jax.js', 'vendor/glmatrix/glMatrix.js'] +
+#                        Dir['vendor/ejs/src/**/*.js'] +
+                        Dir['src/jax/**/*.js']),
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
@@ -115,7 +117,7 @@ namespace :doc do
 #      :assets => 'doc_assets'
     })
 
-    #Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
+    Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
   end
 end
 
