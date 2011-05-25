@@ -1,6 +1,7 @@
 /**
  * class Jax.ViewManager
  * 
+ * Maintains a registry of all Jax views and the paths to them.
  **/
 Jax.ViewManager = (function() {
   return Jax.Class.create({

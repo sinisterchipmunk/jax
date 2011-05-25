@@ -1,5 +1,6 @@
 /**
  * class Jax.Controller
+ * 
  * Controllers are a major component of the Jax framework, because they are in
  * charge of receiving input from the user, setting up a scene, tearing it down,
  * and deciding when is the right time to transition to a different controller.
@@ -48,6 +49,7 @@
  * explicitly trigger other actions by calling them directly. They differ from their
  * corresponding views (see Jax.View) in this way, as a view is rendered many times
  * -- up to a target rate of 60 passes per second.
+ *
  **/
 (function() {
   var protected_instance_method_names = [
@@ -69,6 +71,15 @@
     }
     
     return Jax.Class.create({
+      /**
+       * Jax.Controller#fireAction(action_name) -> Jax.Controller
+       *
+       * Erases the results of the last action, then calls the specified action. If it doesn't exist,
+       * an error is raised. Finally, unless the action redirects to a different action or renders
+       * a different action directly, the specified action becomes the focus of the current view.
+       *
+       * Returns this controller.
+       **/
       fireAction: function(action_name) {
         this.eraseResult();
         this.action_name = action_name;
@@ -79,16 +90,38 @@
         
         if (!this.rendered_or_redirected)
           setViewKey(this);
+        return this;
       },
       
+      /**
+       * Jax.Controller#eraseResults() -> Jax.Controller
+       *
+       * Erases the results of the most recent render action. That is, whether or not it rendered
+       * a different action or caused a redirect to a different action or controller is reset, and
+       * the current view is set to +null+, indicating that no view will be rendered.
+       *
+       * Returns this controller.
+       **/
       eraseResult: function() {
         this.rendered_or_redirected = false;
         this.view_key = null;
+        return this;
       }
     });
   })();
 
   var controller_class_methods = {
+    /**
+     * Jax.Controller.invoke(action_name, context) -> Jax.Controller
+     * - action_name (String): The name of the action to fire after initialization
+     * - context (Jax.Context): The context to attach to the instantiated controller
+     *
+     * Creates a new instance of the specified controller, sets up its references to
+     * +this.context+, +this.world+, and so on; and finally, fires the action given by
+     * +action_name+.
+     *
+     * Returns the newly-constructed controller.
+     **/
     invoke: function(action_name, context) {
       var instance = new this();
       instance.context = context;
@@ -138,6 +171,11 @@
     if (inner) klass = Jax.Class.create(superclass,     inner);
     else       klass = Jax.Class.create(Jax.Controller, superclass);
     
+    /**
+     * Jax.Controller.getControllerName() -> String
+     *
+     * Returns the name of the controller in question, as it is represented in +Jax.routes+.
+     **/
     Object.extend(klass, controller_class_methods);
     Object.extend(klass, { getControllerName: function() { return controller_name; } });
     klass.addMethods({getControllerName: function() { return controller_name; } });

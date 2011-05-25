@@ -30,8 +30,14 @@ Jax.View = (function() {
       this.view_func = view_func;
     },
     
+    /**
+     * Jax.View#render() -> Jax.View
+     *
+     * Renders this View. Returns itself.
+     **/
     render: function() {
       this.view_func();
+      return this;
     }
   });
 })();

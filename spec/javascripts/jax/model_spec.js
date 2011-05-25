@@ -23,6 +23,16 @@ describe("Jax.Model", function() {
       expect(model.one.value).not.toEqual(2);
     });
   });
+  
+  describe("added to world without a mesh", function() {
+    var context;
+    beforeEach(function() { model = new (Jax.Model.create({after_initialize:function(){}}))({position:[0,0,0]}); context = new Jax.Context('canvas-element'); context.world.addObject(model); });
+    afterEach(function() { context.dispose(); });
+    
+    it("should not cause errors when rendering", function() {
+      expect(function() { context.world.render(); }).not.toThrow();
+    });
+  });
     
   describe("without any custom methods", function() {
     beforeEach(function() {
