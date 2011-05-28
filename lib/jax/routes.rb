@@ -30,6 +30,9 @@ module Jax
         
         outfile.puts "Jax.routes.map(#{path.inspect}, #{controller_name_for(set[1])}, #{args});"
       end
+      
+      outfile.puts "if (Jax.doVersionCheck) Jax.doVersionCheck('#{Jax::Version::STRING}');" 
+      outfile.puts "else alert('Your Jax gem version is newer than your Jax JavaScript library!\\n\\nRun `rake jax:update` to fix this.');"
     end
     
     def root(controller = nil, action = 'index')

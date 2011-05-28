@@ -18,10 +18,7 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
           template << "//= require \"#{relative_path}\""
         end
       end
-      template.concat [
-        "if (Jax.doVersionCheck) Jax.doVersionCheck('#{Jax::Version::STRING}');",
-        "else alert('Your Jax gem version is newer than your Jax JavaScript library!\n\nRun `rake jax:update` to fix this.');"
-      ]
+
       template
     end
   end
