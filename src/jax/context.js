@@ -35,8 +35,7 @@ Jax.Context = (function() {
   function startRendering(self) {
     function render() {
       if (self.current_view) {
-        reloadMatrices(self);
-        self.glViewport(0, 0, self.canvas.width, self.canvas.height);
+        self.prepare();
         self.current_view.render();
         self.render_interval = requestAnimFrame(render, self.canvas);
       }
@@ -150,6 +149,20 @@ Jax.Context = (function() {
       if (!this.isRendering()) startRendering(this);
       
       return this.current_controller;
+    },
+
+    /**
+     * Jax.Context#prepare() -> Jax.Context
+     * 
+     * Loads the matrices from +player.camera+ into the matrix stack, then
+     * sets up the viewport. This should be run prior to rendering anything.
+     * This is done automatically when the context has a View associated
+     * with it, but if there is no View then the render process will be
+     * halted, leaving it up to you to prepare the canvas explicitly.
+     **/
+    prepare: function() {
+      reloadMatrices(this);
+      this.glViewport(0, 0, this.canvas.width, this.canvas.height);
     },
 
     /**

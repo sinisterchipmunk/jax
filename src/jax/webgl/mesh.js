@@ -225,6 +225,24 @@ Jax.Mesh = (function() {
       if (!this.draw_mode)
         this.draw_mode = GL_TRIANGLES;
     },
+    
+    /**
+     * Jax.Mesh#setColor(red, green, blue, alpha) -> Jax.Mesh
+     * Sets the color of this mesh. This will set the color at each vertex, regardless
+     * of the original color of that vertex. The result will be that the entire mesh
+     * takes on the specified color (not just a particular vertex).
+     **/
+    setColor: function(red, green, blue, alpha) {
+      var buf = this.getColorBuffer();
+      for (var i = 0; i < buf.js.length; i += 4) {
+        buf.js[i] = red;
+        buf.js[i+1] = green;
+        buf.js[i+2] = blue;
+        buf.js[i+3] = alpha;
+      }
+      buf.refresh();
+      return this;
+    },
 
     /**
      * Jax.Mesh#dispose() -> undefined
@@ -302,14 +320,11 @@ Jax.Mesh = (function() {
       var result = Jax.Util.normalizeOptions(options, {
         material: this.material,
         default_material: this.default_material,
-//        default_shader: this.default_shader,
-//        shader: this.shader,
         draw_mode: this.draw_mode || GL_TRIANGLES
       });
     
       if (!result.material) result.material = result.default_material;
-//      if (!result.shader) result.shader = result.default_shader;
-    
+
       result.material = findMaterial(result.material);
 
       return result;

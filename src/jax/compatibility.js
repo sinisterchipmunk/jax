@@ -1,4 +1,28 @@
 /* Defines constants, functions, etc. that may exist in one browser but not in another */
+/**
+ * Jax.Compatibility
+ * Contains values used for cross-browser compatibility.
+ **/
+Jax.Compatibility = (function() {
+  var offsetTop = 1;
+  var offsetLeft = 1;
+  
+  return {
+    /**
+     * Jax.Compatibility.offsetTop -> Number
+     * Some browsers have different values for +offsetTop+. Jax must track these
+     * changes in order to ensure that the reported mouse coordinates are accurate.
+     **/
+    offsetTop: offsetTop,
+  
+    /**
+     * Jax.Compatibility.offsetLeft -> Number
+     * Some browsers have different values for +offsetLeft+. Jax must track these
+     * changes in order to ensure that the reported mouse coordinates are accurate.
+     **/
+    offsetLeft: offsetLeft,
+  };
+})();
 
 /*
   Object.keys defined only in the newest browsers. If they're going to fail, let them fail due to HTML5 incompatibility
@@ -12,6 +36,15 @@ if (!Object.keys) {
     return arr;
   };
 }
+
+/**
+ * Array#clear() -> Array
+ * Removes all objects from this array and returns itself, now empty.
+ **/
+Array.prototype.clear = Array.prototype.clear || function() {
+  this.splice(0, this.length);
+  return this;
+};
 
 
 /* KeyEvent in Firefox contains various keyCode constants, but they are missing in Chrome. */

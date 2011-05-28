@@ -103,12 +103,13 @@ Jax.Shader = (function() {
     for (var i in map) {
       if (map[i].shared) {
         if (options.skip_global_definitions && options.skip_global_definitions.indexOf(map[i].full_name) != -1) {
-          var rx = new RegExp("(shared\\s+)?"+map[i].scope+"\\s*"+map[i].type+"[^;]*?"+map[i].full_name+"[^;]*?;\n?", "g");
+          var rx = new RegExp("(shared\\s+)"+map[i].scope+"\\s*"+map[i].type+"[^;]*?"+map[i].full_name+"[^;]*?;\n?", "g");
           source = source.replace(rx, "");
         }
 //        else source = source.replace(rx, map[i].scope+" "+map[i].type+" "+map[i].full_name+";\n");
       }
     }
+
     return source.replace(/shared\s+/, '');
   }
   
@@ -121,6 +122,7 @@ Jax.Shader = (function() {
     source = applyExports(self, options, source);
     source = applyImports(self, options, source);
     source = mangleUniformsAndAttributes(self, options, source);
+
     return source;
   }
   
@@ -234,7 +236,7 @@ Jax.Shader = (function() {
                    (this.getRawSource(options, 'fragment') || "");
       
       // if it's not a "shared" uniform, mangle its name.
-      var rx = new RegExp("(^|\\n|\\s+)((shared\\s+)?)(uniform|attribute|varying) (\\w+) ((?!"+prefix+")[^;]*);"), result;
+      var rx = new RegExp("(^|\\n|\\s+)((shared\\s+)?)(uniform|attribute|varying)\\s+(\\w+)\\s+((?!"+prefix+")[^;]*);"), result;
       while (result = rx.exec(source)) {
         var shared = /shared/.test(result[2]);
         var scope = result[4];

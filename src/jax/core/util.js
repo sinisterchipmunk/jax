@@ -4,6 +4,21 @@
  **/
 Jax.Util = {
   /**
+   * Jax.Util.decodePickingColor(red, green, blue, alpha) -> Number
+   * 
+   * Performs the reverse of the 'picking' shader by restoring a number
+   * that was previously encoded into the four color channels.
+   **/
+  decodePickingColor: function(red, green, blue, alpha) {
+    /* blue is a key. It is always max. So if it's 1, we're dealing with floats; else, bytes. */
+    if (blue == 1.0) {
+      red *= 255;
+      green *= 255;
+    }
+    return red * 256 + green;
+  },
+
+  /**
    * Jax.Util.vectorize(object) -> vec3
    * - object (Object): any Object
    *

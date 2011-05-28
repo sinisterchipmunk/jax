@@ -230,6 +230,7 @@ Jax.ShaderChain = (function() {
           else map[variable.full_name] = variable;
         }
       }
+
       return map;
     },
     

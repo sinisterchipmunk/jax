@@ -83,6 +83,20 @@ Jax.Material = (function() {
       }
     },
     
+    /**
+     * Jax.Material#supportsLighting() -> Boolean
+     *
+     * Returns true if this material supports lighting effects.
+     **/
+    supportsLighting: function() {
+      if (this.getName() == "lighting")
+        return true;
+      for (var i = 0; i < this.layers.length; i++)
+        if (this.layers[i].getName() == "lighting")
+          return true;
+      return false;
+    },
+    
     getName: function() { return this.name; },
     
     addTextureLayer: function(tex) {
@@ -369,8 +383,10 @@ Jax.Material.addResources = function(resources) {
 //= require "../../../builtin/shaders/depthmap/material"
 //= require "../../../builtin/shaders/paraboloid/material"
 //= require "../../../builtin/shaders/fog/material"
+//= require "../../../builtin/shaders/picking/material"
 
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});
 Jax.Material.create("depthmap", {default_shader:"depthmap"});
 Jax.Material.create("paraboloid-depthmap", {type:"Paraboloid",default_shader:"paraboloid",layers:[{type:"Depthmap"}]});
+Jax.Material.create("picking", {type:"Picking"});

@@ -8,6 +8,8 @@ Jax.EVENT_METHODS = (function() {
     do {
       valueT += element.offsetTop  || 0;
       valueL += element.offsetLeft || 0;
+      valueT += Jax.Compatibility.offsetTop;
+      valueL += Jax.Compatibility.offsetLeft;
       element = element.offsetParent;
     } while (element);
 
@@ -32,11 +34,69 @@ Jax.EVENT_METHODS = (function() {
 
     return evt;
   }
+  
+  function fixEvent(event) {
+    // this borrowed from jQuery
+    // store a copy of the original event object
+		// and "clone" to set read-only properties
+		var originalEvent = event;
+		event = {type:originalEvent.type};
+		var props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode layerX layerY metaKey newValue offsetX offsetY pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target toElement view wheelDelta which".split(" ");
+
+		for ( var i = props.length, prop; i; ) {
+			prop = props[ --i ];
+			event[ prop ] = originalEvent[ prop ];
+		}
+
+		// Fix target property, if necessary
+		if ( !event.target ) {
+			// Fixes #1925 where srcElement might not be defined either
+			event.target = event.srcElement || document;
+		}
+
+		// check if target is a textnode (safari)
+		if ( event.target.nodeType === 3 ) {
+			event.target = event.target.parentNode;
+		}
+
+		// Add relatedTarget, if necessary
+		if ( !event.relatedTarget && event.fromElement ) {
+			event.relatedTarget = event.fromElement === event.target ? event.toElement : event.fromElement;
+		}
+
+		// Calculate pageX/Y if missing and clientX/Y available
+		if ( event.pageX == null && event.clientX != null ) {
+			var eventDocument = event.target.ownerDocument || document,
+				doc = eventDocument.documentElement,
+				body = eventDocument.body;
+
+			event.pageX = event.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc && doc.clientLeft || body && body.clientLeft || 0);
+			event.pageY = event.clientY + (doc && doc.scrollTop  || body && body.scrollTop  || 0) - (doc && doc.clientTop  || body && body.clientTop  || 0);
+		}
+
+		// Add which for key events
+		if ( event.which == null && (event.charCode != null || event.keyCode != null) ) {
+			event.which = event.charCode != null ? event.charCode : event.keyCode;
+		}
+
+		// Add metaKey to non-Mac browsers (use ctrl for PC's and Meta for Macs)
+		if ( !event.metaKey && event.ctrlKey ) {
+			event.metaKey = event.ctrlKey;
+		}
+
+		// Add which for click: 1 === left; 2 === middle; 3 === right
+		// Note: button is not normalized, so don't use it
+		if ( !event.which && event.button !== undefined ) {
+			event.which = (event.button & 1 ? 1 : ( event.button & 2 ? 3 : ( event.button & 4 ? 2 : 0 ) ));
+		}
+
+		return event;
+  }
 
   function buildMouseEvent(self, evt) {
     var mouse = self.mouse;
 
-    evt = evt || window.event || {};
+    evt = fixEvent(evt || window.event);
     evt.context = self;
     evt.canvas = self.canvas;
     evt.offsetx = mouse.x;
@@ -47,18 +107,9 @@ Jax.EVENT_METHODS = (function() {
     mouse.offsety = evt.offsety || 0;
 
     var cumulativeOffset = getCumulativeOffset(self.canvas);
-    mouse.x = evt.clientX - cumulativeOffset[0];
-    mouse.y = evt.clientY - cumulativeOffset[1];
+    mouse.x = evt.pageX - cumulativeOffset[0];
+    mouse.y = evt.pageY - cumulativeOffset[1];
     mouse.y = self.canvas.height - mouse.y; // invert y
-
-    // add scroll offsets
-    if (window.pageXOffset) {
-      mouse.x += window.pageXOffset;
-      mouse.y += window.pageYOffset;
-    } else {
-      mouse.x += document.body.scrollLeft;
-      mouse.y += document.body.scrollTop;
-    }
 
     // calculate differences, useful for checking movement relative to last position
     mouse.diffx = mouse.x - mouse.offsetx;

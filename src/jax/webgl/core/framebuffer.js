@@ -114,12 +114,12 @@ Jax.Framebuffer = (function() {
      *             
      *   * color: optionally, in place of a colors array, a single color format as above. If both
      *            _color_ and _colors_ are specified, _color_ is simply added to the _colors_ array.
-     *   * depth: true if a depth attachment is required, false otherwise.
-     *   * stencil: true if a stencil attachment is required, false otherwise.
+     *   * depth: true if a depth attachment is required, false otherwise. Defaults to false.
+     *   * stencil: true if a stencil attachment is required, false otherwise. Defaults to false.
      *   * width: the width of the render and color buffers. All render and color buffers for a given
-     *            framebuffer must have the same width. Defaults to 2048.
+     *            framebuffer must have the same width. Defaults to 512.
      *   * height: the height of the render and color buffers. All render and color buffers for a given
-     *             framebuffer must have the same height. Defaults to 2048.
+     *             framebuffer must have the same height. Defaults to 512.
      *     
      **/
     initialize: function(options) {
