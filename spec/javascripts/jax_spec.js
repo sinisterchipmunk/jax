@@ -3,7 +3,7 @@ window.addEventListener("load", function() {
   canvas.setAttribute("width", "600");
   canvas.setAttribute("height", "400");
   canvas.setAttribute("id", "canvas-element");
-//  canvas.style.visibility = "hidden";
+  canvas.style.visibility = "hidden";
   document.body.appendChild(canvas);
   
   var style = document.createElement('style');

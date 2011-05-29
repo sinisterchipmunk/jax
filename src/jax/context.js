@@ -32,11 +32,47 @@ Jax.Context = (function() {
     if (!self.gl) throw new Error("WebGL could not be initialized!");
   }
   
+  function updateFramerate(self) {
+    var current_render_start = Jax.uptime;
+    if (!self.last_render_start) self.last_render_start = Jax.uptime;
+    var time_to_render_this_frame = current_render_start - self.last_render_start;
+    
+    self.time_to_render = (self.time_to_render || 0) * self.framerate_sample_ratio
+                        + time_to_render_this_frame * (1 - self.framerate_sample_ratio);
+    
+    // frames per second = 1 second divided by time to render; time is currently in ms so 1sec = 1000ms
+    self.framerate = self.frames_per_second = 1.0 / self.time_to_render;
+    self.last_render_start = current_render_start;
+  }
+  
+  function updateUpdateRate(self) {
+    var current_update_start = Jax.uptime;
+    if (!self.last_update_start) self.last_update_start = current_update_start;
+    var time_to_update_this_frame = current_update_start - self.last_update_start;
+    
+    if (self.calculateUpdateRate) {
+      self.time_to_update = (self.time_to_update || 0) * self.framerate_sample_ratio
+                          + time_to_update_this_frame * (1 - self.framerate_sample_ratio);
+                        
+      // update rate = seconds / time
+      self.updates_per_second = 1.0 / self.time_to_update;
+    }
+    
+    // in order to avoid recalculating the above for updates, we'll return the timechange
+    // to be used in subsequent updates.
+    var timechange = current_update_start - self.last_update_start;
+    self.last_update_start = current_update_start;
+    return timechange;
+  }
+  
   function startRendering(self) {
     function render() {
+      if (self.calculateFramerate) updateFramerate(self);
       if (self.current_view) {
         self.prepare();
         self.current_view.render();
+        var len = self.afterRenderFuncs.length;
+        for (var i = 0; i < len; i++) self.afterRenderFuncs[i].call(self);
         self.render_interval = requestAnimFrame(render, self.canvas);
       }
       else {
@@ -54,12 +90,11 @@ Jax.Context = (function() {
   
   function startUpdating(self) {
     function updateFunc() {
-      if (!self.lastUpdate) self.lastUpdate = new Date();
-      var now = new Date();
-      var timechange = (now - self.lastUpdate) / 1000.0;
-      self.lastUpdate = now;
+      var timechange = updateUpdateRate(self);
       
       self.update(timechange);
+      var len = self.afterUpdateFuncs.length;
+      for (var i = 0; i < len; i++) self.afterUpdateFuncs[i].call(self);
       self.update_interval = setTimeout(updateFunc, Jax.update_speed);
     }
     updateFunc();
@@ -110,10 +145,87 @@ Jax.Context = (function() {
       this.player.camera.perspective({width:canvas.width, height:canvas.height});
       this.matrix_stack = new Jax.MatrixStack();
       this.current_pass = Jax.Scene.AMBIENT_PASS;
+      this.afterRenderFuncs = [];
+      this.afterUpdateFuncs = [];
+      this.framerate = 0;
+      this.frames_per_second = 0;
+      this.updates_per_second = 0;
+      
+      /**
+       * Jax.Context#framerate_sample_ratio -> Number
+       *
+       * A number between 0 and 1, to be used in updates to frames per second and updates per second.
+       *
+       * Setting this to a high value will produce "smoother" results; they will change less frequently,
+       * but it will take longer to get initial results. High values are better for testing framerate
+       * over the long term, while lower values are better for testing small disruptions in framerate
+       * (such as garbage collection).
+       *
+       * Defaults to 0.9.
+       **/
+      this.framerate_sample_ratio = 0.9;
       
       startUpdating(this);
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
+    },
+    
+    /**
+     * Jax.Context#getFramesPerSecond() -> Number
+     * The average number of frames rendered in one second.
+     *
+     * Implicitly enables calculation of frames-per-second, which is initially disabled by default
+     * to improve performance.
+     **/
+    getFramesPerSecond: function() { this.calculateFramerate = true; return this.frames_per_second; },
+     
+    /**
+     * Jax.Context#getUpdatesPerSecond() -> Number
+     * The average number of updates performed in one second. See also Jax.Context#getFramesPerSecond().
+     *
+     * Implicitly enables calculation of updates-per-second, which is initially disabled by default
+     * to improve performance.
+     **/
+    getUpdatesPerSecond: function() { this.calculateUpdateRate = true; return this.updates_per_second; },
+    
+    /**
+     * Jax.Context#disableFrameSpeedCalculations() -> Jax.Context
+     * Disables calculation of frames-per-second. Note that this calculation is disabled by default
+     * to improve performance, so you should only need to call this if you've previously called
+     * Jax.Context#getUpdatesPerSecond().
+     **/
+    disableFrameSpeedCalculations: function() { this.calculateFramerate = false; },
+    
+    /**
+     * Jax.Context#disableUpdateSpeedCalculations() -> Jax.Context
+     * Disables calculation of updates-per-second. Note that this calculation is disabled by default
+     * to improve performance, so you should only need to call this if you've previously called
+     * Jax.Context#getUpdatesPerSecond().
+     **/
+    disableUpdateSpeedCalculations: function() { this.caclulateUpdateRate = false; },
+     
+    /**
+     * Jax.Context#afterRender(func) -> Jax.Context
+     * 
+     * Registers the specified function to be called immediately after every render pass.
+     * Returns this context.
+     *
+     * When the function is called, its +this+ object is set to the context itself.
+     **/
+    afterRender: function(func) {
+      this.afterRenderFuncs.push(func);
+    },
+    
+    /**
+     * Jax.Context#afterUpdate(func) -> Jax.Context
+     *
+     * Registers the specified function to be called immediately after every update pass.
+     * Returns this context.
+     *
+     * When the function is called, its +this+ object is set to the context itself.
+     **/
+    afterUpdate: function(func) {
+      this.afterUpdateFuncs.push(func);
     },
 
     /**
@@ -150,7 +262,7 @@ Jax.Context = (function() {
       
       return this.current_controller;
     },
-
+    
     /**
      * Jax.Context#prepare() -> Jax.Context
      * 
@@ -293,6 +405,12 @@ Jax.Context = (function() {
   
   /* set up matrix stack delegation */
   klass.delegate(/^(get|load|mult)(.*)Matrix$/).into("matrix_stack");
+  
+  /** alias of: Jax.Context#getFramesPerSecond
+   * Jax.Context#getFramerate() -> Number
+   * The average numebr of frames rendered in one second.
+   **/
+  klass.prototype.getFramerate = klass.prototype.getFramesPerSecond;
   
   return klass;
 })();

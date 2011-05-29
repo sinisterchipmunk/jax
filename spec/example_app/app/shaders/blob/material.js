@@ -37,7 +37,7 @@ Jax.Material.Blob = (function() {
       uniforms.texture('simplexTexture', noise.simplex, context);
       uniforms.texture('gradTexture',    noise.grad,    context);
   
-      uniforms.set('time', this.time || 0);
+      uniforms.set('time', Jax.uptime);
     },
 
     setAttributes: function($super, context, mesh, options, attributes) {

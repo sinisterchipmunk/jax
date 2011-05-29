@@ -67,8 +67,10 @@ Jax.loaded = true;
  * This is not a guaranteed number in JavaScript, just a target. Most notably,
  * system performance issues can drive the framerate down regardless of the
  * target refresh rate.
+ *
+ * Defaults to 16, for a target rate of 60 frames per second.
  **/
-Jax.render_speed = 15;
+Jax.render_speed = 16;
 
 /**
  * Jax.update_speed -> Number
@@ -76,8 +78,10 @@ Jax.render_speed = 15;
  * This is not a guaranteed number in JavaScript, just a target. Most notably,
  * system performance issues can drive the framerate down regardless of the
  * target refresh rate.
+ *
+ * Defaults to 33, for a target rate of 30 updates per second.
  **/
-Jax.update_speed = 15;
+Jax.update_speed = 33;
 
 
 /**
@@ -91,6 +95,19 @@ Jax.update_speed = 15;
  **/
 Jax.max_lights = undefined;
 
+/**
+ * Jax.uptime -> Number
+ *
+ * The amount of time the Jax subsystem has been running, in seconds. This is updated
+ * whether any contexts are active or not. It is used for tracking update intervals
+ * and framerates, so that individual Jax contexts are not constantly spawning new
+ * Date() instances (which then have to be garbage collected).
+ **/
+Jax.uptime = 0.0;
+Jax.uptime_tracker = new Date();
+
+/* TODO: verify : is setInterval better for updates, or should be we using requestAnimFrame? */
+setInterval(function() { Jax.uptime = (new Date() - Jax.uptime_tracker) / 1000; }, 33);
 
 //= require "jax/builtin/all.js"
 

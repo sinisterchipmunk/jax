@@ -5,7 +5,6 @@
 var Blob = (function() {
   return Jax.Model.create({
     update: function(tc) {
-      this.mesh.material.time = (this.mesh.material.time || 0) + tc;
       this.camera.rotate(tc, [1,0,0]);
     },
     
