@@ -1,3 +1,27 @@
+* 0.0.0.6 *
+
+* Introduced Jax.uptime, a running total of number of seconds since the Jax subsystem
+  was _loaded_ (not necessarily instantiated). This is now used in place of various
+  timers in Jax, e.g. for calculating the +timechange+ argument to #update methods.
+
+* Added 'picking' support via Jax.World#pick(x,y); Jax.World#pickIndex(x,y);
+  Jax.World#pickRegion(x1,y1, x2,y2); Jax.World#pickRegionalIndices(x1,y1, x2,y2).
+  This is the last milestone prior to v1.0 release.
+
+* Lots of new JavaScript API documentation
+
+* Renamed Jax.Camera#getModelViewMatrix() to Jax.Camera#getTransformationMatrix().
+  The latter is more accurate. THIS WILL BREAK EXISTING APPS but since Jax is still
+  considered pre-release I'm not taking the extra step to deprecate it.
+
+* Added Jax version number and framerate counter to spec layouts
+
+* Added perlin noise example to /spec/example_app
+
+* Added aliases for Math.radToDeg / Math.rad2deg and Math.degToRad / Math.deg2rad
+
+
+
 * 0.0.0.5 *
 
 * Jax now checks JS version against gem version and reports on mismatches
@@ -9,6 +33,7 @@
   This makes it possible to reuse paraboloids for environment mapping.
 
 * Shader dependencies are now loaded via Jax.shader_load_paths, which can be multiple
-  different directories (e.g. Jax builtin + app/shaders)
+  different directories (e.g. Jax builtin + app/shaders) This makes functions used by
+  Jax available for reuse in custom shaders.
 
 * Added CHANGELOG. :)
