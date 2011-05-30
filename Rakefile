@@ -147,7 +147,6 @@ namespace :guides do
   
   desc "Publish the guides"
   task :publish => 'guides:generate' do
-    ENV['SKIP_API'] = false # just in case.
     require 'rake/contrib/sshpublisher'
     mkdir_p 'pkg'
     `tar -czf pkg/guides.gz guides/output`
