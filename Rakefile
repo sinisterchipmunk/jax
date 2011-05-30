@@ -92,8 +92,12 @@ end
 namespace :doc do
   desc "build the Jax JavaScript documentation"
   task :js do
+    require 'erb'
     FileUtils.rm_rf 'doc'
     
+    @link_to_guides = true
+    @hide_links_to_api_docs = true
+    header = ERB.new(File.read(File.expand_path("guides/partials/_top_nav.html.erb", File.dirname(__FILE__)))).result(binding)
     PDoc.run({
       :source_files => (['src/jax.js', 'vendor/glmatrix/glMatrix.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
@@ -112,6 +116,9 @@ namespace :doc do
       :short_name => 'Jax',
       :home_url => 'http://jaxgl.com',
       :version => Jax::VERSION,
+      :templates => "vendor/pdoc_template/html",
+      :header => header,
+      :index_header => header,
 #      :index_header => "",
 #      :footer => '',
 #      :assets => 'doc_assets'
@@ -122,8 +129,13 @@ namespace :doc do
 end
 
 namespace :guides do
-  task :generate do
+  # gen doc:js first because we're going to include a direct link to the JS API dox
+  task :generate => 'doc:js' do
     rm_rf "guides/output"
+    if !ENV["SKIP_API"]
+      mkdir_p "guides/output/api"
+      cp_r "doc", "guides/output/api/js"
+    end
     ENV["WARN_BROKEN_LINKS"] = "1" # authors can't disable this
     ruby "guides/jax_guides.rb"
   end
@@ -135,6 +147,7 @@ namespace :guides do
   
   desc "Publish the guides"
   task :publish => 'guides:generate' do
+    ENV['SKIP_API'] = false # just in case.
     require 'rake/contrib/sshpublisher'
     mkdir_p 'pkg'
     `tar -czf pkg/guides.gz guides/output`

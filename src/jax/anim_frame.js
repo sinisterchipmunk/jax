@@ -31,7 +31,7 @@
 
 
 /**
- * Global.requestAnimFrame(callback, element) -> undefined
+ * Global#requestAnimFrame(callback, element) -> undefined
  * - callback (Function): callback to be fired to initiate a render sequence
  * - element (DOMElement): a DOM element to attach the animation state to
  *

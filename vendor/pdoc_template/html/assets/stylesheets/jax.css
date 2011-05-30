@@ -1,0 +1,30 @@
+.wrapper {
+	text-align: left;
+	margin: 0 auto;
+	width: 69em;
+	}
+
+#topNav {
+  	text-align: center;
+  	font-family: Helvetica, Arial, sans-serif;
+  	font-size: 110%;
+  	line-height: 1.5em;
+  	background: #222;
+  	color: #999;
+
+	padding: 1em 0;
+	color: #565656;
+}
+
+#topNav .wrapper {padding-left: 1em; width: 68em;}
+
+/* Links
+--------------------------------------- */
+
+#topNav a, #topNav a:link, #topNav a:visited {
+	color: #0099ff;
+	text-decoration: underline;
+	}
+
+#topNav strong {color: #999; margin-right: 0.5em;}
+#topNav strong a {color: #FFF !important;}

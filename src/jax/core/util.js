@@ -1,4 +1,9 @@
 /**
+ * class Array
+ * A standard JavaScript array.
+ **/
+
+/**
  * Jax.Util
  * Contains general-purpose utility and helper functions
  **/
