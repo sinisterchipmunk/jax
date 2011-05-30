@@ -5,6 +5,7 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
   end
   
   def template
+    added_files.clear
     @template ||= begin
       template = [
         'Jax.environment = Jax.PRODUCTION;',
@@ -12,15 +13,32 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
         '//= provide "public/"',
         ''
       ]
-      Dir[Jax.root.join("app/**/*.js")].each do |jsfi|
-        if File.file?(jsfi)
-          relative_path = jsfi.sub(/^#{Regexp::escape Jax.root.to_s}[\/\\]?/, '')
-          template << "//= require \"#{relative_path}\""
-        end
-      end
+      # Need to verify that helpers come first
+      Dir[Jax.root.join("app/helpers/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
+      Dir[Jax.root.join("app/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
 
       template
     end
+  end
+  
+  def try_to_add_file(template, jsfi)
+    if File.file?(jsfi) && !already_added?(jsfi)
+      add_file(template, jsfi)
+    end
+  end
+  
+  def add_file(template, jsfi)
+    relative_path = jsfi.sub(/^#{Regexp::escape Jax.root.to_s}[\/\\]?/, '')
+    template << "//= require \"#{relative_path}\""
+    added_files << jsfi
+  end
+  
+  def already_added?(jsfi)
+    added_files.include?(jsfi)
+  end
+  
+  def added_files
+    @added_files ||= []
   end
   
   def source_lines
