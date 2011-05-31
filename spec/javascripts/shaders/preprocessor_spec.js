@@ -2,6 +2,25 @@ describe("Preprocessor", function() {
   var context;
   var matr;
   
+  beforeEach(function() {
+    context = new Jax.Context(document.getElementById('canvas-element'));
+    matr = new Jax.Material();
+  });
+  
+  afterEach(function() { context.dispose(); });
+
+  it("should be able to determine shader type from within common code", function() {
+    Jax.shaders['test'] = new Jax.Shader({
+      common: "void <%=shader_type%>(void) { return; }",
+      vertex: "void main(void) { gl_Position = vec4(0,0,0,1); }",
+      fragment: "void main(void) { discard; }",
+      name: "test"
+    });
+    
+    expect(Jax.shaders['test'].getVertexSource(matr)).toMatch(/void vertex\(void\)/);
+    expect(Jax.shaders['test'].getFragmentSource(matr)).toMatch(/void fragment\(void\)/);
+  });
+  
   describe("with multiple similar vardecs", function() {
     Jax.shaders['test'] = new Jax.Shader({
       vertex: "shared uniform mat4 ivMatrix, mvMatrix, pMatrix, vMatrix;\n" +
@@ -21,12 +40,8 @@ describe("Preprocessor", function() {
     });
 
     beforeEach(function() {
-      context = new Jax.Context(document.getElementById('canvas-element'));
-      matr = new Jax.Material();
       matr.addLayer(new TestMaterial());
     });
-
-    afterEach(function() { context.dispose(); });
 
     it("should should not fail", function() {
       new Jax.Mesh({material:matr}).render(context);

@@ -196,6 +196,7 @@ Jax.Shader = (function() {
     
     getRawSource: function(options, which) {
       var source = this.options[which];
+      options = Jax.Util.normalizeOptions(options, {shader_type:which});
       if (source && (source = source.render(options))) {
         var result = this.getPreamble(options);
         if (!options || !options.skip_export_definitions)
@@ -287,6 +288,7 @@ Jax.Shader.max_varyings = gl.getParameter(GL_MAX_VARYING_VECTORS);
 Jax.Shader.max_vertex_uniforms = gl.getParameter(GL_MAX_VERTEX_UNIFORM_VECTORS);
 Jax.Shader.max_fragment_uniforms = gl.getParameter(GL_MAX_FRAGMENT_UNIFORM_VECTORS);
 Jax.Shader.max_attributes = gl.getParameter(GL_MAX_VERTEX_ATTRIBS);
+Jax.Shader.max_vertex_textures = gl.getParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 
 // FIXME differentiate between vertex & fragment uniforms
 Jax.Shader.max_uniforms = Math.min(Jax.Shader.max_fragment_uniforms, Jax.Shader.max_vertex_uniforms);
