@@ -12,8 +12,6 @@ var LightingController = (function() {
       // build a new material, since the default one isn't quite to our liking for this demo
       // all unspecified options will simply inherit the default ones.
       var custom_material = Jax.Material.find("lighting_with_shadows");
-//      var custom_material = new Jax.Material({shininess:128,ambient:[0.05,0.05,0.05,1]});
-//      custom_material.addLayer(new Jax.Material.ShadowMap());
       
       // add a Teapot
       this.world.addObject(new Jax.Model({ mesh: new Jax.Mesh.Teapot({size:10, material:custom_material}),position:[0,0,-25] }));

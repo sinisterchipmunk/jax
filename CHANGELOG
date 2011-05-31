@@ -1,3 +1,24 @@
+* 0.0.0.8 *
+
+* Added +Jax.Shaders.max_vertex_textures+ which tracks the value of
+  GL_MAX_VERTEX_TEXTURE_UNITS so you can design shaders that Just Work.
+
+* Exposed +shader_type+ to the EJS template so you can determine whether a shader's
+  source is for a vertex or fragment shader. (It's a string equal to either 'vertex'
+  or 'fragment'.) Useful for 'common' code, even more useful for reusable function
+  libraries. ;)
+  
+* Modified Jax built-in noise functions to utilize the above in order to quietly
+  fall back to the no-texture-lookup noise implementation by Ian McEwan:
+  https://github.com/ashima/webgl-noise . This implementation is considerably slower
+  than the VTL one (my FPS on Mac drops from ~100 to ~60 for the 'blob' demo), so
+  it is better used as a secondary noise than as a primary.
+  
+* Renamed the VTL 'noise' function to 'cnoise' to avoid ambiguity in programs. Use
+  'cnoise' or 'snoise'.
+
+
+
 * 0.0.0.7 *
 
 * Fixed a bug which could cause applications to fail in production (after running
