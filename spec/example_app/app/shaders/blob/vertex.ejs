@@ -1,6 +1,8 @@
 shared attribute vec4 VERTEX_POSITION, VERTEX_TANGENT;
 shared attribute vec3 VERTEX_NORMAL;
 
+uniform float time;
+
 #define PI 3.141592653589793
 
 vec3 sphere(in float slice, in float stack) {
