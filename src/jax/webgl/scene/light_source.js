@@ -49,6 +49,9 @@ Jax.Scene.LightSource = (function() {
       data.color.diffuse = Jax.Util.colorize(data.color.diffuse);
       data.color.specular= Jax.Util.colorize(data.color.specular);
       $super(data);
+      
+      var self = this;
+      this.camera.addEventListener('matrixUpdated', function() { self.invalidate(); });
 
       this.spotExponent = this.spot_exponent;
       delete this.spot_exponent;
@@ -125,13 +128,48 @@ Jax.Scene.LightSource = (function() {
       return this.shadowMatrix;
     },
     
+    registerCaster: function(object) {
+      var self = this;
+      function updated() { self.invalidate(); }
+      object.camera.addEventListener('matrixUpdated', updated);
+      this.invalidate();
+    },
+    
+    unregisterCaster: function(object) {
+      /* FIXME remove the shadowmap event listener from object's camera matrix */
+    },
+    
     isShadowcaster: function() { return this.shadowcaster; },
     
     getDPShadowNear: function() { setupProjection(this); return this.camera.projection.near; },
     
     getDPShadowFar: function() { setupProjection(this); return this.camera.projection.far; },
     
-    updateShadowMap: function(context, sceneBoundingRadius, objects) {
+    invalidate: function() { this.valid = false; },
+    
+    render: function(context, objects, options) {
+      if (!this.valid) {
+        var real_pass = context.current_pass;
+        /* shadowgen pass */
+        context.current_pass = Jax.Scene.SHADOWMAP_PASS;
+        this.updateShadowMap(context, this.boundingRadius, objects, options);
+        this.valid = true;
+        context.current_pass = real_pass;
+      }
+      
+      for (var j = 0; j < objects.length; j++) {
+        options.model_index = j;
+        
+        /* TODO optimization: see if objects[j] is even affected by this light (based on attenuation) */
+        if (objects[j].isLit()) // it could be unlit but still in array if it casts a shadow
+          objects[j].render(context, options);
+      }
+    },
+    
+    updateShadowMap: function(context, sceneBoundingRadius, objects, render_options) {
+      // we can't afford to taint the original options
+      render_options = Jax.Util.normalizeOptions(render_options, {});
+      
       setupProjection(this);
       
       var self = this;
@@ -163,6 +201,9 @@ Jax.Scene.LightSource = (function() {
         context.glPolygonOffset(2.0, 2.0);
         
         context.pushMatrix(function() {
+          render_options.direction = 1;
+          render_options.material = paraboloid_depthmap;
+          
           self.framebuffers[0].bind(context, function() {
             // front paraboloid
             self.framebuffers[0].viewport(context);
@@ -171,17 +212,19 @@ Jax.Scene.LightSource = (function() {
             mat4.set(context.getInverseViewMatrix(), sm);
             
             for (var i = 0; i < objects.length; i++) {
-              objects[i].render(context, {material:paraboloid_depthmap, direction:1});
+              objects[i].render(context, render_options);
             }
           });
 
+          render_options.direction = -1;
+          
           self.framebuffers[1].bind(context, function() {
             // back paraboloid
             self.framebuffers[1].viewport(context);
             context.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             context.loadViewMatrix(self.camera.getTransformationMatrix());
             for (var i = 0; i < objects.length; i++) {
-              objects[i].render(context, {material:paraboloid_depthmap,direction:-1});
+              objects[i].render(context, render_options);
             }
           });
   
@@ -196,6 +239,8 @@ Jax.Scene.LightSource = (function() {
 
         return;
       }
+      
+      render_options.material = "depthmap";
       
       this.framebuffers[0].bind(context, function() {
         self.framebuffers[0].viewport(context);
@@ -214,7 +259,7 @@ Jax.Scene.LightSource = (function() {
           context.glEnable(GL_POLYGON_OFFSET_FILL);
           context.glPolygonOffset(2.0, 2.0);
           for (var i = 0; i < objects.length; i++) {
-            objects[i].render(context, {material:'depthmap'});
+            objects[i].render(context, render_options);
           }
           context.glDisable(GL_POLYGON_OFFSET_FILL);
           context.glEnable(GL_BLEND);

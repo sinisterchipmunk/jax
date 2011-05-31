@@ -149,6 +149,7 @@
        * 
        **/
       getBoundingCube: function() {
+        if (!this.mesh) return {left:0,right:0,bottom:0,top:0,front:0,back:0,width:0,height:0,depth:0};
         if (!this.mesh.built) this.mesh.rebuild();
         return this.mesh.bounds;
       },

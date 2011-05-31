@@ -41,7 +41,12 @@ Jax.World = (function() {
      * Adds the model to the world and then returns the model itself unchanged.
      *
      **/
-    addObject: function(object) { this.objects.push(object); this.invalidate(); return object; },
+    addObject: function(object) {
+      this.objects.push(object);
+      if (object.isLit() || object.isShadowCaster())
+        this.lighting.addObject(object);
+      return object;
+    },
     
     /**
      * Jax.World#getObject(index) -> Jax.Model
@@ -62,7 +67,7 @@ Jax.World = (function() {
       if (this.objects[object_or_index]) {
         var obj = this.objects[object_or_index];
         this.objects.splice(object_or_index, 1);
-        this.invalidate();
+        this.lighting.removeObject(obj);
         return obj;
       }
       else
@@ -70,7 +75,7 @@ Jax.World = (function() {
           if (this.objects[i] == object_or_index)
           {
             this.objects.splice(i, 1);
-            this.invalidate();
+            this.lighting.removeObject(this.objects[i]);
             return this.objects[i];
           }
     },
@@ -183,32 +188,7 @@ Jax.World = (function() {
       return this.objects.length;
     },
     
-    invalidate: function() {
-      while (this.shadow_casters.length > 0) {
-        /* TODO we still need to unregister the camera event listener */
-        this.shadow_casters.pop();
-      }
-      
-      var updated = function() { self.shadowmaps_valid = false; };
-
-      var i;
-      for (i = 0; i < this.objects.length; i++) {
-        var self = this;
-        if (this.objects[i].isShadowCaster()) {
-          this.objects[i].camera.addEventListener('matrixUpdated', updated);
-          this.shadow_casters.push(this.objects[i]);
-        }
-      }
-      
-      for (i = 0; i < this.lighting.count(); i++) {
-        var light = this.lighting.getLight(i);
-        if (light.isShadowcaster())
-          light.camera.addEventListener('matrixUpdated', updated);
-      }
-      this.shadowmaps_valid = false;
-    },
-    
-    getShadowCasters: function() { return this.shadow_casters; },
+    getShadowCasters: function() { return this.lighting.getShadowCasters(); },//return this.shadow_casters; },
     
     render: function(options) {
       var i;
@@ -220,30 +200,16 @@ Jax.World = (function() {
       var unlit = Jax.Util.normalizeOptions(options, {unlit:true});
       
       if (this.lighting.isEnabled() && (!unlit.material || unlit.material.supportsLighting())) {
-        /* ambient pass */
-        /*
-          So.... I see a legit need for an ambient pass for A) unlit objects and B)
-          scene lighting. But jax doesn't yet support scene lighting so really only
-          unlit objects need an ambient pass. For lit objects, why not let
-          lighting take care of (ambient + diffuse + specular) all at once?
-        */
+        /* ambient pass - unlit objects only because lit objects get ambient+diffuse+specular in one pass */
         for (i = 0; i < this.objects.length; i++)
-          if (!this.objects[i].lit) {
+          if (!this.objects[i].isLit()) {
             unlit.model_index = i;
             this.objects[i].render(this.context, unlit);
           }
-        // this.lighting.ambient(this.context, this.objects);
       
-        /* shadowgen pass */
-        this.context.current_pass = Jax.Scene.SHADOWMAP_PASS;
-        if (!this.shadowmaps_valid) {
-          this.lighting.updateShadowMaps(this.context, this.shadow_casters);
-          this.shadowmaps_valid = true;
-        }
-        
         /* illumination pass */
         this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
-        this.lighting.illuminate(this.context, this.objects, options);
+        this.lighting.illuminate(this.context, options);
       } else {
         for (i = 0; i < this.objects.length; i++) {
           unlit.model_index = i;
