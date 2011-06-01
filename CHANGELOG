@@ -2,6 +2,14 @@
 
 * List enum name next to error number for clarity when render errors occur.
 
+* Abstract test suite setup into a separate helper file
+
+* Add a global SPEC_CONTEXT so users don't have to manually create a new context for
+  each spec
+  
+* Specs run on a completely separate context so that they don't cause issues with
+  the visual tests
+
 
 
 * 0.0.0.8 *

@@ -1,18 +1,15 @@
 describe("Shader 'blob'", function() {
-  var context, material, mesh;
+  var material, mesh;
   
     beforeEach(function() {
-      context = new Jax.Context('webgl-canvas');
       mesh = new Jax.Mesh.Quad();
     });
-  
-    afterEach(function() { context.dispose(); });
   
     describe("stand-alone", function() {
       beforeEach(function() { mesh.material = new Jax.Material.Blob(); });
   
-      xit("should render without error", function() {
-        expect(function() { mesh.render(context); }).not.toThrow();
+      it("should render without error", function() {
+        expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
       });
     });
   
@@ -23,8 +20,8 @@ describe("Shader 'blob'", function() {
         }]});
       });
   
-      xit("should render without error", function() {
-        expect(function() { mesh.render(context); }).not.toThrow();
+      it("should render without error", function() {
+        expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
       });
     });
 });
