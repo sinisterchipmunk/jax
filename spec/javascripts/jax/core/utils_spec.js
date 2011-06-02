@@ -2,6 +2,19 @@ describe("Jax.Util", function() {
   describe("vectorize", function() {
     var data;
     
+    describe("2D", function() {
+      beforeEach(function() { data = [1, 2]; });
+      
+      it("should have length 2", function() { expect(Jax.Util.vectorize({x:0,y:1})).toEqualVector([0,1]); });
+      it("should work", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2]); });
+    });
+    
+    describe("with array", function() {
+      beforeEach(function() { data = [1, 2, 3]; });
+      
+      it("should return the original vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
+    });
+    
     describe("with object with names", function() {
       beforeEach(function() { data = {x:1,y:2,z:3}; });
       it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
@@ -33,6 +46,12 @@ describe("Jax.Util", function() {
     describe("colorize", function() {
       var data;
     
+      describe("3D", function() {
+        beforeEach(function() { data = [1, 2, 3]; });
+
+        it("should work", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,1]); });
+      });
+
       describe("with object with short names", function() {
         beforeEach(function() { data = {r:1,g:2,b:3,a:4}; });
         it("should produce a color", function() { expect(Jax.Util.colorize(data)).toEqualVector([1,2,3,4]); });
@@ -108,7 +127,7 @@ describe("Jax.Util", function() {
     describe("with a vector", function() {
       beforeEach(function() { data = [1,2,3]; });
       it("should produce a vector", function() { expect(Jax.Util.vectorize(data)).toEqualVector([1,2,3]); });
-      it("should not return itself", function() { expect(Jax.Util.vectorize(data)).not.toEqual(data); });
+      xit("should not return itself", function() { expect(Jax.Util.vectorize(data)).not.toEqual(data); });
     });
   });
   
@@ -175,7 +194,7 @@ describe("Jax.Util", function() {
       });
     });
     
-    describe("with a gen object left and array right", function() {
+    describe("with a  object left and array right", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({p:{"x":20,"y":40,"z":60}}, {p:[1,2,3]}); });
       it("should merge both into a gen object", function() {
         expect(Object.isArray(normalized.p)).toBeFalsy();
