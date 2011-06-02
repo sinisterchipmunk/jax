@@ -46,7 +46,16 @@
 						'jmp_buf mbstate_t _off_t _onexit_t _PNH ptrdiff_t _purecall_handler ' +
 						'sig_atomic_t size_t _stat __stat64 _stati64 terminate_function ' +
 						'time_t __time64_t _timeb __timeb64 tm uintptr_t _utimbuf ' +
-						'va_list wchar_t wctrans_t wctype_t wint_t signed';
+						'va_list wchar_t wctrans_t wctype_t wint_t signed ' +
+						
+						// glsl
+						'void bool int float vec2 vec3 vec4 bvec2 bvec3 bvec4 ivec2 ivec3 ivec4 mat2 '+
+						'mat3 mat4 sampler2D samplerCube ' +
+						
+						// jax preprocessor
+						'' +
+						
+						'';
 
 		var keywords =	'break case catch class const __finally __exception __try ' +
 						'const_cast continue private public protected __declspec ' +
@@ -56,7 +65,14 @@
 						'register reinterpret_cast return selectany ' +
 						'sizeof static static_cast struct switch template this ' +
 						'thread throw true false try typedef typeid typename union ' +
-						'using uuid virtual void volatile whcar_t while';
+						'using uuid virtual void volatile whcar_t while ' +
+						
+						// glsl
+						'uniform varying attribute ' +
+						
+						// jax preprocessor
+						'shared '
+						;
 					
 		var functions =	'assert isalnum isalpha iscntrl isdigit isgraph islower isprint' +
 						'ispunct isspace isupper isxdigit tolower toupper errno localeconv ' +
@@ -73,7 +89,19 @@
 						'wcstombs wctomb memchr memcmp memcpy memmove memset strcat strchr ' +
 						'strcmp strcoll strcpy strcspn strerror strlen strncat strncmp ' +
 						'strncpy strpbrk strrchr strspn strstr strtok strxfrm asctime ' +
-						'clock ctime difftime gmtime localtime mktime strftime time';
+						'clock ctime difftime gmtime localtime mktime strftime time ' +
+						
+						// glsl
+						'radians degrees sin cos tan asin acos atan pow exp log exp2 log2 sqrt ' +
+						'inversesqrt abs sin floor ceil fract mod min max clamp mix step smoothstep ' +
+						'length distance dot cross normalize faceforward reflect matrixCompMult ' +
+						'lessThan lessThanEqual greaterThan greaterThanEqual equal notEqual '+
+						'any all not texture2D texture2DProj texture2DProjLod textureCube '+
+						'textureCubeLod'
+						
+						// jax preprocessor
+						'import export '
+						;
 
 		this.regexList = [
 			{ regex: SyntaxHighlighter.regexLib.singleLineCComments,	css: 'comments' },			// one line comments
