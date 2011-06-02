@@ -1,6 +1,16 @@
 function setupJaxTestEnvironment() {
-  jasmineEnv.execute();
-  
+  var jasmineEnv = jasmine.getEnv();
+
+  jsApiReporter = new jasmine.JsApiReporter();
+  var trivialReporter = new jasmine.TrivialReporter();
+
+  jasmineEnv.addReporter(jsApiReporter);
+  jasmineEnv.addReporter(trivialReporter);
+
+  jasmineEnv.specFilter = function(spec) {
+    return trivialReporter.specFilter(spec);
+  };
+
   /*
     Create a canvas element and add it to the document. 
     There's nothing special about this element.
@@ -17,4 +27,7 @@ function setupJaxTestEnvironment() {
   afterEach(function() {
     SPEC_CONTEXT.dispose();
   })
+
+
+  jasmineEnv.execute();
 }
