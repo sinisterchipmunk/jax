@@ -37,6 +37,15 @@ describe "Rake Tasks:" do
     Dir.chdir File.expand_path('..', pwd)
   end
   
+  context "jax:generate_files" do
+    before(:each) { rake('jax:generate_files') }
+    subject { File.read(File.expand_path('tmp/version_check.js')) }
+    
+    it "should do a version check" do
+      subject.should =~ /jax:update/
+    end
+  end
+  
   context "jax:package" do
     before(:each) { rake('jax:package') }
     
@@ -45,6 +54,10 @@ describe "Rake Tasks:" do
       
       it "should install assets" do
         File.should exist('pkg/images/test.png')
+      end
+      
+      it "should not do a version check" do
+        subject.should_not =~ /jax:update/
       end
       
       it "should contain views" do

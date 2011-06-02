@@ -27,6 +27,10 @@ namespace :jax do
     File.open(Jax.root.join("tmp/routes.js"), 'w') do |f|
       Jax.application.config.routes.compile(f)
     end
+    File.open(Jax.root.join("tmp/version_check.js"), "w") do |f|
+      f.puts "if (Jax.doVersionCheck) Jax.doVersionCheck('#{Jax::Version::STRING}');" 
+      f.puts "else alert('Your Jax gem version is newer than your Jax JavaScript library!\\n\\nRun `rake jax:update` to fix this.');"
+    end
   end
 end
 
