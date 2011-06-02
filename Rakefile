@@ -130,9 +130,10 @@ end
 
 namespace :guides do
   # gen doc:js first because we're going to include a direct link to the JS API dox
-  task :generate => 'doc:js' do
+  task :generate do
     rm_rf "guides/output"
     if !ENV["SKIP_API"]
+      Rake::Task['doc:js'].invoke
       mkdir_p "guides/output/api"
       cp_r "doc", "guides/output/api/js"
     end
