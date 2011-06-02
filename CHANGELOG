@@ -1,4 +1,12 @@
-* MASTER BRANCH *
+* 0.0.0.9 *
+
+* Minor bugfixes for Jax.Util.colorize() and Jax.Util.Vectorize(). Specifically,
+  fixes involved correctly processing 3D colors and 2D vectors.
+
+* Switch shader test generator to use SPEC_CONTEXT, which is now defined in the
+  spec_layout and helper files for new applications. This isn't *immediately*
+  app-breaking but you should regenerate these files anyways or the next time you
+  generate a shader will cause a bad day.
 
 * List enum name next to error number for clarity when render errors occur.
 
