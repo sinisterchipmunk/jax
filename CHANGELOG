@@ -1,3 +1,9 @@
+* 0.0.0.10 *
+
+* Excluded worthless files from gemsec and reduced size of gem from 9mb to 100k!
+
+
+
 * 0.0.0.9 *
 
 * Minor bugfixes for Jax.Util.colorize() and Jax.Util.Vectorize(). Specifically,
