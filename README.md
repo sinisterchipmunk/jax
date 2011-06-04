@@ -16,19 +16,19 @@ Click on any image below to be taken to a live WebGL demonstration. Be sure to u
 
 ## Getting Started
 
-By far the best place to go if you want to dive into Jax is the {Jax Guides}[http://guides.jaxgl.com]. These are comprehensive guided tours of the framework, and cover pretty much anything you can think of doing. In particular, the {Getting Started Guide}[http://guides.jaxgl.com/getting_started.html] is laid out in an easy-to-follow tutorial format.
+By far the best place to go if you want to dive into Jax is the [Jax Guides](http://guides.jaxgl.com). These are comprehensive guided tours of the framework, and cover pretty much anything you can think of doing. In particular, the [Getting Started Guide](http://guides.jaxgl.com/getting_started.html) is laid out in an easy-to-follow tutorial format.
 
-Another good place to look around is the {Jax Wiki}[http://github.com/sinisterchipmunk/jax/wiki], where Jax developers (including yourself!) can share tips and tricks with one another.
+Another good place to look around is the [Jax Wiki](http://github.com/sinisterchipmunk/jax/wiki), where Jax developers (including yourself!) can share tips and tricks with one another.
 
-The {Forums}[http://jaxgl.com/forums] are a great place to get involved in the Jax community, and are a good place to go for help or general discussion.
+The [Forums](http://jaxgl.com/forums) are a great place to get involved in the Jax community, and are a good place to go for help or general discussion.
 
-The {Jax Blog}[http://blog.jaxgl.com] is where the latest news and developments-in-progress will be posted, so if you keep an eye on you'll always be in the know.
+The [Jax Blog](http://blog.jaxgl.com) is where the latest news and developments-in-progress will be posted, so if you keep an eye on you'll always be in the know.
 
-Finally, you can always contact me, the developer, on Twitter as {@sinisterchipmnk}[http://twitter.com/sinisterchipmnk] or {sinisterchipmunk on Github}[http://github.com/sinisterchipmunk].
+Finally, you can always contact me, the developer, on Twitter as [@sinisterchipmnk](http://twitter.com/sinisterchipmnk) or [sinisterchipmunk on Github](http://github.com/sinisterchipmunk).
 
 ## Helping Out
 
-Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to fork this project on {Github}[http://github.com/sinisterchipmunk/jax].
+Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to fork this project on [Github](http://github.com/sinisterchipmunk/jax).
 
 ### How to Contribute
 
