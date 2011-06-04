@@ -1,14 +1,20 @@
-== JAX
+## JAX
 
-JAX is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
+Jax is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
 
-== Requirements
+## Requirements
 
 It requires ruby, which you can download at: http://www.ruby-lang.org
 
-Other than that, JAX requires a few ruby gems which will be retrieved automatically when installing.
+Other than that, Jax requires a few ruby gems which will be retrieved automatically when installing.
 
-== Getting Started
+## Live Demos
+
+Click on any image below to be taken to a live WebGL demonstration. Be sure to use a WebGL-enabled browser!
+
+[<img src="http://sinisterchipmunk.github.com/images/screenshots/dungeon.png" width="125" height="125">](http://sinisterchipmunk.github.com/dungeon.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/meadow.png" width="125" height="125">](http://sinisterchipmunk.github.com/meadow.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/materials.png" width="125" height="125">](http://sinisterchipmunk.github.com/materials.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/lighting.png" width="125" height="125">](http://sinisterchipmunk.github.com/lights_and_shadows.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/blobular.png" width="125" height="125">](http://sinisterchipmunk.github.com/blobular.html)
+
+## Getting Started
 
 By far the best place to go if you want to dive into Jax is the {Jax Guides}[http://guides.jaxgl.com]. These are comprehensive guided tours of the framework, and cover pretty much anything you can think of doing. In particular, the {Getting Started Guide}[http://guides.jaxgl.com/getting_started.html] is laid out in an easy-to-follow tutorial format.
 
@@ -20,30 +26,25 @@ The {Jax Blog}[http://blog.jaxgl.com] is where the latest news and developments-
 
 Finally, you can always contact me, the developer, on Twitter as {@sinisterchipmnk}[http://twitter.com/sinisterchipmnk] or {sinisterchipmunk on Github}[http://github.com/sinisterchipmunk].
 
-== The Demo App
-
-This project includes an {example application}[https://github.com/sinisterchipmunk/jax/tree/master/spec/example_app]. Over time, this example -- which was originally meant to be a guide for the developer to follow and test against while developing Jax itself -- has become the standard testbed for the visual elements of Jax, such as the built-in shaders, which can't be tested without human interaction. Feel free to take a look at the example app if you're up for some eye candy.
-
-== Helping Out
+## Helping Out
 
 Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to fork this project on {Github}[http://github.com/sinisterchipmunk/jax].
 
-=== How to Contribute
+### How to Contribute
 
 1. Fork Jax.
 2. Check out a new branch. Name it something representative of the changes you'll make.
 3. Write a failing test case to demonstrate the need for your new code.
 4. Update Jax to work with your failing test case.
 5. Send me a pull request explaining (in detail, please) what you did and why you did it.
-6. If it's in line with the long-term plans for Jax, I'll review the commits, merge them with the main project and give you credit.
+6. If it's in line with the long-term plans for Jax, I'll review the commits and merge them with the main project.
 
-=== Notes
+### Notes
 
 * When making code changes, please don't update the version number. I'll do that when it's time to actually release some code.
-* If you do not wished to be credited for your contribution, let me know.
 * Feel free to fix or update the documentation and/or the Jax guides. They're part of the project, after all.
 * If your code change is public-facing, please _do_ update the documentation with how to use the new features. You know your own code better than anyone else.
 
-== License
+## License
 
 Jax is released under the MIT license.
