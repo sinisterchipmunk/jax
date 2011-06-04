@@ -10,7 +10,7 @@ rescue LoadError
   puts " *** You don't seem to have Bundler installed. ***"
   puts "     Please run the following command:"
   puts
-  puts "       gem install bundler --version=1.0.10"
+  puts "       gem install bundler --version=1.0.14"
   exit
 end
 
@@ -161,7 +161,7 @@ desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 task :jasmine => :compile
-task :build   => :compile
+task :build   => [:compile, :minify]
 task :default => :compile
 
 # we should do this before v0.0.1 but will make issues harder to track,
