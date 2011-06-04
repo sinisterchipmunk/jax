@@ -42,7 +42,7 @@ Jax.Material.Blob = (function() {
 
     setAttributes: function($super, context, mesh, options, attributes) {
       attributes.set('VERTEX_POSITION',  mesh.getVertexBuffer());
-      attributes.set('VERTEX_TANGENT',   mesh.getTangentBuffer());
+//      attributes.set('VERTEX_TANGENT',   mesh.getTangentBuffer());
       // attributes.set('VERTEX_COLOR',     mesh.getColorBuffer());
       // attributes.set('VERTEX_NORMAL',    mesh.getNormalBuffer());
       // attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer());
