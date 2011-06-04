@@ -30,7 +30,7 @@ Finally, you can always contact me, the developer, on Twitter as [@sinisterchipm
 
 ## Helping Out
 
-Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to fork this project on [Github](http://github.com/sinisterchipmunk/jax).
+Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to [fork this project on Github](http://github.com/sinisterchipmunk/jax/fork).
 
 ### How to Contribute
 
