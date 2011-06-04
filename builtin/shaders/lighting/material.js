@@ -1,6 +1,6 @@
 Jax.Material.Lighting = Jax.Class.create(Jax.Material, {
-  initialize: function($super) {
-    $super({shader: "lighting"});
+  initialize: function($super, options) {
+    $super(Jax.Util.normalizeOptions(options, {shader: "lighting"}));
   },
   
   setUniforms: function($super, context, mesh, options, uniforms) {
