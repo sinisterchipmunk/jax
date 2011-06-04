@@ -36,10 +36,10 @@ Anyone interested in doing so is more than welcome -- nay, _encouraged_ -- to [f
 
 1. Fork Jax.
 2. Check out a new branch. Name it something representative of the changes you'll make.
-3. Write a failing test case to demonstrate the need for your new code.
-4. Update Jax to work with your failing test case.
-5. Send me a pull request explaining (in detail, please) what you did and why you did it.
-6. If it's in line with the long-term plans for Jax, I'll review the commits and merge them with the main project.
+3. Write a failing test case to demonstrate the need for your new code. If this is not possible, explain *in detail* why not.
+4. Make the appropriate changes to Jax.
+5. Send me a pull request explaining what you did and why you did it.
+6. I'll review the commits and, if they are in keeping with the goals of Jax, I'll merge them with the main project.
 
 ### Notes
 
