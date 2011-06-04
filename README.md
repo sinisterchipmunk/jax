@@ -8,6 +8,8 @@ Click on any image below to be taken to a live WebGL demonstration. Be sure to u
 
 [<img src="http://sinisterchipmunk.github.com/images/screenshots/dungeon.png" width="125" height="125">](http://sinisterchipmunk.github.com/dungeon.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/meadow.png" width="125" height="125">](http://sinisterchipmunk.github.com/meadow.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/materials.png" width="125" height="125">](http://sinisterchipmunk.github.com/materials.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/lighting.png" width="125" height="125">](http://sinisterchipmunk.github.com/lights_and_shadows.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/blobular.png" width="125" height="125">](http://sinisterchipmunk.github.com/blobular.html)
 
+### If you're working on a demo you'd like to see added to this list, let me know!
+
 ## Requirements
 
 It requires ruby, which you can download at: http://www.ruby-lang.org
