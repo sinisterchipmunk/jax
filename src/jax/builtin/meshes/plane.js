@@ -49,6 +49,8 @@ Jax.Mesh.Plane = Jax.Class.create(Jax.Mesh, {
           verts.push(vx,        0, vz);
           verts.push(vx-x_unit, 0, vz);
           norms.push(0,1,0,  0,1,0);
+          texes.push(x / (x_seg-1), z / (z_seg-1));
+          texes.push((x-1) / (x_seg-1), z / (z_seg-1));
       }
 
       for (z = z_seg-1; z >= 0; z--) {
@@ -57,6 +59,8 @@ Jax.Mesh.Plane = Jax.Class.create(Jax.Mesh, {
           verts.push(vx-x_unit, 0, vz);
           verts.push(vx, 0, vz);
           norms.push(0,1,0,  0,1,0);
+          texes.push((x-1) / (x_seg-1), z / (z_seg-1));
+          texes.push(x / (x_seg-1), z / (z_seg-1));
       }
     }
   }
