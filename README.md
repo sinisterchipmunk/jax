@@ -2,17 +2,17 @@
 
 Jax is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
 
-## Requirements
-
-It requires ruby, which you can download at: http://www.ruby-lang.org
-
-Other than that, Jax requires a few ruby gems which will be retrieved automatically when installing.
-
 ## Live Demos
 
 Click on any image below to be taken to a live WebGL demonstration. Be sure to use a WebGL-enabled browser!
 
 [<img src="http://sinisterchipmunk.github.com/images/screenshots/dungeon.png" width="125" height="125">](http://sinisterchipmunk.github.com/dungeon.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/meadow.png" width="125" height="125">](http://sinisterchipmunk.github.com/meadow.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/materials.png" width="125" height="125">](http://sinisterchipmunk.github.com/materials.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/lighting.png" width="125" height="125">](http://sinisterchipmunk.github.com/lights_and_shadows.html)[<img src="http://sinisterchipmunk.github.com/images/screenshots/blobular.png" width="125" height="125">](http://sinisterchipmunk.github.com/blobular.html)
+
+## Requirements
+
+It requires ruby, which you can download at: http://www.ruby-lang.org
+
+Other than that, Jax requires a few ruby gems which will be retrieved automatically when installing.
 
 ## Getting Started
 
