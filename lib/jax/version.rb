@@ -1,11 +1,11 @@
 module Jax
   module Version
-    MAJOR = 0
+    MAJOR = 1
     MINOR = 0
     TINY  = 0
-    PATCH = 10
+    PREREL= 0
 
-    STRING = PATCH == 0 ? "#{MAJOR}.#{MINOR}.#{TINY}" : "#{MAJOR}.#{MINOR}.#{TINY}.#{PATCH}"
+    STRING = PREREL == 0 ? "#{MAJOR}.#{MINOR}.#{TINY}" : "#{MAJOR}.#{MINOR}.#{TINY}.#{PREREL}"
   end
 
   VERSION = Version::STRING

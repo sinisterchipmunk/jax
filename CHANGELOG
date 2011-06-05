@@ -1,3 +1,20 @@
+* 1.0.0 *
+
+* First major-version release, baby!
+
+* `rake build` with Jax rakefile now minifies jax.js before packaging so that
+  apps generated with `jax new appname` use minified jax.
+  
+* Jax.Mesh.Plane now includes texture coordinates. The range is [0..1] regardless
+  of size of plane or number of segments, so use texture scaling like you would for
+  any other mesh if a wider range is required.
+  
+* Lighting shader now takes options to override the defaults. This makes it easier
+  to extend with other shaders -- useful for shaders that alter or replace the
+  lighting model, or for shaders that just rely on the same uniforms.
+
+
+
 * 0.0.0.10 *
 
 * Excluded worthless files from gemsec and reduced size of gem from 9mb to 100k!
@@ -10,7 +27,7 @@
   fixes involved correctly processing 3D colors and 2D vectors.
 
 * Switch shader test generator to use SPEC_CONTEXT, which is now defined in the
-  spec_layout and helper files for new applications. This isn't *immediately*
+  spec_layout and helper files for new applicats. This isn't *immediately*
   app-breaking but you should regenerate these files anyways or the next time you
   generate a shader will cause a bad day.
 
