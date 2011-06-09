@@ -1,13 +1,9 @@
 describe("Core Materials", function() {
-  var context;
   var matr;
   
   beforeEach(function() {
-    context = new Jax.Context(document.getElementById('canvas-element'));
     matr = new Jax.Material();
   });
-  
-  afterEach(function() { context.dispose(); });
   
   var mats = Jax.Material.all();
   for (var i = 0; i < mats.length; i++) {
@@ -21,7 +17,7 @@ describe("Core Materials", function() {
 
       it("should compile successfully", function() {
         spyOn(matr, 'prepareShader').andCallThrough();
-        new Jax.Mesh({material:matr}).render(context);
+        new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
         expect(matr.prepareShader).toHaveBeenCalled();
       });
       
@@ -35,7 +31,7 @@ describe("Core Materials", function() {
           if (mats[j] != "basic" && mats[j] != "default")
             m.addLayer(Jax.Material.find(mats[j]));
         
-        new Jax.Mesh({material:m}).render(context);
+        new Jax.Mesh({material:m}).render(SPEC_CONTEXT);
       });
     });
   }

@@ -1,9 +1,6 @@
 describe("Texture", function() {
   var _img = "/images/rss.png";
-  
-  var c; // Jax context
   var tex;
-  beforeEach(function() { c = new Jax.Context('canvas-element'); });
   
   /* _it calls spec only when texture is ready */
   var _it = function(desc, testFunc) { 
@@ -53,9 +50,9 @@ describe("Texture", function() {
     _it("should render successfully", function() {
       var matr = new Jax.Material.Texture(tex);
       var m = new Jax.Model({mesh: new Jax.Mesh.Quad({material: matr})});
-      var context = new Jax.Context('canvas-element');
-      m.render(context);
-      context.dispose();
+//      var context = new Jax.Context('canvas-element');
+      m.render(SPEC_CONTEXT);
+      // context.dispose();
     });
   });
   
@@ -63,12 +60,12 @@ describe("Texture", function() {
     describe("with no image", function() {
       beforeEach(function() {
         tex = new Jax.Texture(null, {target:GL_TEXTURE_CUBE_MAP,width:128,height:128});
-        spyOn(c, 'glBindTexture').andCallThrough();
+        spyOn(SPEC_CONTEXT, 'glBindTexture').andCallThrough();
       });
       
       it("should bind successfully", function() {
-        expect(function(){tex.bind(c);}).not.toThrow();
-        expect(c.glBindTexture).toHaveBeenCalled();
+        expect(function(){tex.bind(SPEC_CONTEXT);}).not.toThrow();
+        expect(SPEC_CONTEXT.glBindTexture).toHaveBeenCalled();
       });
     });
     
@@ -76,7 +73,7 @@ describe("Texture", function() {
       beforeEach(function() { tex = new Jax.Texture(_img, {target:GL_TEXTURE_CUBE_MAP}); });
       
       _it("should bind successfully", function() {
-        expect(function() { tex.bind(c); }).not.toThrow();
+        expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
       });
     });
 
@@ -84,7 +81,7 @@ describe("Texture", function() {
       beforeEach(function() { tex = new Jax.Texture([_img,_img,_img,_img,_img,_img], {target:GL_TEXTURE_CUBE_MAP}); });
       
       _it("should bind successfully", function() {
-        expect(function() { tex.bind(c); }).not.toThrow();
+        expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
       });
     });
   });
@@ -92,12 +89,12 @@ describe("Texture", function() {
   describe("with no image", function() {
     beforeEach(function() {
       tex = new Jax.Texture(null, {target:GL_TEXTURE_2D,width:128,height:128});
-      spyOn(c, 'glBindTexture').andCallThrough();
+      spyOn(SPEC_CONTEXT, 'glBindTexture').andCallThrough();
     });
       
     it("should bind successfully", function() {
-      expect(function(){tex.bind(c);}).not.toThrow();
-      expect(c.glBindTexture).toHaveBeenCalled();
+      expect(function(){tex.bind(SPEC_CONTEXT);}).not.toThrow();
+      expect(SPEC_CONTEXT.glBindTexture).toHaveBeenCalled();
     });
   });
     
@@ -106,12 +103,12 @@ describe("Texture", function() {
     
     describe("when bound with block", function() {
       _it("should increment textureLevel", function() {
-        tex.bind(c, function(textureLevel0) {
+        tex.bind(SPEC_CONTEXT, function(textureLevel0) {
           expect(textureLevel0).toEqual(0);
           expect(this).toEqual(tex);
           expect(tex.textureLevel).toEqual(0);
           
-          tex.bind(c, function(textureLevel1) {
+          tex.bind(SPEC_CONTEXT, function(textureLevel1) {
             expect(textureLevel1).toEqual(1);
             expect(this).toEqual(tex);
             expect(tex.textureLevel).toEqual(1);
@@ -125,24 +122,24 @@ describe("Texture", function() {
     describe("when bound without block with level", function() {
       beforeEach(function() {
         waitsFor(function() { return tex.ready(); }, 1000);
-        spyOn(c, 'glActiveTexture').andCallThrough();
+        spyOn(SPEC_CONTEXT, 'glActiveTexture').andCallThrough();
       });
       
       it("should use texture 1", function() {
-        tex.bind(c, 1);
-        expect(c.glActiveTexture).toHaveBeenCalledWith(GL_TEXTURE1);
+        tex.bind(SPEC_CONTEXT, 1);
+        expect(SPEC_CONTEXT.glActiveTexture).toHaveBeenCalledWith(GL_TEXTURE1);
       });
     });
     
     describe("when bound without block", function() {
-      beforeEach(function() { waitsFor(function() { return tex.ready(); }, 1000); tex.bind(c); });
+      beforeEach(function() { waitsFor(function() { return tex.ready(); }, 1000); tex.bind(SPEC_CONTEXT); });
       
       it("should create a GL texture handle", function() {
-        expect(tex.getHandle(c)).not.toBeUndefined();
+        expect(tex.getHandle(SPEC_CONTEXT)).not.toBeUndefined();
       });
       
       it("should bind without error", function() {
-        expect(function() { tex.bind(c); }).not.toThrow();
+        expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
       });
     });
     

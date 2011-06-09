@@ -1,13 +1,23 @@
 /**
- * Global
- * Objects and functions defined here are available in the global (window) scope.
- **/
-
-/**
  * Jax
  * Root namespace containing all Jax data
  **/
-var Jax = { PRODUCTION: 1, VERSION: "<%=JAX_VERSION%>" };
+var Jax = {
+  PRODUCTION: 1,
+  
+  VERSION: "<%=JAX_VERSION%>",
+  
+  /**
+   * Global
+   * Objects and functions defined here are available in the global scope.
+   **/
+  getGlobal: function() {
+    return (function() {
+      if (typeof(global) != 'undefined') return global;
+      else return window;
+    })();
+  }
+};
 
 /* Called by Jax applications as of version 0.0.0.5 to alert the user to incomplete upgrades */
 Jax.doVersionCheck = function(targetVersion) {
@@ -106,8 +116,31 @@ Jax.max_lights = undefined;
 Jax.uptime = 0.0;
 Jax.uptime_tracker = new Date();
 
-/* TODO: verify : is setInterval better for updates, or should be we using requestAnimFrame? */
-setInterval(function() { Jax.uptime = (new Date() - Jax.uptime_tracker) / 1000; }, 33);
+/**
+ * Jax.shutdown() -> undefined
+ *
+ * Causes all Jax contexts to be disposed.
+ **/
+Jax.shutdown = function() {
+  if (Jax.uptime_interval) clearInterval(Jax.uptime_interval);
+  Jax.uptime_interval = null;
+  Jax.SHUTDOWN_IN_PROGRESS = true;
+};
+
+/**
+ * Jax.restart() -> undefined
+ *
+ * Restarts the Jax subsystem after a prior call to Jax.shutdown().
+ **/
+Jax.restart = function() {
+  Jax.SHUTDOWN_IN_PROGRESS = false;
+  /* TODO: verify : is setInterval better for updates, or should be we using requestAnimFrame? */
+  if (!Jax.uptime_interval)
+    Jax.uptime_interval = setInterval(function() { Jax.uptime = (new Date() - Jax.uptime_tracker) / 1000; }, 33);
+};
+
+// start 'er up!
+Jax.restart();
 
 //= require "jax/builtin/all.js"
 
@@ -117,3 +150,14 @@ setInterval(function() { Jax.uptime = (new Date() - Jax.uptime_tracker) / 1000; 
  */
 var LightSource = Jax.Scene.LightSource;
 var Material = Jax.Material;
+
+
+/* Export globals into 'exports' for CommonJS */
+if (typeof(exports) != "undefined") {
+  exports.Jax = Jax;
+  exports.mat4 = mat4;
+  exports.mat3 = mat3;
+  exports.vec3 = vec3;
+  exports.glMatrixArrayType = glMatrixArrayType;
+  exports.quat4 = quat4;
+}

@@ -25,12 +25,10 @@ describe("Jax.Model", function() {
   });
   
   describe("added to world without a mesh", function() {
-    var context;
-    beforeEach(function() { model = new (Jax.Model.create({after_initialize:function(){}}))({position:[0,0,0]}); context = new Jax.Context('canvas-element'); context.world.addObject(model); });
-    afterEach(function() { context.dispose(); });
+    beforeEach(function() { model = new (Jax.Model.create({after_initialize:function(){}}))({position:[0,0,0]}); SPEC_CONTEXT.world.addObject(model); });
     
     it("should not cause errors when rendering", function() {
-      expect(function() { context.world.render(); }).not.toThrow();
+      expect(function() { SPEC_CONTEXT.world.render(); }).not.toThrow();
     });
   });
     
@@ -57,9 +55,7 @@ describe("Jax.Model", function() {
       });
 
       it("should render properly", function() {
-        var context = new Jax.Context('canvas-element');
-        model.render(context);
-        context.dispose();
+        model.render(SPEC_CONTEXT);
       });
     });
   

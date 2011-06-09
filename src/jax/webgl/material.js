@@ -249,7 +249,7 @@ Jax.Material = (function() {
     
     adaptShaderToHardwareLimits: function(shader, error) {
       function log(msg) {
-        if (window.console)
+        if (Jax.getGlobal().console)
           console.log(msg);
         else
           setTimeout(function() { throw new Error(msg); }, 1);

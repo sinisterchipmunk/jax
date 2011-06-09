@@ -1,14 +1,10 @@
 describe("Preprocessor", function() {
-  var context;
   var matr;
   
   beforeEach(function() {
-    context = new Jax.Context(document.getElementById('canvas-element'));
     matr = new Jax.Material();
   });
   
-  afterEach(function() { context.dispose(); });
-
   it("should be able to determine shader type from within common code", function() {
     Jax.shaders['test'] = new Jax.Shader({
       common: "void <%=shader_type%>(void) { return; }",
@@ -44,7 +40,7 @@ describe("Preprocessor", function() {
     });
 
     it("should should not fail", function() {
-      new Jax.Mesh({material:matr}).render(context);
+      new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
     });
   });
 });

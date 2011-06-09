@@ -1,17 +1,13 @@
 describe("Material segment 'paraboloid'", function() {
-  var context;
   var matr;
   
   beforeEach(function() {
-    context = new Jax.Context(document.getElementById('canvas-element'));
     matr = new Jax.Material.Paraboloid();
     spyOn(matr, 'prepareShader').andCallThrough();
   });
   
-  afterEach(function() { context.dispose(); });
-  
   it("should compile successfully", function() {
-    new Jax.Mesh({material:matr}).render(context);
+    new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
     expect(matr.prepareShader).toHaveBeenCalled();
   });
 
@@ -27,9 +23,9 @@ describe("Material segment 'paraboloid'", function() {
       old_render.apply(this, arguments);
     };
     
-    context.world.addObject(new Jax.Model({mesh: mesh}));
-    context.world.addLightSource(new Jax.Scene.LightSource({type:Jax.POINT_LIGHT}));
-    context.world.render();
+    SPEC_CONTEXT.world.addObject(new Jax.Model({mesh: mesh}));
+    SPEC_CONTEXT.world.addLightSource(new Jax.Scene.LightSource({type:Jax.POINT_LIGHT}));
+    SPEC_CONTEXT.world.render();
     
     expect(front).toBeTrue();
     expect(back).toBeTrue();

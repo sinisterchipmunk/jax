@@ -1,4 +1,14 @@
 /* Defines constants, functions, etc. that may exist in one browser but not in another */
+
+/* Compatibility layer for node.js */
+if (typeof(window) == "undefined")
+  Jax.getGlobal().window = Jax.getGlobal();
+
+if (typeof(document) == "undefined") {
+  Jax.getGlobal().document = require("helpers/node_dom_emulator");
+}
+
+
 /**
  * Jax.Compatibility
  * Contains values used for cross-browser compatibility.

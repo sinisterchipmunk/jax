@@ -43,6 +43,8 @@ Math.deg2rad = Math.deg2rad || Math.degToRad;
  * Arguments can be either scalar or vector, but must be of the same type.
  * Returns true if the arguments are "equal enough" after accounting for floating-point
  * precision loss. Returns false otherwise.
+ *
+ * Also returns false if any element of either vector is undefined.
  **/
 Math.equalish = Math.equalish || function(a, b) {
   if (!a.length && !b.length)
@@ -50,6 +52,6 @@ Math.equalish = Math.equalish || function(a, b) {
 
   if (a.length != b.length) return false;
   for (var i = 0; i < a.length; i++)
-    if (Math.abs(a[i] - b[i]) > Math.EPSILON) return false;
+    if (a[i] == undefined || b[i] == undefined || Math.abs(a[i] - b[i]) > Math.EPSILON) return false;
   return true;
 };

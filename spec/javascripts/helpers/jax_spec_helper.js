@@ -157,39 +157,35 @@ beforeEach(function() {
       this.actual = "model";
       var original_render = model.render;
       
-      var context = new Jax.Context('canvas-element');
-      context.world.addObject(model);
-      context.world.addLightSource(new Jax.Scene.LightSource({type:Jax.DIRECTIONAL_LIGHT}));
+      SPEC_CONTEXT.world.addObject(model);
+      SPEC_CONTEXT.world.addLightSource(new Jax.Scene.LightSource({type:Jax.DIRECTIONAL_LIGHT}));
 
       var illuminated = false;
       model.render = function() {
-        if (context.current_pass == Jax.Scene.ILLUMINATION_PASS)
+        if (SPEC_CONTEXT.current_pass == Jax.Scene.ILLUMINATION_PASS)
           illuminated = true;
       };
 
       spyOn(model, 'render').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       
       var called = model.render.callCount;
       if (!model.render.callCount) result = false; // fail-safe
-      context.dispose();
       
       model.render = original_render;
       return called && illuminated;
     },
     
     toBeRendered: function() {
-      var context = new Jax.Context('canvas-element');
       var model = this.actual;
       var original_render = model.render;
-      context.world.addObject(model);
+      SPEC_CONTEXT.world.addObject(model);
       
       this.actual = 'model';
       spyOn(model, 'render');
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.render).toHaveBeenCalled();
       
-      context.dispose();
       model.render = original_render;
     },
     

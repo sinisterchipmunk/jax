@@ -1,8 +1,4 @@
 describe("LCD Compatibility tests", function() {
-  var context;
-  beforeEach(function() { context = new Jax.Context('canvas-element'); });
-  afterEach(function() { context.dispose(); });
-  
   /* these tests verify that different aspects of Jax can perform on lowest-common-denominator machines */
   
   /*

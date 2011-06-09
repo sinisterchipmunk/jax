@@ -85,6 +85,7 @@ Jax.Mesh = (function() {
       
       sdir[0] = (t2 * x1 - t1 * x2) * r; sdir[1] = (t2 * y1 - t1 * y2) * r; sdir[2] = (t2 * z1 - t1 * z2) * r;
       tdir[0] = (s1 * x2 - s2 * x1) * r; tdir[1] = (s1 * y2 - s2 * y1) * r; tdir[2] = (s1 * z2 - s2 * z1) * r;
+      
       if (isNaN(sdir[0]) || isNaN(sdir[1]) || isNaN(sdir[2]) ||
           isNaN(tdir[0]) || isNaN(tdir[1]) || isNaN(tdir[2]) )
       {

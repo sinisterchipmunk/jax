@@ -1,8 +1,5 @@
 describe("Mesh:", function() {
-  var mesh, context;
-  
-  beforeEach(function() { context = new Jax.Context(document.getElementById('canvas-element')); });
-  afterEach(function() { context.dispose(); });
+  var mesh;
   
   describe("a torus", function() {
     beforeEach(function() { mesh = new Jax.Mesh.Torus(); mesh.rebuild(); });
@@ -64,7 +61,7 @@ describe("Mesh:", function() {
         we can at least assume that webgl will work properly, and check for other logical errors
         in the render process itself. For now I'm basically just seeing whether #render fails.
        */
-      expect(function() { mesh.render(context); }).not.toThrow();
+      expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
     });
     
     describe("that has been built", function() {

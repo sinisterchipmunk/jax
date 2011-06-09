@@ -216,8 +216,9 @@ Jax.Util = {
    * This is primarily for debugging and error reporting.
    **/
   enumName: function(glEnum) {
-    for (var i in window) {
-      if (i.indexOf("GL_") == 0 && window[i] == glEnum)
+    var global = Jax.getGlobal();
+    for (var i in global) {
+      if (i.indexOf("GL_") == 0 && global[i] == glEnum)
         return i;
     }
     return "(unrecognized enum: "+glEnum+" [0x"+parseInt(glEnum).toString(16)+"])";

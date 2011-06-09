@@ -156,6 +156,11 @@ namespace :guides do
   end
 end
 
+desc "Run javascript tests using node.js"
+task :node => :compile do
+  system("node", "spec/javascripts/node_helper.js")
+end
+
 # 'Guides' tasks & code borrowed from Railties.
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'

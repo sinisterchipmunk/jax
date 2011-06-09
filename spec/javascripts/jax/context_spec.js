@@ -4,12 +4,12 @@ describe("Jax.Canvas", function() {
   describe("with no routes", function() {
     beforeEach(function() { 
       Jax.routes.clear();
-      context = new Jax.Context(document.getElementById("canvas-element"));
+      context = new Jax.Context(SPEC_CONTEXT.canvas);
     });
     afterEach(function() { context.dispose(); });
   
     it("should keep a handle to canvas", function() {
-      expect(context.canvas.id).toEqual("canvas-element");
+      expect(context.canvas.id).toEqual("spec-canvas");
     });
   
     it("should not be rendering, because there's no root controller", function() {
@@ -35,7 +35,7 @@ describe("Jax.Canvas", function() {
       Jax.routes.map("/", one);
       Jax.routes.map("two", two);
       
-      context = new Jax.Context(document.getElementById("canvas-element"));
+      context = new Jax.Context(SPEC_CONTEXT.canvas);
     });
     
     afterEach(function() { context.dispose(); });
@@ -71,7 +71,7 @@ describe("Jax.Canvas", function() {
         this.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         view_called++;
       });
-      context = new Jax.Context(document.getElementById("canvas-element"));
+      context = new Jax.Context(SPEC_CONTEXT.canvas);
     });
     afterEach(function() { context.dispose(); });
   

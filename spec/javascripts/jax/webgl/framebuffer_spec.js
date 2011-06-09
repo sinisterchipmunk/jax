@@ -1,7 +1,5 @@
 describe("Framebuffer", function() {
-  var c; // Jax context
   var buf;
-  beforeEach(function() { c = new Jax.Context('canvas-element'); });
   
   describe("with no attachments", function() {
     beforeEach(function() { buf = new Jax.Framebuffer(); });
@@ -10,7 +8,7 @@ describe("Framebuffer", function() {
       // because there's a default GL_RGBA color profile generated.
       // This was the only way to circumvent an unknown error in FF and Chrome when
       // using a depth buffer only.
-      expect(function() {buf.bind(c)}).not.toThrow();
+      expect(function() {buf.bind(SPEC_CONTEXT)}).not.toThrow();
     });
   });
   
@@ -20,7 +18,7 @@ describe("Framebuffer", function() {
     });
     
     it("should bind", function() {
-      expect(function() {buf.bind(c)}).not.toThrow();
+      expect(function() {buf.bind(SPEC_CONTEXT)}).not.toThrow();
     });
   });
   
@@ -30,7 +28,7 @@ describe("Framebuffer", function() {
     });
     
     xit("should bind", function() { // raising GL_FRAMEBUFFER_UNSUPPORTED
-      expect(function() {buf.bind(c)}).not.toThrow();
+      expect(function() {buf.bind(SPEC_CONTEXT)}).not.toThrow();
     });
   });
 
@@ -40,7 +38,7 @@ describe("Framebuffer", function() {
     });
     
     it("should bind", function() {
-      expect(function() {buf.bind(c)}).not.toThrow();
+      expect(function() {buf.bind(SPEC_CONTEXT)}).not.toThrow();
     });
   });
 });

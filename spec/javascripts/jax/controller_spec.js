@@ -9,10 +9,12 @@ describe("Jax.Controller", function() {
       klass = Jax.Controller.create("welcome", { index: function() { }, update: function(tc) { } });
       Jax.views.push("welcome/index", function() { });
       Jax.routes.map("welcome", klass);
-      context = new Jax.Context(document.getElementById('canvas-element'));
+      context = new Jax.Context(SPEC_CONTEXT.canvas);
       instance = context.redirectTo("welcome");
       spyOn(instance, 'update');
     });
+    
+    afterEach(function() { context.dispose(); });
     
     it("should be called when the context is updated", function() {
       /*
@@ -48,27 +50,25 @@ describe("Jax.Controller", function() {
       /* initMouseEvent - type, bubbles, cancelable, windowObject, detail, screenX, screenY, clientX, clientY, ctrlKey,
        * altKey, shiftKey, metaKey, button, relatedTarget */
       evt = document.createEvent('MouseEvents');
-      evt.initMouseEvent(type, true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-      document.getElementById('canvas-element').dispatchEvent(evt);
+      evt.initMouseEvent(type, true, true, Jax.getGlobal(), 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      SPEC_CONTEXT.canvas.dispatchEvent(evt);
     }
 
     function doKeyEvent(type) {
       /* UIEvents - DOMActivate, DOMFocusIn, DOMFocusOut */
       /* KeyEvents / UIEvents - keydown, keypress, keyup */
       /* initUIEvent - type, bubbles, cancelable windowObject, detail */
-      if (window.KeyEvent && !KeyEvent.fake) {
+      if (Jax.getGlobal().KeyEvent && !KeyEvent.fake) {
         evt = document.createEvent('KeyEvents');
         // type, bubbles, cancelable, windowObject, ctrlKey, altKey, shiftKey, metaKey, keyCode, charCode
-        evt.initKeyEvent(type, true, true, window, false, false, false, false, 13, 0);
+        evt.initKeyEvent(type, true, true, Jax.getGlobal(), false, false, false, false, 13, 0);
       } else {
         evt = document.createEvent('UIEvents');
-        evt.initUIEvent(type, true, true, window, 1);
+        evt.initUIEvent(type, true, true, Jax.getGlobal(), 1);
         evt.keyCode = 13;
       }
-      document.getElementById('canvas-element').dispatchEvent(evt);
+      SPEC_CONTEXT.canvas.dispatchEvent(evt);
     }
-
-    var context;
 
     beforeEach(function() {
       var methods = {
@@ -87,10 +87,8 @@ describe("Jax.Controller", function() {
       expect(instance).toHaveMethod("mouse_clicked"); // verify methods were added
       for (var method_name in methods) spyOn(instance, method_name);
       Jax.routes.clear();
-      context = new Jax.Context(document.getElementById("canvas-element"));
-      context.current_controller = instance;
+      SPEC_CONTEXT.current_controller = instance;
     });
-    afterEach(function() { context.dispose(); });
 
     it("should dispatch key pressed events", function() {
       doKeyEvent('keypress');

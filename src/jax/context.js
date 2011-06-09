@@ -30,6 +30,40 @@ Jax.Context = (function() {
   function setupContext(self) {
     try { self.gl = self.canvas.getContext(WEBGL_CONTEXT_NAME, WEBGL_CONTEXT_OPTIONS); } catch(e) { }
     if (!self.gl) throw new Error("WebGL could not be initialized!");
+    
+    if (!self.canvas.eventListeners) {
+      /* TODO merge this with jax/webgl/core/events.js and use for all Jax event handling */
+      self.canvas.eventListeners = {};
+      var _add = self.canvas.addEventListener, _remove = self.canvas.removeEventListener;
+      
+      self.canvas.getEventListeners = function(type) {
+        if (type) return (this.eventListeners[type] = this.eventListeners[type] || []);
+        else {
+          var ret = [];
+          for (var i in this.eventListeners) ret = ret.concat(this.eventListeners[i]);
+          return ret;
+        }
+      };
+      
+      self.canvas.addEventListener = function(type, listener, capture) {
+        this.getEventListeners(type).push(listener);
+        _add.apply(this, arguments);
+      }
+      
+      self.canvas.removeEventListener = function(type, listener, capture) {
+        if (typeof(type) == "string") {
+          var listeners = this.getEventListeners(type);
+          var index = listeners.indexOf(listener);
+          if (index != -1) listeners.splice(index, 1);
+        } else if (!listener) {
+          // type *is* the listener, remove it from all arrays
+          for (var i in this.eventListeners)
+            this.removeEventListener(i, type);
+          return;
+        }
+        _remove.apply(this, arguments);
+      };
+    }
   }
   
   function updateFramerate(self) {
@@ -96,6 +130,8 @@ Jax.Context = (function() {
       var len = self.afterUpdateFuncs.length;
       for (var i = 0; i < len; i++) self.afterUpdateFuncs[i].call(self);
       self.update_interval = setTimeout(updateFunc, Jax.update_speed);
+      
+      if (Jax.SHUTDOWN_IN_PROGRESS) self.dispose();
     }
     updateFunc();
   }

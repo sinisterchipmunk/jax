@@ -84,7 +84,7 @@ Jax.Framebuffer = (function() {
         throw new Error("Jax.Framebuffer: all attachments must have the same dimensions. (GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS)");
       case GL_FRAMEBUFFER_UNSUPPORTED:
         throw new Error("Jax.Framebuffer: the requested framebuffer layout is unsupported on this hardware. (GL_FRAMEBUFFER_UNSUPPORTED)");
-      case (window['GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER'] || 0x8cdb):
+      case (Jax.getGlobal()['GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER'] || 0x8cdb):
         // a cryptic error that is not in the WebGL spec. Took me way too long to figure this out and I'm still not
         // sure why it happens...
         // but it seems to crop up primarily when no textures are attached.

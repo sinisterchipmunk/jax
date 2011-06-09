@@ -11,23 +11,31 @@ function setupJaxTestEnvironment() {
     return trivialReporter.specFilter(spec);
   };
 
+  setupJaxSpecContext();
+
+  jasmineEnv.execute();
+}
+
+function setupJaxSpecContext() {
   /*
     Create a canvas element and add it to the document. 
     There's nothing special about this element.
    */
   var canvas = document.createElement("canvas");
+  canvas.setAttribute("width", 600);
+  canvas.setAttribute("height", 400);
   canvas.setAttribute("id", "spec-canvas");
   canvas.style.display = "none";
   document.body.appendChild(canvas);
   
   beforeEach(function() {
-    window.SPEC_CONTEXT = new Jax.Context(canvas);
+    Jax.getGlobal().SPEC_CONTEXT = new Jax.Context(canvas);
   });
   
   afterEach(function() {
-    SPEC_CONTEXT.dispose();
+    Jax.getGlobal().SPEC_CONTEXT.dispose();
   })
-
-
-  jasmineEnv.execute();
 }
+
+if (typeof(global) != 'undefined')
+  global.setupJaxSpecContext = setupJaxSpecContext;

@@ -1,13 +1,10 @@
 describe("Jax.ShaderChain", function() {
-  var chain, material, context;
+  var chain, material;
   
   beforeEach(function() {
     material = new Jax.Material();
-    context = new Jax.Context('canvas-element');
     chain = new Jax.ShaderChain("shader");
   });
-  
-  afterEach(function() { context.dispose(); });
   
   describe("with a vertex main with 1 unqualified argument", function() {
     beforeEach(function() {
@@ -71,12 +68,34 @@ describe("Jax.ShaderChain", function() {
     });
     
     it("should delegate to the expanded uniform name", function() {
-      chain.link(context, material);
+      // mock up the context's uniforms if the webgl context isn't a real implementation
+      if (SPEC_CONTEXT.gl.fake) {
+        // --- here's how the mocks will be used ---
+        // var numUniforms = context.glGetProgramParameter(program, GL_ACTIVE_UNIFORMS);
+        // for (var i = 0; i < numUniforms; i++)
+        //   var unif = context.glGetActiveUniform(program, i);
+        //   uniforms[unif.name] = {
+        //     length:unif.length,
+        //     size:unif.size,
+        //     type:unif.type,
+        //     type_str:Jax.Util.enumName(unif.type),
+        //     location: context.glGetUniformLocation(program, unif.name)
+        //   };
+        // if (!context.glGetProgramParameter(program, GL_LINK_STATUS))
+        SPEC_CONTEXT.gl.getProgramParameter = function(p, en) {
+          if (en == GL_ACTIVE_UNIFORMS) return 1;
+          if (en == GL_LINK_STATUS) return {};
+          return 0;
+        };
+        SPEC_CONTEXT.gl.getActiveUniform = function() { return { length:1, size:1, type:1, name:prefix+"TextureScaleX" } };
+      }
+      
+      chain.link(SPEC_CONTEXT, material);
       chain.manifest.variable_prefix = prefix;
       chain.manifest.set('TextureScaleX', 1);
-      var uniforms = chain.getUniformDelegator(context);
+      var uniforms = chain.getUniformDelegator(SPEC_CONTEXT);
       spyOn(uniforms, 'set');
-      chain.manifest.apply(uniforms, chain.getAttributeDelegator(context));
+      chain.manifest.apply(uniforms, chain.getAttributeDelegator(SPEC_CONTEXT));
       
       expect(uniforms.set).toHaveBeenCalledWith(prefix+'TextureScaleX', 1);
     });
@@ -107,7 +126,7 @@ describe("Jax.ShaderChain", function() {
       });
       
       it("should produce a master shader", function() {
-        chain.link(context, material);
+        chain.link(SPEC_CONTEXT, material);
         expect(chain.getMasterShader().getFragmentSource()).not.toBeNull();
         expect(chain.getMasterShader().getVertexSource()).not.toBeNull();
       });

@@ -1,14 +1,14 @@
 /*
-This file will set up WebGL constants as globals prefixed with GL_, and will add
-a new global called GL_METHODS. This will later be used for method delegation
+This file will set up WebGL constants as Jax.getGlobal()s prefixed with GL_, and will add
+a new Jax.getGlobal() called GL_METHODS. This will later be used for method delegation
 within Jax.Context.
  */
 
 //= require "vendor/glMatrix"
 
-window['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
-window['WEBGL_CONTEXT_OPTIONS'] = {stencil:true};
-window['GL_METHODS'] = {};
+Jax.getGlobal()['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
+Jax.getGlobal()['WEBGL_CONTEXT_OPTIONS'] = {stencil:true};
+Jax.getGlobal()['GL_METHODS'] = {};
 
 (function() {
   var canvas = document.createElement("canvas");
@@ -64,18 +64,18 @@ window['GL_METHODS'] = {};
       }
       else
       {
-        /* define the GL enums globally so we don't need a context to reference them */
+        /* define the GL enums Jax.getGlobal()ly so we don't need a context to reference them */
         if (!/[a-z]/.test(method_name)) // no lowercase letters
-          window[('GL_'+method_name)] = gl[method_name];
+          Jax.getGlobal()[('GL_'+method_name)] = gl[method_name];
       }
     }
 
-    /* define some extra globals that the above didn't generate */
-//    window['GL_MAX_VERTEX_ATTRIBS'] = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-    window['GL_DEPTH_COMPONENT'] = gl.DEPTH_COMPONENT || gl.DEPTH_COMPONENT16;
-    window['GL_TEXTURES'] = [];
-    for (i = 0; i < 32; i++) window['GL_TEXTURES'][i] = gl["TEXTURE"+i];
-    window['GL_MAX_ACTIVE_TEXTURES'] = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+    /* define some extra Jax.getGlobal()s that the above didn't generate */
+//    Jax.getGlobal()['GL_MAX_VERTEX_ATTRIBS'] = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+    Jax.getGlobal()['GL_DEPTH_COMPONENT'] = gl.DEPTH_COMPONENT || gl.DEPTH_COMPONENT16;
+    Jax.getGlobal()['GL_TEXTURES'] = [];
+    for (i = 0; i < 32; i++) Jax.getGlobal()['GL_TEXTURES'][i] = gl["TEXTURE"+i];
+    Jax.getGlobal()['GL_MAX_ACTIVE_TEXTURES'] = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   }
 
   /* import other webgl files */

@@ -192,9 +192,10 @@ Jax.Texture = (function() {
       
       var i;
       var enums = ['min_filter', 'mag_filter', 'mipmap_hint', 'format', 'target', 'data_type', 'wrap_s', 'wrap_t'];
+      var global = Jax.getGlobal();
       for (i = 0; i < enums.length; i++)
         if (typeof(this.options[enums[i]]) == "string")
-          this.options[enums[i]] = window[this.options[enums[i]]];
+          this.options[enums[i]] = global[this.options[enums[i]]];
 
       if (path_or_array) {
         if (typeof(path_or_array) == "string") {

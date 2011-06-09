@@ -1,15 +1,9 @@
 describe("Jax.World", function() {
-  var context;
   var world;
   
   beforeEach(function() {
-    context = new Jax.Context('canvas-element');
-    context.prepare();
-    world = context.world;
-  });
-  
-  afterEach(function() {
-   context.dispose();
+    SPEC_CONTEXT.prepare();
+    world = SPEC_CONTEXT.world;
   });
   
   describe("picking", function() {
@@ -23,19 +17,20 @@ describe("Jax.World", function() {
 
       // put some objects in the world for picking
       // function mesh() { return new Jax.Mesh.Sphere({size:1.0}); }
+      
       mesh = new Jax.Mesh.Sphere();
-      ofront       = world.addObject(new Jax.Model({position:[ 0.0, 0.0, -5], mesh:mesh}));
+      ofront       = world.addObject(new Jax.Model({position:[ 0.0, 0.0, -5],mesh:mesh}));
       otopleft     = world.addObject(new Jax.Model({position:[-2.5, 2.5, -5],mesh:mesh}));
       otopright    = world.addObject(new Jax.Model({position:[ 2.5, 2.5, -5],mesh:mesh}));
       obottomleft  = world.addObject(new Jax.Model({position:[-2.5,-2.5, -5],mesh:mesh}));
       obottomright = world.addObject(new Jax.Model({position:[ 2.5,-2.5, -5],mesh:mesh}));
     });
     
-    it("center",       function() { expect(world.pick(at.center_x, at.center_y)).toEqual(ofront); });
-    it("top left",     function() { expect(world.pick(at.left, at.top)).toEqual(otopleft); });
-    it("top right",    function() { expect(world.pick(at.right,at.top)).toEqual(otopright); });
-    it("bottom left",  function() { expect(world.pick(at.left, at.bottom)).toEqual(obottomleft); });
-    it("bottom right", function() { expect(world.pick(at.right,at.bottom)).toEqual(obottomright); });
+    glit("center",       function() { expect(world.pick(at.center_x, at.center_y)).toEqual(ofront); });
+    glit("top left",     function() { expect(world.pick(at.left, at.top)).toEqual(otopleft); });
+    glit("top right",    function() { expect(world.pick(at.right,at.top)).toEqual(otopright); });
+    glit("bottom left",  function() { expect(world.pick(at.left, at.bottom)).toEqual(obottomleft); });
+    glit("bottom right", function() { expect(world.pick(at.right,at.bottom)).toEqual(obottomright); });
     /*
     it("region: everything", function() {
       var objects = world.pickRegion(at.left, at.top, at.right, at.bottom);

@@ -1,9 +1,8 @@
 describe("Jax.Material", function() {
-  var material, context, mesh;
+  var material, mesh;
   var _img = "/images/rss.png";
   
-  beforeEach(function() { mesh = new Jax.Mesh(); context = new Jax.Context('canvas-element'); });
-  afterEach(function() { context.dispose(); });
+  beforeEach(function() { mesh = new Jax.Mesh(); });
   
   describe("constructed as though from a Resource", function() {
     beforeEach(function() {
@@ -24,7 +23,7 @@ describe("Jax.Material", function() {
     });
     
     it("should be usable", function() {
-      material.render(context, mesh, {});
+      material.render(SPEC_CONTEXT, mesh, {});
     });
     
     it("should have the correct name", function() {
@@ -86,29 +85,29 @@ describe("Jax.Material", function() {
 
     describe("switching shaders", function() {
       it("should not rebuild the shaders", function() {
-        material.render(context, mesh, {shader:"basic"});
-        material.render(context, mesh, {shader:"blinn-phong"});
+        material.render(SPEC_CONTEXT, mesh, {shader:"basic"});
+        material.render(SPEC_CONTEXT, mesh, {shader:"blinn-phong"});
         
         spyOn(material, 'buildShader').andCallThrough();
-        material.render(context, mesh, {shader:"basic"});
+        material.render(SPEC_CONTEXT, mesh, {shader:"basic"});
         expect(material.buildShader).not.toHaveBeenCalled();
       });
       
 //      it("should build both shaders", function() {
 //        spyOn(material, 'buildShader').andCallThrough();
-//        material.render(context, mesh, {shader:"blinn-phong"});
-//        material.render(context, mesh, {shader:"basic"});
-//        expect(material.buildShader).toHaveBeenCalledWith('blinn-phong', context);
-//        expect(material.buildShader).toHaveBeenCalledWith('basic', context);
+//        material.render(SPEC_CONTEXT, mesh, {shader:"blinn-phong"});
+//        material.render(SPEC_CONTEXT, mesh, {shader:"basic"});
+//        expect(material.buildShader).toHaveBeenCalledWith('blinn-phong', SPEC_CONTEXT);
+//        expect(material.buildShader).toHaveBeenCalledWith('basic', SPEC_CONTEXT);
 //      });
     });
   
     
 //    it("should use basic shader", function() {
 //      spyOn(material, 'prepareShader').andCallThrough();
-//      material.render(context, mesh);
+//      material.render(SPEC_CONTEXT, mesh);
 //      // I don't like this, but I don't know a better way to test it.
-//      expect(material.prepareShader).toHaveBeenCalledWith('basic', context);
+//      expect(material.prepareShader).toHaveBeenCalledWith('basic', SPEC_CONTEXT);
 //    });
   });
 

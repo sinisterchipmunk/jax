@@ -1,19 +1,16 @@
 describe("Opt: Basic shader", function() {
-  var model, context;
+  var model;
   var _tex = "/images/rss.png", _norm = "/images/normal_map.jpg";
   
   beforeEach(function() {
-    context = new Jax.Context('canvas-element');
     model = new Jax.Model({mesh: new Jax.Mesh.Quad()});
-    context.world.addObject(model);
+    SPEC_CONTEXT.world.addObject(model);
   });
-  
-  afterEach(function() { context.dispose(); });
   
   describe("without textures", function() {
     it("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
     });
   });
@@ -25,7 +22,7 @@ describe("Opt: Basic shader", function() {
     
     it("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
     });
   });
@@ -37,7 +34,7 @@ describe("Opt: Basic shader", function() {
     
     it("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();
     });
   });
@@ -49,7 +46,7 @@ describe("Opt: Basic shader", function() {
     
     it("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
     });
   });
@@ -61,7 +58,7 @@ describe("Opt: Basic shader", function() {
     
     it("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
-      context.world.render();
+      SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();
     });
   });
