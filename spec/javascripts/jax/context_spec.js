@@ -1,19 +1,50 @@
 describe("Jax.Canvas", function() {
-  var context;
+  var context, canvas;
   
   describe("with no routes", function() {
     beforeEach(function() { 
       Jax.routes.clear();
-      context = new Jax.Context(SPEC_CONTEXT.canvas);
+      var canvas = document.createElement('canvas');
+      canvas.setAttribute("id", "c");
+      canvas.setAttribute("width", "100");
+      canvas.setAttribute("height", "100");
+      canvas.style.display = "none";
+      document.body.appendChild(canvas);
+      context = new Jax.Context(canvas);
     });
-    afterEach(function() { context.dispose(); });
+    afterEach(function() { context.dispose(); document.body.removeChild(canvas); });
   
     it("should keep a handle to canvas", function() {
-      expect(context.canvas.id).toEqual("spec-canvas");
+      expect(context.canvas.id).toEqual("c");
     });
   
     it("should not be rendering, because there's no root controller", function() {
       expect(context.isRendering()).toBeFalsy();
+    });
+    
+    describe("after disposal", function() {
+      beforeEach(function() { context.dispose(); });
+      
+      it("should unregister all event handlers", function() {
+        expect(context.canvas.getEventListeners('click')).toBeEmpty();
+        expect(context.canvas.getEventListeners('mousedown')).toBeEmpty();
+        expect(context.canvas.getEventListeners('mousemove')).toBeEmpty();
+        expect(context.canvas.getEventListeners('mouseout')).toBeEmpty();
+        expect(context.canvas.getEventListeners('mouseover')).toBeEmpty();
+        expect(context.canvas.getEventListeners('mouseup')).toBeEmpty();
+        expect(context.canvas.getEventListeners('keydown')).toBeEmpty();
+        expect(context.canvas.getEventListeners('keypress')).toBeEmpty();
+        expect(context.canvas.getEventListeners('keyup')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onclick')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onmousedown')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onmousemove')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onmouseout')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onmouseover')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onmouseup')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onkeydown')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onkeypress')).toBeEmpty();
+        expect(context.canvas.getEventListeners('onkeyup')).toBeEmpty();
+      });
     });
   });
   

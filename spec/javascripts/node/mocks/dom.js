@@ -81,8 +81,12 @@ Element.prototype.recursivelyFindFirstWithId = function(id) {
   return null;
 };
 
-Element.prototype.addEventListener = function(name, callback) {
+Element.prototype.addEventListener = function(name, callback, capture) {
   this.on(name, callback);
+};
+
+Element.prototype.removeEventListener = function(name, callback, capture) {
+  this.removeListener(name, callback);
 };
 
 /*** Canvas ***/
@@ -126,8 +130,13 @@ Document.prototype = Object.create(Events.EventEmitter.prototype, {
   }
 });
 
-Document.prototype.addEventListener = function(name, callback) {
+Document.prototype.addEventListener = function(name, callback, capture) {
   this.on(name, callback);
+};
+
+Document.prototype.removeEventListener = function(name, callback, capture) {
+  if (!callback) throw new Error("Callback is undefined");
+  this.removeListener(name, callback);
 };
 
 Document.prototype.createElement = function(name) {

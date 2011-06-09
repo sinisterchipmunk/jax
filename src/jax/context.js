@@ -355,6 +355,7 @@ Jax.Context = (function() {
       this.disposed = true;
       stopRendering(this);
       stopUpdating(this);
+      this.disposeEventListeners();
     },
 
     /**

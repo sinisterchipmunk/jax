@@ -172,6 +172,18 @@ Jax.EVENT_METHODS = (function() {
   ];
 
   return {
+    disposeEventListeners: function() {
+      this.canvas.removeEventListener(this._evt_mousefunc);
+      this.canvas.removeEventListener(this._evt_mousemovefunc);
+      this.canvas.removeEventListener(this._evt_keyfunc);
+      document.removeEventListener('keydown', this._evt_keyfunc);
+      document.removeEventListener('keyup', this._evt_keyfunc);
+      document.removeEventListener('keypress', this._evt_keyfunc);
+      document.removeEventListener('onkeydown', this._evt_keyfunc);
+      document.removeEventListener('onkeyup', this._evt_keyfunc);
+      document.removeEventListener('onkeypress', this._evt_keyfunc);
+    },
+    
     setupEventListeners: function() {
       this.keyboard = {};
       this.mouse = {};
@@ -179,12 +191,12 @@ Jax.EVENT_METHODS = (function() {
       var canvas = this.canvas;
       var self = this;
 
-      var mousefunc     = function(evt) {
+      this._evt_mousefunc     = function(evt) {
         if (!self.current_controller) return;
         evt = buildMouseEvent(self, evt);
         return dispatchEvent(self, evt);
       };
-      var mousemovefunc = function(evt) {
+      this._evt_mousemovefunc = function(evt) {
         if (!self.current_controller) return;
         evt = buildMouseEvent(self, evt);
         if (self.mouse && self.mouse.down == null) // mouse is not being dragged
@@ -193,7 +205,7 @@ Jax.EVENT_METHODS = (function() {
           evt.move_type = "mousedrag";
         return dispatchEvent(self, evt);
       };
-      var keyfunc       = function(evt) {
+      this._evt_keyfunc       = function(evt) {
         if (evt.which) evt.str = String.fromCharCode(evt.which);
         if (document.activeElement) {
           if (ignoreKeyTagNames.indexOf(document.activeElement.tagName) != -1)
@@ -208,26 +220,26 @@ Jax.EVENT_METHODS = (function() {
 
       if (canvas.addEventListener) {
         /* W3 */
-        canvas.addEventListener('click',     mousefunc,     false);
-        canvas.addEventListener('mousedown', mousefunc,     false);
-        canvas.addEventListener('mousemove', mousemovefunc, false);
-        canvas.addEventListener('mouseout',  mousefunc,     false);
-        canvas.addEventListener('mouseover', mousefunc,     false);
-        canvas.addEventListener('mouseup',   mousefunc,     false);
-        document.addEventListener('keydown',   keyfunc,       false);
-        document.addEventListener('keypress',  keyfunc,       false);
-        document.addEventListener('keyup',     keyfunc,       false);
+        canvas.addEventListener('click',     this._evt_mousefunc,     false);
+        canvas.addEventListener('mousedown', this._evt_mousefunc,     false);
+        canvas.addEventListener('mousemove', this._evt_mousemovefunc, false);
+        canvas.addEventListener('mouseout',  this._evt_mousefunc,     false);
+        canvas.addEventListener('mouseover', this._evt_mousefunc,     false);
+        canvas.addEventListener('mouseup',   this._evt_mousefunc,     false);
+        document.addEventListener('keydown',   this._evt_keyfunc,       false);
+        document.addEventListener('keypress',  this._evt_keyfunc,       false);
+        document.addEventListener('keyup',     this._evt_keyfunc,       false);
       } else {
         /* IE */
-        canvas.attachEvent('onclick',     mousefunc    );
-        canvas.attachEvent('onmousedown', mousefunc    );
-        canvas.attachEvent('onmousemove', mousemovefunc);
-        canvas.attachEvent('onmouseout',  mousefunc    );
-        canvas.attachEvent('onmouseover', mousefunc    );
-        canvas.attachEvent('onmouseup',   mousefunc    );
-        document.attachEvent('onkeydown',   keyfunc      );
-        document.attachEvent('onkeypress',  keyfunc      );
-        document.attachEvent('onkeyup',     keyfunc      );
+        canvas.attachEvent('onclick',     this._evt_mousefunc    );
+        canvas.attachEvent('onmousedown', this._evt_mousefunc    );
+        canvas.attachEvent('onmousemove', this._evt_mousemovefunc);
+        canvas.attachEvent('onmouseout',  this._evt_mousefunc    );
+        canvas.attachEvent('onmouseover', this._evt_mousefunc    );
+        canvas.attachEvent('onmouseup',   this._evt_mousefunc    );
+        document.attachEvent('onkeydown',   this._evt_keyfunc      );
+        document.attachEvent('onkeypress',  this._evt_keyfunc      );
+        document.attachEvent('onkeyup',     this._evt_keyfunc      );
       }
     }
   };
