@@ -82,10 +82,12 @@ Element.prototype.recursivelyFindFirstWithId = function(id) {
 };
 
 Element.prototype.addEventListener = function(name, callback, capture) {
+  if (arguments.length != 3) throw new Error("Invalid argument count");
   this.on(name, callback);
 };
 
 Element.prototype.removeEventListener = function(name, callback, capture) {
+  if (arguments.length != 3) throw new Error("Invalid argument count");
   this.removeListener(name, callback);
 };
 
@@ -131,10 +133,12 @@ Document.prototype = Object.create(Events.EventEmitter.prototype, {
 });
 
 Document.prototype.addEventListener = function(name, callback, capture) {
+  if (arguments.length != 3) throw new Error("Invalid argument count");
   this.on(name, callback);
 };
 
 Document.prototype.removeEventListener = function(name, callback, capture) {
+  if (arguments.length != 3) throw new Error("Invalid argument count");
   if (!callback) throw new Error("Callback is undefined");
   this.removeListener(name, callback);
 };

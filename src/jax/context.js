@@ -47,21 +47,22 @@ Jax.Context = (function() {
       
       self.canvas.addEventListener = function(type, listener, capture) {
         this.getEventListeners(type).push(listener);
-        _add.apply(this, arguments);
+        _add.call(this, type, listener, capture || false);
       }
       
       self.canvas.removeEventListener = function(type, listener, capture) {
         if (typeof(type) == "string") {
           var listeners = this.getEventListeners(type);
           var index = listeners.indexOf(listener);
-          if (index != -1) listeners.splice(index, 1);
+          if (index != -1) {
+            listeners.splice(index, 1);
+            _remove.call(this, type, listener, capture || false);
+          }
         } else if (!listener) {
-          // type *is* the listener, remove it from all arrays
+          // type *is* the listener, remove it from all listener types
           for (var i in this.eventListeners)
-            this.removeEventListener(i, type);
-          return;
+            this.removeEventListener(i, type, false);
         }
-        _remove.apply(this, arguments);
       };
     }
   }

@@ -176,12 +176,12 @@ Jax.EVENT_METHODS = (function() {
       this.canvas.removeEventListener(this._evt_mousefunc);
       this.canvas.removeEventListener(this._evt_mousemovefunc);
       this.canvas.removeEventListener(this._evt_keyfunc);
-      document.removeEventListener('keydown', this._evt_keyfunc);
-      document.removeEventListener('keyup', this._evt_keyfunc);
-      document.removeEventListener('keypress', this._evt_keyfunc);
-      document.removeEventListener('onkeydown', this._evt_keyfunc);
-      document.removeEventListener('onkeyup', this._evt_keyfunc);
-      document.removeEventListener('onkeypress', this._evt_keyfunc);
+      document.removeEventListener('keydown', this._evt_keyfunc, false);
+      document.removeEventListener('keyup', this._evt_keyfunc, false);
+      document.removeEventListener('keypress', this._evt_keyfunc, false);
+      document.removeEventListener('onkeydown', this._evt_keyfunc, false);
+      document.removeEventListener('onkeyup', this._evt_keyfunc, false);
+      document.removeEventListener('onkeypress', this._evt_keyfunc, false);
     },
     
     setupEventListeners: function() {
