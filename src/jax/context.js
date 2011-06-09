@@ -101,6 +101,7 @@ Jax.Context = (function() {
   
   function startRendering(self) {
     function render() {
+      if (self.isDisposed()) return;
       if (self.calculateFramerate) updateFramerate(self);
       if (self.current_view) {
         self.prepare();
@@ -124,6 +125,7 @@ Jax.Context = (function() {
   
   function startUpdating(self) {
     function updateFunc() {
+      if (self.isDisposed()) return;
       var timechange = updateUpdateRate(self);
       
       self.update(timechange);
