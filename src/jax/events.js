@@ -21,17 +21,8 @@ Jax.EVENT_METHODS = (function() {
 
   function buildKeyEvent(self, evt) {
     var keyboard = self.keyboard;
-
     evt = evt || window.event || {};
-    // we don't really need these since controllers have this.context
-//    evt.context = self;
-//    evt.canvas = self.canvas;
     keyboard.last = evt;
-
-    /*
-    TODO track all keypresses and whatnot via @keyboard, so all keys can be queried at any given time
-     */
-
     return evt;
   }
   
