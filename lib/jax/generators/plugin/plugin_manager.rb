@@ -76,7 +76,7 @@ module Jax
 
                 if matches.length == 1 && match = matches.shift
                   yn = ask("Plugin '#{name}' is not installed, but '#{match[0]}' was. Delete it instead?").downcase[0]
-                  throw :aborted, "Aborted by user." if yn[0] != ?y
+                  throw :aborted, "Aborted by user." if yn != ?y
                   uninstall_plugin *match
                 else
                   say "Plugin '#{name}' is not installed, but the following partial matches were:"

@@ -103,8 +103,8 @@ class JaxGenerator# < Thor
     "generate" => "Generate new code",
     #"destroy"  => "Undo code generated with \"generate\"",
     "plugin"   => "Install a plugin"
-  }
-  ALIASES = { "g" => "generate" }
+  } unless defined?(COMMANDS)
+  ALIASES = { "g" => "generate" } unless defined?(ALIASES)
   
   def initialize(args)
     @args = args
