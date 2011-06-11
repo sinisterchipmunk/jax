@@ -96,8 +96,8 @@ class JaxGeneratorInvoker < Thor
   end
 end
 
-class JaxGenerator# < Thor
-  attr_reader :args, :command
+class JaxGenerator
+  attr_reader :args
   
   COMMANDS = {
     "generate" => "Generate new code",
@@ -162,6 +162,7 @@ All commands can be run with -h for more information.
   end
   
   class << self
+    # this gets called by script/jax from within a jax app
     def start
       new ARGV
     end

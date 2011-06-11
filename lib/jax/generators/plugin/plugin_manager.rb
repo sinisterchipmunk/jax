@@ -31,28 +31,19 @@ module Jax
                 raise "No plugin names match or begin with the text '#{name}'."
               elsif list.length == 1
                 if list[0]['name'] != name
-                  yn = ask("Plugin '#{name}' was not found, but '#{list[0]['name']}' was. Install it instead?")
-                  if yn.downcase[0] != ?y
-                    throw :aborted, "Named plugin was not found. User aborted."
-                  end
+                  prompt_yn "Plugin '#{name}' was not found, but '#{list[0]['name']}' was. Install it instead?"
                 end
                 install_plugin list[0]
               else
                 say "No plugin was found with the name '#{name}', but the following candidates were found:"
-                list.each_with_index do |item, index|
-                  say_option index+1, item['name']
-                end
-                which = menu_choice(:min => 1, :max => list.length)
-                if which >= 0 && which < list.length
-                  install_plugin list[which]
-                else
-                  throw :aborted, "Option choice was invalid. Aborting."
+                menu list.collect { |c| c['name'] } do |selected_name, selected_index|
+                  install_plugin list[selected_index]
                 end
               end
               throw :complete
             end
             say_status :aborted, message, :yellow
-            return
+            return # cancel any additional plugins if this one was aborted
           end
           
           install *other_names unless other_names.empty?
@@ -68,30 +59,16 @@ module Jax
                 uninstall_plugin name, plugin_path
               else
                 # see if it's a partial name
-                matches = []
-                installed_plugins.each do |installed, path|
-                  matches.push [installed, path] if installed =~ /^#{Regexp::escape name}/i
-                end
+                matches = search installed_plugins, name
                 throw :aborted, "Plugin '#{name}' does not seem to be installed." if matches.empty?
 
                 if matches.length == 1 && match = matches.shift
-                  yn = ask("Plugin '#{name}' is not installed, but '#{match[0]}' was. Delete it instead?").downcase[0]
-                  throw :aborted, "Aborted by user." if yn != ?y
+                  prompt_yn "Plugin '#{name}' is not installed, but '#{match[0]}' was. Delete it instead?"
                   uninstall_plugin *match
                 else
-                  say "Plugin '#{name}' is not installed, but the following partial matches were:"
-                  say_option 0, "All candidates"
-                  matches.each_with_index do |match, index|
-                    say_option index+1, match[0]
-                  end
-                  which = menu_choice(:min => 0, :max => matches.length)
-                
-                  if which == -1
-                    matches.each { |match| uninstall_plugin *match }
-                  elsif which >= 0 && which < matches.length
-                    uninstall_plugin *matches[which]
-                  else
-                    throw :aborted, "Option choice was invalid. Aborting."
+                  say "Plugin '#{name}' is not installed, but the following partial matches are:"
+                  menu matches.keys, :allow_all => true do |name,index|
+                    uninstall_plugin name, matches[name]
                   end
                 end
               end
@@ -124,8 +101,7 @@ module Jax
             return
           else
             each_plugin(name) do |plugin|
-              name = plugin['name']
-              description = plugin['description']
+              name, description = plugin['name'], plugin['description']
 
               if options[:detailed]
                 say name
@@ -146,6 +122,39 @@ module Jax
         end
 
         protected
+        def prompt_yn(message, options = {})
+          yn = ask(message).downcase[0]
+          throw :aborted, "Aborted by user." if yn != ?y
+        end
+        
+        def menu(items, options = {})
+          min = 1
+          if options[:allow_all]
+            say_option 0, "All candidates"
+            min = 0
+          end
+          
+          items.each_with_index do |item, index|
+            say_option index+1, item
+          end
+          which = menu_choice(:min => min, :max => items.length)
+                          
+          if which == -1
+            items.each_with_index { |item, index| yield item, index }
+          else
+            yield items[which], which
+          end
+        end
+        
+        def search(plugin_list, query)
+          plugin_list.select { |plugin, path_to_plugin|
+            !query || plugin =~ search_query_rx(query)
+          }.inject({}) do |hash, (plugin, path_to_plugin)|
+            hash[plugin] = path_to_plugin
+            hash
+          end
+        end
+        
         def menu_choice(*args)
           options = args.extract_options!
           caption, addl_caption = *args
@@ -175,80 +184,115 @@ module Jax
           plugins.sort { |a, b| a[0] <=> b[0] }
         end
         
-        def installed_plugin_manifests
-          { 'jax_plugins' =>
-            installed_plugins.collect do |name, path|
-              if File.file?(manifest_path = path.join("manifest.yml").to_s)
-                YAML::load(File.read(manifest_path)) || {}
-              else
-                { 'name' => name, 'description' => '(Manifest file not found!)' }
-              end
+        def search_query_rx(query)
+          /^#{Regexp::escape query}/i
+        end
+        
+        def installed_plugin_manifests(filter_name = nil)
+          { 'jax_plugins' => search(installed_plugins, filter_name).collect do |name, path|
+              load_or_infer_manifest(name, path)
             end
           }
         end
         
         def uninstall_plugin(name, plugin_path)
-          if File.exist?(uninstaller = plugin_path.join("uninstall.rb").to_s)
-            load uninstaller
-          end
+          run_uninstall_script plugin_path
           FileUtils.rm_rf plugin_path
           say_status :complete, "Plugin '#{name}' has been removed.", :green
         end
         
         def install_plugin(details)
-          # download the tar
-          name = details['name']
-          version = plugin_version(details)
-          
-          tmp = Jax.root.join("tmp")
-          FileUtils.mkdir_p tmp unless File.directory? tmp
-          raise "Couldn't make directory '#{tmp}'!" unless File.directory? tmp
-          
-          tgz = rest_resource("plugins/#{name}.tgz").get(:params => { :version => version })
-          filename = "#{name}-#{version}.tgz"
-          tarfile = tmp.join filename
-          File.open(tarfile, "wb") { |f| f.print tgz }
-          tgz = Zlib::GzipReader.new(File.open(tarfile, "rb"))
-          
+          name, version = details['name'], plugin_version(details)
           plugin_dir = Jax.root.join("vendor/plugins/#{name}")
-          if File.exist? plugin_dir.to_s
-            yn = ask("Plugin destination '#{plugin_dir}' already exists! Delete it?").downcase[0]
-            throw :aborted, "Destination already exists; user aborted." if yn != ?y
-            FileUtils.rm_rf plugin_dir
+          overwrite plugin_dir
+
+          Dir.mktmpdir do |tmp|
+            tarfile = download_tgz(name, version, tmp)
+            untar tarfile, plugin_dir
+            run_install_script plugin_dir
           end
           
-          Archive::Tar::Minitar.unpack(tgz, plugin_dir.to_s) # closes tgz
-          if File.exist? plugin_dir.join("install.rb").to_s
-            load plugin_dir.join("install.rb").to_s
-          end
+          save_manifest plugin_dir, details
           
-          File.open(plugin_dir.join("manifest.yml"), "w") do |f|
+          say_status :installed, "#{plugin_dir} -v=#{version}", :green
+        end
+        
+        def save_manifest(plugin_dir, details)
+          File.open(File.join(plugin_dir, "manifest.yml"), "w") do |f|
             f.print details.to_yaml
           end
-          say_status :installed, "#{plugin_dir} -v=#{version}", :green
+        end
+        
+        def load_or_infer_manifest(name, plugin_dir)
+          if File.file?(manifest_path = File.join(plugin_dir, "manifest.yml"))
+            YAML::load(File.read(manifest_path)) || { 'name' => name, 'description' => '(Description unavailable)' }
+          else
+            { 'name' => name, 'description' => '(Manifest file not found!)' }
+          end
+        end
+        
+        def run_uninstall_script(plugin_dir)
+          run_script plugin_dir, "uninstall.rb"
+        end
+        
+        def run_script(plugin_dir, script_filename)
+          script = File.join(plugin_dir, script_filename)
+          load script if File.exist? script
+        end
+        
+        def run_install_script(plugin_dir)
+          run_script plugin_dir, "install.rb"
+        end
+        
+        def untar(tarfile, destination)
+          tgz = Zlib::GzipReader.new(File.open(tarfile, "rb"))
+          Archive::Tar::Minitar.unpack(tgz, destination.to_s) # closes tgz
+        end
+        
+        def overwrite(path)
+          path = path.to_s
+          if File.exist? path
+            prompt_yn "Path '#{path}' already exists! Delete it?"
+            FileUtils.rm_rf path
+          end
+        end
+        
+        def download_tgz(name, version, destdir)
+          filename = "#{name}-#{version}.tgz"
+          tgz = rest_resource("plugins/#{name}.tgz").get(:params => { :version => version })
+          tarfile = File.join destdir, filename
+          File.open(tarfile, "wb") { |f| f.print tgz }
+          tarfile
         end
         
         def matching_plugins(name = nil)
           if options[:local]
-            hash = installed_plugin_manifests
+            hash = installed_plugin_manifests(name)
           else
-            plugins = rest_resource("plugins")
-            if name
-              response = plugins[name].get
-            else
-              response = plugins.get
-            end
-            begin
-              hash = Hash.from_xml(response)
-            rescue
-              raise ResponseError.new("Fatal: response couldn't be parsed. (Maybe it wasn't valid XML?)")
-            end
+            hash = get_remote_plugins_matching name
           end
           
           if list = hash['jax_plugins']
             list
           else
             raise ResponseError.new("Fatal: couldn't find plugin list.")
+          end
+        end
+        
+        def get_remote_plugins_matching(name = nil)
+          plugins = rest_resource("plugins")
+          if name
+            extract_hash_from_response plugins[name].get
+          else
+            extract_hash_from_response plugins.get
+          end
+        end
+        
+        def extract_hash_from_response(response)
+          begin
+            hash = Hash.from_xml(response)
+          rescue
+            raise ResponseError.new("Fatal: response couldn't be parsed. (Maybe it wasn't valid XML?)")
           end
         end
         

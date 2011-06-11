@@ -248,6 +248,20 @@ describe Jax::Generators::Plugin::PluginManager do
           generate "list", "--local"
         end
         
+        context "with a filter" do
+          before(:each) { shell.clear; generate "list", "vertex-b", "--local" }
+          
+          it "should list plugin info for 'vertex-blob'" do
+            shell.stdout.string.should =~ /vertex-blob/
+            shell.stdout.string.should =~ /#{Regexp::escape 'Adds a shader that deforms meshes, producing "blobs".'}/
+          end
+
+          it "should not list plugin info for 'vertex-height-map'" do
+            shell.stdout.string.should_not =~ /vertex-height-map/
+            shell.stdout.string.should_not =~ /#{Regexp::escape 'Adds a height map generated dynamically in the vertex sha'}/
+          end
+        end
+        
         it "should list plugin info for 'vertex-blob'" do
           shell.stdout.string.should =~ /vertex-blob/
           shell.stdout.string.should =~ /#{Regexp::escape 'Adds a shader that deforms meshes, producing "blobs".'}/
