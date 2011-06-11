@@ -67,7 +67,7 @@ module Jax
                   uninstall_plugin *match
                 else
                   say "Plugin '#{name}' is not installed, but the following partial matches are:"
-                  menu matches.keys, :allow_all => true do |name,index|
+                  menu matches.keys.sort, :allow_all => true do |name,index|
                     uninstall_plugin name, matches[name]
                   end
                 end
