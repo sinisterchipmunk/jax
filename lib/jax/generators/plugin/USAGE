@@ -1,9 +1,4 @@
 Usage:
-  jax plugin install NAME
-  jax plugin uninstall NAME
-  jax plugin push
-  jax plugin search NAME
-  jax plugin help
+  jax generate plugin NAME
 
-Manages installed Jax plugins and provides information about
-available remote plugins
+Generates a new plugin with the specified name.

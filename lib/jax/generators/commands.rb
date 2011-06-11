@@ -32,7 +32,8 @@ module Jax
       
       class << self
         def extended(base)
-          included(base)
+          base.send :extend, ClassMethods
+          base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
         end
       
         def included(base)
@@ -44,6 +45,10 @@ module Jax
     
     class Command < Thor::Group
       include Jax::Generators::Usage
+      
+      def self.inherited(base)
+        base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
+      end
     end
     
     autoload :Controller, File.join(File.dirname(__FILE__), "controller/controller_generator")
@@ -51,7 +56,7 @@ module Jax
     autoload :LightSource,File.join(File.dirname(__FILE__), "light_source/light_source_generator")
     autoload :Material,   File.join(File.dirname(__FILE__), "material/material_generator")
     autoload :Shader,     File.join(File.dirname(__FILE__), "shader/shader_generator")
-    autoload :Plugin,     File.join(File.dirname(__FILE__), "plugin/plugin_manager")
+    autoload :Plugin,     File.join(File.dirname(__FILE__), "plugin/all")
   end
 end
 
@@ -60,39 +65,43 @@ class JaxGeneratorInvoker < Thor
     "jax generate"
   end
 
-  desc "controller", "generates a new controller"
+  desc "controller NAME", "generates a new controller"
   def controller(*args)
     Jax::Generators::Controller::ControllerGenerator.start(args)
   end
   
-  desc "model", "generates a new model"
+  desc "model NAME", "generates a new model"
   def model(*args)
     Jax::Generators::Model::ModelGenerator.start(args)
   end
   
-  desc "light", "generates a new light source"
+  desc "light NAME TYPE", "generates a new light source"
   def light(*args)
     Jax::Generators::LightSource::LightSourceGenerator.start(args)
   end
   
-  desc "material", "generates a new material"
+  desc "material NAME", "generates a new material"
   def material(*args)
     args = ARGV.dup
     2.times { args.shift }
     Jax::Generators::Material::MaterialGenerator.start(args)
   end
 
-  desc "scaffold", "generates a controller, model and material, all with the same name"
-  def scaffold(*name)
-    name = name.shift || []
+  desc "scaffold NAME", "generates a controller, model and material, all with the same name"
+  def scaffold(name)
     Jax::Generators::Controller::ControllerGenerator.start([name, 'index'])
     Jax::Generators::Model::ModelGenerator.start([name])
     Jax::Generators::Material::MaterialGenerator.start([name])
   end
 
-  desc "shader", "generates a new custom shader"
+  desc "shader NAME", "generates a new custom shader"
   def shader(*name)
     Jax::Generators::Shader::ShaderGenerator.start(name)
+  end
+  
+  desc "plugin NAME", "generates a new plugin"
+  def plugin(*args)
+    Jax::Generators::Plugin::PluginGenerator.start(args)
   end
 end
 

@@ -14,6 +14,7 @@ module Jax
         end
         
         include Thor::Actions
+        include Jax::Generators::Plugin
         
         desc "install NAME [NAME2...]", "Installs the named plugin from the plugin repository"
         long_desc "Searches for a plugin by the specified name and installs it. The "   \
@@ -83,8 +84,7 @@ module Jax
         desc "push", "Pushes this plugin to the repository, making it available to other people"
         long_desc "Releases the plugin to the plugin repository. If you do not have an "   \
                   "account, you will be prompted to create one. The name of the plugin "   \
-                  "must be unique; if another plugin with a matching name is found, this " \
-                  "plugin will be rejected unless you own the existing plugin."
+                  "must be unique."
         def push
           raise "Pushing plugins to the Jax plugin repo is not yet implemented"
         end
@@ -279,23 +279,6 @@ module Jax
           end
         end
         
-        def get_remote_plugins_matching(name = nil)
-          plugins = rest_resource("plugins")
-          if name
-            extract_hash_from_response plugins[name].get
-          else
-            extract_hash_from_response plugins.get
-          end
-        end
-        
-        def extract_hash_from_response(response)
-          begin
-            hash = Hash.from_xml(response)
-          rescue
-            raise ResponseError.new("Fatal: response couldn't be parsed. (Maybe it wasn't valid XML?)")
-          end
-        end
-        
         def each_plugin(name = nil, &block)
           matching_plugins(name).each &block
         end
@@ -320,14 +303,6 @@ module Jax
           def basename
             "jax plugin"
           end
-        end
-
-        private
-        def rest_resource(name, accept = :xml)
-          url = Jax.plugin_repository_url
-          url.concat "/" unless url =~ /\/$/
-          url.concat name
-          RestClient::Resource.new(url, :accept => accept)
         end
       end
     end
