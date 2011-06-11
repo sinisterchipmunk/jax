@@ -19,10 +19,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'activesupport', '~> 3.0'
   s.add_dependency "i18n",          '~> 0.5.0' # FIXME Jax doesn't really require this but ActiveSupport won't load without it!
   s.add_dependency 'sprockets',     '~> 1.0.2'
+  s.add_dependency 'rest-client',   '~> 1.6.3'
+  s.add_dependency 'minitar',       '~> 0.5.3'
   
   s.add_development_dependency 'rspec',     '~> 2.0'
   s.add_development_dependency 'coderay',   '~> 0.9.7'
-  
+  s.add_development_dependency 'fakeweb',   '~> 1.3.0'
+    
   # required by guides
   s.add_development_dependency 'actionpack',     '~> 3.0'
   s.add_development_dependency 'RedCloth',       '~> 4.2'

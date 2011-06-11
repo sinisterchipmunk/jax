@@ -1,0 +1,9 @@
+Usage:
+  jax plugin install NAME
+  jax plugin uninstall NAME
+  jax plugin push
+  jax plugin search NAME
+  jax plugin help
+
+Manages installed Jax plugins and provides information about
+available remote plugins

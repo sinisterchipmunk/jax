@@ -42,6 +42,7 @@ module Jax
     delegate :root, :to => :config
     delegate :routes, :to => :config
     delegate :shader_load_paths, :to => :config
+    delegate :plugin_repository_url, :to => :config
     
     def shaders
 #      @shaders ||= begin

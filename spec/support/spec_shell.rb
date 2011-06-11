@@ -8,8 +8,13 @@ class SpecShell < Thor::Shell::Basic
   def initialize(options = { })
     super()
     @stdin  = StringIO.new(options[:in ] || '')
-    @stdout = StringIO.new(options[:out] || '')
+    @_stdout = options[:out] || ''
+    @stdout = StringIO.new(@_stdout.dup)
     @stderr = StringIO.new(options[:err] || '')
+  end
+  
+  def clear
+    @stdout = StringIO.new(@_stdout.dup)
   end
 
   def ask(statement, color=nil)

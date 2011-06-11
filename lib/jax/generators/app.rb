@@ -9,7 +9,7 @@ module Jax
   end
 end
 
-class JaxGenerator < Thor
+class JaxAppGenerator < Thor
   desc "new", "generates a new Jax application"
   def new(*args)
     Jax::Generators::App::AppGenerator.start(args)

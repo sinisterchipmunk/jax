@@ -6,25 +6,8 @@ require File.expand_path('../../jax', File.dirname(__FILE__))
 
 module Jax
   module Generators
-    class Command < Thor::Group
-      class << self
-        def inherited(base)
-          base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
-        end
-        
-        def base_path
-          @base_path || raise("Jax Command base path was not found")
-        end
-        
-        def base_path=(path)
-          @base_path = path
-        end
-
-        def usage
-          usage = ERB.new(File.read(File.expand_path("USAGE", base_path)), nil, '-')
-          usage.result(binding)
-        end
-        
+    module Usage
+      module ClassMethods
         def start(given_args=ARGV, config={})
           if (given_args.length == 0)
             puts usage
@@ -32,7 +15,35 @@ module Jax
             super
           end
         end
+
+        def usage
+          usage = ERB.new(File.read(File.expand_path("USAGE", base_path)), nil, '-')
+          usage.result(binding)
+        end
+
+        def base_path
+          @base_path || raise("Jax Command base path was not found")
+        end
+
+        def base_path=(path)
+          @base_path = path
+        end
       end
+      
+      class << self
+        def extended(base)
+          included(base)
+        end
+      
+        def included(base)
+          base.send :extend, ClassMethods
+          base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
+        end
+      end
+    end
+    
+    class Command < Thor::Group
+      include Jax::Generators::Usage
     end
     
     autoload :Controller, File.join(File.dirname(__FILE__), "controller/controller_generator")
@@ -40,6 +51,7 @@ module Jax
     autoload :LightSource,File.join(File.dirname(__FILE__), "light_source/light_source_generator")
     autoload :Material,   File.join(File.dirname(__FILE__), "material/material_generator")
     autoload :Shader,     File.join(File.dirname(__FILE__), "shader/shader_generator")
+    autoload :Plugin,     File.join(File.dirname(__FILE__), "plugin/plugin_manager")
   end
 end
 
@@ -84,11 +96,75 @@ class JaxGeneratorInvoker < Thor
   end
 end
 
-class JaxGenerator < Thor
-  desc "generate", "generates a controller, model, light source, material or shader"
-  def generate(*args)
-    JaxGeneratorInvoker.start(args)
+class JaxGenerator# < Thor
+  attr_reader :args, :command
+  
+  COMMANDS = {
+    "generate" => "Generate new code",
+    #"destroy"  => "Undo code generated with \"generate\"",
+    "plugin"   => "Install a plugin"
+  }
+  ALIASES = { "g" => "generate" }
+  
+  def initialize(args)
+    @args = args
+    
+    show_usage and return unless command
+    if respond_to? command then send command
+    else invalid command
+    end
   rescue ArgumentError
     puts $!.message
   end
+  
+  def generate
+    JaxGeneratorInvoker.start
+  end
+  
+  def plugin
+    Jax::Generators::Plugin::PluginManager.start
+  end
+  
+  def command
+    @command ||= begin
+      command = args.shift
+      command = ALIASES[command] || command
+    end
+  end
+  
+  def invalid(command)
+    puts "Invalid command."
+    puts
+    show_usage
+  end
+  
+  def show_usage
+    puts <<-end_banner
+Usage: jax COMMAND [ARGS]
+
+The following commands are available:
+  #{command_list.join("\n  ")}
+  
+All commands can be run with -h for more information.
+    end_banner
+  end
+  
+  def command_list
+    COMMANDS.keys.collect { |command| "#{command.ljust(13)}#{description_for command}"}
+  end
+  
+  def description_for(command)
+    if i = ALIASES.values.index(command)
+      COMMANDS[command] + " (shortcut alias: \"#{ALIASES.keys[i]}\")"
+    else
+      COMMANDS[command]
+    end
+  end
+  
+  class << self
+    def start
+      new ARGV
+    end
+  end
 end
+
