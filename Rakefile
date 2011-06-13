@@ -59,20 +59,23 @@ task :compile do
           :load_path => ["src"],
           :source_files => ["src/jax.js", "builtin/**/*.js"]
   )
-  rm_rf "dist"
-  mkdir_p "dist"
-  secretary.concatenation.save_to "dist/jax.js"
+  jax_root = File.expand_path(File.dirname(__FILE__))
+  rm_rf File.join(jax_root, "dist")
+  mkdir_p File.join(jax_root, "dist")
+  secretary.concatenation.save_to File.join(jax_root, "dist/jax.js")
+  
+  mkdir_p File.join(jax_root, "tmp") unless File.directory?(File.join(jax_root, "tmp"))
 
   # generate the built-in shaders for testing against (these are not added to the real jax dist because they are
   # regenerated in the user's app)
-  rm File.join(File.dirname(__FILE__), "tmp/shaders.js")
-  File.open(File.join(File.dirname(__FILE__), "tmp/shaders.js"), "w") do |f|
+  rm File.join(jax_root, "tmp/shaders.js") if File.file?(File.join(jax_root, "tmp/shaders.js"))
+  File.open(File.join(jax_root, "tmp/shaders.js"), "w") do |f|
     Jax.application.shaders.each { |shader| shader.save_to f }
   end
 
-  puts "generated #{File.expand_path "dist/jax.js", '.'}"
-  cp File.join(File.dirname(__FILE__), "dist/jax.js"),
-     File.join(File.dirname(__FILE__), "lib/jax/generators/app/templates/public/javascripts/jax.js")
+  puts "generated #{File.join(jax_root, "dist/jax.js")}"
+  cp File.join(jax_root, "dist/jax.js"),
+     File.join(jax_root, "lib/jax/generators/app/templates/public/javascripts/jax.js")
   
   puts "(project built)"
 end
