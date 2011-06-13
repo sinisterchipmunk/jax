@@ -1,4 +1,4 @@
-## JAX
+## JAX [![Build Status](http://travis-ci.org/sinisterchipmunk/jax.png)](http://travis-ci.org/sinisterchipmunk/jax)
 
 Jax is a framework for developing rich WebGL-enabled applications using JavaScript and Ruby.
 

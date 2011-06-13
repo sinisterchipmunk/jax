@@ -14,7 +14,7 @@ rescue LoadError
   exit
 end
 
-DEPENDENCIES = %w(jasmine sprockets treetop bluecloth)
+DEPENDENCIES = %w(jasmine sprockets treetop bluecloth rspec/core/rake_task)
 DEPENDENCIES.each do |dep|
   begin
     require dep
@@ -161,14 +161,14 @@ task :node => :compile do
   system("node", "spec/javascripts/node_helper.js")
 end
 
+desc "Run ruby tests using rspec"
+RSpec::Core::RakeTask.new(:rspec => :compile)
+  
+
 # 'Guides' tasks & code borrowed from Railties.
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 task :jasmine => :compile
-task :build   => [:compile, :minify]
-task :default => :compile
-
-# we should do this before v0.0.1 but will make issues harder to track,
-# so let's hold off while in prerelease :
-# task :release => :minify
+task :build   => [:compile, :minify] # make sure to minify the JS code before going to release
+task :default => [:rspec, :node]
