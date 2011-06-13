@@ -7,12 +7,7 @@ module Jax
         raise "You cannot have more than one Jax::Application" if Jax.application
         super
         
-        base.called_from = begin
-          # Remove the line number from backtraces making sure we don't leave anything behind
-          call_stack = caller.map { |p| p.sub(/:\d+.*/, '') }
-          File.dirname(call_stack.detect { |p| p !~ %r[jax[\w.-]*/lib/jax] })
-        end
-        
+        base.called_from = detect_caller
         Jax.application = base.instance
         Jax.application.config.root ||= Jax.application.find_root_with_flag("app")
       end
@@ -41,8 +36,14 @@ module Jax
     delegate :config, :to => "self.class"
     delegate :root, :to => :config
     delegate :routes, :to => :config
-    delegate :shader_load_paths, :to => :config
-    delegate :plugin_repository_url, :to => :config
+    delegate :shader_load_paths, :plugin_repository_url, :to => :config
+    
+    def plugins
+      Dir.glob(root.join("vendor/plugins/*").to_s).collect do |plugin_path|
+        relative_plugin_path = plugin_path.sub(/^#{Regexp::escape root.to_s}\/?/, '')
+        Jax::Plugin.new(relative_plugin_path)
+      end
+    end
     
     def shaders
 #      @shaders ||= begin
@@ -87,6 +88,11 @@ module Jax
   
       RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ?
         Pathname.new(root).expand_path : Pathname.new(root).realpath
+    end
+    
+    private
+    def detect_plugins
+      p Dir[config.root.join("vendor/plugins/*").to_s]
     end
   end
 end

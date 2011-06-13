@@ -4,8 +4,8 @@ require File.join(File.dirname(__FILE__), "../lib/jax/generators/commands")
 require 'fakeweb'
 
 class TestApp < Jax::Application
-end rescue nil
-TestApp.config.root = File.expand_path(".")
+end rescue nil # to silence missing root error
+TestApp.config.root = File.expand_path("./generator_tests")
 
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each do |fi|
   require fi

@@ -1,0 +1,3 @@
+class Jax::Plugin
+  
+end

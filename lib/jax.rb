@@ -1,4 +1,5 @@
 require "active_support/core_ext"
+require File.expand_path("jax/core_ext/kernel", File.dirname(__FILE__))
 
 module Jax
   autoload :Generators,       File.join(File.dirname(__FILE__), "jax/generators/commands")

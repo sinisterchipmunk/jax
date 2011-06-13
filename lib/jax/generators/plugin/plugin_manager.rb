@@ -15,6 +15,7 @@ module Jax
         
         include Thor::Actions
         include Jax::Generators::Plugin
+        include Jax::Generators::Interactions
         
         desc "install NAME [NAME2...]", "Installs the named plugin from the plugin repository"
         long_desc "Searches for a plugin by the specified name and installs it. The "   \
@@ -122,79 +123,6 @@ module Jax
         end
 
         protected
-        def prompt_yn(message, options = {})
-          yn = ask(message).downcase[0]
-          throw :aborted, "Aborted by user." if yn != ?y
-        end
-        
-        def menu(items, options = {})
-          min = 1
-          if options[:allow_all]
-            say_option 0, "All candidates"
-            min = 0
-          end
-          
-          items.each_with_index do |item, index|
-            say_option index+1, item
-          end
-          which = menu_choice(:min => min, :max => items.length)
-                          
-          if which == -1
-            items.each_with_index { |item, index| yield item, index }
-          else
-            yield items[which], which
-          end
-        end
-        
-        def search(plugin_list, query)
-          plugin_list.select { |plugin, path_to_plugin|
-            !query || plugin =~ search_query_rx(query)
-          }.inject({}) do |hash, (plugin, path_to_plugin)|
-            hash[plugin] = path_to_plugin
-            hash
-          end
-        end
-        
-        def menu_choice(*args)
-          options = args.extract_options!
-          caption, addl_caption = *args
-          caption = "Please select an option, or press ctrl+c to cancel >" unless caption
-          
-          which = ask("#{addl_caption}#{caption}")
-          sel = which.to_i
-          # if sel.to_s != which then which is non-numeric
-          if sel.to_s != which || options[:min] && sel < options[:min] || options[:max] && sel > options[:max]
-            menu_choice(caption, "Invalid choice. ")
-          else
-            sel - 1
-          end
-        end
-        
-        def say_option(which, caption)
-          say "\t#{which}\t: #{caption}"
-        end
-        
-        def installed_plugins
-          plugins = []
-          Dir.glob(Jax.root.join("vendor/plugins/*").to_s).each do |path|
-            if File.directory? path
-              plugins.push [File.basename(path), Pathname.new(path)]
-            end
-          end
-          plugins.sort { |a, b| a[0] <=> b[0] }
-        end
-        
-        def search_query_rx(query)
-          /^#{Regexp::escape query}/i
-        end
-        
-        def installed_plugin_manifests(filter_name = nil)
-          { 'jax_plugins' => search(installed_plugins, filter_name).collect do |name, path|
-              load_or_infer_manifest(name, path)
-            end
-          }
-        end
-        
         def uninstall_plugin(name, plugin_path)
           run_uninstall_script plugin_path
           FileUtils.rm_rf plugin_path
@@ -223,14 +151,6 @@ module Jax
           end
         end
         
-        def load_or_infer_manifest(name, plugin_dir)
-          if File.file?(manifest_path = File.join(plugin_dir, "manifest.yml"))
-            YAML::load(File.read(manifest_path)) || { 'name' => name, 'description' => '(Description unavailable)' }
-          else
-            { 'name' => name, 'description' => '(Manifest file not found!)' }
-          end
-        end
-        
         def run_uninstall_script(plugin_dir)
           run_script plugin_dir, "uninstall.rb"
         end
@@ -248,55 +168,13 @@ module Jax
           tgz = Zlib::GzipReader.new(File.open(tarfile, "rb"))
           Archive::Tar::Minitar.unpack(tgz, destination.to_s) # closes tgz
         end
-        
-        def overwrite(path)
-          path = path.to_s
-          if File.exist? path
-            prompt_yn "Path '#{path}' already exists! Delete it?"
-            FileUtils.rm_rf path
-          end
-        end
-        
+
         def download_tgz(name, version, destdir)
           filename = "#{name}-#{version}.tgz"
           tgz = rest_resource("plugins/#{name}.tgz").get(:params => { :version => version })
           tarfile = File.join destdir, filename
           File.open(tarfile, "wb") { |f| f.print tgz }
           tarfile
-        end
-        
-        def matching_plugins(name = nil)
-          if options[:local]
-            hash = installed_plugin_manifests(name)
-          else
-            hash = get_remote_plugins_matching name
-          end
-          
-          if list = hash['jax_plugins']
-            list
-          else
-            raise ResponseError.new("Fatal: couldn't find plugin list.")
-          end
-        end
-        
-        def each_plugin(name = nil, &block)
-          matching_plugins(name).each &block
-        end
-        
-        def plugin_version(details)
-          if options['version']
-            for release in details['releases']
-              if release['version'] && release['version'] == options['version']
-                return options['version']
-              end
-            end
-            raise "Release information for version #{options['version']} not found for plugin '#{details['name']}'!"
-          else
-            if release = details['releases'].last and release['version']
-              return release['version']
-            end
-            raise "Release information not found for plugin '#{details['name']}'!"
-          end
         end
         
         class << self

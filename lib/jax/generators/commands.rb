@@ -3,6 +3,7 @@
 require 'thor'
 require 'thor/group'
 require File.expand_path('../../jax', File.dirname(__FILE__))
+require File.expand_path('interactions', File.dirname(__FILE__))
 
 module Jax
   module Generators
@@ -48,6 +49,11 @@ module Jax
       
       def self.inherited(base)
         base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
+        base.instance_eval do
+          def self.source_root
+            File.join(base_path, "templates")
+          end
+        end
       end
     end
     
