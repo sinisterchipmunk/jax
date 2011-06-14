@@ -1,24 +1,11 @@
 require 'yaml'
 
-class Jax::Application::Configuration
+class Jax::Application::Configuration < Jax::Engine::Configuration
   attr_accessor :view_paths
-  attr_reader :root
   
-  def root=(path)
-    @root = case path
-      when String
-        Pathname.new(path)
-      else path
-    end
-  end
-  
-  def initialize
+  def initialize(*)
+    super
     @view_paths = ['app/views']
-    if defined?(JAX_ROOT)
-      @root = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? Pathname.new(JAX_ROOT).expand_path : Pathname.new(JAX_ROOT).realpath
-    else
-      @root = nil
-    end
     read_config_files
   end
   
@@ -31,10 +18,7 @@ class Jax::Application::Configuration
   end
   
   def shader_load_paths
-    @shader_load_paths ||= [
-      File.expand_path('../../../builtin/shaders', File.dirname(__FILE__)),
-      "app/shaders"
-    ]
+    paths.app.shaders.paths + paths.builtin.shaders.paths
   end
   
   def plugin_repository_url

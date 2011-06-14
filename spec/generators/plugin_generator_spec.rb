@@ -47,17 +47,18 @@ describe Jax::Generators::Plugin::PluginGenerator do
       File.should be_file(path 'vendor/plugins/cloud/uninstall.rb')
     end
     
-    context "after Jax initializes" do
-      subject { TestApp.new }
-      
-      it "should detect presence of plugin" do
-        subject.plugins.should_not be_empty
-      end
-      
-      it "should add the plugin to shader load paths" do
-        subject.shader_load_paths.should include("vendor/plugins/cloud/app/shaders")
-      end
-    end
+    # this really belongs in lib/jax/plugin_spec, no?
+    # context "after Jax initializes" do
+    #   subject { TestApp.instance }
+    #   
+    #   it "should detect presence of plugin" do
+    #     subject.plugins.should_not be_empty
+    #   end
+    # 
+    #   it "should add the plugin to shader load paths" do
+    #     subject.shader_load_paths.should include("vendor/plugins/cloud/app/shaders")
+    #   end
+    # end
   end
   
   context "using a locally conflicting name" do

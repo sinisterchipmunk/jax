@@ -12,12 +12,11 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
-  s.add_dependency 'rake',          '~> 0.8.7'
-  s.add_dependency 'bundler',       '~> 1.0.14'
+  s.add_dependency 'rake',          '~> 0.9.2'
+  s.add_dependency 'bundler',       '~> 1.0.15'
   s.add_dependency "thor",          '~> 0.14.6'
   s.add_dependency 'jasmine',       '~> 1.0.2.0'
-  s.add_dependency 'activesupport', '~> 3.0'
-  s.add_dependency "i18n",          '~> 0.5.0' # FIXME Jax doesn't really require this but ActiveSupport won't load without it!
+  s.add_dependency 'railties',      '~> 3.0.8'
   s.add_dependency 'sprockets',     '~> 1.0.2'
   s.add_dependency 'rest-client',   '~> 1.6.3'
   s.add_dependency 'minitar',       '~> 0.5.3'
@@ -27,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'fakeweb',   '~> 1.3.0'
     
   # required by guides
-  s.add_development_dependency 'actionpack',     '~> 3.0'
+  # s.add_development_dependency 'actionpack',     '~> 3.0'
   s.add_development_dependency 'RedCloth',       '~> 4.2'
   s.add_development_dependency 'w3c_validators', '~> 1.1.1'
 

@@ -1,7 +1,12 @@
 require "active_support/core_ext"
+require "rails/railtie"
 require File.expand_path("jax/core_ext/kernel", File.dirname(__FILE__))
 
+# Don't raise an error when we extend Jax::Engine or Jax::Application
+Rails::Railtie::ABSTRACT_RAILTIES << "Jax::Engine" << "Jax::Application"
+
 module Jax
+  autoload :Engine,           File.join(File.dirname(__FILE__), "jax/engine")
   autoload :Generators,       File.join(File.dirname(__FILE__), "jax/generators/commands")
   autoload :VERSION,          File.join(File.dirname(__FILE__), "jax/version")
   autoload :Version,          File.join(File.dirname(__FILE__), "jax/version")
@@ -10,6 +15,7 @@ module Jax
   autoload :ResourceCompiler, File.join(File.dirname(__FILE__), "jax/resource_compiler")
   autoload :Routes,           File.join(File.dirname(__FILE__), "jax/routes")
   autoload :Shader,           File.join(File.dirname(__FILE__), "jax/shader")
+  autoload :Plugin,           File.join(File.dirname(__FILE__), "jax/plugin")
   
   class << self
     def application

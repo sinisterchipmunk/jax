@@ -1,39 +1,41 @@
 module Jax
-  class Application
+  class Application < Jax::Engine
+    autoload :Configurable,  "jax/application/configurable"
     autoload :Configuration, "jax/application/configuration"
 
     class << self
+      private :new
+
+      def configure(&block)
+        class_eval(&block)
+      end
+
       def inherited(base)
         raise "You cannot have more than one Jax::Application" if Jax.application
         super
-        
-        base.called_from = detect_caller
-        Jax.application = base.instance
-        Jax.application.config.root ||= Jax.application.find_root_with_flag("app")
-      end
 
-      def config
-        @config ||= Jax::Application::Configuration.new
+        Jax.application = base.instance
       end
-      
+    
       def instance
-        @instance ||= new
-      end
-      
-      def called_from
-        @called_from ||= nil
-      end
-      
-      def called_from=(where)
-        @called_from = where
+        @@instance ||= new
       end
       
       def routes
         Jax.application.config.routes
       end
+
+      def respond_to?(*args)
+        super || instance.respond_to?(*args)
+      end
+
+    protected
+
+      def method_missing(*args, &block)
+        instance.send(*args, &block)
+      end
     end
 
-    delegate :config, :to => "self.class"
     delegate :root, :to => :config
     delegate :routes, :to => :config
     delegate :shader_load_paths, :plugin_repository_url, :to => :config
@@ -73,26 +75,6 @@ module Jax
         end
       end
       shader_paths
-    end
-    
-    def find_root_with_flag(flag, default=nil)
-      root_path = self.class.called_from
-  
-      while root_path && File.directory?(root_path) && !File.exist?("#{root_path}/#{flag}")
-        parent = File.dirname(root_path)
-        root_path = parent != root_path && parent
-      end
-  
-      root = File.exist?("#{root_path}/#{flag}") ? root_path : default
-      raise "Could not find root path for #{self}" unless root
-  
-      RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ?
-        Pathname.new(root).expand_path : Pathname.new(root).realpath
-    end
-    
-    private
-    def detect_plugins
-      p Dir[config.root.join("vendor/plugins/*").to_s]
     end
   end
 end

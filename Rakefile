@@ -10,7 +10,7 @@ rescue LoadError
   puts " *** You don't seem to have Bundler installed. ***"
   puts "     Please run the following command:"
   puts
-  puts "       gem install bundler --version=1.0.14"
+  puts "       gem install bundler --version=1.0.15"
   exit
 end
 
