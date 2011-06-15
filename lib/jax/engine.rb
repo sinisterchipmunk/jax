@@ -1,3 +1,5 @@
+require 'pathname'
+
 class ::Jax::Engine < ::Rails::Railtie
   autoload :Configurable,  "jax/engine/configurable"
   autoload :Configuration, "jax/engine/configuration"

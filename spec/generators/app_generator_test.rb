@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'test_helper'
 
 pwd = File.join(Dir.pwd, "generator_tests")
 EXPECTED_FILES = %w(
@@ -21,27 +21,12 @@ EXPECTED_FILES = %w(
   Gemfile
 )
 
-describe Jax::Generators::App::AppGenerator do
-  def generate(*args)
-    Jax::Generators::App::AppGenerator.start(args + ['--debug'], :shell => SpecShell.new)
-  end
-
-  before :each do
-    FileUtils.rm_rf pwd
-    Dir.chdir File.expand_path('..', pwd)
-    FileUtils.mkdir_p pwd
-    Dir.chdir pwd
-  end
-
-  after :each do
-    FileUtils.rm_rf pwd
-    Dir.chdir File.expand_path('..', pwd)
-  end
-
-  EXPECTED_FILES.each do |file|
-    it "should generate '#{file}'" do
-      generate("test_app")
-      File.should exist(File.expand_path(File.join("test_app", file), pwd))
+class Jax::Generators::App::AppGeneratorTest < Jax::Generators::TestCase
+  test "should generate all expected files" do
+    generate "test_app"
+    
+    EXPECTED_FILES.each do |file|
+      assert_file File.join("test_app", file)
     end
   end
 end

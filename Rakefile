@@ -14,7 +14,7 @@ rescue LoadError
   exit
 end
 
-DEPENDENCIES = %w(jasmine sprockets treetop bluecloth rspec/core/rake_task)
+DEPENDENCIES = %w(jasmine sprockets treetop bluecloth)
 DEPENDENCIES.each do |dep|
   begin
     require dep
@@ -164,8 +164,15 @@ task :node => :compile do
   system("node", "spec/javascripts/node_helper.js")
 end
 
-desc "Run ruby tests using rspec"
-RSpec::Core::RakeTask.new(:rspec => :compile)
+FileUtils.rm_rf File.expand_path("spec/fixtures/tmp", File.dirname(__FILE__))
+require 'rake/testtask'
+desc "Run ruby tests using Test::Unit"
+Rake::TestTask.new("test_unit" => :compile) do |t|
+  t.pattern = "{test,spec}/**/*_test.rb"
+  t.libs = ["./test", "./spec"].collect { |f| File.expand_path(f) }.select { |f| File.directory?(f) }
+#  t.verbose = true
+#  t.warning = true
+end
   
 
 # 'Guides' tasks & code borrowed from Railties.
@@ -174,4 +181,4 @@ task :guides => 'guides:generate'
 
 task :jasmine => :compile
 task :build   => [:compile, :minify] # make sure to minify the JS code before going to release
-task :default => [:rspec, :node]
+task :default => [:test_unit, :node]

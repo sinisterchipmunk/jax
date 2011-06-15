@@ -1,11 +1,16 @@
+require 'test/unit'
+require 'turn'
+
+$:.unshift File.expand_path("../lib", File.dirname(__FILE__))
 require File.join(File.dirname(__FILE__), "../lib/jax")
 require File.join(File.dirname(__FILE__), "../lib/jax/generators/app")
 require File.join(File.dirname(__FILE__), "../lib/jax/generators/commands")
+
 require 'fakeweb'
 
 class TestApp < Jax::Application
 end
-TestApp.config.root = File.expand_path("./generator_tests")
+TestApp.config.root = File.expand_path("fixtures/tmp/generator_tests", File.dirname(__FILE__))
 
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each do |fi|
   require fi
@@ -23,7 +28,3 @@ FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/clouds.tgz?version=
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/clouds.tgz?version=1.0.0", :response => fixture('web/plugins/example.tgz.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/vertex-blob.tgz?version=1.0.0", :response => fixture('web/plugins/example.tgz.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/vertex-height-map.tgz?version=1.0.1", :response => fixture('web/plugins/example.tgz.http'))
-
-RSpec.configure do |config|
-  config.include FileExistMatcher
-end

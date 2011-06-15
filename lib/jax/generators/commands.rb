@@ -7,6 +7,9 @@ require File.expand_path('interactions', File.dirname(__FILE__))
 
 module Jax
   module Generators
+    class Error < Thor::Error
+    end
+    
     module Usage
       module ClassMethods
         def start(given_args=ARGV, config={})
@@ -46,6 +49,12 @@ module Jax
     
     class Command < Thor::Group
       include Jax::Generators::Usage
+      
+      no_tasks do
+        def exit(message = "")
+          raise Jax::Generators::Error, message
+        end
+      end
       
       def self.inherited(base)
         base.base_path = File.dirname(caller.first.gsub(/:.*$/, ''))
