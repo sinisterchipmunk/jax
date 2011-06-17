@@ -167,11 +167,28 @@ end
 FileUtils.rm_rf File.expand_path("spec/fixtures/tmp", File.dirname(__FILE__))
 require 'rake/testtask'
 desc "Run ruby tests using Test::Unit"
+# NOT WORKING due to isolation tests failing. Use test:isolated instead.
 Rake::TestTask.new("test_unit" => :compile) do |t|
   t.pattern = "{test,spec}/**/*_test.rb"
   t.libs = ["./test", "./spec"].collect { |f| File.expand_path(f) }.select { |f| File.directory?(f) }
 #  t.verbose = true
 #  t.warning = true
+end
+
+namespace :test do
+  task :isolated do
+    dir = ENV["TEST_DIR"] || "**"
+    ruby = File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME'))
+    ENV['DO_NOT_ISOLATE'] = '1'
+    if ENV['TEST']
+      sh(ruby, '-Ispec', ENV['TEST'])
+    else
+      Dir["spec/#{dir}/*_test.rb"].each do |file|
+        next true if file.include?("fixtures")
+        sh(ruby, '-Ispec', file)
+      end
+    end
+  end
 end
   
 
@@ -181,4 +198,4 @@ task :guides => 'guides:generate'
 
 task :jasmine => :compile
 task :build   => [:compile, :minify] # make sure to minify the JS code before going to release
-task :default => [:test_unit, :node]
+task :default => ['test:isolated', :node]

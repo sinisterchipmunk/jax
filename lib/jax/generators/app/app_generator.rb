@@ -81,7 +81,7 @@ module Jax
         end
         
         def class_name
-          path_to_app.gsub(/\-/, '_').camelize
+          path_to_app.split(/[\/\\]/).last.gsub(/\-/, '_').camelize
         end
       end
     end

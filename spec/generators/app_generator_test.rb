@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'test_app'
 
 pwd = File.join(Dir.pwd, "generator_tests")
 EXPECTED_FILES = %w(

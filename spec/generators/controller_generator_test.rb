@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'test_app'
 
 class Jax::Generators::Controller::ControllerGeneratorTest < Jax::Generators::TestCase
   setup :copy_routes

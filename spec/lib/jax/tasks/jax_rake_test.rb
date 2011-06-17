@@ -1,8 +1,9 @@
 require 'test_helper'
+require 'test_app'
 
 class Jax::RakeTasksTest < Rails::Generators::TestCase#ActiveSupport::TestCase
   # PWD = File.join(Dir.pwd, "generator_tests")
-  PWD = File.expand_path("../../../fixtures/tmp/generator_tests/test_app", File.dirname(__FILE__))
+  PWD = File.expand_path("../../../../tmp/generator_tests/test_app", File.dirname(__FILE__))
   self.destination_root = PWD
   
   def shell
@@ -19,12 +20,13 @@ class Jax::RakeTasksTest < Rails::Generators::TestCase#ActiveSupport::TestCase
   # TODO clean this up
   setup do
     FileUtils.rm_rf PWD
+    FileUtils.mkdir_p File.dirname(PWD) unless File.exist?(File.dirname(PWD))
     Dir.chdir File.expand_path('..', PWD)
     FileUtils.mkdir_p PWD
     Dir.chdir File.dirname(PWD)
     Jax::Generators::App::AppGenerator.start(["test_app"], :shell => shell)
     Dir.chdir PWD
-    File.open("Gemfile", "w") { |f| f.print "gem 'jax', :path => '#{File.expand_path('../../../../../', PWD)}'"}
+    File.open("Gemfile", "w") { |f| f.print "gem 'jax', :path => '#{File.expand_path('../../../', PWD)}'"}
     `bundle install`
     Jax::Generators::Controller::ControllerGenerator.start(['welcome', 'index'], :shell => shell)
     File.open("config/routes.rb", "w") do |f|

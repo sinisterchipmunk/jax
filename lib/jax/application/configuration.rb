@@ -17,6 +17,16 @@ class Jax::Application::Configuration < Jax::Engine::Configuration
     @routes
   end
   
+  def paths
+    @paths ||= begin
+      paths = super
+      paths.tmp                 "tmp"
+      paths.vendor              "vendor"
+      paths.vendor.plugins      "vendor/plugins"
+      paths
+    end
+  end
+  
   def shader_load_paths
     paths.app.shaders.paths + paths.builtin.shaders.paths
   end

@@ -8,10 +8,6 @@ require File.join(File.dirname(__FILE__), "../lib/jax/generators/commands")
 
 require 'fakeweb'
 
-class TestApp < Jax::Application
-end
-TestApp.config.root = File.expand_path("fixtures/tmp/generator_tests", File.dirname(__FILE__))
-
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each do |fi|
   require fi
 end

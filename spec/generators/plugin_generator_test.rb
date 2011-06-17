@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'test_app'
 
 class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
   test "a clean new plugin" do
@@ -6,19 +7,6 @@ class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
     
     assert_file "vendor/plugins/cloud/install.rb"
     assert_file "vendor/plugins/cloud/uninstall.rb"
-    
-    # this really belongs in lib/jax/plugin_spec, no?
-    # context "after Jax initializes" do
-    #   subject { TestApp.instance }
-    #   
-    #   it "should detect presence of plugin" do
-    #     subject.plugins.should_not be_empty
-    #   end
-    # 
-    #   it "should add the plugin to shader load paths" do
-    #     subject.shader_load_paths.should include("vendor/plugins/cloud/app/shaders")
-    #   end
-    # end
   end
   
   test "overwriting a locally conflicting name" do

@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'test_app'
 
 class Jax::Generators::Plugin::PluginManagerTest < Jax::Generators::TestCase
   test "uninstall plugin with install.rb and uninstall.rb calls uninstall.rb but not install.rb" do

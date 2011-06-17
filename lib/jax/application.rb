@@ -2,6 +2,7 @@ module Jax
   class Application < Jax::Engine
     autoload :Configurable,  "jax/application/configurable"
     autoload :Configuration, "jax/application/configuration"
+    autoload :Railties,      "jax/application/railties"
 
     class << self
       private :new
@@ -28,6 +29,15 @@ module Jax
       def respond_to?(*args)
         super || instance.respond_to?(*args)
       end
+      
+      def initialize!
+        # return silently because we may have to call initialize automatically.
+        # Jax prior to v1.1.0 didn't call #initialize! during boot.
+        return self if @initialized
+        @initialized = true
+        run_initializers(self)
+        self
+      end
 
     protected
 
@@ -35,46 +45,49 @@ module Jax
         instance.send(*args, &block)
       end
     end
+    
+    delegate :plugins, :to => :railties
+    
+    def railties
+      @railties ||= Jax::Application::Railties.new(config)
+    end
+    
+    def detect_shaders(paths)
+      for path in paths
+        shader_paths = Dir[File.join(path, "*/{vertex,fragment}.ejs")].collect { |d| File.dirname(d) }.uniq
+        shader_paths.each do |shader_path|
+          shaders.push Jax::Shader.from(shader_path)
+        end
+      end
+    end
 
     delegate :root, :to => :config
     delegate :routes, :to => :config
     delegate :shader_load_paths, :plugin_repository_url, :to => :config
     
-    def plugins
-      Dir.glob(root.join("vendor/plugins/*").to_s).collect do |plugin_path|
-        relative_plugin_path = plugin_path.sub(/^#{Regexp::escape root.to_s}\/?/, '')
-        Jax::Plugin.new(relative_plugin_path)
-      end
-    end
-    
     def shaders
-#      @shaders ||= begin
-        shaders = []
-
-        shader_paths.each do |name, path|
-          shaders << Jax::Shader.from(path)
-        end
-        
+      if !@shaders
+        @shaders = []
         def shaders.find(name)
           select { |s| s.name == name }.first
         end
 
-        shaders
-#      end
+        self.class.initialize!
+      end
+      @shaders
     end
     
-    def shader_paths
-      shader_paths = {}
-      shader_load_paths.each do |path|
-        full_path = File.directory?(path) ? path : File.expand_path(path, config.root)
-        glob = File.join(full_path, "*/{fragment,vertex}.ejs")
-        Dir[glob].each do |dir|
-          shader_base = File.dirname(dir)
-          shader_name = File.basename(shader_base)
-          shader_paths[shader_name] = shader_base
-        end
-      end
-      shader_paths
+    def initializers
+      # jax doesn't have a bootstrapper or initializer yet, but I think these are good ideas
+      # so I'm leaving this here as a sort of reminder for how to do it.
+      # initializers = Bootstrap.initializers_for(self)
+      initializers = nil
+      railties.all { |r| initializers = initializers ? initializers + r.initializers : r.initializers }
+      initializers = initializers ? initializers + super : super
+      # initializers += Finisher.initializers_for(self)
+      initializers
     end
   end
 end
+
+require File.expand_path("application/builtin", File.dirname(__FILE__))

@@ -27,4 +27,8 @@ class ::Jax::Engine < ::Rails::Railtie
         Pathname.new(root).expand_path : Pathname.new(root).realpath
     end
   end
+  
+  initializer :detect_shaders do |app|
+    app.detect_shaders config.paths.app.shaders.to_a
+  end
 end

@@ -1,6 +1,7 @@
 class Jax::Engine::Configuration < Rails::Railtie::Configuration
   attr_reader :root
   attr_writer :autoload_once_paths, :autoload_paths
+  attr_accessor :plugins
   
   def initialize(path = nil)
     super()
