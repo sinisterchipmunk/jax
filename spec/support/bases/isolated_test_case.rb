@@ -118,6 +118,10 @@ class IsolatedTestCase < Test::Unit::TestCase
   include TestHelpers::Generation
   include ActiveSupport::Testing::Isolation unless ENV['DO_NOT_ISOLATE']
   extend ActiveSupport::Testing::Declarative
+  
+  def default_test
+    # so that empty test classes like this one don't fail
+  end
 end
 
 # create a scope and build a fixture jax app

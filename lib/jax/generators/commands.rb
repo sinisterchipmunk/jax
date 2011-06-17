@@ -66,12 +66,12 @@ module Jax
       end
     end
     
-    autoload :Controller, File.join(File.dirname(__FILE__), "controller/controller_generator")
-    autoload :Model,      File.join(File.dirname(__FILE__), "model/model_generator")
-    autoload :LightSource,File.join(File.dirname(__FILE__), "light_source/light_source_generator")
-    autoload :Material,   File.join(File.dirname(__FILE__), "material/material_generator")
-    autoload :Shader,     File.join(File.dirname(__FILE__), "shader/shader_generator")
-    autoload :Plugin,     File.join(File.dirname(__FILE__), "plugin/all")
+    autoload :Controller,  "jax/generators/controller/controller_generator"
+    autoload :Model,       "jax/generators/model/model_generator"
+    autoload :LightSource, "jax/generators/light_source/light_source_generator"
+    autoload :Material,    "jax/generators/material/material_generator"
+    autoload :Shader,      "jax/generators/shader/shader_generator"
+    autoload :Plugin,      "jax/generators/plugin/all"
   end
 end
 

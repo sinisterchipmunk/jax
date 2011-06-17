@@ -1,12 +1,15 @@
 require 'rails/generators/test_case'
+require 'active_support/testing/isolation'
 
 # probably should have one of these in standard jax dist, but not
 # necessarily *this* class
 class Jax::Generators::TestCase < Rails::Generators::TestCase
+  include ActiveSupport::Testing::Isolation unless ENV['DO_NOT_ISOLATE']
+  
   def self.inherited(base)
     super
     base.class_eval do
-      destination Jax.root
+      destination File.join(Jax.framework_root, "tmp/tmp")
       setup :prepare_destination
       teardown :restore_streams
       
@@ -20,6 +23,11 @@ class Jax::Generators::TestCase < Rails::Generators::TestCase
       rescue
       end
     end
+  end
+  
+  setup do
+    require 'test_app'
+    self.class.destination Jax.root
   end
   
   def generate(*args)

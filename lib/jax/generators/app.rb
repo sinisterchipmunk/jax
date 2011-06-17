@@ -5,7 +5,7 @@ require 'thor/group'
 
 module Jax
   module Generators
-    autoload :App,        File.join(File.dirname(__FILE__), "app/app_generator")
+    autoload :App,        "jax/generators/app/app_generator"
   end
 end
 

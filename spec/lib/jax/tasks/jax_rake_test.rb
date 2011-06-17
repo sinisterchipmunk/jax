@@ -1,9 +1,8 @@
 require 'test_helper'
 require 'test_app'
 
-class Jax::RakeTasksTest < Rails::Generators::TestCase#ActiveSupport::TestCase
-  # PWD = File.join(Dir.pwd, "generator_tests")
-  PWD = File.expand_path("../../../../tmp/generator_tests/test_app", File.dirname(__FILE__))
+class Jax::RakeTasksTest < Rails::Generators::TestCase
+  PWD = File.expand_path("../tmp/generator_tests/test_app", Jax.framework_root)
   self.destination_root = PWD
   
   def shell

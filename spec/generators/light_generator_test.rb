@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'test_app'
+# require 'test_app'
 
 class Jax::Generators::LightSource::LightSourceGeneratorTest < Jax::Generators::TestCase
   test "with light name" do

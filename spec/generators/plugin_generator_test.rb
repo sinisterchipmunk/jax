@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'test_app'
+# require 'test_app'
 
 class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
   test "a clean new plugin" do

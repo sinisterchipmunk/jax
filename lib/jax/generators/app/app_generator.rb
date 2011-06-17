@@ -16,7 +16,6 @@ module Jax
         def create_root
           self.destination_root = File.expand_path(path_to_app, destination_root)
           empty_directory '.'
-          FileUtils.cd destination_root
         end
 
         def app
