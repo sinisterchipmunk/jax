@@ -1,5 +1,7 @@
 require 'test_helper'
 
+# see also ./packager_test.rb for plugin stuff related to app packaging
+
 class Jax::PluginTest < IsolatedTestCase
   def setup
     build_app

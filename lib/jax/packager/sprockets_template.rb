@@ -13,9 +13,8 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
         asset_paths,
         ''
       ].flatten
-      # Need to verify that helpers come first
-      Dir[Jax.root.join("app/helpers/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
-      Dir[Jax.root.join("app/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
+      
+      Jax.application.javascript_sources.each { |jsfi| try_to_add_file(template, jsfi) }
 
       template
     end
@@ -29,7 +28,7 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
   
   def add_file(template, jsfi)
     relative_path = jsfi.sub(/^#{Regexp::escape Jax.root.to_s}[\/\\]?/, '')
-    template << "//= require \"#{relative_path}\""
+    template << "//= require <#{relative_path}>"
     added_files << jsfi
   end
   

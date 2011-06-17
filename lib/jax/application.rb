@@ -73,6 +73,22 @@ module Jax
       @shader_load_paths
     end
     
+    def javascript_sources
+      if !@javascript_sources
+        @javascript_sources = []
+        self.class.initialize!
+      end
+      @javascript_sources
+    end
+    
+    def resource_files
+      if !@resource_files
+        @resource_files = []
+        self.class.initialize!
+      end
+      @resource_files
+    end
+    
     def javascript_source_roots
       if !@javascript_source_roots
         @javascript_source_roots = []

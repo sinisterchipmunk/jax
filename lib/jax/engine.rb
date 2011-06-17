@@ -40,4 +40,18 @@ class ::Jax::Engine < ::Rails::Railtie
   initializer :javascript_source_roots do |app|
     app.javascript_source_roots << config.root.to_s
   end
+  
+  initializer :javascript_sources do |app|
+    sources = []
+    %w(helpers models controllers views shaders).collect do |base|
+      config.paths.app.send(base).to_a.each do |path|
+        sources.concat Dir[File.join(path, "**/*.js")]
+      end
+    end
+    app.javascript_sources.concat sources.uniq
+  end
+  
+  initializer :resource_files do |app|
+    app.resource_files.concat config.paths.app.resources.to_a
+  end
 end

@@ -20,7 +20,7 @@ class Jax::ResourceCompiler
   end
   
   def gather_resources
-    Dir[Jax.root.join("app/resources/**/*.yml")].inject({}) do |resources, yml|
+    Jax.application.resource_files.inject({}) do |resources, yml|
       model_name = File.basename(File.dirname(yml)).singularize
       resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
       hash = YAML::load(File.read(yml)) || {}

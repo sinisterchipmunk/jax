@@ -15,7 +15,7 @@ class Jax::Engine::Configuration < Rails::Railtie::Configuration
   def paths
     @paths ||= begin
       paths = Rails::Paths::Root.new(@root)
-      paths.app                 "app",                 :glob => "*"
+      paths.app                 "app"
       paths.app.controllers     "app/controllers"
       paths.app.helpers         "app/helpers"
       paths.app.models          "app/models"
