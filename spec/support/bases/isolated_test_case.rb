@@ -63,6 +63,10 @@ module TestHelpers
         f.puts "::#{name.upcase} = 'loaded'"
         f.puts string
       end
+      routes = File.expand_path("../../../../lib/jax/generators/plugin/templates/new_plugin/config/routes.rb", __FILE__)
+      destination = File.join(app_path, "vendor/plugins", name, "config")
+      FileUtils.mkdir_p destination
+      FileUtils.cp routes, File.join(destination, "routes.rb")
       Bukkit.new(dir).tap do |bukkit|
         yield bukkit if block_given?
       end

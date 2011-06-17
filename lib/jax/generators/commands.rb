@@ -66,6 +66,18 @@ module Jax
       end
     end
     
+    # Generators extending PluggableCommand will produce code in either a Jax
+    # application proper, or in a plugin within the app.
+    class PluggableCommand < Command
+      def check_plugin_destination
+        if ENV['JAX_CWD'] && cwd = File.expand_path('.', ENV['JAX_CWD'])
+          if cwd =~ /^#{Regexp::escape File.join(Jax.root, "vendor/plugins/", "")}(.*?)(\/|$)/
+            self.destination_root = Jax.root.join("vendor", "plugins", $1)
+          end
+        end
+      end
+    end
+    
     autoload :Controller,  "jax/generators/controller/controller_generator"
     autoload :Model,       "jax/generators/model/model_generator"
     autoload :LightSource, "jax/generators/light_source/light_source_generator"
@@ -117,7 +129,7 @@ class JaxGeneratorInvoker < Thor
   
   desc "plugin NAME", "generates a new plugin"
   def plugin(*args)
-    Jax::Generators::Plugin::PluginGenerator.start(args)
+    Jax::Generators::Plugin::PluginGenerator.start(ARGV[1..-1])
   end
   
   desc "package", "packages this Jax application in preparation for deployment"

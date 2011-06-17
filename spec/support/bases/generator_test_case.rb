@@ -25,6 +25,16 @@ class Jax::Generators::TestCase < Rails::Generators::TestCase
     end
   end
   
+  # call this when you've included both TestHelpers::Paths and TestHelpers::Generation
+  # and want to test Jax generators within plugin directories.
+  def plugin_generator(plugin_name, &block)
+    plugin plugin_name, &block
+    # this happens in bin/jax
+    self.class.destination app_path
+    @jax_cwd = File.join(app_path, "vendor/plugins", plugin_name)
+    File.mkdir_p @jax_cwd unless File.directory?(@jax_cwd)
+  end
+  
   setup do
     unless Jax.application || self.class.include?(TestHelpers::Generation)
       require 'test_app'
@@ -33,7 +43,10 @@ class Jax::Generators::TestCase < Rails::Generators::TestCase
   end
   
   def generate(*args)
-    run_generator args
+    ENV['JAX_CWD'] = @jax_cwd
+    result = run_generator args
+    ENV['JAX_CWD'] = nil
+    result
   end
   
   def copy_routes

@@ -2,6 +2,7 @@
 
 require 'thor'
 require 'thor/group'
+$:.unshift File.expand_path("../..", File.dirname(__FILE__))
 
 module Jax
   module Generators

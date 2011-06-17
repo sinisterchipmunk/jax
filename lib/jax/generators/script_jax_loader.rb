@@ -9,6 +9,7 @@ module Jax
   
       def self.exec_script_jax!
         cwd = Dir.pwd
+        ENV['JAX_CWD'] ||= cwd
         return unless in_jax_application? || in_jax_application_subdirectory?
         exec RUBY, SCRIPT_JAX, *ARGV if in_jax_application?
         Dir.chdir("..") do

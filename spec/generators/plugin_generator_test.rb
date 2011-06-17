@@ -2,11 +2,26 @@ require 'test_helper'
 # require 'test_app'
 
 class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
+  EXPECTED_FILES = %w(
+    vendor/plugins/cloud/init.rb
+    vendor/plugins/cloud/install.rb
+    vendor/plugins/cloud/uninstall.rb
+    vendor/plugins/cloud/config/routes.rb
+  )
+  
   test "a clean new plugin" do
     generate "cloud"
     
     assert_file "vendor/plugins/cloud/install.rb"
     assert_file "vendor/plugins/cloud/uninstall.rb"
+  end
+  
+  test "files" do
+    generate "cloud"
+    
+    EXPECTED_FILES.each do |path|
+      assert_file path
+    end
   end
   
   test "overwriting a locally conflicting name" do
