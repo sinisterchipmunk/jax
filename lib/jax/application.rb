@@ -73,6 +73,14 @@ module Jax
       @shader_load_paths
     end
     
+    def javascript_load_paths
+      if !@javascript_load_paths
+        @javascript_load_paths = []
+        @javascript_load_paths = javascript_source_roots + @javascript_load_paths
+      end
+      @javascript_load_paths
+    end
+    
     def javascript_sources
       if !@javascript_sources
         @javascript_sources = []

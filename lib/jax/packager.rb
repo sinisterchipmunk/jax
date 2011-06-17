@@ -46,7 +46,7 @@ class Jax::Packager
     @secretary = Sprockets::Secretary.new(
             :root => Jax.root,
             :asset_root => @pkg_path.to_s,
-            :load_path => Jax.application.javascript_source_roots,
+            :load_path => Jax.application.javascript_load_paths,
             :source_files => []
     )
     @project = Jax::Packager::SprocketsTemplate.new(@secretary.environment)

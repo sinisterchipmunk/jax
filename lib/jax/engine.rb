@@ -41,6 +41,13 @@ class ::Jax::Engine < ::Rails::Railtie
     app.javascript_source_roots << config.root.to_s
   end
   
+  initializer :javascript_load_paths do |app|
+    config.paths.app.each do |app_path|
+      app.javascript_load_paths.push app_path
+    end
+    app.javascript_load_paths.push config.paths.lib.to_a.first
+  end
+  
   initializer :javascript_sources do |app|
     sources = []
     %w(helpers models controllers views shaders).collect do |base|
