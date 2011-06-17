@@ -10,9 +10,9 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
       template = [
         'Jax.environment = Jax.PRODUCTION;',
         '',
-        '//= provide "public/"',
+        asset_paths,
         ''
-      ]
+      ].flatten
       # Need to verify that helpers come first
       Dir[Jax.root.join("app/helpers/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
       Dir[Jax.root.join("app/**/*.js")].each { |jsfi| try_to_add_file(template, jsfi) }
@@ -39,6 +39,16 @@ class Jax::Packager::SprocketsTemplate < Sprockets::SourceFile
   
   def added_files
     @added_files ||= []
+  end
+  
+  def asset_paths
+    Jax.application.asset_paths.collect do |path|
+      if File.directory?(path)
+        "//= provide \"#{File.join(path, "").gsub(/^#{Regexp::escape Jax.root.to_s}\/?/, '')}\""
+      end
+    end.reject do |result|
+      result.nil?
+    end
   end
   
   def source_lines

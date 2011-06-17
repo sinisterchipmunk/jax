@@ -29,6 +29,15 @@ class ::Jax::Engine < ::Rails::Railtie
   end
   
   initializer :detect_shaders do |app|
+    app.shader_load_paths.concat config.paths.app.shaders.paths
     app.detect_shaders config.paths.app.shaders.to_a
+  end
+  
+  initializer :asset_paths do |app|
+    app.asset_paths.concat config.paths.public.to_a
+  end
+  
+  initializer :javascript_source_roots do |app|
+    app.javascript_source_roots << config.root.to_s
   end
 end

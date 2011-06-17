@@ -63,7 +63,31 @@ module Jax
 
     delegate :root, :to => :config
     delegate :routes, :to => :config
-    delegate :shader_load_paths, :plugin_repository_url, :to => :config
+    delegate :plugin_repository_url, :to => :config
+    
+    def shader_load_paths
+      if !@shader_load_paths
+        @shader_load_paths = []
+        self.class.initialize!
+      end
+      @shader_load_paths
+    end
+    
+    def javascript_source_roots
+      if !@javascript_source_roots
+        @javascript_source_roots = []
+        self.class.initialize!
+      end
+      @javascript_source_roots
+    end
+    
+    def asset_paths
+      if !@asset_paths
+        @asset_paths = []
+        self.class.initialize!
+      end
+      @asset_paths
+    end
     
     def shaders
       if !@shaders

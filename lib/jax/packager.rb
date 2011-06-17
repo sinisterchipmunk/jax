@@ -1,23 +1,24 @@
 require 'sprockets'
+require 'fileutils'
 
 class Jax::Packager
+  include FileUtils
   attr_reader :pkg_path, :path, :project
   autoload :SprocketsTemplate, File.join(File.dirname(__FILE__), "packager/sprockets_template")
   
   class << self
     def invoke
-      pkg_dir = Jax.root.join("pkg")
-      rm_rf pkg_dir
-      
-      package = new pkg_dir
-      puts package.project.template
-      
-      package.build!
-      
+      puts "DEPRECATED"
       puts
-      puts "Build complete! Package is available at: "
-      puts "    #{package.pkg_path}"
+      puts "Please invoke the Jax packager with the following command:"
       puts
+      puts "  jax package"
+      puts
+      puts "This notice will be removed sometime around Jax v1.2."
+      puts
+      puts
+      
+      Jax::Generators::Packager::PackageGenerator.start([])
     end
   end
   
@@ -45,7 +46,7 @@ class Jax::Packager
     @secretary = Sprockets::Secretary.new(
             :root => Jax.root,
             :asset_root => @pkg_path.to_s,
-            :load_path => [Jax.root.to_s],
+            :load_path => Jax.application.javascript_source_roots,
             :source_files => []
     )
     @project = Jax::Packager::SprocketsTemplate.new(@secretary.environment)

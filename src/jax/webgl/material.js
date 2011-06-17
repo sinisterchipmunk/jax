@@ -377,13 +377,13 @@ Jax.Material.addResources = function(resources) {
   }
 };
 
-//= require "../../../builtin/shaders/texture/material"
-//= require "../../../builtin/shaders/normal_map/material"
-//= require "../../../builtin/shaders/shadow_map/material"
-//= require "../../../builtin/shaders/depthmap/material"
-//= require "../../../builtin/shaders/paraboloid/material"
-//= require "../../../builtin/shaders/fog/material"
-//= require "../../../builtin/shaders/picking/material"
+//= require "../../../builtin/app/shaders/texture/material"
+//= require "../../../builtin/app/shaders/normal_map/material"
+//= require "../../../builtin/app/shaders/shadow_map/material"
+//= require "../../../builtin/app/shaders/depthmap/material"
+//= require "../../../builtin/app/shaders/paraboloid/material"
+//= require "../../../builtin/app/shaders/fog/material"
+//= require "../../../builtin/app/shaders/picking/material"
 
 Jax.Material.create("basic");
 Jax.Material.create("default", {default_shader:'basic'});

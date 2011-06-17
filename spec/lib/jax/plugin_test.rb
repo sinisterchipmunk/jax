@@ -10,13 +10,16 @@ class Jax::PluginTest < IsolatedTestCase
     boot_app
   end
   
-  test "should detect presence of plugin" do
+  test "detecting presence of plugin" do
     assert_not_empty Jax.application.plugins
   end
   
-  test "should add the plugin to shader load paths" do
+  test "plugin shaders" do
     assert_not_nil Jax.application.shaders.find("cloud")
-    assert_equal File.join(app_path, "vendor/plugins/cloud/app/shaders/cloud"),
-                 Jax.application.shaders.find("cloud").path
+    assert_equal abs("vendor/plugins/cloud/app/shaders/cloud"), Jax.application.shaders.find("cloud").path
+  end
+  
+  test "plugin paths" do
+    assert_contains abs("vendor/plugins/cloud"), Jax.application.javascript_source_roots
   end
 end

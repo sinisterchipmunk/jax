@@ -12,15 +12,25 @@ Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each do |fi|
   require fi
 end
 
-# some new assertions. Actually I think these exist for Ruby 1.9, but not 1.8.
 class Test::Unit::TestCase
   def assert_not_empty(ary)
     assert_not_equal 0, ary.length, "Expected #{ary.inspect} to not be empty"
-  end unless method_defined?(:assert_not_empty)
+  end
   
   def assert_empty(ary)
     assert_equal 0, ary.length, "Expected #{ary.inspect} to be empty"
-  end unless method_defined?(:assert_empty)
+  end
+  
+  def assert_contains(obj, ary)
+    assert_not_nil ary.index(obj), "Expected #{ary.inspect} to contain #{obj.inspect}"
+  end
+  
+  def assert_not_contains(obj, ary)
+    assert_nil ary.index(obj), "Expected #{ary.inspect} not to contain #{obj.inspect}"
+  end
+  
+  alias assert_contained assert_contains
+  alias assert_not_contained assert_not_contains
 end
 
 include FixturesHelper

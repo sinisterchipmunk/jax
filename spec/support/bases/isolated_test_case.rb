@@ -23,6 +23,10 @@ module TestHelpers
     def jax_root
       app_path
     end
+
+    def abs(relative)
+      File.join(app_path, relative)
+    end
   end
   
   module Generation

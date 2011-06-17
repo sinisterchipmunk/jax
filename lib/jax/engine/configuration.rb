@@ -6,7 +6,7 @@ class Jax::Engine::Configuration < Rails::Railtie::Configuration
   def initialize(path = nil)
     super()
     if defined?(JAX_ROOT)
-      path = JAX_ROOT
+      path ||= JAX_ROOT
     end
 
     @root = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? Pathname.new(path).expand_path : Pathname.new(path).realpath
@@ -14,10 +14,7 @@ class Jax::Engine::Configuration < Rails::Railtie::Configuration
 
   def paths
     @paths ||= begin
-      builtin = Pathname.new(File.expand_path("../../../builtin", File.dirname(__FILE__)))
       paths = Rails::Paths::Root.new(@root)
-      paths.builtin             builtin.to_s
-      paths.builtin.shaders     builtin.join("shaders").to_s
       paths.app                 "app",                 :glob => "*"
       paths.app.controllers     "app/controllers"
       paths.app.helpers         "app/helpers"

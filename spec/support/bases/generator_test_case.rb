@@ -9,7 +9,7 @@ class Jax::Generators::TestCase < Rails::Generators::TestCase
   def self.inherited(base)
     super
     base.class_eval do
-      destination File.join(Jax.framework_root, "tmp/tmp")
+      destination Jax.application ? Jax.root : File.expand_path('../tmp/tmp', Jax.framework_root)
       setup :prepare_destination
       teardown :restore_streams
       
@@ -26,8 +26,10 @@ class Jax::Generators::TestCase < Rails::Generators::TestCase
   end
   
   setup do
-    require 'test_app'
-    self.class.destination Jax.root
+    unless Jax.application || self.class.include?(TestHelpers::Generation)
+      require 'test_app'
+      self.class.destination Jax.root
+    end
   end
   
   def generate(*args)

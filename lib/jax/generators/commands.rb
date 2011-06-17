@@ -72,6 +72,7 @@ module Jax
     autoload :Material,    "jax/generators/material/material_generator"
     autoload :Shader,      "jax/generators/shader/shader_generator"
     autoload :Plugin,      "jax/generators/plugin/all"
+    autoload :Packager,    "jax/generators/packager/package_generator"
   end
 end
 
@@ -117,6 +118,11 @@ class JaxGeneratorInvoker < Thor
   desc "plugin NAME", "generates a new plugin"
   def plugin(*args)
     Jax::Generators::Plugin::PluginGenerator.start(args)
+  end
+  
+  desc "package", "packages this Jax application in preparation for deployment"
+  def package(*args)
+    Jax::Generators::Packager::PackageGenerator.start(args)
   end
 end
 

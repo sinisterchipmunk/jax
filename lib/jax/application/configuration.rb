@@ -27,10 +27,6 @@ class Jax::Application::Configuration < Jax::Engine::Configuration
     end
   end
   
-  def shader_load_paths
-    paths.app.shaders.paths + paths.builtin.shaders.paths
-  end
-  
   def plugin_repository_url
     @plugin_repository_url ||=
       @config_file[:plugin_repository_url] ||
