@@ -4,6 +4,7 @@ require 'fileutils'
 require 'rubygems'
 require 'test/unit'
 require 'active_support/testing/isolation'
+require 'active_support/testing/declarative'
 
 module TestHelpers
   module Paths
