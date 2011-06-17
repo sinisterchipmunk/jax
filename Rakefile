@@ -185,7 +185,7 @@ namespace :test do
     else
       Dir["spec/#{dir}/*_test.rb"].each do |file|
         next true if file.include?("fixtures")
-        sh(ruby, '-Ispec', File.expand_path(file, File.dirname(__FILE)))
+        sh(ruby, '-Ispec', File.expand_path(file, File.dirname(__FILE__)))
       end
     end
   end
