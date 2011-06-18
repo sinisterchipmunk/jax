@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module Model
-      class ModelGenerator < Jax::Generators::Command
+      class ModelGenerator < Jax::Generators::PluggableCommand
         include Thor::Actions
         argument :model_name
 

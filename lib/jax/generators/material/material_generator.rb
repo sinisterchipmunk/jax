@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module Material
-      class MaterialGenerator < Jax::Generators::Command
+      class MaterialGenerator < Jax::Generators::PluggableCommand
         include Thor::Actions
         argument :name, :desc => "The name of this material", :banner => "[name]"
         class_option :append, :default => false, :type => :boolean

@@ -3,7 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module LightSource
-      class LightSourceGenerator < Jax::Generators::Command
+      class LightSourceGenerator < Jax::Generators::PluggableCommand
         include Thor::Actions
         argument :name, :desc => "The name of this light source", :banner => "[name]"
         argument :type, :default => "point", :desc => "The light type: one of 'point', 'spot', 'directional'",

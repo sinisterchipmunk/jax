@@ -1,8 +1,6 @@
 require 'test_helper'
 
 class Jax::Generators::Controller::ControllerGeneratorTest < Jax::Generators::TestCase
-  include TestHelpers::Paths
-  include TestHelpers::Generation
   setup :copy_routes
 
   test "with no arguments" do
@@ -22,6 +20,9 @@ class Jax::Generators::Controller::ControllerGeneratorTest < Jax::Generators::Te
     assert_file "spec/javascripts/controllers/welcome_controller_spec.js"
   end
   
+  include TestHelpers::Paths
+  include TestHelpers::Generation
+
   test "in plugin" do
     build_app
     plugin_generator 'clouds'
