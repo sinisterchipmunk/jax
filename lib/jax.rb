@@ -36,7 +36,8 @@ module Jax
       JAX_FRAMEWORK_ROOT
     end
     
-    delegate :shader_load_paths, :javascript_load_paths, :plugin_repository_url, :to => :application
+    delegate :shader_load_paths, :javascript_load_paths, :plugin_repository_url, :default_plugin_repository_url,
+             :plugin_repository_url=, :to => :application
   end
 end
 

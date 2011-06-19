@@ -1,6 +1,12 @@
 module Jax
   module Generators
     module Plugin
+      class ResponseError < StandardError
+        def initialize(message)
+          super("#{message} Make sure your firewall isn't injecting invalid responses.")
+        end
+      end
+      
       def rest_resource(name, accept = :xml)
         url = Jax.plugin_repository_url
         url.concat "/" unless url =~ /\/$/
@@ -58,7 +64,8 @@ module Jax
       
       def find_plugin_list(hash_containing_plugin_list)
         hash_containing_plugin_list['jax_plugins'] ||
-          raise(ResponseError.new("Fatal: couldn't find plugin list."))
+        hash_containing_plugin_list['nil_classes'] ||
+        raise(ResponseError.new("Fatal: couldn't find plugin list."))
       end
       
       def get_remote_plugins_matching(name = nil)

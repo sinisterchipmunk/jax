@@ -9,7 +9,6 @@ module Jax
         argument :name
         class_option :local, :type => :boolean, :desc => "Does not connect to the plugin server for any reason",
                      :default => false
-        include Thor::Actions
         include Jax::Generators::Plugin
         include Jax::Generators::Interactions
         
@@ -17,10 +16,19 @@ module Jax
           return if options[:local]
           
           message = catch :aborted do
-            plugins = find_plugin_list get_remote_plugins_matching(name)
-            if plugins.length == 1 && (plugin = plugins.shift)['name'].downcase == name.downcase
-              say "A plugin named '#{name}' would conflict with an existing upstream plugin called '#{plugin['name']}'."
-              prompt_yn "Attempts to publish your plugin will be rejected. Are you sure you wish to proceed?"
+            begin
+              plugins = find_plugin_list get_remote_plugins_matching(name)
+              if plugins.length == 1 && (plugin = plugins.shift)['name'].downcase == name.downcase
+                say "A plugin named '#{name}' would conflict with an existing upstream plugin called '#{plugin['name']}'."
+                prompt_yn "Attempts to publish your plugin will be rejected. Are you sure you wish to proceed?"
+              end
+            rescue RestClient::Exception, Errno::ECONNREFUSED
+              say $!.message
+              say ""
+              say "An error occurred while checking for conflicting plugin names. If"
+              say "a plugin named '#{name}' already exists, you will not be able to"
+              say "publish your plugin until it is renamed."
+              prompt_yn "Do you wish to continue? "
             end
             nil
           end

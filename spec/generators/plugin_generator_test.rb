@@ -9,11 +9,51 @@ class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
     vendor/plugins/cloud/config/routes.rb
   )
   
+  setup do
+    Jax.plugin_repository_url = Jax.default_plugin_repository_url
+  end
+  
+  test "remote repo unavailable with confirmation" do
+    Jax.application.plugin_repository_url = "http://nowhere.example.com"
+    
+    stdin.returns "y\n"
+    result = generate "cloud"
+    
+    assert_match /an error occurred/i, result
+    EXPECTED_FILES.each do |fi|
+      assert_file fi
+    end
+  end
+  
+  test "remote repo unavailable with abort" do
+    Jax.application.plugin_repository_url = "http://nowhere.example.com"
+    
+    stdin.returns "n\n"
+    result = generate "cloud"
+    
+    assert_match /aborted/, result
+    EXPECTED_FILES.each do |fi|
+      assert_no_file fi
+    end
+  end
+  
+  test "a new plugin not in repo" do
+    # is this not a double of 'clean new plugin'? why does that one not fail?
+    # probably screwed up the fixture somehow. wutevs, this test is the real
+    # deal.
+    generate "missing"
+    
+    EXPECTED_FILES.each do |fi|
+      assert_file fi.gsub(/cloud/, 'missing')
+    end
+  end
+  
   test "a clean new plugin" do
     generate "cloud"
     
-    assert_file "vendor/plugins/cloud/install.rb"
-    assert_file "vendor/plugins/cloud/uninstall.rb"
+    EXPECTED_FILES.each do |fi|
+      assert_file fi
+    end
   end
   
   test "files" do

@@ -63,7 +63,7 @@ module Jax
 
     delegate :root, :to => :config
     delegate :routes, :to => :config
-    delegate :plugin_repository_url, :to => :config
+    delegate :plugin_repository_url, :plugin_repository_url=, :default_plugin_repository_url, :to => :config
     
     def shader_load_paths
       if !@shader_load_paths

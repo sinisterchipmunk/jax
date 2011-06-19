@@ -3,8 +3,7 @@ require 'active_support/core_ext'
 module Jax
   module Generators
     module Shader
-      class ShaderGenerator < Jax::Generators::Command
-        include Thor::Actions
+      class ShaderGenerator < Jax::Generators::PluggableCommand
         argument :name, :desc => "The name of this shader", :banner => "[name]"
 
         def self.source_root
@@ -12,7 +11,7 @@ module Jax
         end
 
         def check_conflicts
-          if Jax.application.shaders.find(file_name)
+          if Jax.application.shaders.find(file_name) && behavior != :revoke
             raise ArgumentError, "A shader called '#{file_name}' already exists!"
           end
         end

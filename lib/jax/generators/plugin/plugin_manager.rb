@@ -7,12 +7,6 @@ module Jax
   module Generators
     module Plugin
       class PluginManager < Thor
-        class ResponseError < StandardError
-          def initialize(message)
-            super("#{message} Make sure your firewall isn't injecting invalid responses.")
-          end
-        end
-        
         include Thor::Actions
         include Jax::Generators::Plugin
         include Jax::Generators::Interactions

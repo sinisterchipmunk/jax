@@ -48,6 +48,7 @@ module Jax
     end
     
     class Command < Thor::Group
+      include Thor::Actions
       include Jax::Generators::Usage
       
       no_tasks do
@@ -89,52 +90,54 @@ module Jax
 end
 
 class JaxGeneratorInvoker < Thor
+  include Thor::Actions
+  
   def self.basename
     "jax generate"
   end
 
   desc "controller NAME", "generates a new controller"
   def controller(*args)
-    Jax::Generators::Controller::ControllerGenerator.start(args)
+    Jax::Generators::Controller::ControllerGenerator.start(args, :behavior => behavior)
   end
   
   desc "model NAME", "generates a new model"
   def model(*args)
-    Jax::Generators::Model::ModelGenerator.start(args)
+    Jax::Generators::Model::ModelGenerator.start(args, :behavior => behavior)
   end
   
   desc "light NAME TYPE", "generates a new light source"
   def light(*args)
-    Jax::Generators::LightSource::LightSourceGenerator.start(args)
+    Jax::Generators::LightSource::LightSourceGenerator.start(args, :behavior => behavior)
   end
   
   desc "material NAME", "generates a new material"
   def material(*args)
     args = ARGV.dup
-    2.times { args.shift }
-    Jax::Generators::Material::MaterialGenerator.start(args)
+    args.shift
+    Jax::Generators::Material::MaterialGenerator.start(args, :behavior => behavior)
   end
 
   desc "scaffold NAME", "generates a controller, model and material, all with the same name"
   def scaffold(name)
-    Jax::Generators::Controller::ControllerGenerator.start([name, 'index'])
-    Jax::Generators::Model::ModelGenerator.start([name])
-    Jax::Generators::Material::MaterialGenerator.start([name])
+    Jax::Generators::Controller::ControllerGenerator.start([name, 'index'], :behavior => behavior)
+    Jax::Generators::Model::ModelGenerator.start([name], :behavior => behavior)
+    Jax::Generators::Material::MaterialGenerator.start([name], :behavior => behavior)
   end
 
   desc "shader NAME", "generates a new custom shader"
   def shader(*name)
-    Jax::Generators::Shader::ShaderGenerator.start(name)
+    Jax::Generators::Shader::ShaderGenerator.start(name, :behavior => behavior)
   end
   
   desc "plugin NAME", "generates a new plugin"
   def plugin(*args)
-    Jax::Generators::Plugin::PluginGenerator.start(ARGV[1..-1])
+    Jax::Generators::Plugin::PluginGenerator.start(ARGV[1..-1], :behavior => behavior)
   end
   
   desc "package", "packages this Jax application in preparation for deployment"
   def package(*args)
-    Jax::Generators::Packager::PackageGenerator.start(args)
+    Jax::Generators::Packager::PackageGenerator.start(args, :behavior => behavior)
   end
 end
 
@@ -143,7 +146,7 @@ class JaxGenerator
   
   COMMANDS = {
     "generate" => "Generate new code",
-    #"destroy"  => "Undo code generated with \"generate\"",
+    "destroy"  => "Undo code generated with \"generate\"",
     "plugin"   => "Install a plugin"
   } unless defined?(COMMANDS)
   ALIASES = { "g" => "generate" } unless defined?(ALIASES)
@@ -161,6 +164,10 @@ class JaxGenerator
   
   def generate
     JaxGeneratorInvoker.start
+  end
+  
+  def destroy
+    JaxGeneratorInvoker.start(ARGV, :behavior => :revoke)
   end
   
   def plugin

@@ -4,7 +4,6 @@ module Jax
   module Generators
     module Material
       class MaterialGenerator < Jax::Generators::PluggableCommand
-        include Thor::Actions
         argument :name, :desc => "The name of this material", :banner => "[name]"
         class_option :append, :default => false, :type => :boolean
         

@@ -35,7 +35,9 @@ end
 
 include FixturesHelper
 FakeWeb.allow_net_connect = false
+FakeWeb.register_uri(:get, "http://nowhere.example.com/plugins/cloud", :response => fixture('web/plugins/404.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins", :response => fixture('web/plugins/all.xml'))
+FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/missing", :response => fixture('web/plugins/none.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/cloud", :response => fixture('web/plugins/clouds.xml'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/clouds", :response => fixture('web/plugins/clouds.xml'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/vertex-blob", :response => fixture('web/plugins/vertex-blob.xml'))

@@ -4,7 +4,6 @@ module Jax
   module Generators
     module Controller
       class ControllerGenerator < Jax::Generators::PluggableCommand
-        include Thor::Actions
         argument :controller_name
         attr_reader :actions, :action_name
 

@@ -4,7 +4,6 @@ module Jax
   module Generators
     module Model
       class ModelGenerator < Jax::Generators::PluggableCommand
-        include Thor::Actions
         argument :model_name
 
         def self.source_root
@@ -20,7 +19,6 @@ module Jax
         end
         
         def resources
-#          empty_directory File.join("app", "resources", plural_name)
           create_file File.join("app", "resources", plural_name, "default.yml"), "# default attribute values\n# (these will apply to all #{plural_name})"
         end
         

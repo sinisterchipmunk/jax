@@ -2,6 +2,7 @@ require 'yaml'
 
 class Jax::Application::Configuration < Jax::Engine::Configuration
   attr_accessor :view_paths
+  attr_writer :plugin_repository_url
   
   def initialize(*)
     super
@@ -27,11 +28,15 @@ class Jax::Application::Configuration < Jax::Engine::Configuration
     end
   end
   
+  def default_plugin_repository_url
+    "http://plugins.jaxgl.com/"
+  end
+  
   def plugin_repository_url
     @plugin_repository_url ||=
       @config_file[:plugin_repository_url] ||
       ENV['JAX_PLUGIN_REPOSITORY_URL'] ||
-      "http://plugins.jaxgl.com/"
+      default_plugin_repository_url
       
     @plugin_repository_url.dup # so that it can't be edited in-place
   end
