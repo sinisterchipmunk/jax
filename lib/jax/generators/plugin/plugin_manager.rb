@@ -98,6 +98,7 @@ module Jax
               say "this file before continuing."
               say ""
               Jax::Plugin::Manifest.new(plugin_name).save
+              say_status :created, "manifest.yml", :green
             end
           else
             say_status :aborted, "Please run this script from within a plugin directory.", :red

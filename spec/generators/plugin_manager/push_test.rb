@@ -43,6 +43,7 @@ class Jax::Generators::Plugin::PluginManagerPushTest < Jax::Generators::TestCase
     result = generate "push"
   
     assert_match /manifest is missing/i, result
+    assert_match /create/, result
     assert_file manifest
   end
   
