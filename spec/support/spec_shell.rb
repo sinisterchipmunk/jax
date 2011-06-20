@@ -11,6 +11,8 @@ class SpecShell < Thor::Shell::Basic
     @_stdout = options[:out] || ''
     @stdout = StringIO.new(@_stdout.dup)
     @stderr = StringIO.new(options[:err] || '')
+    
+    prepare_stdin
   end
   
   def clear
@@ -98,5 +100,11 @@ class SpecShell < Thor::Shell::Basic
 
   def error(statement)
     @stderr.puts statement
+  end
+  
+  def prepare_stdin
+    def @stdin.returns(*args)
+      self.string = args.flatten.join("\n") + "\n"
+    end
   end
 end

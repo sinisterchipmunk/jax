@@ -108,5 +108,6 @@ module Jax
   end
 end
 
+require File.join(File.dirname(__FILE__), "credentials")
 require File.join(File.dirname(__FILE__), "plugin_generator")
 require File.join(File.dirname(__FILE__), "plugin_manager")

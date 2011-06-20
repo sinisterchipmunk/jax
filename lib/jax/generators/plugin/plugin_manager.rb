@@ -81,7 +81,27 @@ module Jax
                   "account, you will be prompted to create one. The name of the plugin "   \
                   "must be unique."
         def push
-          raise "Pushing plugins to the Jax plugin repo is not yet implemented"
+          if ENV['JAX_CWD'] && ENV['JAX_CWD'] =~ /^#{Regexp::escape Jax.root.join("vendor/plugins").to_s}\/?([^\/]+)(\/|$)/
+            plugin_name = $1
+            plugin_dir = Jax.root.join("vendor/plugins", plugin_name)
+            manifest = plugin_dir.join("manifest.yml").to_s
+            if File.exist? manifest
+              manifest = Jax::Plugin::Manifest.find(plugin_name)
+              if manifest.description.blank?
+                say "Please enter a plugin description in the manifest.yml file"
+              else
+                publish_plugin manifest
+              end
+            else
+              say "Plugin manifest is missing!"
+              say "A default manifest file will be written. Please modify "
+              say "this file before continuing."
+              say ""
+              Jax::Plugin::Manifest.new(plugin_name).save
+            end
+          else
+            say_status :aborted, "Please run this script from within a plugin directory.", :red
+          end
         end
         
         desc "list [NAME]", "Lists all plugins, or searches for a plugin by the specified name"
@@ -117,6 +137,38 @@ module Jax
         end
 
         protected
+        def publish_plugin(manifest)
+          credentials = Jax::Generators::Plugin::Credentials.new
+          api_key = credentials.api_key
+          tmp = Jax.application.config.paths.tmp.to_a.first
+          file = File.join(tmp, "#{manifest.name}-#{manifest.version}.tgz")
+          FileUtils.mkdir_p File.dirname(file) unless File.directory?(File.dirname(file))
+          tar = File.open(file, "wb")
+          Archive::Tar::Minitar.pack(Jax.root.join("vendor/plugins", manifest.name).to_s, tar) # closes tar
+          plugin = {
+            :single_access_token => api_key,
+            :plugin => {
+              :name => manifest.name,
+              :description => manifest.description,
+              :version => manifest.version,
+              :stream => File.new(file, "r")
+            }
+          }
+          
+          begin
+            res = Hash.from_xml(credentials.author['plugins'].post plugin)
+            # puts res.inspect
+            say_status :done, "Plugin #{File.basename(file)} published", :green
+          rescue RestClient::RequestFailed
+            res = Hash.from_xml($!.http_body)
+            if error = res['hash'] && res['hash']['error']
+              say_status :error, error, :red
+            else
+              say_status :error, "A server-side error has occurred.", :red
+            end
+          end
+        end
+        
         def uninstall_plugin(name, plugin_path)
           run_uninstall_script plugin_path
           FileUtils.rm_rf plugin_path

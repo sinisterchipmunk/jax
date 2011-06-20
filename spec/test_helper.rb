@@ -47,3 +47,8 @@ FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/clouds.tgz?version=
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/clouds.tgz?version=1.0.0", :response => fixture('web/plugins/example.tgz.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/vertex-blob.tgz?version=1.0.0", :response => fixture('web/plugins/example.tgz.http'))
 FakeWeb.register_uri(:get, "http://plugins.jaxgl.com/plugins/vertex-height-map.tgz?version=1.0.1", :response => fixture('web/plugins/example.tgz.http'))
+FakeWeb.register_uri(:get, "http://missing%40gmail.com:password@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/login_not_found.xml.http'))
+FakeWeb.register_uri(:get, "http://missing%40gmail.com:invalid@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/login_password_invalid.xml.http'))
+FakeWeb.register_uri(:post, "http://missing%40gmail.com:password@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/create_account.xml.http'))
+FakeWeb.register_uri(:get, "http://sinisterchipmunk%40gmail.com:password@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/login_existing_account.xml.http'))
+FakeWeb.register_uri(:post, "http://plugins.jaxgl.com/author/plugins", :response => fixture('web/plugins/author/create_new_plugin.xml.http'))

@@ -67,6 +67,9 @@ module TestHelpers
       destination = File.join(app_path, "vendor/plugins", name, "config")
       FileUtils.mkdir_p destination
       FileUtils.cp routes, File.join(destination, "routes.rb")
+      File.open(File.join(destination, "../manifest.yml"), "w") do |f|
+        f.print({'name'=>name,'description'=>'','version'=>'1.0.0'}.to_yaml)
+      end
       Bukkit.new(dir).tap do |bukkit|
         yield bukkit if block_given?
       end

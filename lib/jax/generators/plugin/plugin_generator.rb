@@ -57,6 +57,10 @@ module Jax
           directory "new_plugin", plugin_base_directory
         end
         
+        def create_manifest
+          Jax::Plugin::Manifest.new(name).save
+        end
+        
         private
         def plugin_base_directory
           Jax.root.join("vendor/plugins", name).to_s

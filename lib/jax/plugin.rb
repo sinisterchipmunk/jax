@@ -2,6 +2,8 @@ require 'active_support/core_ext'
 require 'rails/initializable'
 
 class Jax::Plugin < Jax::Engine
+  autoload :Manifest, 'jax/plugin/manifest'
+  
   attr_reader :relative_path
   
   class << self
@@ -24,6 +26,13 @@ class Jax::Plugin < Jax::Engine
   def initialize(path)
     super()
     @relative_path = path
+  end
+  
+  def manifest
+    @manifest ||= begin
+      manifest = Jax::Plugin::Manifest.new(name)
+      manifest.load
+    end
   end
   
   def full_path
