@@ -88,6 +88,7 @@ describe("Jax.Controller", function() {
       for (var method_name in methods) spyOn(instance, method_name);
       Jax.routes.clear();
       SPEC_CONTEXT.current_controller = instance;
+      SPEC_CONTEXT.registerMouseListeners(instance);
     });
 
     it("should dispatch key pressed events", function() {

@@ -103,8 +103,13 @@ Jax.EVENT_METHODS = (function() {
     mouse.y = self.canvas.height - mouse.y; // invert y
 
     // calculate differences, useful for checking movement relative to last position
-    mouse.diffx = mouse.x - mouse.offsetx;
-    mouse.diffy = mouse.y - mouse.offsety;
+    if (evt.type == 'mouseover') {
+      // don't count 'mouseover' or we'll inadvertently cancel out long movements
+      mouse.diffx = mouse.diffy = 0;
+    } else {
+      mouse.diffx = mouse.x - mouse.offsetx;
+      mouse.diffy = mouse.y - mouse.offsety;
+    }
 
     // check for button presses
     if (evt.type == "mousedown" || evt.type == "onmousedown") {
@@ -162,10 +167,65 @@ Jax.EVENT_METHODS = (function() {
           'input', 'form', 'textarea', 'label', 'fieldset', 'legend', 'select', 'optgroup', 'option', 'button'
   ];
 
+  function registerListener(self, type, func) {
+    if (self.canvas.addEventListener) {
+      /* W3 */
+      self.canvas.addEventListener(type, func, false);
+    } else {
+      /* IE */
+      self.canvas.attachEvent("on"+type, func);
+    }
+  }
+
   return {
     disposeEventListeners: function() {
+      this.unregisterMouseListeners();
+      this.unregisterKeyListeners();
+    },
+    
+    registerMouseListeners: function(receiver) {
+      // we have to watch over/out to avoid problematic 'jittering' on mousemove
+      var register = {mouseover:1,mouseout:1}, name;
+      for (name in receiver) {
+        switch(name) {
+          case 'mouse_pressed' : register['mousedown'] = 1; break;
+          case 'mouse_released': register['mouseup'] = 1; break;
+          case 'mouse_dragged' : // same as mouse_moved
+          case 'mouse_moved'   : register['mousedown'] = register['mouseup'] = register['mousemove'] = 1; break;
+          case 'mouse_clicked' : register['click'] = 1; break;
+          case 'mouse_exited'  : register['mouseout'] = 1; break;
+          case 'mouse_entered' : register['mouseover'] = 1; break;
+        };
+      }
+      
+      for (name in register) {
+        if (name == 'mousemove')
+          registerListener(this, name, this._evt_mousemovefunc);
+        else
+          registerListener(this, name, this._evt_mousefunc);
+      }
+    },
+    
+    unregisterMouseListeners: function() {
       this.canvas.removeEventListener(this._evt_mousefunc);
       this.canvas.removeEventListener(this._evt_mousemovefunc);
+    },
+    
+    registerKeyListeners: function() {
+      if (this.canvas.addEventListener) {
+        /* W3 */
+        document.addEventListener('keydown',   this._evt_keyfunc,       false);
+        document.addEventListener('keypress',  this._evt_keyfunc,       false);
+        document.addEventListener('keyup',     this._evt_keyfunc,       false);
+      } else {
+        /* IE */
+        document.attachEvent('onkeydown',   this._evt_keyfunc      );
+        document.attachEvent('onkeypress',  this._evt_keyfunc      );
+        document.attachEvent('onkeyup',     this._evt_keyfunc      );
+      }
+    },
+    
+    unregisterKeyListeners: function() {
       this.canvas.removeEventListener(this._evt_keyfunc);
       document.removeEventListener('keydown', this._evt_keyfunc, false);
       document.removeEventListener('keyup', this._evt_keyfunc, false);
@@ -174,7 +234,7 @@ Jax.EVENT_METHODS = (function() {
       document.removeEventListener('onkeyup', this._evt_keyfunc, false);
       document.removeEventListener('onkeypress', this._evt_keyfunc, false);
     },
-    
+        
     setupEventListeners: function() {
       this.keyboard = {};
       this.mouse = {};
@@ -209,29 +269,10 @@ Jax.EVENT_METHODS = (function() {
         return dispatchEvent(self, evt);
       };
 
-      if (canvas.addEventListener) {
-        /* W3 */
-        canvas.addEventListener('click',     this._evt_mousefunc,     false);
-        canvas.addEventListener('mousedown', this._evt_mousefunc,     false);
-        canvas.addEventListener('mousemove', this._evt_mousemovefunc, false);
-        canvas.addEventListener('mouseout',  this._evt_mousefunc,     false);
-        canvas.addEventListener('mouseover', this._evt_mousefunc,     false);
-        canvas.addEventListener('mouseup',   this._evt_mousefunc,     false);
-        document.addEventListener('keydown',   this._evt_keyfunc,       false);
-        document.addEventListener('keypress',  this._evt_keyfunc,       false);
-        document.addEventListener('keyup',     this._evt_keyfunc,       false);
-      } else {
-        /* IE */
-        canvas.attachEvent('onclick',     this._evt_mousefunc    );
-        canvas.attachEvent('onmousedown', this._evt_mousefunc    );
-        canvas.attachEvent('onmousemove', this._evt_mousemovefunc);
-        canvas.attachEvent('onmouseout',  this._evt_mousefunc    );
-        canvas.attachEvent('onmouseover', this._evt_mousefunc    );
-        canvas.attachEvent('onmouseup',   this._evt_mousefunc    );
-        document.attachEvent('onkeydown',   this._evt_keyfunc      );
-        document.attachEvent('onkeypress',  this._evt_keyfunc      );
-        document.attachEvent('onkeyup',     this._evt_keyfunc      );
-      }
+      this.registerKeyListeners();
+      
+      // this is now done by the context
+      // this.registerMouseListeners();
     }
   };
 })();

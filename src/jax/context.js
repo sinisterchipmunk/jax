@@ -349,6 +349,8 @@ Jax.Context = (function() {
      * World, so be prepared to initialize a new scene.
      **/
     redirectTo: function(path) {
+      this.unregisterMouseListeners();
+      
       this.stopRendering();
 
       this.world.dispose();
@@ -363,6 +365,9 @@ Jax.Context = (function() {
       setupView(this, this.current_view);
       if (!this.isRendering()) this.startRendering();
       
+      if (this.current_controller && this.current_controller)
+        this.registerMouseListeners(this.current_controller);
+        
       return this.current_controller;
     },
     

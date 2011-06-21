@@ -1,4 +1,4 @@
-describe("Jax.Canvas", function() {
+describe("Jax.Context", function() {
   var context, canvas;
   
   describe("with no routes", function() {

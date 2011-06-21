@@ -1,6 +1,6 @@
 /*
-This file will set up WebGL constants as Jax.getGlobal()s prefixed with GL_, and will add
-a new Jax.getGlobal() called GL_METHODS. This will later be used for method delegation
+This file will set up WebGL constants as globals prefixed with GL_, and will add
+a new global called GL_METHODS. This will later be used for method delegation
 within Jax.Context.
  */
 
