@@ -3,6 +3,25 @@
 
 /**
  * class Jax.Camera
+ * includes Jax.Events.Methods
+ *
+ * Every object in Jax has a Camera associated with it, and is usually referred to simply
+ * as +camera+. Manipulating an object's camera is to manipulate the orientation of the
+ * object itself within the world.
+ *
+ * You can add event listeners to Jax.Camera to monitor its matrices for changes. Whenever
+ * a matrix changes, the object's orientation has been modified, so this is a good way to
+ * keep track of changes to an object's orientation. Add listeners like so:
+ *
+ *     obj = new Jax.Model( ... );
+ *     obj.camera.addEventListener('matrixUpdated', function() {
+ *       // the object's orientation has changed
+ *     });
+ *
+ * Note that no arguments are passed into the event listener in this case.
+ *
+ * See Jax.Events for more information about event listeners.
+ *
  **/
 Jax.Camera = (function() {
   // used in tandem with _tmp[], see below

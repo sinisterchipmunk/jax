@@ -3,6 +3,8 @@
 
 /**
  * class Jax.Context
+ * includes Jax.Events.Methods
+ *
  * The highest level of operation in Jax. Initialization is simple:
  * 
  *     var context = new Jax.Context(canvas);
