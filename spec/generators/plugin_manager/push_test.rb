@@ -17,6 +17,7 @@ class Jax::Generators::Plugin::PluginManagerPushTest < Jax::Generators::TestCase
     manifest.save
     
     # how to test success? A file has been uploaded. For now we'll just verify nothing raised...
+    stdin.returns "sinisterchipmunk@gmail.com\npassword\n"
     assert_nothing_raised do
       result = generate "push"
     end

@@ -269,6 +269,8 @@ Jax.Framebuffer = (function() {
     
     /** deprecated
      * Jax.Framebuffer#getTextureBuffer(context, index) -> Jax.Texture
+     *
+     * This method is deprecated. See Jax.Framebuffer#getTexture instead.
      **/
     getTextureBuffer: function(context, index) {
       alert("Jax.Framebuffer#getTextureBuffer(context, index) is deprecated.\n"+
@@ -280,6 +282,8 @@ Jax.Framebuffer = (function() {
     
     /** deprecated
      * Jax.Framebuffer#getTextureBufferHandle(context, index) -> WebGLTexture
+     *
+     * This method is deprecated. See Jax.Framebuffer#getTextureHandle instead.
      **/
     getTextureBufferHandle: function(context, index) {
       alert("Jax.Framebuffer#getTextureBufferHandle(context, index) is deprecated.\n"+

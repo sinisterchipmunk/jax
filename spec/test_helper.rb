@@ -51,4 +51,4 @@ FakeWeb.register_uri(:get, "http://missing%40gmail.com:password@plugins.jaxgl.co
 FakeWeb.register_uri(:get, "http://missing%40gmail.com:invalid@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/login_password_invalid.xml.http'))
 FakeWeb.register_uri(:post, "http://missing%40gmail.com:password@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/create_account.xml.http'))
 FakeWeb.register_uri(:get, "http://sinisterchipmunk%40gmail.com:password@plugins.jaxgl.com/author", :response => fixture('web/plugins/author/login_existing_account.xml.http'))
-FakeWeb.register_uri(:post, "http://plugins.jaxgl.com/author/plugins", :response => fixture('web/plugins/author/create_new_plugin.xml.http'))
+FakeWeb.register_uri(:post, "http://sinisterchipmunk%40gmail.com:password@plugins.jaxgl.com/author/plugins", :response => fixture('web/plugins/author/create_new_plugin.xml.http'))
