@@ -74,8 +74,10 @@ task :compile do
   end
 
   puts "generated #{File.join(jax_root, "dist/jax.js")}"
-  cp File.join(jax_root, "dist/jax.js"),
-     File.join(jax_root, "lib/jax/generators/app/templates/public/javascripts/jax.js")
+  
+  # this is now handled by :minify
+  # cp File.join(jax_root, "dist/jax.js"),
+  #    File.join(jax_root, "lib/jax/generators/app/templates/public/javascripts/jax.js")
   
   puts "(project built)"
 end
