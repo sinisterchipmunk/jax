@@ -181,31 +181,132 @@ Jax.Framebuffer = (function() {
         callback();
         this.unbind(context);
       }
+      
+      return this;
     },
     
+    /**
+     * Jax.Framebuffer#bind(context[, callback]) -> Jax.Framebuffer
+     * - context (Jax.Context): the context to bind this framebuffer to
+     * - callback (Function): an optional callback. If given, the framebuffer will
+     *                        be automatically unbound after the function returns.
+     *
+     * If a callback is not specified, the framebuffer will be bound and then returned.
+     * Otherwise, the framebuffer will be bound; the callback will be called; then the
+     * framebuffer will be automatically unbound prior to returning the framebuffer
+     * itself.
+     *
+     **/
     bind: function(context, callback) {
       if (!this.getHandle(context)) build(context, this);
       context.glBindFramebuffer(GL_FRAMEBUFFER, this.getHandle(context));
-      
       
       if (callback) {
         callback.call(this);
         this.unbind(context);
       }
+      
+      return this;
     },
     
+    /**
+     * Jax.Framebuffer#unbind(context) -> Jax.Framebuffer
+     * - context (Jax.Context): the context to bind this framebuffer to
+     *
+     * Unbinds this framebuffer from the specified context. Note that this is
+     * unnecessary if Jax.Framebuffer#bind() was called with a callback.
+     **/
     unbind: function(context) {            
       context.glBindFramebuffer(GL_FRAMEBUFFER, null);
+      return this;
     },
     
+    /**
+     * Jax.Framebuffer#viewport(context) -> Jax.Framebuffer
+     * - context (Jax.Context): the context to set the viewport for
+     *
+     * Sets the viewport up for this framebuffer within the specified context
+     * according to the +width+ and +height+ options given for this framebuffer.
+     *
+     **/
     viewport: function(context) {
       context.glViewport(0,0,this.options.width,this.options.height);
+      return this;
     },
     
-    getTextureBuffer: function(context, index) { return this.getHandle(context) && this.getHandle(context).textures[index]; },
-    getTextureBufferHandle: function(context, index) { return this.getTextureBuffer().getHandle(context); },
+    /**
+     * Jax.Framebuffer#getTexture(context[, index]) -> Jax.Texture
+     * - context (Jax.Context): the context to retrieve the texture for
+     * - index (Number): the numeric index of the texture to retrieve.
+     *                   Defaults to 0.
+     *
+     * Returns the specified instance of Jax.Texture associated with this
+     * framebuffer and the specified context. If index is not given, the
+     * first texture available is returned.
+     **/
+    getTexture: function(context, index) {
+      return this.getHandle(context) && this.getHandle(context).textures[index];
+    },
     
+    /**
+     * Jax.Framebuffer#getTextureHandle(context[, index]) -> WebGLTexture
+     * - context (Jax.Context): the context to retrieve the texture handle for
+     * - index (Number): the numeric index of the texture handle to retrieve.
+     *                   Defaults to 0.
+     *
+     * Returns the WebGL texture handle associated with this
+     * framebuffer and the specified context. If index is not given, the
+     * first texture available is returned.
+     *
+     * This is equivalent to:
+     * 
+     *     framebuffer.getTexture(context, index).getHandle(context);
+     *
+     **/
+    getTextureHandle: function(context, index) {
+      return this.getTexture(context, index).getHandle(context);
+    },
+    
+    /** deprecated
+     * Jax.Framebuffer#getTextureBuffer(context, index) -> Jax.Texture
+     **/
+    getTextureBuffer: function(context, index) {
+      alert("Jax.Framebuffer#getTextureBuffer(context, index) is deprecated.\n"+
+            "Please use Jax.Framebuffer#getTexture(context, index) instead.\n\n"+
+            "Stack trace:\n\n"+
+            (new Error().stack || "(unavailable)"));
+      return this.getTexture(context, index);
+    },
+    
+    /** deprecated
+     * Jax.Framebuffer#getTextureBufferHandle(context, index) -> WebGLTexture
+     **/
+    getTextureBufferHandle: function(context, index) {
+      alert("Jax.Framebuffer#getTextureBufferHandle(context, index) is deprecated.\n"+
+            "Please use Jax.Framebuffer#getTextureHandle(context, index) instead.\n\n"+
+            "Stack trace:\n\n"+
+            (new Error().stack || "(unavailable)"));
+      return this.getTextureHandle(context, index);
+    },
+    
+    /**
+     * Jax.Framebuffer#getHandle(context) -> WebGLFramebuffer | undefined
+     * - context (Jax.Context): the context the requested framebuffer handle is associated with
+     * 
+     * Returns the WebGLFramebuffer handle associated with the specified context.
+     **/
     getHandle: function(context) { return this.handles[context.id]; },
-    setHandle: function(context, handle) { this.handles[context.id] = handle; }
+    
+    /**
+     * Jax.Framebuffer#getHandle(context, handle) -> Jax.Framebuffer
+     * - context (Jax.Context): the context the requested framebuffer handle is associated with
+     * - handle (WebGLFramebuffer): the WebGL framebuffer handle to use for the specified context
+     * 
+     * Assigns the specified handle to be used for the given context. This is a permanent
+     * assignment unless this method is called again.
+     *
+     * Returns this instance of Jax.Framebuffer.
+     **/
+    setHandle: function(context, handle) { this.handles[context.id] = handle; return this; }
   });
 })();

@@ -108,16 +108,13 @@ Jax.Scene.LightSource = (function() {
     
     getShadowMapTexture: function(context) {
       setupProjection(this);
-      return this.framebuffers[0].getTextureBuffer(context, 0);
-//      return this.framebuffers[0].getTextureBufferHandle(context, 0);
+      return this.framebuffers[0].getTexture(context, 0);
     },
     
     getShadowMapTextures: function(context) {
       setupProjection(this);
-      return [this.framebuffers[0].getTextureBuffer(context, 0),
-              this.framebuffers[1].getTextureBuffer(context, 0)];
-//      return [this.framebuffers[0].getTextureBufferHandle(context, 0),
-//              this.framebuffers[1].getTextureBufferHandle(context, 0)];
+      return [this.framebuffers[0].getTexture(context, 0),
+              this.framebuffers[1].getTexture(context, 0)];
     },
     
     isShadowMapEnabled: function() {
