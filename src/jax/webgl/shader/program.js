@@ -120,10 +120,8 @@ Jax.Shader.Program = (function() {
           context.glDrawArrays(options.draw_mode, 0, buffer.length);
         }
       } catch(e) {
-        var message = "Fatal error encountered while drawing mesh:\n\n"+e+"\n\nShaders: "+this.getShaderNames();
-        alert(message);
-        console.error(message);
-        throw e;
+        var error = new Error("Fatal error encountered while drawing mesh:\n\n"+e+"\n\nShaders: "+this.getShaderNames());
+        Jax.reraise(e, error);
       }
     },
     

@@ -53,7 +53,7 @@ Jax.getGlobal()['GL_METHODS'] = {};
                  + "      for (i = 0; i < arguments.length; i++) args.push(arguments[i]);"
                  + "      try { args = JSON.stringify(args); } catch(jsonErr) { args = args.toString(); }"
                  + "      if (!e.stack) e = new Error(e.toString());"
-                 + "      alert(e+\"\\n\\n\"+e.stack);"
+//                 + "      alert(e+\"\\n\\n\"+e.stack);"
                  + "      this.handleRenderError('"+method_name+"', args, e);"
                  + "    }"
                  + "  }"

@@ -4,7 +4,7 @@ describe("Jax.Canvas", function() {
   describe("with no routes", function() {
     beforeEach(function() { 
       Jax.routes.clear();
-      var canvas = document.createElement('canvas');
+      canvas = document.createElement('canvas');
       canvas.setAttribute("id", "c");
       canvas.setAttribute("width", "100");
       canvas.setAttribute("height", "100");
@@ -100,6 +100,7 @@ describe("Jax.Canvas", function() {
       Jax.routes.root(Jax.Controller.create("welcome", {index: function() { action_called++; }}), "index");
       Jax.views.push("welcome/index", function() {
         this.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        this.world.render();
         view_called++;
       });
       context = new Jax.Context(SPEC_CONTEXT.canvas);
@@ -108,6 +109,51 @@ describe("Jax.Canvas", function() {
   
     it("should be rendering, because there's a controller", function() {
       expect(context.isRendering()).toBeTruthy();
+    });
+    
+    it("should fire onError events during render", function() {
+      var fired = false;
+      context.addEventListener('error', function(error) {
+        // silence error. this prevents console.log() and alert() from firing.
+        error.silence = true;
+        fired = true;
+        expect(error.phase).toEqual('render');
+      });
+      
+      var obj = new Jax.Model();
+      obj.render = function() { throw new Error("err"); };
+      context.world.addObject(obj);
+      
+      waitsFor(function() { return fired; });
+    });
+
+    it("should fire onError events during object update", function() {
+      var fired = false;
+      context.addEventListener('error', function(error) {
+        // silence error. this prevents console.log() and alert() from firing.
+        error.silence = true;
+        fired = true;
+        expect(error.phase).toEqual('update');
+      });
+      
+      var obj = new Jax.Model();
+      obj.update = function() { throw new Error("err"); };
+      context.world.addObject(obj);
+      
+      waitsFor(function() { return fired; });
+    });
+
+    it("should fire onError events during controller update", function() {
+      var fired = false;
+      context.addEventListener('error', function(error) {
+        // silence error. this prevents console.log() and alert() from firing.
+        error.silence = true;
+        fired = true;
+        expect(error.phase).toEqual('update');
+      });
+      
+      context.current_controller.update = function() { throw new Error("err"); };
+      waitsFor(function() { return fired; });
     });
   });
 });

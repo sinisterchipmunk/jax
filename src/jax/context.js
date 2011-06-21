@@ -24,7 +24,30 @@
  * the name of the method with "gl". For example:
  * 
  *     context.glClear(GL_COLOR_BIT | GL_DEPTH_BUFFER_BIT);
+ *
+ * h2. Error Reporting
+ *
+ * Contexts emit an 'error' event that you can hook into in order to perform
+ * error handling. By default, when an error is encountered in either the
+ * 'render' or 'update' phase, Jax will log the error to the console, if
+ * available, and in development mode will raise the error in the form of an
+ * +alert()+ message. You can disable both of these by setting the +silence+
+ * property of the error itself. Example:
+ *
+ *     context.addEventListener('error', function(err) {
+ *       // do something with the error, then prevent it from logging
+ *       error.silence = true;
+ *     });
  * 
+ * You can also see which phase the error was encountered under by checking
+ * the +phase+ property on the error.
+ *
+ * Note that if an error is encountered, the phase it is encountered upon is
+ * immediately halted. That is, if an error is encountered during the 'render'
+ * phase, all rendering will be stopped, and the same goes for 'update' phases.
+ *
+ * You can restart rendering or updating after recovering from an error
+ * by calling Jax.Context#
  **/
 Jax.Context = (function() {
   function setupContext(self) {
@@ -101,48 +124,51 @@ Jax.Context = (function() {
   }
   
   function startRendering(self) {
+    if (self.isRendering()) return;
+    
     function render() {
-      if (self.isDisposed()) return;
-      if (self.calculateFramerate) updateFramerate(self);
-      if (self.current_view) {
-        self.prepare();
-        self.current_view.render();
-        var len = self.afterRenderFuncs.length;
-        for (var i = 0; i < len; i++) self.afterRenderFuncs[i].call(self);
-        self.render_interval = requestAnimFrame(render, self.canvas);
-      }
-      else {
-        clearTimeout(self.render_interval);
-        self.render_interval = null;
+      try {
+        if (self.isDisposed()) return;
+        if (self.calculateFramerate) updateFramerate(self);
+        if (self.current_view) {
+          self.prepare();
+          self.current_view.render();
+          var len = self.afterRenderFuncs.length;
+          for (var i = 0; i < len; i++) self.afterRenderFuncs[i].call(self);
+          self.render_interval = requestAnimFrame(render, self.canvas);
+        }
+        else {
+          self.stopRendering();
+        }
+      } catch(error) {
+        self.handleError('render', error);
       }
     }
     
     self.render_interval = setTimeout(render, Jax.render_speed);
   }
   
-  function stopRendering(self) {
-    clearTimeout(self.render_interval);
-  }
-  
   function startUpdating(self) {
+    if (self.isUpdating()) return;
+    
     function updateFunc() {
-      if (self.isDisposed()) return;
-      var timechange = updateUpdateRate(self);
+      try {
+        if (self.isDisposed()) return;
+        var timechange = updateUpdateRate(self);
       
-      self.update(timechange);
-      var len = self.afterUpdateFuncs.length;
-      for (var i = 0; i < len; i++) self.afterUpdateFuncs[i].call(self);
-      self.update_interval = setTimeout(updateFunc, Jax.update_speed);
+        self.update(timechange);
+        var len = self.afterUpdateFuncs.length;
+        for (var i = 0; i < len; i++) self.afterUpdateFuncs[i].call(self);
+        self.update_interval = setTimeout(updateFunc, Jax.update_speed);
       
-      if (Jax.SHUTDOWN_IN_PROGRESS) self.dispose();
+        if (Jax.SHUTDOWN_IN_PROGRESS) self.dispose();
+      } catch(error) {
+        self.handleError('update', error);
+      }
     }
     updateFunc();
   }
   
-  function stopUpdating(self) {
-    clearTimeout(self.update_interval);
-  }
-    
   function setupView(self, view) {
     view.context = self;
     view.world = self.world;
@@ -204,9 +230,47 @@ Jax.Context = (function() {
        **/
       this.framerate_sample_ratio = 0.9;
       
-      startUpdating(this);
+      this.startUpdating();
       if (Jax.routes.isRouted("/"))
         this.redirectTo("/");
+    },
+    
+    /**
+     * Jax.Context#startUpdating() -> Jax.Context
+     * 
+     * Starts updating. This is done automatically within the constructor, but you can call it
+     * again. Useful for resuming operation after processing an error.
+     **/
+    startUpdating: function() { startUpdating(this); return this; },
+    
+    /**
+     * Jax.Context#startRendering() -> Jax.Context
+     * 
+     * Starts rendering. This is done automatically within the constructor, but you can call it
+     * again. Useful for resuming operation after processing an error.
+     **/
+    startRendering: function() { startRendering(this); return this; },
+    
+    /**
+     * Jax.Context#stopRendering() -> Jax.Context
+     * 
+     * Stops rendering.
+     **/
+    stopRendering: function() {
+      clearTimeout(this.render_interval);
+      this.render_interval = null;
+      return this;
+    },
+    
+    /**
+     * Jax.Context#stopUpdating() -> Jax.Context
+     * 
+     * Stops updating.
+     **/
+    stopUpdating: function() {
+      clearTimeout(this.update_interval);
+      this.update_interval = null;
+      return this;
     },
     
     /**
@@ -285,7 +349,7 @@ Jax.Context = (function() {
      * World, so be prepared to initialize a new scene.
      **/
     redirectTo: function(path) {
-      stopRendering(this);
+      this.stopRendering();
 
       this.world.dispose();
       this.player.camera.reset();
@@ -297,7 +361,7 @@ Jax.Context = (function() {
       this.current_view = Jax.views.find(this.current_controller.view_key);
       
       setupView(this, this.current_view);
-      if (!this.isRendering()) startRendering(this);
+      if (!this.isRendering()) this.startRendering();
       
       return this.current_controller;
     },
@@ -344,6 +408,17 @@ Jax.Context = (function() {
     isRendering: function() {
       return this.render_interval != null;
     },
+    
+    /**
+     * Jax.Context#isUpdating() -> Boolean
+     * Returns true if this Jax.Context currently has an update interval set.
+     * This will be false by default if there is no view; otherwise
+     * it will be true. It is also enabled automatically upon the first
+     * valid redirect.
+     **/
+    isUpdating: function() {
+      return this.update_interval != null;
+    },
 
     /**
      * Jax.Context#dispose() -> undefined
@@ -356,8 +431,8 @@ Jax.Context = (function() {
      **/
     dispose: function() {
       this.disposed = true;
-      stopRendering(this);
-      stopUpdating(this);
+      this.stopRendering();
+      this.stopUpdating();
       this.disposeEventListeners();
     },
 
@@ -419,7 +494,7 @@ Jax.Context = (function() {
   
     checkForRenderErrors: function() {
       /* Error checking is slow, so don't do it in production mode */
-      if (Jax.environment == "production") return;
+      if (Jax.environment == Jax.PRODUCTION) return;
 
       var error = this.glGetError();
       if (error != GL_NO_ERROR)
@@ -438,7 +513,28 @@ Jax.Context = (function() {
       }
     },
     
+    handleError: function(phase, error) {
+      // not to be confused with handleRenderError(), this function is called
+      // by render() and update() when an error is encountered anywhere within
+      // them.
+      error.phase = phase;
+      this.fireEvent('error', error);
+      
+      if (!error.silence && !error.silenced) {
+        var log = null, stack = error._stack || error.stack || "(backtrace unavailable)";
+        var message = error.toString()+"\n\n"+stack.toString();
+      
+        if (typeof(console) != 'undefined') log = console.error || console.log;
+
+        if (log) log(message);
+        if (Jax.environment != Jax.PRODUCTION) alert(message);
+      }
+    },
+    
     handleRenderError: function(method_name, args, err) {
+      // FIXME this is going to be eventually caught by the try{} around render()
+      // so, I'm not convinced we even need this function any more... maybe better
+      // to throw it outright than to call handleRenderError().
       throw err;
     }
   });
@@ -458,3 +554,4 @@ Jax.Context = (function() {
 Jax.Context.identifier = 0;
 Jax.Context.addMethods(GL_METHODS);
 Jax.Context.addMethods(Jax.EVENT_METHODS);
+Jax.Context.addMethods(Jax.Events.Methods);

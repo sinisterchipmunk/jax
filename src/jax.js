@@ -16,6 +16,23 @@ var Jax = {
       if (typeof(global) != 'undefined') return global;
       else return window;
     })();
+  },
+  
+  /**
+   * Jax.reraise(old_error, new_error) -> error
+   * - old_error (Error): the original exception that was raised
+   * - new_error (Error): the error to be raised in its place
+   *
+   * Copies the backtrace from the old error into the new error, if available.
+   * Since some browsers do not support assignment to the +stack+ attribute
+   * of an error, this is stored in the +_stack+ attribute instead.
+   *
+   * After the copy has been performed, the new error is thrown
+   **/
+  reraise: function(original_error, new_error) {
+    if (original_error._stack) new_error._stack = original_error._stack;
+    else if (original_error.stack) new_error._stack = original_error.stack;
+    throw new_error;
   }
 };
 

@@ -54,8 +54,8 @@ Jax.Shader.UniformDelegator = (function() {
                 throw new Error("Unexpected attribute type: "+v.type+" ("+JSON.stringify(v)+")");
             }
           } catch(e) {
-            alert("Failed to set uniform for "+name+' ('+value+") in shader program:\n\n"+e+"\n\n"+e.stack);
-            throw e;
+            var error = new Error("Failed to set uniform for "+name+' ('+value+") in shader program:\n\n"+e);
+            Jax.reraise(e, error);
           }
         }
       }

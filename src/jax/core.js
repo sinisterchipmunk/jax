@@ -12,7 +12,7 @@
  * a more generic error is raised.
  **/
 window.debugAssert = function(expr, msg) {
-  if (Jax.environment != "production" && !expr)
+  if (Jax.environment != Jax.PRODUCTION && !expr)
   {
     var error = new Error(msg || "debugAssert failed");
     if (error.stack) error = new Error((msg || "debugAssert failed")+"\n\n"+error.stack);
