@@ -260,48 +260,6 @@ Jax.Mesh = (function() {
     },
 
     /**
-     * Jax.Mesh#getFaceVertices(face) -> Array
-     * - face (Jax.Core.Face): the face whose vertices you wish to retrieve
-     * 
-     * Returns the current vertex data for the specified face.
-     **/
-    getFaceVertices: function(face) {
-      return [
-                [this.getVertexBuffer().js[face.vertexIndices[0]*3+0],
-                 this.getVertexBuffer().js[face.vertexIndices[0]*3+1],
-                 this.getVertexBuffer().js[face.vertexIndices[0]*3+2]
-                ],
-                [this.getVertexBuffer().js[face.vertexIndices[1]*3+0],
-                 this.getVertexBuffer().js[face.vertexIndices[1]*3+1],
-                 this.getVertexBuffer().js[face.vertexIndices[1]*3+2]
-                ],
-                [this.getVertexBuffer().js[face.vertexIndices[2]*3+0],
-                 this.getVertexBuffer().js[face.vertexIndices[2]*3+1],
-                 this.getVertexBuffer().js[face.vertexIndices[2]*3+2]
-                ]
-             ];
-    },
-    
-    /**
-     * Jax.Mesh#getEdgeVertices(edge) -> Array
-     * - edge (Jax.Core.Edge): the edge whose vertices you wish to retrieve
-     * 
-     * Returns the current vertex data for the specified edge.
-     **/
-    getEdgeVertices: function(edge) {
-      return [
-                [this.getVertexBuffer().js[edge.vertexIndices[0]*3+0],
-                 this.getVertexBuffer().js[edge.vertexIndices[0]*3+1],
-                 this.getVertexBuffer().js[edge.vertexIndices[0]*3+2]
-                ],
-                [this.getVertexBuffer().js[edge.vertexIndices[1]*3+0],
-                 this.getVertexBuffer().js[edge.vertexIndices[1]*3+1],
-                 this.getVertexBuffer().js[edge.vertexIndices[1]*3+2]
-                ]
-             ];
-    },
-
-    /**
      * Jax.Mesh#render(context[, options]) -> undefined
      * - context (Jax.Context): the Jax context to render this object to
      * - options (Object): a set of custom render options to override the defaults for this Mesh.
