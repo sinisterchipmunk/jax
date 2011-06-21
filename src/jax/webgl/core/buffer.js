@@ -3,9 +3,11 @@
  *
  * Root class of all WebGL buffer objects.
  *
- * Wrapper to manage JS and GL buffer (array) types. Automates context juggling by requiring the context to generate the
- * buffer for as an argument to #bind. If the context doesn't have a corresponding GL buffer for this data, it will be
- * created. Calling #refresh will regenerate the buffer data for all contexts.
+ * Wrapper to manage JS and GL buffer (array) types. Automates context
+ * juggling by requiring the context to generate the buffer for as an
+ * argument to #bind. If the context doesn't have a corresponding GL
+ * buffer for this data, it will be created. Calling #refresh will
+ * regenerate the buffer data for all contexts.
  *
  **/
 Jax.Buffer = (function() {
@@ -16,6 +18,20 @@ Jax.Buffer = (function() {
   }
 
   return Jax.Class.create({
+    /**
+     * new Jax.Buffer(bufferType, classType, drawType, jsarr, itemSize)
+     * - bufferType (GLenum): A WebGL enumeration specifying what type
+     * of buffer this represents, such as GL_ELEMENT_ARRAY_BUFFER or
+     * GL_ARRAY_BUFFER.
+     * - classType (TypedArray): a typed array to implement this buffer
+     * with, such as +Uint6Array+ or +Float32Array+.
+     * - drawType (GLenum): GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW.
+     * - jsarr (Array): a JavaScript Array containing the actual raw
+     * data. This should be a flat array (that is, no nested arrays).
+     * - itemSize (Number): the number of items in a single element
+     * of the buffer. The length of the buffer must be divisible by
+     * this number.
+     **/
     initialize: function(bufferType, classType, drawType, jsarr, itemSize) {
       if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
       if (!itemSize) throw new Error("Expected an itemSize - how many JS array elements represent a single buffered element?");
@@ -28,6 +44,13 @@ Jax.Buffer = (function() {
       this.drawType = drawType;
     },
 
+    /**
+     * Jax.Buffer#refresh() -> Jax.Buffer
+     *
+     * Causes Jax to immediately refresh the buffer data on the graphics card
+     * for all WebGL contexts the buffer is bound to. This should be done any
+     * time you change the data within the buffer's underlying JavaScript array.
+     **/
     refresh: function() {
       var self = this;
       if (self.classTypeInstance)
@@ -44,8 +67,21 @@ Jax.Buffer = (function() {
         context.glBindBuffer(self.bufferType, buffer);
         context.glBufferData(self.bufferType, self.classTypeInstance, self.drawType);
       });
+      
+      return this;
     },
 
+    /**
+     * Jax.Buffer#dispose() -> Jax.Buffer
+     *
+     * Dispose of this buffer's WebGL counterparts. This is applied to all contexts
+     * the buffer is associated with.
+     *
+     * Note that calling Jax.Buffer#bind will rebuild this buffer, effectively
+     * cancelling this method out, so take care not to use the buffer after
+     * disposing it unless this is the functionality you want (e.g. to clean up
+     * some Jax contexts, but not all of them).
+     **/
     dispose: function() {
       var self = this;
       each_gl_buffer(this, function(context, buffer) {
@@ -53,12 +89,34 @@ Jax.Buffer = (function() {
         self.gl[context.id] = null;
       });
       self.gl = {};
+      return self;
     },
 
+    /**
+     * Jax.Buffer#isDisposed() -> Boolean
+     * 
+     * Returns true if this buffer is in an uninitialized state.
+     **/
     isDisposed: function() { return !this.gl; },
 
-    bind: function(context) { context.glBindBuffer(this.bufferType, this.getGLBuffer(context)); },
+    /**
+     * Jax.Buffer#bind(context) -> Jax.Buffer
+     * - context (Jax.Context) - the context to bind the buffer to.
+     *
+     * Binds this buffer to the specified context, then returns the buffer.
+     * If this buffer is in an uninitialized or disposed state, it will be
+     * built (or rebuilt) prior to binding.
+     **/
+    bind: function(context) { context.glBindBuffer(this.bufferType, this.getGLBuffer(context)); return this; },
 
+    /**
+     * Jax.Buffer#getGLBuffer(context) -> WebGLBuffer
+     * - context (Jax.Context) - the context to get the buffer for.
+     * 
+     * Returns the underlying WebGLBuffer instance representing this buffer's data
+     * for the specified context. Note that this is different for each context.
+     * If the buffer has not yet been defined for the given context, it will be.
+     **/
     getGLBuffer: function(context)
     {
       if (!context || typeof(context.id) == "undefined")
