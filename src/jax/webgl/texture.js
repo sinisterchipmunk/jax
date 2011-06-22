@@ -1,6 +1,5 @@
 Jax.NORMAL_MAP = 1;
 
-
 /**
  * class Jax.Texture
  * Creates a managed WebGL texture.
@@ -123,13 +122,15 @@ Jax.Texture = (function() {
   function pushLevel(self, level, context) {
     if (level == null) level = Jax.Texture._level++;
     self.textureLevel = level;
-    context.glActiveTexture(GL_TEXTURES[level]);
+    self.SLOT = GL_TEXTURES[level];
+    context.glActiveTexture(self.SLOT);
   }
   
   function popLevel(self, context) {
     Jax.Texture._level = self.textureLevel - 1;
     if (Jax.Texture._level < 0) Jax.Texture._level = 0;
     delete self.textureLevel;
+    self.SLOT = null;
   }
   
   return Jax.Class.create({
@@ -161,6 +162,18 @@ Jax.Texture = (function() {
      *   * onload: null - a function to be called after the image has been loaded. This function
      *                    will not be called if the image fails to load.
      *                     
+     * Note that WebGL support for non-power-of-two textures is very limited. If you create a WebGL
+     * texture out of an image whose dimensions are not power-of-two (128, 256, 512, etc.), Jax will
+     * automatically assume the following options:
+     *
+     *   * min_filter: GL_LINEAR
+     *   * mag_filter: GL_LINEAR
+     *   * wrap_s: GL_CLAMP_TO_EDGE
+     *   * wrap_t: GL_CLAMP_TO_EDGE
+     *   * generate_mipmap: false 
+     *
+     * If you replace these options with other values after initialization, WebGL will probably throw
+     * an exception.
      **/
     initialize: function(path_or_array, options) {
       this.handles = {};
@@ -222,20 +235,107 @@ Jax.Texture = (function() {
       }
     },
     
+    /**
+     * Jax.Texture#getTarget() -> GLenum
+     * 
+     * Returns the render target for this texture, which defaults to GL_TEXTURE_2D.
+     **/
     getTarget: function() { return this.options.target; },
+
+    /**
+     * Jax.Texture#getMinFilter() -> GLenum
+     * 
+     * Returns the +min_filter+ for this texture, which defaults to GL_NEAREST.
+     **/
     getMinFilter: function() { return this.options.min_filter; },
+
+    /**
+     * Jax.Texture#getMagFilter() -> GLenum
+     * 
+     * Returns the +mag_filter+ for this texture, which defaults to GL_NEAREST.
+     **/
     getMagFilter: function() { return this.options.mag_filter; },
+
+    /**
+     * Jax.Texture#getGeneratesMipmaps() -> Boolean
+     * 
+     * Returns the +generate_mipmap+ option for this texture, which defaults to +true+.
+     **/
     getGeneratesMipmaps: function() { return this.options.generate_mipmap; },
+
+    /**
+     * Jax.Texture#getMipmapHint() -> GLenum
+     * 
+     * Returns the +mipmap_hint+ option for this texture, which defaults to GL_DONT_CARE.
+     **/
     getMipmapHint: function() { return this.options.mipmap_hint; },
+
+    /**
+     * Jax.Texture#getFormat() -> GLenum
+     * 
+     * Returns the +format+ option for this texture, which defaults to GL_RGBA.
+     **/
     getFormat: function() { return this.options.format; },
+
+    /**
+     * Jax.Texture#getDataType() -> GLenum
+     * 
+     * Returns the +data_type+ option for this texture, which defaults to GL_UNSIGNED_BYTE.
+     **/
     getDataType: function() { return this.options.data_type; },
+
+    /**
+     * Jax.Texture#getWrapS() -> GLenum
+     * 
+     * Returns the +wrap_s+ option for this texture, which defaults to GL_REPEAT.
+     **/
     getWrapS: function() { return this.options.wrap_s; },
+
+    /**
+     * Jax.Texture#getWrapT() -> GLenum
+     * 
+     * Returns the +wrap_t+ option for this texture, which defaults to GL_REPEAT.
+     **/
     getWrapT: function() { return this.options.wrap_t; },
+
+    /**
+     * Jax.Texture#getFlipY() -> Boolean
+     * 
+     * Returns the +flip_y+ option for this texture, which defaults to +false+.
+     **/
     getFlipY: function() { return this.options.flip_y; },
+
+    /**
+     * Jax.Texture#getPremultipliesAlpha() -> Boolean
+     * 
+     * Returns the +premultiply_alpha+ option for this texture, which defaults to +false+.
+     **/
     getPremultipliesAlpha: function() { return this.options.premultiply_alpha; },
+
+    /**
+     * Jax.Texture#getDoesColorspaceConversion() -> Boolean
+     * 
+     * Returns the +colorspace_conversion+ option for this texture, which defaults to +true+.
+     **/
     getDoesColorspaceConversion: function() { return this.options.colorspace_conversion; },
+    
+    /**
+     * Jax.Texture#getOnloadFunc() -> Function | null
+     *
+     * Returns the callback function to be called when the texture image finishes loading.
+     **/
     getOnloadFunc: function() { return this.options.onload; },
     
+    /**
+     * Jax.Texture#refresh(context) -> Jax.Texture
+     * - context (Jax.Context): the Jax context to prepare a texture handle for
+     * 
+     * Prepares this texture for use with the specified context. If any data has changed,
+     * it will be refreshed. All options are applied at this time. Mipmaps are generated
+     * if the +generate_mipmaps+ option is true.
+     *
+     * Call this method whenever you alter the texture data or the +Image+ associated with it.
+     **/
     refresh: function(context) {
       if (!this.ready()) return;
       
@@ -255,21 +355,54 @@ Jax.Texture = (function() {
       
       context.glBindTexture(this.options.target, null);
       this.valid[context.id] = true;
+      return this;
     },
     
+    /**
+     * Jax.Texture#generateMipmap(context) -> Jax.Texture
+     * - context (Jax.Context): the Jax context to generate the mipmap for
+     *
+     * Applies the mipmap hint, if necessary, and then forcibly generates mipmaps
+     * (regardless of the value of the +generate_mipmap+ option) for the given context.
+     **/
     generateMipmap: function(context) {
       // FIXME why does this raise 1280 invalid enum?
-//      context.glHint(GL_GENERATE_MIPMAP_HINT, this.options.mipmap_hint);
+      // context.glHint(GL_GENERATE_MIPMAP_HINT, this.options.mipmap_hint);
       context.glGenerateMipmap(this.options.target);
+      return this;
     },
     
-    invalidate: function() { this.valid.clear(); },
+    /**
+     * Jax.Texture#invalidate() -> Jax.Texture
+     *
+     * Invalidates this texture, which means it will be automatically refreshed (per
+     * the Jax.Texture#refresh() method) the next time it is bound to any context.
+     **/
+    invalidate: function() { this.valid.clear(); return this; },
     
+    /**
+     * Jax.Texture#dispose(context) -> Jax.Texture
+     * - context (Jax.Context): the Jax context to dispose of the texture for
+     *
+     * Disposes of the WebGL handle for the given context. Note that
+     * calling Jax.Texture#bind() after disposing of it will cause the
+     * texture to be regenerated, so take care not to use the texture
+     * after disposing of it unless this is the intended result (e.g.
+     * to dispose the texture for all contexts except for one).
+     **/
     dispose: function(context) {
       context.glDeleteTexture(getHandle(context));
       delete this.handles[context.id];
     },
     
+    /**
+     * Jax.Texture#getHandle(context) -> WebGLTexture
+     * - context (Jax.Context): the Jax context to return a handle for
+     *
+     * Returns the WebGL texture handle (an instance of +WebGLTexture+)
+     * for the specified Jax context. If one does not exist, it will be
+     * automatically allocated and returned.
+     **/
     getHandle: function(context) {
       if (!this.handles[context.id]) {
         build(this, context);
@@ -278,10 +411,53 @@ Jax.Texture = (function() {
       return this.handles[context.id];
     },
     
+    /**
+     * Jax.Texture#isValid(context) -> Boolean
+     * - context (Jax.Context): the Jax context to check validity for
+     *
+     * Returns true if this texture is ready for use with the specified
+     * context, false otherwise. If false, the texture will be prepared
+     * (per Jax.Texture#refresh()) the next time it is bound.
+     **/
     isValid: function(context) {
       return !!this.valid[context.id];
     },
     
+    /**
+     * Jax.Texture#bind(context[, callback]) -> Jax.Texture
+     * Jax.Texture#bind(context[, level, callback]) -> Jax.Texture
+     * - context (Jax.Context): the Jax context to bind this texture to
+     * - level (Number): the numeric level representing the nesting of this
+     *                   texture within other textures. Usually, this is
+     *                   managed automatically for you by Jax.Texture itself.
+     * - callback (Function): an optional callback function.
+     *
+     * If a callback is specified, it will be called and the texture will
+     * be unbound after the call has completed. Otherwise, the texture will
+     * remain bound when Jax.Texture#bind returns.
+     *
+     * If the texture is bound within a function which contains another bound
+     * texture, the +level+ will automatically be incremented. This allows Jax
+     * to manage which texture slot a given texture is bound to. 
+     * 
+     * For example, Jax will automatically bind tex1 to GL_TEXTURE0 and tex2 to
+     * GL_TEXTURE1 in the following example:
+     *
+     *     var tex1 = new Jax.Texture("/images/tex1.png");
+     *     var tex2 = new Jax.Texture("/images/tex2.png");
+     *     
+     *     tex1.bind(context, function() {
+     *       tex2.bind(context, function() {
+     *         // context.glActiveTexture has already been called with
+     *         // the appropriate values.
+     *         
+     *         // you can get the active texture enums easily:
+     *         // tex1.SLOT == GL_TEXTURE0
+     *         // tex2.SLOT == GL_TEXTURE1
+     *       });
+     *     });
+     *
+     **/
     bind: function(context, level, callback) {
       if (!this.ready()) return; // no texture to display, yet... but not worth crashing over.
       if (!this.isValid(context)) this.refresh(context);
@@ -296,14 +472,31 @@ Jax.Texture = (function() {
         callback.call(this, this.textureLevel);
         this.unbind(context);
       }
+      
+      return this;
     },
     
+    /**
+     * Jax.Texture#unbind(context) -> Jax.Texture
+     * context (Jax.Context): the context to unbind this texture from
+     *
+     * Unbinds this texture form the specified context. Note that you don't need to do this
+     * if you called Jax.Texture#bind() with a callback function.
+     **/
     unbind: function(context) {
-      if (this.textureLevel != undefined) context.glActiveTexture(GL_TEXTURES[this.textureLevel]);
+      if (this.textureLevel != undefined) context.glActiveTexture(this.SLOT);
       context.glBindTexture(this.options.target, null);
       popLevel(this, context);
+      return this;
     },
     
+    /**
+     * Jax.Texture#ready() -> Boolean
+     * 
+     * Returns true if the corresponding Image for this texture has finished loading.
+     * If this texture does not have an underlying Image (e.g. it is a dynamically-generated
+     * texture), then this will always return +true+.
+     **/
     ready: function() {
       return this.loaded;
     }
