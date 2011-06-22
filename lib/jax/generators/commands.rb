@@ -134,11 +134,6 @@ class JaxGeneratorInvoker < Thor
   def plugin(*args)
     Jax::Generators::Plugin::PluginGenerator.start(ARGV[1..-1], :behavior => behavior)
   end
-  
-  desc "package", "packages this Jax application in preparation for deployment"
-  def package(*args)
-    Jax::Generators::Packager::PackageGenerator.start(args, :behavior => behavior)
-  end
 end
 
 class JaxGenerator
@@ -147,7 +142,8 @@ class JaxGenerator
   COMMANDS = {
     "generate" => "Generate new code",
     "destroy"  => "Undo code generated with \"generate\"",
-    "plugin"   => "Install a plugin"
+    "plugin"   => "Install a plugin",
+    "package"  => "Package the app for production"
   } unless defined?(COMMANDS)
   ALIASES = { "g" => "generate" } unless defined?(ALIASES)
   
@@ -160,6 +156,10 @@ class JaxGenerator
     end
   rescue ArgumentError
     puts $!.message
+  end
+  
+  def package
+    Jax::Generators::Packager::PackageGenerator.start
   end
   
   def generate
