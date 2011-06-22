@@ -6,6 +6,7 @@ module Jax
       class ControllerGenerator < Jax::Generators::PluggableCommand
         argument :controller_name
         attr_reader :actions, :action_name
+        class_option :root, :default => false, :type => :boolean
 
         def self.source_root
           File.expand_path("templates", File.dirname(__FILE__))
@@ -14,6 +15,7 @@ module Jax
         def initialize(args=[], options={}, config={})
           super
           @actions = args[1..-1].collect { |c| c.underscore }
+          @actions = ['index'] if @actions.empty?
           @controller_name = controller_name.underscore
         end
         
@@ -41,6 +43,12 @@ module Jax
           actions.each do |action|
             insert_into_file "config/routes.rb", "\n  map '#{controller_name}/#{action}'",
                              :after => /\.routes\.map do$/
+          end
+        end
+        
+        def root_route
+          if options[:root]
+            insert_into_file "config/routes.rb", "  root '#{controller_name}'\n", :before => /^end\s*\Z/
           end
         end
 

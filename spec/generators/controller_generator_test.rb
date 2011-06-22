@@ -4,11 +4,21 @@ class Jax::Generators::Controller::ControllerGeneratorTest < Jax::Generators::Te
   setup :copy_routes
 
   test "with no arguments" do
+    # since this test was first written, it's become apparent that the 'index' action is
+    # pretty much ubiquitous -- enough so that it's safe to auto-generate it if omitted.
+
     generate 'welcome'
     
-    assert_file "app/controllers/welcome_controller.js", /^var WelcomeController \=/
-    assert_file "app/helpers/welcome_helper.js"
+    assert_file "app/controllers/welcome_controller.js", /^\s*index: function\(\)\s*\{/
+    assert_file "app/views/welcome/index.js"
+    assert_file "config/routes.rb", /^  map ['"]welcome\/index["']/
     assert_file "spec/javascripts/controllers/welcome_controller_spec.js"
+  end
+  
+  test "with --root option" do
+    generate 'welcome', '--root'
+    
+    assert_file "config/routes.rb", /root ['"]welcome["']/
   end
   
   test "with arguments" do
