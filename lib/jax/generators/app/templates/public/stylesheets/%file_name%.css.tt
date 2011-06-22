@@ -1,0 +1,11 @@
+#nav {
+  position:absolute;
+  top: 0px;
+  left: 0px;
+  background-color: #fff;
+  z-index:100; /* for chrome */
+}
+
+body {
+  margin: 0;
+}

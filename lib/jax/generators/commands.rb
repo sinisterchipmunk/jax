@@ -98,7 +98,7 @@ class JaxGeneratorInvoker < Thor
 
   desc "controller NAME", "generates a new controller"
   def controller(*args)
-    Jax::Generators::Controller::ControllerGenerator.start(args, :behavior => behavior)
+    Jax::Generators::Controller::ControllerGenerator.start(ARGV[1..-1])
   end
   
   desc "model NAME", "generates a new model"
