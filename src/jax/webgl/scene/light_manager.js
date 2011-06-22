@@ -41,6 +41,8 @@ Jax.Scene.LightManager = (function() {
     },
     
     add: function(light) {
+      if (typeof(light) == "string") light = Jax.Scene.LightSource.find(light);
+      
       if (this._lights.length == Jax.max_lights)
         throw new Error("Maximum number of light sources in a scene has been exceeded! Try removing some first.");
       for (var i = 0; i < this.objects.length; i++) {

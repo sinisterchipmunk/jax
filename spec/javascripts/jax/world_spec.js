@@ -99,6 +99,17 @@ describe("Jax.World", function() {
       world.render();
     });
   });
+  
+  describe("adding a light source from a string", function() {
+    beforeEach(function() {
+      Jax.Scene.LightSource.addResources({"test":{}});
+      world.addLightSource("test");
+    });
+    
+    it("should find the light source automatically", function() {
+      expect(world.lighting.getLight(0)).toBeKindOf(Jax.Scene.LightSource);
+    });
+  });
 
   describe("with lighting enabled", function() {
     beforeEach(function() { world.addLightSource(new Jax.Scene.LightSource({type:Jax.DIRECTIONAL_LIGHT})); });
