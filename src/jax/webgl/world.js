@@ -23,7 +23,6 @@ Jax.World = (function() {
       this.context  = context;
       this.lighting = new Jax.Scene.LightManager(context);
       this.objects  = [];
-      this.shadow_casters = [];
     },
     
     /**
@@ -188,8 +187,27 @@ Jax.World = (function() {
       return this.objects.length;
     },
     
-    getShadowCasters: function() { return this.lighting.getShadowCasters(); },//return this.shadow_casters; },
+    /**
+     * Jax.World#getShadowCasters() -> Array
+     *
+     * Returns an array of all known shadow-casters in this World.
+     **/
+    getShadowCasters: function() { return this.lighting.getShadowCasters(); },
     
+    /**
+     * Jax.World#render([options]) -> Jax.World
+     *
+     * Renders this World to its Jax context. Options, if specified, are delegated
+     * to the individual models to be rendered.
+     *
+     * Prior to rendering, this function assigns the blend function to
+     * (+GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA+).
+     *
+     * This function determines whether light sources are to have an effect on the
+     * render pass. If so, the world's +Jax.LightManager+ instance is invoked to
+     * render the objects; otherwise, the objects are rendered directly with the
+     * +unlit+ option set to +true+.
+     **/
     render: function(options) {
       var i;
       
@@ -216,22 +234,39 @@ Jax.World = (function() {
           this.objects[i].render(this.context, unlit);
         }
       }
+      
+      return this;
     },
     
+    /**
+     * Jax.World#update(timechange) -> Jax.World
+     * - timechange (Number): the number of seconds to have passed since the last
+     * call to +Jax.World#update+.
+     *
+     * Updates each object in the world, passing the +timechange+ argument into
+     * the objects' respective +update+ functions (if they have one).
+     **/
     update: function(timechange) {
       for (var i = this.objects.length-1; i >= 0; i--)
         if (this.objects[i].update)
           this.objects[i].update(timechange);
+      return this;
     },
-      
+    
+    /**
+     * Jax.World#dispose() -> Jax.World
+     *
+     * Disposes of this world by removing all references to its objects and
+     * reinitializing its +Jax.Scene.LightManager+ instance. Note that the
+     * individual objects are not disposed; this is left as a task for either
+     * the developer or the JavaScript garbage collector. The reason for this
+     * is because it is impossible for Jax.World to know whether the objects
+     * in question are in use by other Worlds.
+     **/
     dispose: function() {
       var i, o;
       
       for (i = this.objects.length-1; i >= 0; i--)
-      /*
-        actually, we may not want to dispose the objects just yet. What if the user has a handle to them?
-        Maybe better to let JS GC take care of this one.
-      */
         (o = this.objects.pop());// && o.dispose();
       
       this.lighting = new Jax.Scene.LightManager(this.context);
