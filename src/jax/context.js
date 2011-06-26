@@ -552,9 +552,10 @@ Jax.Context = (function() {
         var log = null, stack = error._stack || error.stack || "(backtrace unavailable)";
         var message = error.toString()+"\n\n"+stack.toString();
       
-        if (typeof(console) != 'undefined') log = console.error || console.log;
-
-        if (log) log(message);
+        if (typeof(console) != 'undefined') {
+          log = console.error || console.log;
+          if (log) log.call(console, message);
+        }
         if (Jax.environment != Jax.PRODUCTION) alert(message);
       }
     },
