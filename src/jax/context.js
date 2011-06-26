@@ -14,7 +14,7 @@
  * If there is a root route set up, then at this point you are done.
  * If not, there's an additional step:
  * 
- *     context.redirect_to("controller_name/action_name");
+ *     context.redirectTo("controller_name/action_name");
  *     
  * where *controller_name* is the short name of the controller to start at,
  * and *action_name* is the action to fire within that controller.
@@ -27,7 +27,7 @@
  * 
  *     context.glClear(GL_COLOR_BIT | GL_DEPTH_BUFFER_BIT);
  *
- * h2. Error Reporting
+ * ### Error Reporting
  *
  * Contexts emit an 'error' event that you can hook into in order to perform
  * error handling. By default, when an error is encountered in either the
@@ -49,7 +49,9 @@
  * phase, all rendering will be stopped, and the same goes for 'update' phases.
  *
  * You can restart rendering or updating after recovering from an error
- * by calling Jax.Context#
+ * by calling Jax.Context#startRendering or Jax.Context#startUpdating,
+ * respectively.
+ *
  **/
 Jax.Context = (function() {
   function setupContext(self) {
@@ -192,6 +194,25 @@ Jax.Context = (function() {
   }
   
   var klass = Jax.Class.create({
+    /**
+     * new Jax.Context(canvas[, options])
+     * - canvas (String|HTMLCanvasElement): the canvas or the ID of the canvas to tie this context to
+     * - options (Object): optional set of configuration options; see below
+     *
+     * Constructs a new Jax.Context, which is the basic object that ties together
+     * models, controllers and views to produce a coherent application.
+     *
+     * Like most Jax objects, Jax.Context takes some optional initialization
+     * options. They are as follows:
+     *
+     * <table>
+     *   <tr>
+     *     <th></th>
+     *   </tr>
+     * </table>
+     *
+     *
+     **/
     initialize: function(canvas) {
       if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
       if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
