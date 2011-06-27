@@ -24,6 +24,8 @@
  *
  **/
 Jax.Camera = (function() {
+  var LOCAL_VIEW = [0,0,-1], LOCAL_UP = [0,1,0], LOCAL_RIGHT = [1,0,0];
+  
   // used in tandem with _tmp[], see below
   var POSITION = 0, VIEW = 1, RIGHT = 2, UP = 3, FORWARD = 4, SIDE = 5;
   
@@ -44,15 +46,17 @@ Jax.Camera = (function() {
     return buf;
   }
   
+  function tmpRotQuat(self) {
+    return self._rotquat = self._rotquat || quat4.create();
+  }
+  
   function storeVecBuf(self, buftype) {
-    var world = self.matrices.mv;
+    var world = self.rotation;
     
     var position = (self._tmp[POSITION]);
     var result   = (self._tmp[buftype]);
     
-    // position is 0,0,0 in eye space. Convert that to world space.
-    position[0] = position[1] = position[2] = 0;
-    mat4.multiplyVec3(world, position, position);
+    vec3.set(self.position, position);
 
     switch(buftype) {
       case POSITION:
@@ -60,22 +64,13 @@ Jax.Camera = (function() {
         return position;
         break;
       case VIEW:
-        // relative view vector is [0,0,-1] -- convert that to world coords
-        result[0] = result[1] = 0; result[2] = -1;
-        mat4.multiplyVec3(world, result, result);
-        vec3.direction(result, position, result);
+        quat4.multiplyVec3(world, LOCAL_VIEW, result);
         break;
       case RIGHT:
-        // relative right vector is [1,0,0] -- convert that to world coords
-        result[0] = 1; result[1] = result[2] = 0;
-        mat4.multiplyVec3(world, result, result);
-        vec3.direction(result, position, result);
+        quat4.multiplyVec3(world, LOCAL_RIGHT, result);
         break;
       case UP:
-        // relative up vector is [0,1,0] -- convert that to world coords
-        result[1] = 1; result[0] = result[2] = 0;
-        mat4.multiplyVec3(world, result, result);
-        vec3.direction(result, position, result);
+        quat4.multiplyVec3(world, LOCAL_UP, result);
         break;
       default:
         throw new Error("Unexpected buftype: "+buftype);
@@ -91,8 +86,22 @@ Jax.Camera = (function() {
     // Instead we'll mark them as out-of-date and let their respective getters do the
     // work.
     // update the normal matrix
-    self.normal_matrix_up_to_date = false;
-    self.frustum_up_to_date       = false;
+    self.stale = true;
+    self.frustum_up_to_date = false;
+  }
+  
+  function calculateMatrices(self) {
+    self.stale = false;
+
+    var pos = storeVecBuf(self, POSITION);
+    quat4.toMat4(self.rotation, self.matrices.mv);
+    mat4.translate(self.matrices.mv, vec3.negate(pos), self.matrices.mv);
+    mat4.inverse(self.matrices.mv);
+    
+    mat4.toInverseMat3(self.matrices.mv, self.matrices.n);
+    mat3.transpose(self.matrices.n);
+    
+    self.fireEvent('matrixUpdated');
   }
   
   return Jax.Class.create({
@@ -126,10 +135,13 @@ Jax.Camera = (function() {
       /* used for temporary storage, just to avoid repeatedly allocating temporary vectors */
       this._tmp = [ vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create() ];
       
+      this.rotation = quat4.create([0,0,0,1]);
+      this.position = vec3.create([0,0,0]);
+      
       this.matrices = { mv: mat4.identity(mat4.create()), p : mat4.identity(mat4.create()), n : mat3.create() };
       this.frustum = new Jax.Scene.Frustum(this.matrices.mv, this.matrices.p);
       
-      this.addEventListener('matrixUpdated', function() { matrixUpdated(this); });
+      this.addEventListener('updated', function() { matrixUpdated(this); });
       this.reset();
     },
 
@@ -148,7 +160,7 @@ Jax.Camera = (function() {
      * Jax.Camera#getPosition() -> vec3
      * Returns the current world space position of this camera.
      **/
-    getPosition:   function() { return vec3.create(storeVecBuf(this, POSITION)); },
+    getPosition:   function() { return vec3.create(this.position); },
 
     /**
      * Jax.Camera#getViewVector() -> vec3
@@ -182,7 +194,7 @@ Jax.Camera = (function() {
      * * _right_ - the rightmost coordinate visible on the screen. Defaults to 1.
      * * _bottom_ - the bottommost coordinate visible on the screen. Defaults to -1.
      * * _near_ - the nearest coordinate visible. Defaults to 0.01.
-     * * _far_ the furthest coordinate visible. Defaults to 2000.
+     * * _far_ the furthest coordinate visible. Defaults to 200.
      *   
      **/
     ortho: function(options) {
@@ -190,7 +202,7 @@ Jax.Camera = (function() {
       if (typeof(options.right)  == "undefined") options.right  =  1;
       if (typeof(options.top)    == "undefined") options.top    =  1;
       if (typeof(options.bottom) == "undefined") options.bottom = -1;
-      if (typeof(options.far)    == "undefined") options.far    = 2000;
+      if (typeof(options.far)    == "undefined") options.far    = 200;
       options.near = options.near || 0.01;
       
       mat4.ortho(options.left, options.right, options.bottom, options.top, options.near, options.far, this.matrices.p);
@@ -219,14 +231,13 @@ Jax.Camera = (function() {
      * Sets the position of this camera.
      **/
     setPosition: function() {
-      var vec = vec3.create();
       switch(arguments.length) {
-        case 1: vec3.set(arguments[0], vec); break;
-        case 3: vec3.set(arguments,    vec); break;
+        case 1: vec3.set(arguments[0], this.position); break;
+        case 3: vec3.set(arguments,    this.position); break;
         default: throw new Error("Invalid arguments for Camera#setPosition");
       }
       
-      this.orient(this.getViewVector(), this.getUpVector(), vec);
+      this.fireEvent('updated');
 
       return this;
     },
@@ -234,12 +245,42 @@ Jax.Camera = (function() {
     /**
      * Jax.Camera#setDirection(vector) -> Jax.Camera
      * - vector (vec3): the new direction that the camera will be pointing,
-     *                  in world space
+     *                  relative to the camera
+     * Jax.Camera#setDirection(x,y,z) -> Jax.Camera
+     * - x (Number): the X component of the direction to point in, relative to the camera
+     * - y (Number): the Y component of the direction to point in, relative to the camera
+     * - z (Number): the Z component of the direction to point in, relative to the camera
      **/
     setDirection: function(vector) {
-      return this.orient(vector);
+      var vec;
+      if (arguments.length == 3) vec = arguments;
+      else vec = vec3.create(vector);
+      vec3.normalize(vec);
+      
+      var rotquat = vec3.toQuatRotation(storeVecBuf(this, VIEW), vec, tmpRotQuat(this));
+      quat4.multiply(rotquat, this.rotation, this.rotation);
+      quat4.normalize(this.rotation);
+      
+      this.fireEvent('updated');
+      return this;
     },
-
+    
+    /**
+     * Jax.Camera#reorient(view[, position]) -> Jax.Camera
+     * - view (vec3): the new direction, relative to the camera, that the camera will be pointing
+     * - position (vec3): an optional new position for the camera, in world space.
+     *
+     * Reorients this camera to look in the given direction and optionally to be
+     * repositioned according to the given position vector.
+     *
+     * Returns this camera after modification..
+     **/
+    reorient: function(view, pos) {
+      if (pos) this.setPosition(pos);
+      this.setDirection(view);
+      return this;
+    },
+    
     /**
      * Jax.Camera#orient(viewVector, upVector[, positionVector]) -> Jax.Camera
      * - viewVector (vec3): the new direction that the camera will be pointing
@@ -249,26 +290,28 @@ Jax.Camera = (function() {
      * 
      * Reorients this camera to be looking in the specified direction.
      * Optionally, repositions this camera.
+     *
+     * **Deprecated.** Please use Jax.Camera#setDirection instead.
      **/
     orient: function(view, up) {
-      var pos;
+      var pos = null;
+      
+      if (Jax.environment != Jax.PRODUCTION)
+        alert("Jax.Camera#orient is deprecated. Please use Jax.Camera#reorient instead.\n\n"+new Error().stack);
       
       switch(arguments.length) {
         case 1:
           view = store(this,     VIEW, view[0], view[1], view[2]);
-          up   = store(this,       UP);
-          pos  = store(this, POSITION);
+          up   = null;
           break;
         case 2:
           view = store(this,     VIEW, view[0], view[1], view[2]);
           up   = store(this,       UP,   up[0],   up[1],   up[2]);
-          pos  = store(this, POSITION);
           break;
         case 3:
           if (typeof(arguments[0]) == "number") {
             view = store(this,     VIEW,    arguments[0],    arguments[1],    arguments[2]);
-            up   = store(this,       UP);
-            pos  = store(this, POSITION);
+            up = null;
           } else {
             view = store(this,     VIEW,         view[0],         view[1],         view[2]);
             up   = store(this,       UP,           up[0],           up[1],           up[2]);
@@ -278,7 +321,6 @@ Jax.Camera = (function() {
         case 6:
           view = store(this,     VIEW, arguments[0], arguments[1], arguments[2]);
           up   = store(this,       UP, arguments[3], arguments[4], arguments[5]);
-          pos  = store(this, POSITION);
           break;
         case 9:
           view = store(this,     VIEW, arguments[0], arguments[1], arguments[2]);
@@ -288,59 +330,28 @@ Jax.Camera = (function() {
         default:
           throw new Error("Unexpected arguments for Camera#orient");
       }
-      
-      vec3.add(pos,view,view);
-      this.lookAt(view, up, pos);
+
+      if (pos) this.setPosition(pos);
+      this.setDirection(view);
+
       return this;
     },
     
-    lookAt: function(point, up, pos) {
-      up  = up  || store(this, UP);
-      pos = pos || store(this, POSITION);
+    /**
+     * Jax.Camera#lookAt(point[, pos]) -> Jax.Camera
+     * point (vec3): the point, in world space, to look at
+     * pos (vec3): an optional point to reposition this camera at, in world space,
+     * replacing its current position
+     **/
+    lookAt: function(point, pos) {
+      if (arguments.length > 2)
+        alert("Jax.Camera#lookAt with more than 2 arguments is deprecated. Please use only two arguments: the point to look at (a vec3) and an optional point to reposition the camera to (a vec3).\n\n"+new Error().stack);
+        
+      if (pos) this.setPosition(pos);
+      else pos = store(this, POSITION);
       
-      /*
-        I can't seem to get mat4.lookAt() to work as expected. I suspect that the forward vector is not
-        calculated properly, as it seems to reverse the operands. Dunno if this is a bug or a misunderstanding
-        in expectations, but either way I've decided not to use it, and adapted this code from:
-          GLH at http://www.opengl.org/wiki/GluLookAt_code 
-       */
-      var forward = this._tmp[FORWARD], side = this._tmp[SIDE];
-      var matrix2 = this.matrices.mv;
-      
-      vec3.subtract(point, pos, forward);
-
-      // check whether up is parallel with view. If so, we can't possibly use up so
-      // we must recalculate up from the current side. We don't simply throw an error
-      // because the user may not be at fault. (Example: this.orient([0,-1,0]) infers
-      // the current up, which defaults to [0,1,0].)
-      var dot = vec3.dot(forward, up);
-      if (!isNaN(dot) && Math.abs(dot) > (1 - Math.EPSILON))
-        vec3.cross(store(this, RIGHT), forward, up);
-
-      vec3.normalize(forward);
-      // side = forward x up
-      vec3.cross(forward, up, side);
-      vec3.normalize(side);
-      // recompute up as: up = side x forward
-      vec3.cross(side, forward, up);
-      matrix2[0] = side[0];
-      matrix2[4] = side[1];
-      matrix2[8] = side[2];
-      matrix2[12]= 0;
-      matrix2[1] = up[0];
-      matrix2[5] = up[1];
-      matrix2[9] = up[2];
-      matrix2[13]= 0;
-      matrix2[2] = -forward[0];
-      matrix2[6] = -forward[1];
-      matrix2[10]= -forward[2];
-      matrix2[14]= 0.0;
-      matrix2[3] = matrix2[7] = matrix2[11] = 0;
-      matrix2[15] = 1;
-      mat4.translate(matrix2, vec3.negate(pos));
-      mat4.inverse(matrix2);
-      
-      this.fireEvent('matrixUpdated');
+      var forward = this._tmp[FORWARD];
+      this.setDirection(vec3.subtract(point, pos, forward));
     },
 
     /**
@@ -359,7 +370,7 @@ Jax.Camera = (function() {
      *     closer to the camera than this will not be seen, even if they are technically in
      *     front of the camera itself. Default: 0.01
      *   * _far_ - the distance of the far plane from the camera's actual position. Objects
-     *     further away from the camera than this won't be seen. Default: 2000
+     *     further away from the camera than this won't be seen. Default: 200
      **/
     perspective: function(options) {
       options = options || {};
@@ -367,7 +378,7 @@ Jax.Camera = (function() {
       if (!options.height)throw new Error("Expected a screen height in Jax.Camera#perspective");
       options.fov  = options.fov  || 45;
       options.near = options.near || 0.01;
-      options.far  = options.far  || 2000;
+      options.far  = options.far  || 200;
       
       var aspect_ratio = options.width / options.height;
       mat4.perspective(options.fov, aspect_ratio, options.near, options.far, this.matrices.p);
@@ -385,7 +396,10 @@ Jax.Camera = (function() {
      * Returns the transformation matrix. This matrix represents the camera's position and
      * orientation in the world.
      **/
-    getTransformationMatrix: function() { return this.matrices.mv; },
+    getTransformationMatrix: function() {
+      if (this.stale) calculateMatrices(this);
+      return this.matrices.mv;
+    },
 
     /**
      * Jax.Camera#getProjectionMatrix() -> mat4
@@ -404,11 +418,7 @@ Jax.Camera = (function() {
      * This matrix is commonly used in lighting calculations.
      **/
     getNormalMatrix: function() {
-      if (!this.normal_matrix_up_to_date) {
-        mat4.toInverseMat3(this.getTransformationMatrix(), this.matrices.n);
-        mat3.transpose(this.matrices.n);
-      }
-      this.normal_matrix_up_to_date = true;
+      if (this.stale) calculateMatrices(this);
       return this.matrices.n;
     },
 
@@ -439,7 +449,7 @@ Jax.Camera = (function() {
         winz = parseFloat(winz);
       
         var inf = [];
-        var mm = this.matrices.mv, pm = this.matrices.p;
+        var mm = this.getTransformationMatrix(), pm = this.matrices.p;
         var viewport = [0, 0, pm.width, pm.height];
     
         //Calculation for inverting a matrix, compute projection x modelview; then compute the inverse
@@ -489,12 +499,10 @@ Jax.Camera = (function() {
         default: throw new Error("Invalid arguments");
       }
       
-      if      (vec[1] == 0 && vec[2] == 0) mat4.rotateX(this.matrices.mv, amount*vec[0], this.matrices.mv);
-      else if (vec[0] == 0 && vec[2] == 0) mat4.rotateY(this.matrices.mv, amount*vec[1], this.matrices.mv);
-      else if (vec[0] == 0 && vec[1] == 0) mat4.rotateZ(this.matrices.mv, amount*vec[2], this.matrices.mv);
-      else                                 mat4.rotate (this.matrices.mv, amount,   vec, this.matrices.mv);
+      var rotquat = quat4.fromAngleAxis(amount, vec, tmpRotQuat(this));
+      quat4.multiply(rotquat, this.rotation, this.rotation);
       
-      this.fireEvent('matrixUpdated');
+      this.fireEvent('updated');
       return this;
     },
 
@@ -506,10 +514,7 @@ Jax.Camera = (function() {
      * Causes the camera to strafe, or move "sideways" along the right vector.
      **/
     strafe: function(distance) {
-      this._tmp[FORWARD][0] = 1;
-      this._tmp[FORWARD][1] = 0;
-      this._tmp[FORWARD][2] = 0;
-      this.move(distance, this._tmp[FORWARD]);
+      this.move(distance, LOCAL_RIGHT);
       return this;
     },
 
@@ -522,14 +527,8 @@ Jax.Camera = (function() {
      *                     the camera is pointing.
      **/
     move: function(distance, direction) {
-      if (!direction) {
-        direction = this._tmp[FORWARD];
-        direction[0] = 0;
-        direction[1] = 0;
-        direction[2] = -1;
-      }
-      mat4.translate(this.matrices.mv, vec3.scale(direction, distance), this.matrices.mv);
-      this.fireEvent('matrixUpdated');
+      vec3.add(vec3.scale(direction || LOCAL_VIEW, distance, this._tmp[FORWARD]), this.position, this.position);
+      this.fireEvent('updated');
       return this;
     },
 
@@ -538,8 +537,15 @@ Jax.Camera = (function() {
      * Resets this camera by moving it back to the origin and pointing it along the negative
      * Z axis with the up vector along the positive Y axis.
      **/
-    reset: function() { this.lookAt([0,0,-1], [0,1,0], [0,0,0]); }
+    reset: function() { this.lookAt([0,0,-1], [0,0,0]); }
   });
 })();
+
+/** alias of: Jax.Camera#setDirection
+ * Jax.Camera#setViewVector(vector) -> Jax.Camera
+ * - vector (vec3): the direction that the camera will be pointing,
+ *                  relative to the camera
+ **/
+Jax.Camera.prototype.setViewVector = Jax.Camera.prototype.setDirection;
 
 Jax.Camera.addMethods(Jax.Events.Methods);

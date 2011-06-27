@@ -8,7 +8,7 @@ describe("Shader 'blob'", function() {
     describe("stand-alone", function() {
       beforeEach(function() { mesh.material = new Jax.Material.Blob(); });
   
-      it("should render without error", function() {
+      xit("should render without error", function() {
         expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
       });
     });
@@ -20,7 +20,7 @@ describe("Shader 'blob'", function() {
         }]});
       });
   
-      it("should render without error", function() {
+      xit("should render without error", function() {
         expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
       });
     });
