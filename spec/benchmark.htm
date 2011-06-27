@@ -2,6 +2,8 @@
 <head>
   <script type="text/javascript" src="/__root__/dist/jax.js"></script>
   <script type="text/javascript">
+    Jax.environment = Jax.PRODUCTION;
+    
     // shaders
     Jax.shaders['basic'] = new Jax.Shader({  common:"shared uniform mat4 ivMatrix, mvMatrix, pMatrix, vMatrix;\nshared uniform mat3 vnMatrix, nMatrix;\n\nshared uniform vec4 materialDiffuse, materialAmbient, materialSpecular;\nshared uniform float materialShininess;\n\nshared uniform int PASS_TYPE;\n\nshared varying vec2 vTexCoords;\nshared varying vec3 vNormal, vSurfacePos;\nshared varying vec4 vBaseColor;\n",
       fragment:"void main(void) {\n  gl_FragColor = vBaseColor;\n}\n",
