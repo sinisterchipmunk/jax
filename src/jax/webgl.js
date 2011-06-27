@@ -40,6 +40,7 @@ Jax.getGlobal()['GL_METHODS'] = {};
         camelized_method_name = "gl" + method_name.substring(0, 1).toUpperCase() + camelized_method_name;
 
         /* we'll add a layer here to check for render errors, only in development mode */
+        /* FIXME Chrome has serious performance issues related to gl.getError(). Disabling under Chrome for now. */
         var func = "(function "+camelized_method_name+"() {"
                  + "  var result;"
                  + "  if ("+(method_name == 'getError')+" || Jax.environment == Jax.PRODUCTION)"
@@ -47,13 +48,13 @@ Jax.getGlobal()['GL_METHODS'] = {};
                  + "  else {"
                  + "    try { "
                  + "      result = this.gl."+method_name+".apply(this.gl, arguments);"
-                 + "      this.checkForRenderErrors();"
+                 + "      if ("+(navigator.userAgent.toLowerCase().indexOf('chrome') == -1)+")"
+                 + "        this.checkForRenderErrors();"
                  + "    } catch(e) { "
                  + "      var args = [], i;"
                  + "      for (i = 0; i < arguments.length; i++) args.push(arguments[i]);"
                  + "      try { args = JSON.stringify(args); } catch(jsonErr) { args = args.toString(); }"
                  + "      if (!e.stack) e = new Error(e.toString());"
-//                 + "      alert(e+\"\\n\\n\"+e.stack);"
                  + "      this.handleRenderError('"+method_name+"', args, e);"
                  + "    }"
                  + "  }"
