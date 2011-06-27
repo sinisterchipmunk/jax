@@ -51,7 +51,7 @@ Jax.Scene.LightSource = (function() {
       $super(data);
       
       var self = this;
-      this.camera.addEventListener('matrixUpdated', function() { self.invalidate(); });
+      this.camera.addEventListener('updated', function() { self.invalidate(); });
 
       this.spotExponent = this.spot_exponent;
       delete this.spot_exponent;
@@ -128,7 +128,7 @@ Jax.Scene.LightSource = (function() {
     registerCaster: function(object) {
       var self = this;
       function updated() { self.invalidate(); }
-      object.camera.addEventListener('matrixUpdated', updated);
+      object.camera.addEventListener('updated', updated);
       this.invalidate();
     },
     

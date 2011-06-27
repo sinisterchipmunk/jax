@@ -34,22 +34,22 @@ Jax.Mesh.Cube = Jax.Class.create(Jax.Mesh, {
     this.sides = {};
 
     this.sides.left = new Jax.Model({mesh: new Jax.Mesh.Quad(d, h)});
-    this.sides.left.camera.orient([-1,0,0], [0,1,0], [-w/2,0,0]);
+    this.sides.left.camera.reorient([-1,0,0], [-w/2,0,0]);
 
     this.sides.right = new Jax.Model({mesh: new Jax.Mesh.Quad(d, h)});
-    this.sides.right.camera.orient([1,0,0], [0,1,0], [w/2,0,0]);
+    this.sides.right.camera.reorient([1,0,0], [w/2,0,0]);
 
     this.sides.front = new Jax.Model({mesh: new Jax.Mesh.Quad(w, h)});
-    this.sides.front.camera.orient([0,0,1], [0,1,0], [0,0,d/2]);
+    this.sides.front.camera.reorient([0,0,1], [0,0,d/2]);
 
     this.sides.back = new Jax.Model({mesh: new Jax.Mesh.Quad(w, h)});
-    this.sides.back.camera.orient([0,0,-1], [0,1,0], [0,0,-d/2]);
+    this.sides.back.camera.reorient([0,0,-1], [0,0,-d/2]);
 
     this.sides.top = new Jax.Model({mesh: new Jax.Mesh.Quad(w, d)});
-    this.sides.top.camera.orient([0,1,0], [0,0,1], [0,h/2,0]);
+    this.sides.top.camera.reorient([0,1,0], [0,h/2,0]);
 
     this.sides.bottom = new Jax.Model({mesh: new Jax.Mesh.Quad(w, d)});
-    this.sides.bottom.camera.orient([0,-1,0], [0,0,-1], [0,-h/2,0]);
+    this.sides.bottom.camera.reorient([0,-1,0], [0,-h/2,0]);
   },
   
   init: function(verts, colors, texes, norms) {

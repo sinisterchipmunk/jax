@@ -31,7 +31,7 @@ var LightingController = (function() {
       
       // position the player backwards 20 units, to [0,0,20].
       this.player.camera.setPosition(0,15,50);
-      this.player.camera.lookAt([0,0,0],[0,1,0]);
+      this.player.camera.lookAt([0,0,0]);
     },
     
     /* this updater will take care of pivoting the spotlight horizontally over time. */
