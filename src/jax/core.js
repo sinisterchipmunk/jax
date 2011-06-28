@@ -1,6 +1,7 @@
 //= require "vendor/ejs"
 //= require "vendor/glMatrix"
 //= require "prototype/class"
+//= require "core/helper"
 //= require "core/math"
 //= require "core/util"
 //= require "core/matrix_stack"

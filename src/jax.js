@@ -61,7 +61,6 @@ Jax.default_shader = "basic";
 //= require "jax/core"
 //= require "jax/anim_frame"
 //= require "jax/prototype/extensions"
-//= require "jax/mvc/helper"
 //= require "jax/mvc/model"
 //= require "jax/mvc/controller"
 //= require "jax/mvc/view_manager"
