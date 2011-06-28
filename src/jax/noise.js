@@ -1,14 +1,19 @@
 /**
  * class Jax.Noise
  * Constructs several textures to be used in vertex shaders involving Perlin noise.
+ * As of v1.1.0, Jax defines a global variable called **Jax.noise** that you can use
+ * instead of maintaining your own instance of Jax.Noise. This is both more memory
+ * efficient and easier to use.
  *
  * Example:
  *
- *     var noise = new Jax.Noise();
- *     var program = new Jax.Shader.Program({...});
- *     program.manifest.set('perm', noise.perm);
- *     program.manifest.set('simplex', noise.simplex);
- *     program.manifest.set('grad', noise.grad);
+ *     setUniforms: function($super, context, mesh, options, uniforms) {
+ *       $super(context, mesh, options, uniforms);
+ *       
+ *       Jax.noise.bind(context, uniforms);
+ *       
+ *       // . . .
+ *     }
  *
  **/
 Jax.Noise = (function() {
@@ -174,11 +179,6 @@ Jax.Noise = (function() {
     });
   }
 
-  /**
-   * class Jax.Noise
-   *
-   * Used by +Jax.Material.Noise+.
-   **/
   return Jax.Class.create({
     initialize: function(context) {
       /** 
@@ -239,7 +239,7 @@ Jax.Noise = (function() {
     /**
      * Jax.Noise#isPrepared(context) -> Boolean
      * 
-     * Returns true if this Jax.Noise has had its textures prepared and bound to the
+     * Returns true if this Jax.Noise has had its textures prepared for the
      * specified context.
      **/
     isPrepared: function(context) {
@@ -248,11 +248,4 @@ Jax.Noise = (function() {
   });
 })();
 
-/**
- * Jax.noise = new Jax.Noise()
- *
- * A global instance of Jax noise. Local instances will still work as they did prior to
- * Jax v1.1.0, but you should really use Jax.noise instead because it is more
- * memory-efficient. See Jax.Noise#bind for a usage example.
- **/
 Jax.noise = new Jax.Noise();
