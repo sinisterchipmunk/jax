@@ -274,10 +274,10 @@
   
   /**
    * Jax.Model.create(inner) -> klass<Jax.Model>
-   * - inner (Object) - a set of methods the class will contain.
+   * - inner (Object): a set of methods the class will contain.
    * Jax.Model.create(superclass, inner) -> klass<Jax.Model>
-   * - superclass (Jax.Model) - an optional superclass. Defaults to +Jax.Model+.
-   * - inner (Object) - a set of methods the class will contain.
+   * - superclass (Jax.Model): an optional superclass. Defaults to +Jax.Model+.
+   * - inner (Object): a set of methods the class will contain.
    * 
    * Creates a new Jax class inheriting from Jax.Model. If a superclass is given,
    * the model will inherit from the given superclass instead. The superclass is,

@@ -36,6 +36,7 @@ Jax.Mesh.Quad = (function() {
     /**
      * Jax.Mesh.Quad#setWidth(width) -> undefined
      * - width (Number): the width of this quad in WebGL Units.
+     *
      * Sets the width of this quad.
      **/
     setWidth: function(width) { this.setSize(width, this.height); },
@@ -43,6 +44,7 @@ Jax.Mesh.Quad = (function() {
     /**
      * Jax.Mesh.Quad#setHeight(height) -> undefined
      * - height (Number): the height of this quad in WebGL Units.
+     *
      * Sets the height of this quad.
      **/
     setHeight:function(height){ this.setHeight(this.width, height); },
@@ -51,6 +53,7 @@ Jax.Mesh.Quad = (function() {
      * Jax.Mesh.Quad#setSize(width, height) -> undefined
      * - width (Number): the width of this quad in WebGL Units.
      * - height (Number): the height of this quad in WebGL Units.
+     *
      * Sets the width and height of this quad.
      **/
     setSize: function(width, height) {

@@ -27,7 +27,7 @@ Jax.World = (function() {
     
     /**
      * Jax.World#addLightSource(light) -> Jax.Scene.LightSource
-     * - light (Jax.Scene.LightSource) : the instance of Jax.Scene.LightSource to add to this world.
+     * - light (Jax.Scene.LightSource): the instance of Jax.Scene.LightSource to add to this world.
      *
      * Adds the light to the world and then returns the light itself unchanged.
      **/
@@ -35,7 +35,7 @@ Jax.World = (function() {
     
     /**
      * Jax.World#addObject(object) -> Jax.Model
-     * - object (Jax.Model) : the instance of Jax.Model to add to this world.
+     * - object (Jax.Model): the instance of Jax.Model to add to this world.
      *
      * Adds the model to the world and then returns the model itself unchanged.
      *
@@ -49,7 +49,7 @@ Jax.World = (function() {
     
     /**
      * Jax.World#getObject(index) -> Jax.Model
-     * - index (Number) : the world index of this object
+     * - index (Number): the world index of this object
      *
      * Returns the object with the specified world index, or undefined.
      **/
@@ -57,7 +57,7 @@ Jax.World = (function() {
     
     /**
      * Jax.World#removeObject(object_or_index) -> Jax.Model
-     * - object_or_index (Number|Jax.Model) : the model instance to remove, or its world index
+     * - object_or_index (Number|Jax.Model): the model instance to remove, or its world index
      *
      * If the model or its index cannot be found, nothing happens and the return value is undefined.
      * Otherwise, the object is removed from this World and then returned.

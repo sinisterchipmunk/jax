@@ -146,6 +146,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#loadModelMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the new matrix values
+     *
      * Replaces the current model matrix with the specified one.
      * Updates the inverse model matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
@@ -154,6 +155,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#loadViewMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the new matrix values
+     *
      * Replaces the current view matrix with the specified one.
      * Updates the inverse view matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
@@ -162,6 +164,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#loadProjectionMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the new matrix values
+     *
      * Replaces the current projection matrix with the specified one.
      * Updates the inverse projection matrix.
      **/
@@ -170,6 +173,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#multModelMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the matrix values
+     *
      * Multiplies the current model matrix with the specified one.
      * Updates the inverse model matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
@@ -178,6 +182,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#multViewMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the matrix values
+     *
      * Multiplies the current view matrix with the specified one.
      * Updates the inverse view matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
@@ -186,6 +191,7 @@ Jax.MatrixStack = (function() {
     /**
      * Jax.MatrixStack#multProjectionMatrix(matr) -> Jax.MatrixStack
      * - matr (mat4): the matrix values
+     *
      * Multiplies the current projection matrix with the specified one.
      * Updates the inverse projection matrix.
      **/

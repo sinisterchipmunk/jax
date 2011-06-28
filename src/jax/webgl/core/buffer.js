@@ -21,8 +21,8 @@ Jax.Buffer = (function() {
     /**
      * new Jax.Buffer(bufferType, classType, drawType, jsarr, itemSize)
      * - bufferType (GLenum): A WebGL enumeration specifying what type
-     * of buffer this represents, such as GL_ELEMENT_ARRAY_BUFFER or
-     * GL_ARRAY_BUFFER.
+     *                        of buffer this represents, such as GL_ELEMENT_ARRAY_BUFFER or
+     *                        GL_ARRAY_BUFFER.
      * - classType (TypedArray): a typed array to implement this buffer
      * with, such as +Uint6Array+ or +Float32Array+.
      * - drawType (GLenum): GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW.
@@ -31,6 +31,7 @@ Jax.Buffer = (function() {
      * - itemSize (Number): the number of items in a single element
      * of the buffer. The length of the buffer must be divisible by
      * this number.
+     *
      **/
     initialize: function(bufferType, classType, drawType, jsarr, itemSize) {
       if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
@@ -101,7 +102,7 @@ Jax.Buffer = (function() {
 
     /**
      * Jax.Buffer#bind(context) -> Jax.Buffer
-     * - context (Jax.Context) - the context to bind the buffer to.
+     * - context (Jax.Context): the context to bind the buffer to.
      *
      * Binds this buffer to the specified context, then returns the buffer.
      * If this buffer is in an uninitialized or disposed state, it will be
@@ -111,7 +112,7 @@ Jax.Buffer = (function() {
 
     /**
      * Jax.Buffer#getGLBuffer(context) -> WebGLBuffer
-     * - context (Jax.Context) - the context to get the buffer for.
+     * - context (Jax.Context): the context to get the buffer for.
      * 
      * Returns the underlying WebGLBuffer instance representing this buffer's data
      * for the specified context. Note that this is different for each context.

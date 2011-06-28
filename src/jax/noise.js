@@ -2,7 +2,7 @@
  * class Jax.Noise
  * Constructs several textures to be used in vertex shaders involving Perlin noise.
  * As of v1.1.0, Jax defines a global variable called **Jax.noise** that you can use
- * instead of maintaining your own instance of Jax.Noise. This is both more memory
+ * instead of maintaining your own instance of +Jax.Noise+. This is both more memory
  * efficient and easier to use.
  *
  * Example:

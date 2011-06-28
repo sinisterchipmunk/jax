@@ -94,9 +94,79 @@ task :minify => :compile do
   end
 end
 
+### HACK to add redcloth support to pdoc without changing pdoc itself
+class PDoc::Generators::Html::Website < PDoc::Generators::AbstractGenerator
+  alias _set_markdown_parser set_markdown_parser
+  
+  def set_markdown_parser(parser = nil)
+    if parser && parser.to_sym == :redcloth
+      require 'redcloth'
+      self.class.markdown_parser = RedCloth
+    else
+      _set_markdown_parser(parser)
+    end
+  end
+end
+
 namespace :doc do
+  desc "check for common pdoc typos"
+  task :check do
+    candidates = [
+      /\/\*\*(.*?)\*\*\//m,
+      /\s*\*.*?\)\s+:/,                #  * - object (Jax.Model) : description
+      /\s*\*\s*\-.*?\)\s*\-/,          #  * - object (Jax.Model) - description
+      /\s*\*\s*\-[^\n]*?\n\s*\*\*\//m, #  * - object (Jax.Model): description\n  **/
+    ]
+    
+    errors = false
+
+    Dir[File.expand_path("src/**/*.js", File.dirname(__FILE__))].each do |fi|
+      next unless File.file?(fi)
+      lfi = fi.sub(/^#{Regexp::escape File.expand_path("src/", File.dirname(__FILE__))}\/?/, '')
+      candidates.each do |candidate|
+        if candidate.multiline?
+          content = File.read(fi)
+          offset = 0
+          lineno = 1
+          while m = candidate.match(content[offset...content.length])
+            offset += m.offset(0)[1]
+            lineno += $`.lines.to_a.length
+
+            if candidate == candidates.first
+              full = $~[0]
+              # special case -- we're looking for parameters followed by an empty line. If it's missing,
+              # pdoc will not correctly parse the params.
+              inner = $~[1]
+              
+              if inner =~ /^\s*\*\s*\-.*/m
+                lineno += $`.lines.to_a.length
+                inner = $~[0]
+                if inner !~ /\*\s*(\*|$)/m
+                  errors = true
+                  puts "#{lfi}:#{lineno} >\n#{full}"
+                end
+              end
+            else
+              errors = true
+              puts "#{lfi}:#{lineno} >\n#{$~[0]}"
+            end
+          end
+        else
+          File.read(fi).lines.each_with_index do |line,no|
+            if line =~ candidate
+              errors = true
+              puts "#{lfi}:#{no+1} > #{$~[0]}"
+            end
+          end
+        end
+      end
+    end
+    
+    exit if errors
+  end
+  
   desc "build the Jax JavaScript documentation"
-  task :js do
+  task :js => 'doc:check' do
     require 'erb'
     FileUtils.rm_rf 'doc'
     
@@ -110,7 +180,8 @@ namespace :doc do
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
-      :markdown_parser    => :bluecloth,
+      :markdown_parser => :redcloth,
+      # :markdown_parser    => :bluecloth,
       :src_code_text => "View source on GitHub &rarr;",
       :src_code_href => proc { |obj|
         "https://github.com/sinisterchipmunk/jax/tree/master/#{obj.file}#L#{obj.line_number}"

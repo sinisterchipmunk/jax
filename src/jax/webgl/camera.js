@@ -264,12 +264,12 @@ Jax.Camera = (function() {
 
     /**
      * Jax.Camera#setDirection(vector) -> Jax.Camera
-     * - vector (vec3): the new direction that the camera will be pointing,
-     *                  relative to the camera
      * Jax.Camera#setDirection(x,y,z) -> Jax.Camera
+     * - vector (vec3): the new direction that the camera will be pointing, relative to the camera
      * - x (Number): the X component of the direction to point in, relative to the camera
      * - y (Number): the Y component of the direction to point in, relative to the camera
      * - z (Number): the Z component of the direction to point in, relative to the camera
+     *
      **/
     setDirection: function(vector) {
       var vec;
@@ -433,6 +433,7 @@ Jax.Camera = (function() {
      * - point (vec3): the point, in world space, to look at
      * - pos (vec3): an optional point to reposition this camera at, in world space,
      *               replacing its current position
+     *
      **/
     lookAt: function(point, pos) {
       if (arguments.length > 2)
@@ -594,6 +595,7 @@ Jax.Camera = (function() {
      * - direction (vec3): the vector to move along. If not specified, this will default to
      *                     the camera's view vector. That is, it will default to the direction
      *                     the camera is pointing.
+     *
      **/
     move: function(distance, direction) {
       if (!direction) direction = storeVecBuf(this, VIEW);
@@ -614,8 +616,6 @@ Jax.Camera = (function() {
 
 /** alias of: Jax.Camera#setDirection
  * Jax.Camera#setViewVector(vector) -> Jax.Camera
- * - vector (vec3): the direction that the camera will be pointing,
- *                  relative to the camera
  **/
 Jax.Camera.prototype.setViewVector = Jax.Camera.prototype.setDirection;
 
