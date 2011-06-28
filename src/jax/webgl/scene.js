@@ -1,3 +1,7 @@
+/**
+ * Jax.Scene
+ *
+ **/
 Jax.Scene = {};
 
 /* used by some shaders to determine what kind of shading is to be done.

@@ -1,5 +1,27 @@
 //= require "../../geometry"
 
+/**
+ * class Jax.Scene.Frustum
+ * includes Jax.Events.Methods
+ * 
+ * A Frustum represents a camera's view; it encloses the entire visible area and can be used
+ * to query whether any given point is visible.
+ *
+ * Frustums are best known for their use in frustum culling, which is the practice of testing to
+ * see whether an object is on-screen or not. If it's not on-screen, then there is no reason to
+ * draw it.
+ *
+ * Frustums can also be useful for AI programming. In Jax, all instances of Jax.Camera create and
+ * maintain their own internal Jax.Scene.Frustum instance. Since nearly every object has, in turn,
+ * its own Jax.Camera, almost every object can effectively "see" the objects surrounding it.
+ *
+ * To get a Frustum instance, see the Jax.Camera#getFrustum method. Here are some examples:
+ *
+ *     var playerFrustum = this.context.player.camera.getFrustum();
+ *     var ogreFrustum = ogre.camera.getFrustum();
+ *     // where 'ogre' is an instance of Jax.Model
+ *
+ **/
 Jax.Scene.Frustum = (function() {
   var RIGHT = 0, LEFT = 1, BOTTOM = 2, TOP = 3, FAR = 4, NEAR = 5;
   var OUTSIDE = Jax.Geometry.Plane.BACK, INTERSECT = Jax.Geometry.Plane.INTERSECT, INSIDE = Jax.Geometry.Plane.FRONT;
@@ -84,24 +106,94 @@ Jax.Scene.Frustum = (function() {
   }
 
   var klass = Jax.Class.create({
+    /**
+     * new Jax.Scene.Frustum(view, projection)
+     * - view (mat4): the view matrix
+     * - projection (mat4): the projection matrix
+     *
+     * A frustum is usually instantiated by Jax.Camera; however, if you are maintaining
+     * your own view and projection matrices then it could be helpful to instantiate
+     * the frustum directly. See also Jax.Frustum#update for keeping a frustum up-to-date.
+     **/
     initialize: function(modelview, projection) {
-      this.listeners = {update:[]};
-      this.callbacks = this.listeners;
       this.planes = {};
       for (var i = 0; i < 6; i++) this.planes[i] = new Jax.Geometry.Plane();
       this.setMatrices(modelview, projection);
     },
   
-    update: function() { if (this.mv && this.p) { extractFrustum(this); this.fireListeners('update'); } },
-    setModelviewMatrix: function(mv) { this.setMatrices(mv, this.p); },
-    setProjectionMatrix: function(p) { this.setMatrices(this.mv, p); },
+    /**
+     * Jax.Scene.Frustum#update() -> Jax.Scene.Frustum
+     *
+     * A frustum must maintain the 6 planes making up its boundaries; if the view or
+     * projection matrix is modified, then the frustum is no longer accurate and must
+     * be updated. For improved performance, you should only call this method when the
+     * corresponding matrices are actually changed (or even better, when the matrices
+     * have been changed and the frustum is actually being used).
+     *
+     * After updating the frustum, this method will fire an 'updated' event.
+     *
+     * Instances of Jax.Camera maintain their own frustums; they will fire this
+     * method automatically whenever doing so becomes necessary.
+     **/
+    update: function() {
+      if (this.mv && this.p) {
+        extractFrustum(this);
+        this.fireEvent('updated');
+      }
+      return this;
+    },
+    
+    /**
+     * Jax.Scene.Frustum#setViewMatrix(view) -> Jax.Scene.Frustum
+     * - view (mat4): a 4x4 matrix
+     * 
+     * Replaces this frustum's view matrix with the specified one and then
+     * updates the frustum.
+     *
+     * Note that the frustum adopts the given matrix reference; that is,
+     * if you make further changes to the view matrix, they will be reflected
+     * by the frustum (though you still need to call Jax.Scene.Frustum#update).
+     **/
+    setViewMatrix: function(mv) { return this.setMatrices(mv, this.p); },
+
+    /**
+     * Jax.Scene.Frustum#setProjectionMatrix(proj) -> Jax.Scene.Frustum
+     * - proj (mat4): a 4x4 matrix
+     * 
+     * Replaces this frustum's projection matrix with the specified one and then
+     * updates the frustum.
+     *
+     * Note that the frustum adopts the given matrix reference; that is,
+     * if you make further changes to the projection matrix, they will be reflected
+     * by the frustum (though you still need to call Jax.Scene.Frustum#update).
+     **/
+    setProjectionMatrix: function(p) { return this.setMatrices(this.mv, p); },
   
+    /**
+     * Jax.Scene.Frustum#setMatrices(view, proj) -> Jax.Scene.Frustum
+     * - view (mat4): the 4x4 view matrix
+     * - proj (mat4): the 4x4 projection matrix
+     *
+     * Replaces both matrices in the frustum, and then updates the frustum.
+     *
+     * Note that the frustum adopts the given matrix reference; that is,
+     * if you make further changes to the projection matrix, they will be reflected
+     * by the frustum (though you still need to call Jax.Scene.Frustum#update).
+     **/
     setMatrices: function(mv, p) {
       this.mv = mv;
       this.p  = p;
       this.update();
+      return this;
     },
   
+    /**
+     * Jax.Scene.Frustum#point(p) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE
+     * - p (vec3): the 3D point to be tested
+     * 
+     * Returns Jax.Scene.Frustum.INSIDE if the specified point lies within this frustum;
+     * returns Jax.Scene.Frustum.OUTSIDE otherwise.
+     **/
     point: function(point) {
       if (!this.mv || !this.p) return INSIDE;
       if (arguments.length == 3) point = [arguments[0], arguments[1], arguments[2]];
@@ -114,6 +206,15 @@ Jax.Scene.Frustum = (function() {
       return INSIDE;
     },
   
+    /**
+     * Jax.Scene.Frustum#sphere(center, radius) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
+     * - center (vec3): the center of the sphere to be tested
+     * - radius (Number): the radius of the sphere to be tested
+     * 
+     * Returns Jax.Scene.Frustum.INSIDE if the specified sphere lies entirely within this frustum;
+     * Jax.Scene.Frustum.INTERSECT if the sphere lies only partially within this frustum; or
+     * Jax.Scene.Frustum.OUTSIDE if the sphere lies entirely beyond the boundaries of this frustum.
+     **/
     sphere: function(center, radius)
     {
       if (!this.mv || !this.p) return INSIDE;
@@ -129,13 +230,21 @@ Jax.Scene.Frustum = (function() {
       return result;
     },
   
-    /* Arguments can either be an array of indices, or a position array [x,y,z] followed by width, height and depth.
-        Examples:
-          var cube = new Cube(...);
-          frustum.cube(cube.getCorners());
-          frustub.cube(cube.orientation.getPosition(), 1);
-          frustub.cube(cube.orientation.getPosition(), 1, 2, 3);
-     */
+    
+    /**
+     * Jax.Scene.Frustum#cube(corners) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
+     * - corners (Array<vec3>): an array of 3D points representing the corners of the cube to be tested
+     *
+     * Jax.Scene.Frustum#cube(center, width, height, depth) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
+     * - center (vec3): a 3D point representing the center of the cube to be tested
+     * - width (Number): the width of the cube to be tested
+     * - height (Number): the height of the cube to be tested
+     * - depth (Number): the depth of the cube to be tested
+     * 
+     * Returns Jax.Scene.Frustum.INSIDE if the specified cube lies entirely within this frustum;
+     * Jax.Scene.Frustum.INTERSECT if the cube lies only partially within this frustum; or
+     * Jax.Scene.Frustum.OUTSIDE if the cube lies entirely beyond the boundaries of this frustum.
+     **/
     cube: function(corners)
     {
       if (arguments.length == 2) { return varcube(this, arguments[0], arguments[1], arguments[1], arguments[1]); }
@@ -158,18 +267,54 @@ Jax.Scene.Frustum = (function() {
       return (c2 == 6) ? INSIDE : INTERSECT;
     },
   
-    addUpdateListener: function(callback) { this.listeners.update.push(callback); },
+    /**
+     * Jax.Scene.Frustum#sphereVisible(center, radius) -> Boolean
+     * - center (vec3): the center of the sphere to be tested
+     * - radius (Number): the radius of the sphere to be tested
+     *
+     * Returns true if the sphere is entirely or partially within this frustum, false otherwise.
+     **/
     sphereVisible: function(center, radius) { return this.sphere.apply(this, arguments) != OUTSIDE; },
+    
+    /**
+     * Jax.Scene.Frustum#pointVisible(point) -> Boolean
+     * - point (vec3): the 3D point to be tested
+     *
+     * Returns true if the point is within this frustum, false otherwise.
+     **/
     pointVisible:  function(center)         { return this.point.apply(this, arguments)  != OUTSIDE; },
+
+    /**
+    * Jax.Scene.Frustum#cubeVisible(corners) -> Boolean
+    * - corners (Array<vec3>): an array of 3D points representing the corners of the cube to be tested
+    *
+    * Jax.Scene.Frustum#cubeVisible(center, width, height, depth) -> Boolean
+    * - center (vec3): a 3D point representing the center of the cube to be tested
+    * - width (Number): the width of the cube to be tested
+    * - height (Number): the height of the cube to be tested
+    * - depth (Number): the depth of the cube to be tested
+    * 
+     * Returns true if the cube is entirely or partially within this frustum, false otherwise.
+     **/
     cubeVisible:   function(corners)        { return this.cube.apply(this, arguments)   != OUTSIDE; },
   
-    fireListeners: function(name) {
-      for (var i = 0; i < this.listeners[name].length; i++)
-        this.listeners[name][i]();
-    },
-
+    /**
+     * Jax.Scene.Frustum#isValid() -> Boolean
+     *
+     * Returns true if the frustum has both a projection and a view matrix, false otherwise.
+     **/
     isValid: function() { return this.p && this.mv; },
   
+    /**
+     * Jax.Scene.Frustum#getRenderable() -> Jax.Model
+     *
+     * Returns a renderable 3D object with a corresponding Jax.Mesh
+     * representing this frustum and its orientation within the world. Very
+     * useful for debugging or otherwise visualizing the frustum object.
+     *
+     * The 3D object hooks into this frustum's 'updated' event so that
+     * whenever the frustum is updated, the renderable will be, too.
+     **/
     getRenderable: function()
     {
       if (this.renderable) return this.renderable;
@@ -233,7 +378,7 @@ Jax.Scene.Frustum = (function() {
     
       renderable.update = null;
     
-      frustum.addUpdateListener(function() {
+      frustum.addEventListener('updated', function() {
         if (!frustum.isValid()) { return; }
       
         renderable.upToDate = true;
@@ -252,9 +397,28 @@ Jax.Scene.Frustum = (function() {
     }
   });
 
+  /**
+   * Jax.Scene.Frustum.INSIDE = Jax.Geometry.Plane.FRONT
+   *
+   * Special value used to represent an object falling entirely within this frustum.
+   **/
   klass.INSIDE = INSIDE;
+
+  /**
+   * Jax.Scene.Frustum.OUTSIDE = Jax.Geometry.Plane.BACK
+   *
+   * Special value used to represent an object falling entirely outside of this frustum.
+   **/
   klass.OUTSIDE = OUTSIDE;
+
+  /**
+   * Jax.Scene.Frustum.INTERSECT = Jax.Geometry.Plane.INTERSECT
+   *
+   * Special value used to represent an object falling partially within this frustum, partially outside.
+   **/
   klass.INTERSECT = INTERSECT;
+
+  klass.addMethods(Jax.Events.Methods);
 
   return klass;
 })();
