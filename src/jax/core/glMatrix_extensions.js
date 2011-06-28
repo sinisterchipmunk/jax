@@ -102,7 +102,7 @@ if (typeof(vec4) == 'undefined') var vec4 = {};
 
 /**
  * vec4.create([src]) -> vec4
- * src (vec4|Array): an optional source array to initialize this vec4 from
+ * - src (vec4 | Array): an optional source array to initialize this vec4 from
  * 
  * Creates and returns a new vec4, optionally initialized with values from +src+.
  *

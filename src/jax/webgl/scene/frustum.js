@@ -188,7 +188,7 @@ Jax.Scene.Frustum = (function() {
     },
   
     /**
-     * Jax.Scene.Frustum#point(p) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE
+     * Jax.Scene.Frustum#point(p) -> Jax.Scene.Frustum.INSIDE | Jax.Scene.Frustum.OUTSIDE
      * - p (vec3): the 3D point to be tested
      * 
      * Returns Jax.Scene.Frustum.INSIDE if the specified point lies within this frustum;
@@ -207,7 +207,7 @@ Jax.Scene.Frustum = (function() {
     },
   
     /**
-     * Jax.Scene.Frustum#sphere(center, radius) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
+     * Jax.Scene.Frustum#sphere(center, radius) -> Jax.Scene.Frustum.INSIDE | Jax.Scene.Frustum.OUTSIDE | Jax.Scene.Frustum.INTERSECT
      * - center (vec3): the center of the sphere to be tested
      * - radius (Number): the radius of the sphere to be tested
      * 
@@ -232,10 +232,9 @@ Jax.Scene.Frustum = (function() {
   
     
     /**
-     * Jax.Scene.Frustum#cube(corners) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
-     * - corners (Array<vec3>): an array of 3D points representing the corners of the cube to be tested
-     *
-     * Jax.Scene.Frustum#cube(center, width, height, depth) -> Jax.Scene.Frustum.INSIDE|Jax.Scene.Frustum.OUTSIDE|Jax.Scene.Frustum.INTERSECT
+     * Jax.Scene.Frustum#cube(corners) -> Jax.Scene.Frustum.INSIDE | Jax.Scene.Frustum.OUTSIDE | Jax.Scene.Frustum.INTERSECT
+     * Jax.Scene.Frustum#cube(center, width, height, depth) -> Jax.Scene.Frustum.INSIDE | Jax.Scene.Frustum.OUTSIDE | Jax.Scene.Frustum.INTERSECT
+     * - corners (Array): an array of 3D points representing the corners of the cube to be tested
      * - center (vec3): a 3D point representing the center of the cube to be tested
      * - width (Number): the width of the cube to be tested
      * - height (Number): the height of the cube to be tested
@@ -285,15 +284,14 @@ Jax.Scene.Frustum = (function() {
     pointVisible:  function(center)         { return this.point.apply(this, arguments)  != OUTSIDE; },
 
     /**
-    * Jax.Scene.Frustum#cubeVisible(corners) -> Boolean
-    * - corners (Array<vec3>): an array of 3D points representing the corners of the cube to be tested
-    *
-    * Jax.Scene.Frustum#cubeVisible(center, width, height, depth) -> Boolean
-    * - center (vec3): a 3D point representing the center of the cube to be tested
-    * - width (Number): the width of the cube to be tested
-    * - height (Number): the height of the cube to be tested
-    * - depth (Number): the depth of the cube to be tested
-    * 
+     * Jax.Scene.Frustum#cubeVisible(corners) -> Boolean
+     * Jax.Scene.Frustum#cubeVisible(center, width, height, depth) -> Boolean
+     * - corners (Array): an array of 3D points representing the corners of the cube to be tested
+     * - center (vec3): a 3D point representing the center of the cube to be tested
+     * - width (Number): the width of the cube to be tested
+     * - height (Number): the height of the cube to be tested
+     * - depth (Number): the depth of the cube to be tested
+     * 
      * Returns true if the cube is entirely or partially within this frustum, false otherwise.
      **/
     cubeVisible:   function(corners)        { return this.cube.apply(this, arguments)   != OUTSIDE; },

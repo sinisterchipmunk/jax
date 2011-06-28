@@ -147,9 +147,9 @@ Jax.Camera = (function() {
     },
     
     /**
-     * Jax.Camera#setFixedYawAxis(useFixedYaw[, axis]) -> Jax.Camera
+     * Jax.Camera#setFixedYawAxis(useFixedYaw[, axis = vec3(0,1,0)]) -> Jax.Camera
      * - useFixedYaw (Boolean): set to true if you wish to fix the yaw axis, false otherwise
-     * - axis (vec3): optional vec3 to use as the yaw axis. Defaults to [0,1,0].
+     * - axis (vec3): optional vec3 to use as the yaw axis.
      *
      * Due to the nature of 3D rotation, rotated objects are subject to a phenomenon known as
      * camera drift (also called Z drift or "roll" drift). This occurs when a series of
@@ -202,7 +202,7 @@ Jax.Camera = (function() {
 
     /**
      * Jax.Camera#ortho(options) -> undefined
-     * - options (Object): the set of parameters used to calculate the projection matrix
+     * - options (Object): the set of parameters used to calculate the projection matrix.
      * 
      * Sets up an orthographic projection matrix. Objects will not appear to shrink as they grow
      * more distant from the camera in this mode. This mode is frequently used by high-precision
@@ -430,9 +430,9 @@ Jax.Camera = (function() {
     
     /**
      * Jax.Camera#lookAt(point[, pos]) -> Jax.Camera
-     * point (vec3): the point, in world space, to look at
-     * pos (vec3): an optional point to reposition this camera at, in world space,
-     * replacing its current position
+     * - point (vec3): the point, in world space, to look at
+     * - pos (vec3): an optional point to reposition this camera at, in world space,
+     *               replacing its current position
      **/
     lookAt: function(point, pos) {
       if (arguments.length > 2)
@@ -486,6 +486,9 @@ Jax.Camera = (function() {
      * 
      * Returns the transformation matrix. This matrix represents the camera's position and
      * orientation in the world.
+     *
+     * If the matrix is outdated due to changes to the camera,
+     * it is automatically updated and then a 'matrixUpdated' event is fired.
      **/
     getTransformationMatrix: function() {
       if (this.stale) calculateMatrices(this);
@@ -507,6 +510,9 @@ Jax.Camera = (function() {
      * transformation matrix.
      * 
      * This matrix is commonly used in lighting calculations.
+     *
+     * If the matrix is outdated due to changes to the camera,
+     * it is automatically updated and then a 'matrixUpdated' event is fired.
      **/
     getNormalMatrix: function() {
       if (this.stale) calculateMatrices(this);
@@ -598,6 +604,7 @@ Jax.Camera = (function() {
 
     /**
      * Jax.Camera#reset() -> the reset camera
+     *
      * Resets this camera by moving it back to the origin and pointing it along the negative
      * Z axis with the up vector along the positive Y axis.
      **/
