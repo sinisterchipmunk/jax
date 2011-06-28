@@ -149,8 +149,17 @@ Jax.Scene.LightSource = (function() {
         var real_pass = context.current_pass;
         /* shadowgen pass */
         context.current_pass = Jax.Scene.SHADOWMAP_PASS;
-        this.updateShadowMap(context, this.boundingRadius, objects, options);
-        this.valid = true;
+        // Look for errors while rendering the shadow map; if any occur, log them, but then
+        // disable shadowmap generation so Jax can continue without shadow support.
+        try {
+          if (this.shadowcaster)
+            this.updateShadowMap(context, this.boundingRadius, objects, options);
+          this.valid = true;
+        } catch(e) {
+          if (window.console && window.console.log) window.console.log(e.toString());
+          setTimeout(function() { throw e; }, 1);
+          this.shadowcaster = false;
+        }
         context.current_pass = real_pass;
       }
       

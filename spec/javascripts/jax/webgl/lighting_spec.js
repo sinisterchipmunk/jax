@@ -1,6 +1,33 @@
 describe("LightManager", function() {
   var mgr;
   
+  describe("when an error is raised during shadowmap generation", function() {
+    var context, _real_console, light;
+    
+    beforeEach(function() {
+      context = new Jax.Context('canvas-element');
+      _real_console = window.console;
+      window.console = {messages:[], log:function(msg) { this.messages.push(msg); }};
+      mgr = new Jax.Scene.LightManager();
+      light = new Jax.Scene.LightSource();
+      mgr.add(light);
+      light.updateShadowMap = function() { throw new Error("Whoops"); };
+    });
+    
+    afterEach(function() { window.console = _real_console; context.dispose(); });
+    
+    it("should disable shadowcasting", function() {
+      mgr.illuminate(context, {});
+      expect(light.isShadowcaster()).toBeFalsy();
+    });
+    
+    it("should log the error", function() {
+      expect(function() { mgr.illuminate(context, {}); }).not.toThrow();
+      expect(window.console.messages[0]).toEqual(new Error("Whoops").toString());
+      return true;
+    });
+  });
+  
   describe("by default", function() {
     beforeEach(function() { mgr = new Jax.Scene.LightManager(); });
   
