@@ -112,10 +112,6 @@ Jax.Noise = (function() {
       perm_buf = new Uint8Array(pixels);
     }
 
-    tex.bind(context, function() {
-      context.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, perm_buf);
-    });
-    
     return tex;
   }
   
@@ -131,9 +127,6 @@ Jax.Noise = (function() {
 
     if (!simplex_buf) simplex_buf = new Uint8Array(simplex4);
     var tex = new Jax.Texture({min_filter:GL_NEAREST,mag_filter:GL_NEAREST, width:64, height:1});
-    tex.bind(context, function() {
-      context.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, simplex_buf);
-    });
     return tex;
   }
   
@@ -163,10 +156,22 @@ Jax.Noise = (function() {
       grad_buf = new Uint8Array(pixels);
     }
 
-    tex.bind(context, function() {
+    return tex;
+  }
+  
+  function prepareAll(self, context) {
+    if (!perm_buf || !simplex_buf || !grad_buf)
+      throw new Error("Unknown error: one of the noise buffers is null!");
+      
+    self.perm.bind(context, function() {
+      context.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, perm_buf);
+    });
+    self.simplex.bind(context, function() {
+      context.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, simplex_buf);
+    });
+    self.grad.bind(context, function() {
       context.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, grad_buf);
     });
-    return tex;
   }
 
   /**
@@ -201,6 +206,53 @@ Jax.Noise = (function() {
        * only.
        **/
       this.grad = initGradTexture(context);
+      
+      if (context) prepareAll(this, context);
+    },
+    
+    /**
+     * Jax.Noise#bind(context, uniforms) -> Jax.Shader.Delegator
+     * - context (Jax.Context): the context to bind the noise textures to
+     * - uniforms (Jax.Shader.Delegator): the shader variables to bind this noise to.
+     * 
+     * Binds the three noise textures to the given set of shader uniforms. This is
+     * intended to be used from within a shader's +material.js+ file like so:
+     *
+     *     setUniforms: function($super, context, mesh, options, uniforms) {
+     *       $super(context, mesh, options, uniforms);
+     *       
+     *       Jax.noise.bind(context, uniforms);
+     *       
+     *       // . . .
+     *     }
+     *
+     * Returns the same uniforms delegator that was specified to begin with.
+     *
+     **/
+    bind: function(context, uniforms) {
+      if (!this.isPrepared(context)) prepareAll(this, context);
+      uniforms.texture('permTexture',    this.perm,    context);
+      uniforms.texture('simplexTexture', this.simplex, context);
+      uniforms.texture('gradTexture',    this.grad,    context);
+    },
+    
+    /**
+     * Jax.Noise#isPrepared(context) -> Boolean
+     * 
+     * Returns true if this Jax.Noise has had its textures prepared and bound to the
+     * specified context.
+     **/
+    isPrepared: function(context) {
+      return this.perm.isValid(context);
     }
   });
 })();
+
+/**
+ * Jax.noise = new Jax.Noise()
+ *
+ * A global instance of Jax noise. Local instances will still work as they did prior to
+ * Jax v1.1.0, but you should really use Jax.noise instead because it is more
+ * memory-efficient. See Jax.Noise#bind for a usage example.
+ **/
+Jax.noise = new Jax.Noise();
