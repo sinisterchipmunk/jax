@@ -24,6 +24,15 @@
  *     l.sayHi("World");
  *     //=> Hello, World!
  *
+ *
+ * As of Jax v1.1.0, you may also set the array of helpers directly on the +helpers+ property
+ * of a class, instead of defining a function. The following example is functionally
+ * equivalent to the above:
+ *
+ *     var Liaison = Jax.Class.create({
+ *       helpers: [HelloHelper]
+ *     });
+ *
  **/
 Jax.Helper = {
   instances: [],

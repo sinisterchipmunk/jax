@@ -235,6 +235,9 @@ Jax.Util = {
    * then mixed into the class.
    *
    * An array of all helpers that were just mixed into the target class is returned.
+   *
+   * As of Jax v1.1.0, you may also set the array of helpers directly on the +helpers+ property
+   * of a class, instead of defining a function.
    **/
   addRequestedHelpers: function(klass) {
     var helpers = [];
@@ -243,7 +246,11 @@ Jax.Util = {
       klass.addMethods(ApplicationHelper);
     }
     if (klass.prototype.helpers) {
-      var helper_array = klass.prototype.helpers.call(klass);
+      var helper_array;
+      if (typeof(klass.prototype.helpers) == "function")
+        helper_array = klass.prototype.helpers.call(klass);
+      else helper_array = klass.prototype.helpers;
+      
       for (var i = 0; i < helper_array.length; i++) {
         helpers.push(helper_array[i]);
         klass.addMethods(helper_array[i]);
