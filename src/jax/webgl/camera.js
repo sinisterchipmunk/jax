@@ -143,6 +143,26 @@ Jax.Camera = (function() {
       
       this.addEventListener('updated', function() { matrixUpdated(this); });
       this.reset();
+      this.setFixedYawAxis(true, vec3.UNIT_Y);
+    },
+    
+    /**
+     * Jax.Camera#setFixedYawAxis(useFixedYaw[, axis]) -> Jax.Camera
+     * - useFixedYaw (Boolean): set to true if you wish to fix the yaw axis, false otherwise
+     * - axis (vec3): optional vec3 to use as the yaw axis. Defaults to [0,1,0].
+     *
+     * Due to the nature of 3D rotation, rotated objects are subject to a phenomenon known as
+     * camera drift (also called Z drift or "roll" drift). This occurs when a series of
+     * rotations cause the object's up vector to become rotated, affecting a "tilt" around
+     * the object's local Z axis.
+     *
+     * Since this is not generally the expected outcome, Jax.Camera will by default set a
+     * fixed yaw axis, which prevents drift. You can disable it or change the axis around
+     * which yaw will be constrained by calling this function.
+     **/
+    setFixedYawAxis: function(useFixedYaw, axis) {
+      this.fixed_yaw = useFixedYaw;
+      if (axis) this.fixed_yaw_axis = vec3.create(axis);
     },
 
     /**
@@ -265,6 +285,77 @@ Jax.Camera = (function() {
       return this;
     },
     
+    /**
+     * Jax.Camera#rotate(amount, x, y, z) -> rotated camera
+     * - amount (Number): amount to rotate, in radians
+     * - x (Number): X coordinate of the axis around which to rotate
+     * - y (Number): Y coordinate of the axis around which to rotate
+     * - z (Number): Z coordinate of the axis around which to rotate
+     * Jax.Camera.rotate(amount, vector) -> rotated camera
+     * - amount (Number): amount to rotate, in radians
+     * - vector (vec3): vector form of the axis around which to rotate
+     * 
+     * Rotates the camera by the specified amount around some axis.
+     **/
+    rotate: function() {
+      var amount = arguments[0];
+      var vec;
+      switch(arguments.length) {
+        case 2: vec = arguments[1]; break;
+        case 4: vec = this._tmp[0]; vec[0] = arguments[1]; vec[1] = arguments[2]; vec[2] = arguments[3];  break;
+        default: throw new Error("Invalid arguments");
+      }
+      
+      var rotquat = quat4.fromAngleAxis(amount, vec, tmpRotQuat(this));
+      quat4.normalize(rotquat);
+      quat4.multiply(rotquat, this.rotation, this.rotation);
+      
+      this.fireEvent('updated');
+      return this;
+    },
+    
+    /**
+     * Jax.Camera#pitch(amount) -> Jax.Camera
+     * - amount (Number): rotation amount in radians
+     *
+     * Rotates around the camera's local X axis, resulting in a relative rotation up (positive) or down (negative).
+     **/
+    pitch: function(amount) {
+      var axis = storeVecBuf(this, RIGHT);
+      this.rotate(amount, axis);
+    },
+
+    /**
+     * Jax.Camera#yaw(amount) -> Jax.Camera
+     * - amount (Number): rotation amount in radians
+     *
+     * Rotates around the camera's local Y axis, resulting in a relative rotation right (positive) or
+     * left (negative).
+     *
+     * If this camera uses a fixed yaw axis (true by default), that world-space axis is used instead of the
+     * camera's local Y axis.
+     *
+     * See also Jax.Camera#setFixedYawAxis
+     **/
+    yaw: function(amount) {
+      var axis;
+      if (this.fixed_yaw) axis = this.fixed_yaw_axis;
+      else                axis = storeVecBuf(this, UP);
+      this.rotate(amount, axis);
+    },
+
+    /**
+     * Jax.Camera#roll(amount) -> Jax.Camera
+     * - amount (Number): rotation amount in radians
+     *
+     * Rotates around the camera's local Z axis, resulting in a relative tilting counter-clockwise (positive)
+     * or clockwise (negative).
+     **/
+    roll: function(amount) {
+      var axis = storeVecBuf(this, VIEW);
+      this.rotate(amount, axis);
+    },
+
     /**
      * Jax.Camera#reorient(view[, position]) -> Jax.Camera
      * - view (vec3): the new direction, relative to the camera, that the camera will be pointing
@@ -479,34 +570,6 @@ Jax.Camera = (function() {
     },
 
     /**
-     * Jax.Camera#rotate(amount, x, y, z) -> rotated camera
-     * - amount (Number): amount to rotate, in radians
-     * - x (Number): X coordinate of the axis around which to rotate
-     * - y (Number): Y coordinate of the axis around which to rotate
-     * - z (Number): Z coordinate of the axis around which to rotate
-     * Jax.Camera.rotate(amount, vector) -> rotated camera
-     * - amount (Number): amount to rotate, in radians
-     * - vector (vec3): vector form of the axis around which to rotate
-     * 
-     * Rotates the camera by the specified amount around some axis.
-     **/
-    rotate: function() {
-      var amount = arguments[0];
-      var vec;
-      switch(arguments.length) {
-        case 2: vec = arguments[1]; break;
-        case 4: vec = this._tmp[0]; vec[0] = arguments[1]; vec[1] = arguments[2]; vec[2] = arguments[3];  break;
-        default: throw new Error("Invalid arguments");
-      }
-      
-      var rotquat = quat4.fromAngleAxis(amount, vec, tmpRotQuat(this));
-      quat4.multiply(rotquat, this.rotation, this.rotation);
-      
-      this.fireEvent('updated');
-      return this;
-    },
-
-    /**
      * Jax.Camera#strafe(distance) -> the translated camera
      * - distance (Number): the distance to move. If positive, the camera will move "right";
      *                      if negative, the camera will move "left".
@@ -514,7 +577,7 @@ Jax.Camera = (function() {
      * Causes the camera to strafe, or move "sideways" along the right vector.
      **/
     strafe: function(distance) {
-      this.move(distance, LOCAL_RIGHT);
+      this.move(distance, storeVecBuf(this, RIGHT));
       return this;
     },
 
@@ -527,7 +590,8 @@ Jax.Camera = (function() {
      *                     the camera is pointing.
      **/
     move: function(distance, direction) {
-      vec3.add(vec3.scale(direction || LOCAL_VIEW, distance, this._tmp[FORWARD]), this.position, this.position);
+      if (!direction) direction = storeVecBuf(this, VIEW);
+      vec3.add(vec3.scale(direction, distance, this._tmp[FORWARD]), this.position, this.position);
       this.fireEvent('updated');
       return this;
     },

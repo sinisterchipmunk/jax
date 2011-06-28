@@ -3,6 +3,38 @@ describe("Camera", function() {
   
   beforeEach(function() { camera = new Jax.Camera(); });
   
+  it("movement with rotations", function() {
+    camera.move(10);
+    camera.yaw(Math.PI/2);
+    camera.move(10);
+    expect(camera.getPosition()).toEqualVector(-10, 0, -10);
+  });
+  
+  it("strafing with rotations", function() {
+    camera.move(10);
+    camera.yaw(Math.PI/2);
+    camera.strafe(10);
+    expect(camera.getPosition()).toEqualVector(0, 0, -20);
+  });
+  
+  it("multiple rotations", function() {
+    camera.pitch(Math.PI/6); // rotate up a bit
+    camera.yaw(Math.PI/6); // rotate to side a bit
+    // check for camera drift
+    expect(camera.getUpVector()).toEqualVector([0.25,0.8660253286361694,0.4330127239227295]);
+  });
+  
+  describe("without fixed yaw axis", function() {
+    beforeEach(function() { camera.setFixedYawAxis(false); });
+
+    it("multiple rotations", function() {
+      camera.pitch(Math.PI/6); // rotate up a bit
+      camera.yaw(Math.PI/6); // rotate to side a bit
+      // check for camera drift
+      expect(camera.getUpVector()).toEqualVector([0,0.8660253286361694,0.4999999701976776]);
+    });
+  });
+  
   describe("by default", function() {
     it("should have position [0,0,0]", function() { expect(camera.getPosition()).toEqualVector([0,0,0]); });
     it("should have view [0,0,-1]", function() { expect(camera.getViewVector()).toEqualVector([0,0,-1]); });
