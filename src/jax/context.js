@@ -188,7 +188,7 @@ Jax.Context = (function() {
   
   function reloadMatrices(self) {
     self.matrix_stack.reset(); // reset depth
-    self.matrix_stack.loadModelMatrix(Jax.IDENTITY_MATRIX);
+    self.matrix_stack.loadModelMatrix(mat4.IDENTITY);
     self.matrix_stack.loadViewMatrix(self.player.camera.getTransformationMatrix());
     self.matrix_stack.loadProjectionMatrix(self.player.camera.getProjectionMatrix());
   }
@@ -484,7 +484,7 @@ Jax.Context = (function() {
      * Example:
      *
      *     context.pushMatrix(function() {
-     *       context.loadModelMatrix(Jax.IDENTITY_MATRIX);
+     *       context.loadModelMatrix(mat4.IDENTITY);
      *       context.multViewMatrix(this.camera.getTransformationMatrix());
      *       // do some rendering
      *     });

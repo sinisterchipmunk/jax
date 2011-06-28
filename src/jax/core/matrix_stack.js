@@ -2,13 +2,6 @@
 //= require "../prototype/class"
 
 /**
- * Jax.IDENTITY_MATRIX = mat4.identity(mat4.create())
- *
- * A cache of the identity matrix so that we're not constantly allocating identities.
- **/
-Jax.IDENTITY_MATRIX = mat4.identity(mat4.create());
-
-/**
  * class Jax.MatrixStack
  * 
  * A matrix stack, obviously. Every Jax.Context allocates its own matrix stack, so you probably
@@ -303,9 +296,9 @@ Jax.MatrixStack = (function() {
         modelview_projection: [mat4.create()]
       };
       
-      this.loadModelMatrix(Jax.IDENTITY_MATRIX);
-      this.loadViewMatrix(Jax.IDENTITY_MATRIX);
-      this.loadProjectionMatrix(Jax.IDENTITY_MATRIX); // there's no known data about the viewport at this time.
+      this.loadModelMatrix(mat4.IDENTITY);
+      this.loadViewMatrix(mat4.IDENTITY);
+      this.loadProjectionMatrix(mat4.IDENTITY); // there's no known data about the viewport at this time.
     }
   });
 })();
