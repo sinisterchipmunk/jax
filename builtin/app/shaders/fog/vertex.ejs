@@ -1,10 +1,12 @@
 shared attribute vec4 VERTEX_POSITION;
 
-shared uniform mat4 mvMatrix, pMatrix;
+//= require "functions/quaternions"
+
+shared uniform vec4 mvRotation;
+shared uniform vec3 mvPosition;
 
 const float LOG2 = 1.442695;
 
 void main(void) {
-  vec4 pos = mvMatrix * VERTEX_POSITION;
-  gl_Position = pMatrix * pos;
+  gl_Position = pMatrix * vec4(quatMult(mvRotation, VERTEX_POSITION.xyz) + mvPosition, 1);
 }

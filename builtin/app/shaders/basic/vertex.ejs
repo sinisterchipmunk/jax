@@ -2,12 +2,13 @@ shared attribute vec2 VERTEX_TEXCOORDS;
 shared attribute vec3 VERTEX_NORMAL;
 shared attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;
 
+//= require "functions/quaternions"
+
 void main(void) {
   vBaseColor = VERTEX_COLOR;
-  vNormal = nMatrix * VERTEX_NORMAL;
   vTexCoords = VERTEX_TEXCOORDS;
                           
-  vSurfacePos = (mvMatrix * VERTEX_POSITION).xyz;
+  vSurfacePos = quatMult(mvRotation, VERTEX_POSITION.xyz) + mvPosition;
 
-  gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;
+  gl_Position = pMatrix * vec4(vSurfacePos, 1);
 }

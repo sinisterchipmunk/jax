@@ -120,7 +120,9 @@
         {
           var self = this;
           context.pushMatrix(function() {
-            context.multModelMatrix(self.camera.getTransformationMatrix());
+            context.matrix_stack.translate(self.camera.position);
+            context.matrix_stack.rotate(self.camera.rotation);
+            // context.multModelMatrix(self.camera.getTransformationMatrix());
             self.mesh.render(context, options);
           });
         }

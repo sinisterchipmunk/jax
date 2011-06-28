@@ -1,0 +1,18 @@
+vec3 quatMult(in vec4 quat, in vec3 vec) {
+  vec3 dest;
+  float x = vec.x, y = vec.y, z = vec.z;
+  float qx = quat.x, qy = quat.y, qz = quat.z, qw = quat.w;
+  
+	// calculate quat * vec
+	float ix = qw*x + qy*z - qz*y;
+	float iy = qw*y + qz*x - qx*z;
+	float iz = qw*z + qx*y - qy*x;
+	float iw = -qx*x - qy*y - qz*z;
+	
+	// calculate result * inverse quat
+	dest.x = ix*qw + iw*-qx + iy*-qz - iz*-qy;
+	dest.y = iy*qw + iw*-qy + iz*-qx - ix*-qz;
+	dest.z = iz*qw + iw*-qz + ix*-qy - iy*-qx;
+
+  return dest;
+}

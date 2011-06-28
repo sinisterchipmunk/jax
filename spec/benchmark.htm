@@ -1,15 +1,18 @@
 <html>
 <head>
   <script type="text/javascript" src="/__root__/dist/jax.js"></script>
+  <script type="text/javascript" src="/__root__/tmp/shaders.js"></script>
   <script type="text/javascript">
     Jax.environment = Jax.PRODUCTION;
     
     // shaders
+    /*
     Jax.shaders['basic'] = new Jax.Shader({  common:"shared uniform mat4 ivMatrix, mvMatrix, pMatrix, vMatrix;\nshared uniform mat3 vnMatrix, nMatrix;\n\nshared uniform vec4 materialDiffuse, materialAmbient, materialSpecular;\nshared uniform float materialShininess;\n\nshared uniform int PASS_TYPE;\n\nshared varying vec2 vTexCoords;\nshared varying vec3 vNormal, vSurfacePos;\nshared varying vec4 vBaseColor;\n",
       fragment:"void main(void) {\n  gl_FragColor = vBaseColor;\n}\n",
       vertex:"shared attribute vec2 VERTEX_TEXCOORDS;\nshared attribute vec3 VERTEX_NORMAL;\nshared attribute vec4 VERTEX_POSITION, VERTEX_COLOR, VERTEX_TANGENT;\n\nvoid main(void) {\n  vBaseColor = VERTEX_COLOR;\n  vNormal = nMatrix * VERTEX_NORMAL;\n  vTexCoords = VERTEX_TEXCOORDS;\n                          \n  vSurfacePos = (mvMatrix * VERTEX_POSITION).xyz;\n\n  gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;\n}\n",
     exports: {},
     name: "basic"});
+    */
   
     // controllers
     var BenchmarkController = Jax.Controller.create("benchmark", {
@@ -31,6 +34,7 @@
           this.world.addObject(cube);
           this.cubes.push(cube);
         }
+        
         this.player.camera.setPosition(0,0,3);
       },
       

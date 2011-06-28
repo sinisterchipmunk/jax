@@ -33,7 +33,7 @@ Jax.MatrixStack = (function() {
   var MODEL = 1, VIEW = 2, PROJECTION = 3;
   
   function updateMVP(self) {
-    mat4.multiply(self.getProjectionMatrix(), self.getModelViewMatrix(), self.getModelViewProjectionMatrix());
+    // mat4.multiply(self.getProjectionMatrix(), self.getModelViewMatrix(), self.getModelViewProjectionMatrix());
   }
   
   function updateModelView(self) {
@@ -112,6 +112,12 @@ Jax.MatrixStack = (function() {
     var type;
 
     self.depth++;
+    
+    self.brush.translation[self.depth] = self.brush.translation[self.depth] || vec3.create();
+    self.brush.rotation[self.depth] = self.brush.rotation[self.depth] || quat4.create();
+    vec3.set(self.brush.translation[current_depth], self.brush.translation[self.depth]);
+    quat4.set(self.brush.rotation[current_depth], self.brush.rotation[self.depth]);
+    
     for (var i in self.matrices) {
       stack = self.matrices[i];
       current = stack[current_depth];
@@ -122,6 +128,38 @@ Jax.MatrixStack = (function() {
   }
   
   return Jax.Class.create({
+    translate: function(pos) {
+      var current = this.getTranslation();
+      pos = quat4.multiplyVec3(this.getRotation(), pos, vec3.create());
+      vec3.add(current, pos, current);
+    },
+    
+    rotate: function(quat) {
+      var current = this.getRotation();
+      quat4.multiply(quat, current, current);
+    },
+    
+    getTranslation: function() {
+      return this.brush.translation[this.depth];
+    },
+    
+    getRotation: function() {
+      return this.brush.rotation[this.depth];
+    },
+    
+    transform: function(point, dest) {
+      dest = dest || point;
+      return vec3.add(this.getTranslation(), quat4.multiplyVec3(this.getRotation(), point, dest), dest);
+    },
+    
+    setTranslation: function(pos) {
+      vec3.set(pos, this.getTranslation());
+    },
+    
+    setRotation: function(rot) {
+      quat4.set(rot, this.getRotation());
+    },
+    
     /**
      * Jax.MatrixStack#push() -> Jax.MatrixStack
      * 
@@ -156,7 +194,7 @@ Jax.MatrixStack = (function() {
      * Replaces the current model matrix with the specified one.
      * Updates the inverse model matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
-    loadModelMatrix: function(values) { loadMatrix(this, MODEL, values); return this; },
+    // loadModelMatrix: function(values) { loadMatrix(this, MODEL, values); return this; },
 
     /**
      * Jax.MatrixStack#loadViewMatrix(matr) -> Jax.MatrixStack
@@ -164,7 +202,7 @@ Jax.MatrixStack = (function() {
      * Replaces the current view matrix with the specified one.
      * Updates the inverse view matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
-    loadViewMatrix: function(values) { loadMatrix(this, VIEW, values); return this; },
+    // loadViewMatrix: function(values) { loadMatrix(this, VIEW, values); return this; },
 
     /**
      * Jax.MatrixStack#loadProjectionMatrix(matr) -> Jax.MatrixStack
@@ -180,7 +218,7 @@ Jax.MatrixStack = (function() {
      * Multiplies the current model matrix with the specified one.
      * Updates the inverse model matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
-    multModelMatrix: function(values) { multMatrix(this, MODEL, values); return this; },
+    // multModelMatrix: function(values) { multMatrix(this, MODEL, values); return this; },
 
     /**
      * Jax.MatrixStack#multViewMatrix(matr) -> Jax.MatrixStack
@@ -188,7 +226,7 @@ Jax.MatrixStack = (function() {
      * Multiplies the current view matrix with the specified one.
      * Updates the inverse view matrix, the modelview matrix, the inverse modelview matrix and the normal matrix.
      **/
-    multViewMatrix: function(values) { multMatrix(this, VIEW, values); return this; },
+    // multViewMatrix: function(values) { multMatrix(this, VIEW, values); return this; },
 
     /**
      * Jax.MatrixStack#multProjectionMatrix(matr) -> Jax.MatrixStack
@@ -204,7 +242,7 @@ Jax.MatrixStack = (function() {
      * the local model transformation matrix. Most models will manipulate this matrix. Multiplying an object-space
      * coordinate by this matrix will result in a world-space coordinate.
      **/
-    getModelMatrix: function() { return this.matrices.model[this.depth]; },
+    // getModelMatrix: function() { return this.matrices.model[this.depth]; },
     
     /**
      * Jax.MatrixStack#getInverseModelMatrix() -> mat4
@@ -212,7 +250,7 @@ Jax.MatrixStack = (function() {
      * the opposite of the local model transformation matrix. Multiplying a point in world space against this matrix
      * will result in an object relative to the current object space.
      **/
-    getInverseModelMatrix: function() { return this.matrices.inverse_model[this.depth]; },
+    // getInverseModelMatrix: function() { return this.matrices.inverse_model[this.depth]; },
 
     /**
      * Jax.MatrixStack#getNormalMatrix() -> mat3
@@ -222,7 +260,7 @@ Jax.MatrixStack = (function() {
      * for a good writeup of where and how this matrix is useful. Multiplying a 3D _directional_ (not _positional)
      * vector against this matrix will result in a 3D _directional_ vector in eye space.
      **/
-    getNormalMatrix: function() { return this.matrices.normal[this.depth]; },
+    // getNormalMatrix: function() { return this.matrices.normal[this.depth]; },
     
     /**
      * Jax.MatrixStack#getViewMatrix() -> mat4
@@ -230,7 +268,7 @@ Jax.MatrixStack = (function() {
      * aka the camera matrix. Multiplying a point in eye space (e.g. relative to the camera) against the view matrix
      * results in a point in world space.
      **/
-    getViewMatrix: function() { return this.matrices.view[this.depth]; },
+    // getViewMatrix: function() { return this.matrices.view[this.depth]; },
     
     /**
      * Jax.MatrixStack#getInverseViewMatrix() -> mat4
@@ -238,7 +276,7 @@ Jax.MatrixStack = (function() {
      * the opposite of the camera matrix. Multiplying a point in world space against this matrix
      * will result in a point in eye space (relative to camera).
      **/
-    getInverseViewMatrix: function() { return this.matrices.inverse_view[this.depth]; },
+    // getInverseViewMatrix: function() { return this.matrices.inverse_view[this.depth]; },
 
     /**
      * Jax.MatrixStack#getModelViewMatrix() -> mat4
@@ -250,7 +288,7 @@ Jax.MatrixStack = (function() {
      * resulting in a coordinate placed directly into eye space. This has the obvious advantage of being faster
      * than performing the operation in two steps (model and then view).
      **/
-    getModelViewMatrix: function() { return this.matrices.modelview[this.depth]; },
+    // getModelViewMatrix: function() { return this.matrices.modelview[this.depth]; },
     
     /**
      * Jax.MatrixStack#getInverseModelViewMatrix() -> mat4
@@ -258,7 +296,7 @@ Jax.MatrixStack = (function() {
      * The opposite of the modelview matrix. Multiplying an eye-space coordinate by this matrix results in an
      * object-space coordinate.
      **/
-    getInverseModelViewMatrix: function() { return this.matrices.inverse_modelview[this.depth]; },
+    // getInverseModelViewMatrix: function() { return this.matrices.inverse_modelview[this.depth]; },
         
     /**
      * Jax.MatrixStack#getProjectionMatrix() -> mat4
@@ -275,7 +313,7 @@ Jax.MatrixStack = (function() {
      * 
      * Returns the model, view and projection matrices combined into one.
      **/
-    getModelViewProjectionMatrix: function() { return this.matrices.modelview_projection[this.depth]; },
+    // getModelViewProjectionMatrix: function() { return this.matrices.modelview_projection[this.depth]; },
         
     /**
      * Jax.MatrixStack#getInverseProjectionMatrix() -> mat4
@@ -288,6 +326,11 @@ Jax.MatrixStack = (function() {
     
     initialize: function() {
       this.depth = 0;
+      
+      this.brush = {
+        translation: [vec3.create()],
+        rotation: [quat4.create(quat4.IDENTITY)]
+      };
       
       this.matrices = {
         /* matrix depth, essentially the array index representing the current level in the stack. */
@@ -303,8 +346,8 @@ Jax.MatrixStack = (function() {
         modelview_projection: [mat4.create()]
       };
       
-      this.loadModelMatrix(Jax.IDENTITY_MATRIX);
-      this.loadViewMatrix(Jax.IDENTITY_MATRIX);
+      // this.loadModelMatrix(Jax.IDENTITY_MATRIX);
+      // this.loadViewMatrix(Jax.IDENTITY_MATRIX);
       this.loadProjectionMatrix(Jax.IDENTITY_MATRIX); // there's no known data about the viewport at this time.
     }
   });

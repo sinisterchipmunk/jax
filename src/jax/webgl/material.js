@@ -189,13 +189,16 @@ Jax.Material = (function() {
       manifest.variable_prefix = this.shader_variable_prefix;
 
       manifest.set({
-        mMatrix: context.getModelMatrix(),
-        vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
-        ivMatrix:  context.getInverseViewMatrix(),
-        vMatrix:   context.getViewMatrix(),
-        mvMatrix:  context.getModelViewMatrix(),
+        mvRotation: context.matrix_stack.getRotation(),
+        mvPosition: context.matrix_stack.getTranslation(),
+        
+        // mMatrix: context.getModelMatrix(),
+        // vnMatrix: mat3.transpose(mat4.toMat3(context.getViewMatrix())),
+        // ivMatrix:  context.getInverseViewMatrix(),
+        // vMatrix:   context.getViewMatrix(),
+        // mvMatrix:  context.getModelViewMatrix(),
         pMatrix:   context.getProjectionMatrix(),
-        nMatrix:   context.getNormalMatrix(),
+        // nMatrix:   context.getNormalMatrix(),
         
         PASS_TYPE: context.current_pass,
         

@@ -144,6 +144,17 @@ Jax.Camera = (function() {
       this.addEventListener('updated', function() { matrixUpdated(this); });
       this.reset();
     },
+    
+    /**
+     * Jax.Camera#getRotation() -> quat4
+     *
+     * Returns this camera's current rotation relative to the world as a quaternion.
+     **/
+    getRotation: function() {
+      var rotquat = tmpRotQuat(this);
+      quat4.set(this.rotation, rotquat);
+      return rotquat;
+    },
 
     /**
      * Jax.Camera#getFrustum() -> Jax.Scene.Frustum
@@ -547,5 +558,10 @@ Jax.Camera = (function() {
  *                  relative to the camera
  **/
 Jax.Camera.prototype.setViewVector = Jax.Camera.prototype.setDirection;
+
+/** alias of: Jax.Camera#getRotation
+ * Jax.Camera#getQuaternion() -> quat4
+ **/
+Jax.Camera.prototype.getQuaternion = Jax.Camera.prototype.getRotation;
 
 Jax.Camera.addMethods(Jax.Events.Methods);

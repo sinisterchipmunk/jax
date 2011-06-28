@@ -1,8 +1,11 @@
 describe("Delegation", function() {
   /* see src/jax/prototype/extensions.js */
   var klass;
+  var delegated = function() {};
+  delegated.prototype.getProjectionMatrix = function() { };
+  delegated.prototype.loadModelMatrix = function() { };
   
-  beforeEach(function() { klass = Jax.Class.create({initialize:function(){this.matrix_stack=new Jax.MatrixStack();}}); });
+  beforeEach(function() { klass = Jax.Class.create({initialize:function(){this.matrix_stack=new delegated();}}); });
   
   it("should delegate via string", function() {
     klass.delegate("getProjectionMatrix", "loadModelMatrix").into("matrix_stack");
