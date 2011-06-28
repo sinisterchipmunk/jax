@@ -55,11 +55,15 @@ var LightingController = (function() {
     /* moving the mouse will pan the camera */
     mouse_moved: function(event) {
       var camera = this.context.player.camera;
-      camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
+      camera.move(0.175 *  this.context.mouse.diffy);
+      camera.strafe(0.175 * this.context.mouse.diffx);
     },
     
     /* dragging the mouse will pan the object */
     mouse_dragged: function(event) {
+      // var camera = this.player.camera;
+      // camera.pitch(0.0175 * this.context.mouse.diffy);
+      // camera.yaw(-0.0175  * this.context.mouse.diffx);
       var camera = this.world.getObject(0).camera;
       camera.move(0.175, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
     }

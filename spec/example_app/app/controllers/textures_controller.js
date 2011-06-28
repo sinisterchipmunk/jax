@@ -30,13 +30,14 @@ var TexturesController = (function() {
     },
 
     mouse_moved: function(event) {
-      this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
-      this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+      this.player.camera.pitch(0.01*event.diffy);
+      this.player.camera.yaw(-0.01*event.diffx);
     },
     
     mouse_dragged: function(event) {
       var camera = this.world.getObject(0).camera;
-      camera.rotate(0.0375, [this.context.mouse.diffy, 0, -this.context.mouse.diffx]);
+      camera.pitch( 0.0375*event.diffy);
+      camera.pitch(-0.0375*event.diffx);
     },
     
     update: function(tc) {

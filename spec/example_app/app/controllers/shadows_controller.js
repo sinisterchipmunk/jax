@@ -68,8 +68,9 @@ var ShadowsController = (function() {
       this.world.addObject(new Jax.Model({mesh: new Jax.Mesh.Plane({size:500,segments:20,material:floor_mat})}));
       
       var torus = new Jax.Model({mesh:new Jax.Mesh.Torus({outer_radius:60,inner_radius:32,material:torus_mat})});
-      torus.camera.orient(0,-1,0,  0,0,1);
-      torus.camera.setPosition(-70,50,0);
+      // torus.camera.orient(0,-1,0,  0,0,1);
+      torus.camera.reorient([0, -1, 0], [-70, 50, 0]);
+      // torus.camera.setPosition(-70,50,0);
       this.world.addObject(torus);
       
       var sphere = new Jax.Model({mesh: new Jax.Mesh.Sphere({radius:40,stacks:40,slices:40,material:sphere_mat})});
@@ -77,8 +78,9 @@ var ShadowsController = (function() {
       this.world.addObject(sphere);
 
       /* camera */
+      this.player.camera.perspective({width:this.context.canvas.width,height:this.context.canvas.height,far:2000});
       this.player.camera.setPosition(30, 500, 400);
-      this.player.camera.lookAt([0,0,0], [0,1,0]);
+      this.player.camera.lookAt([0,0,0]);//, [0,1,0]);
     },
     
     /*
@@ -95,15 +97,15 @@ var ShadowsController = (function() {
       light.rotation = rot;
       var length = vec3.length([0,75,75]);
       light.camera.setPosition(Math.cos(rot)*length, 150, Math.sin(rot)*length);
-      light.camera.lookAt([0,0,0],[0,1,0]);
+      light.camera.lookAt([0, 0, 0]);
     },
     
     mouse_moved: function(event) {
       var obj = this.context.world.lighting.getLight(0);
 //      obj.camera.setPosition(vec3.add(obj.camera.getPosition(), [this.context.mouse.diffx, 0, 0]));
 //      document.getElementById('jax_banner').innerHTML = (this.context.mouse.diffx+" "+this.context.mouse.diffy);
-      this.context.player.camera.rotate( this.context.mouse.diffy/50, 1, 0, 0);
-      this.context.player.camera.rotate(-this.context.mouse.diffx/50, 0, 1, 0);
+      this.context.player.camera.pitch(this.context.mouse.diffy/50);
+      this.context.player.camera.yaw(-this.context.mouse.diffx/50);
     },
     
     mouse_clicked: function(event) {
@@ -124,7 +126,8 @@ var ShadowsController = (function() {
     },
     
     mouse_dragged: function(event) {
-      this.context.player.camera.move(0.25, [this.context.mouse.diffx, 0, -this.context.mouse.diffy]);
+      this.context.player.camera.move(0.25 *  event.diffy);
+      this.context.player.camera.strafe(0.25 * event.diffx);
     }
   });
 })();
