@@ -1,3 +1,14 @@
+* 1.0.1 *
+
+* If a render error is encountered while generating shadow maps, the corresponding
+  light source has its +shadowcaster+ attribute set to false. This disables all
+  shadow maps (both their generation and usage) for the offending light source. The
+  same sequence also logs a message to the error console, but does not result in
+  a fatal error. Note that this condition is only triggered by a hard error during
+  shadowmap generation; soft errors like drastically low framerates are not handled.
+
+
+
 * 1.0.0 *
 
 * First major-version release, baby!
