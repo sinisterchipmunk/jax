@@ -17,6 +17,7 @@ src_files:
     - app/**/*.js
     - tmp/**/*.js
     - public/javascripts/**/*.js
+    - lib/**/*.js
 
 # stylesheets
 #

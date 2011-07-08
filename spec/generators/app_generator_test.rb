@@ -32,4 +32,11 @@ class Jax::Generators::App::AppGeneratorTest < Jax::Generators::TestCase
       assert_file File.join("test_app", file)
     end
   end
+  
+  test "should include lib/ in generated spec_layout.html.erb" do
+    generate "test_app"
+    assert_file "test_app/spec/javascripts/support/jasmine.yml" do |f|
+      assert_match /\- lib\/\*\*\/\*\.js/, f
+    end
+  end
 end
