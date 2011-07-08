@@ -178,8 +178,8 @@ Jax.Mesh = (function() {
       
       // z, i % 3 == 2
       v = vertices[++i];
-      if (self.bounds.front == null || v < self.bounds.front)  self.bounds.front  = v;
-      if (self.bounds.back  == null || v > self.bounds.back)   self.bounds.back   = v;
+      if (self.bounds.front == null || v > self.bounds.front)  self.bounds.front  = v;
+      if (self.bounds.back  == null || v < self.bounds.back)   self.bounds.back   = v;
     }
     
     self.bounds.width = self.bounds.right - self.bounds.left;

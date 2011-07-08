@@ -4,6 +4,10 @@ var Events = require("events");
 // Raising the limit silences warnings.
 var MAX_LISTENERS = 1024;
 
+global.navigator = {
+  userAgent: "node.js"
+};
+
 /*** Events ***/
 var Event = {
   UIEvents: function() { },

@@ -6,14 +6,14 @@ describe("LightManager", function() {
     
     beforeEach(function() {
       _real_console = window.console;
-      window.console = {messages:[], log:function(msg) { this.messages.push(msg); }};
+      Jax.getGloal().console = {messages:[], log:function(msg) { this.messages.push(msg); }};
       mgr = new Jax.Scene.LightManager();
       light = new Jax.Scene.LightSource();
       mgr.add(light);
       light.updateShadowMap = function() { throw new Error("Whoops"); };
     });
     
-    afterEach(function() { window.console = _real_console; });
+    afterEach(function() { Jax.getGlobal().console = _real_console; });
     
     it("should disable shadowcasting", function() {
       mgr.illuminate(SPEC_CONTEXT, {});
@@ -22,7 +22,7 @@ describe("LightManager", function() {
     
     it("should log the error", function() {
       expect(function() { mgr.illuminate(SPEC_CONTEXT, {}); }).not.toThrow();
-      expect(window.console.messages[0]).toEqual(new Error("Whoops").toString());
+      expect(Jax.getGlobal().console.messages[0]).toEqual(new Error("Whoops").toString());
       return true;
     });
   });
