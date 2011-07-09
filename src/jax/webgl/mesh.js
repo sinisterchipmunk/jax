@@ -135,23 +135,23 @@ Jax.Mesh = (function() {
     /**
      * Jax.Mesh#getVertexBuffer() -> Jax.VertexBuffer
      **/
-    getVertexBuffer: function() { ensureBuilt(this); return this.buffers.vertex_buffer; },
+    getVertexBuffer: function() { this.validate(); return this.buffers.vertex_buffer; },
     /**
      * Jax.Mesh#getColorBuffer() -> Jax.ColorBuffer
      **/
-    getColorBuffer:  function() { ensureBuilt(this); return this.buffers.color_buffer;  },
+    getColorBuffer:  function() { this.validate(); return this.buffers.color_buffer;  },
     /**
      * Jax.Mesh#getIndexBuffer() -> Jax.ElementArrayBuffer
      **/
-    getIndexBuffer:  function() { ensureBuilt(this); return this.buffers.index_buffer;  },
+    getIndexBuffer:  function() { this.validate(); return this.buffers.index_buffer;  },
     /**
      * Jax.Mesh#getNormalBuffer() -> Jax.NormalBuffer
      **/
-    getNormalBuffer: function() { ensureBuilt(this); return this.buffers.normal_buffer; },
+    getNormalBuffer: function() { this.validate(); return this.buffers.normal_buffer; },
     /**
      * Jax.Mesh#getTextureCoordsBuffer() -> Jax.TextureCoordsBuffer
      **/
-    getTextureCoordsBuffer: function() { ensureBuilt(this); return this.buffers.texture_coords; },
+    getTextureCoordsBuffer: function() { this.validate(); return this.buffers.texture_coords; },
     /**
      * Jax.Mesh#getTangentBuffer() -> Jax.NormalBuffer
      * Returns tangent normals for each normal in this Mesh. Used for normal / bump mapping.
@@ -170,6 +170,17 @@ Jax.Mesh = (function() {
      **/
     rebuildTangentBuffer: function() {
       return makeTangentBuffer(this);
+    },
+    
+    /**
+     * Jax.Mesh#validate() -> Jax.Mesh
+     *
+     * If this mesh is not valid (its #init method hasn't been called or needs to be called again),
+     * the mesh will be rebuilt per +Jax.Mesh#rebuild+. This mesh is returned.
+     **/
+    validate: function() {
+      if (!this.isValid()) this.rebuild();
+      return this;
     },
 
     /**

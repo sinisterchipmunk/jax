@@ -50,8 +50,3 @@ function calculateBounds(self, vertices) {
   self.bounds.height= self.bounds.top   - self.bounds.bottom;
   self.bounds.depth = self.bounds.front - self.bounds.back;
 }
-
-function ensureBuilt(self) {
-  if (!self.isValid()) self.rebuild();
-}
-
