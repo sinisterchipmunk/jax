@@ -7,10 +7,6 @@
 Jax.Geometry.Triangle = (function() {
   //= require "triangle/tri_tri_intersect.js"
   
-  function classify(p, v) {
-    return vec3.dot(p.normal, v) + p.d;
-  }
-    
   var bufs = {};
   
   return Jax.Class.create({
