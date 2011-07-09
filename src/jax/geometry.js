@@ -5,3 +5,4 @@
 Jax.Geometry = {};
 
 //= require "geometry/plane"
+//= require "geometry/triangle"
