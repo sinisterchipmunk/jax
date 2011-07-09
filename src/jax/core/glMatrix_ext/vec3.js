@@ -36,6 +36,26 @@ vec3.toQuatRotation = function(first, second, dest) {
 };
 
 /**
+ * vec3.multiply(a, b[, dest]) -> vec3
+ * - a (vec3): left operand
+ * - b (vec3): right operand, a 3D vector
+ * - dest (vec3): optional destination vector; if omitted, +a+ is used
+ *
+ * Multiplies the vector +a+ by the vector +b+ and stores the
+ * result in either +dest+ or +a+ if +dest+ is omitted. Returns the result.
+ *
+ * (Note: this is a Jax-specific extension. It does not appear by default
+ * in the glMatrix library.)
+ **/
+vec3.multiply = function(a, b, dest) {
+  if (!dest) dest = a;
+  dest[0] = a[0] * b[0];
+  dest[1] = a[1] * b[1];
+  dest[2] = a[2] * b[2];
+  return dest;
+}
+
+/**
  * vec3.UNIT_X -> vec3
  *
  * Represents a unit vector along the positive X axis
