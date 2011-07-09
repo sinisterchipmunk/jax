@@ -16,8 +16,30 @@ Jax.Geometry.Plane = (function() {
   }
 
   return Jax.Class.create({
+    /**
+     * new Jax.Geometry.Plane(v1, v2, v3);
+     * new Jax.Geometry.Plane(array_of_vertices);
+     * new Jax.Geometry.Plane();
+     * - v1 (vec3): first vertex
+     * - v2 (vec3): second vertex
+     * - v3 (vec3): third vertex
+     * - array_of_vertices (Array): array of vertices in the form +[[x,y,z], [x,y,z], [x,y,z]]+
+     *
+     * If initialized with no arguments, the result is undefined until
+     * the +set+ method is called. See +Jax.Geometry.Plane#set+
+     **/
     initialize: function(points) {
       if (points) this.set.apply(this, arguments);
+    },
+    
+    /**
+     * Jax.Geometry.Plane#classify(O) -> Number
+     * - O (vec3): origin
+     * 
+     * equivalent to vec3.dot(this.normal, O) + this.d;
+     **/
+    classify: function(O) {
+      return vec3.dot(this.normal, O) + this.d;
     },
     
     /**
