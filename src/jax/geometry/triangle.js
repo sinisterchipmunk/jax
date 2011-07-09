@@ -15,7 +15,7 @@ Jax.Geometry.Triangle = (function() {
   
   return Jax.Class.create({
     /**
-     * new Jax.Geometry.Triangle([v1, v2, v3])
+     * new Jax.Geometry.Triangle(v1, v2, v3)
      * - v1 (vec3): the first vertex. Optional.
      * - v2 (vec3): the second vertex. Optional.
      * - v3 (vec3): the third vertex. Optional.

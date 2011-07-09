@@ -17,9 +17,9 @@ Jax.Geometry.Plane = (function() {
 
   return Jax.Class.create({
     /**
-     * new Jax.Geometry.Plane(v1, v2, v3);
-     * new Jax.Geometry.Plane(array_of_vertices);
-     * new Jax.Geometry.Plane();
+     * new Jax.Geometry.Plane(v1, v2, v3)
+     * new Jax.Geometry.Plane(array_of_vertices)
+     * new Jax.Geometry.Plane()
      * - v1 (vec3): first vertex
      * - v2 (vec3): second vertex
      * - v3 (vec3): third vertex
