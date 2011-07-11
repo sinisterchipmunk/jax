@@ -52,6 +52,10 @@ Math.equalish = Math.equalish || function(a, b) {
 
   if (a.length != b.length) return false;
   for (var i = 0; i < a.length; i++)
-    if (a[i] == undefined || b[i] == undefined || Math.abs(a[i] - b[i]) > Math.EPSILON) return false;
+    if (a[i] == undefined || b[i] == undefined ||
+        isNaN(a[i]) != isNaN(b[i]) ||
+        isFinite(a[i]) != isFinite(b[i]) ||
+        Math.abs(a[i] - b[i]) > Math.EPSILON)
+      return false;
   return true;
 };
