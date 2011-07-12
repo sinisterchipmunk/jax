@@ -4,6 +4,25 @@ describe("Mesh:", function() {
   describe("a torus", function() {
     beforeEach(function() { mesh = new Jax.Mesh.Torus(); mesh.rebuild(); });
     
+    it("should build", function() { });
+  });
+  
+  describe("#setColor", function() {
+    beforeEach(function() {
+      mesh = new Jax.Mesh({init: function(vertices, colors) {
+        vertices.push(0,0,0); // need a vertex to color
+      }});
+    });
+    
+    it("should set with rgba args", function() {
+      mesh.setColor(1,0,0,1);
+      expect(mesh.getColorBuffer().getTypedArray()).toEqualVector([1,0,0,1]);
+    });
+    
+    it("should set with vec4 args", function() {
+      mesh.setColor([1,0,0,1]);
+      expect(mesh.getColorBuffer().getTypedArray()).toEqualVector([1,0,0,1]);
+    });
   });
   
   describe("a sphere", function() {

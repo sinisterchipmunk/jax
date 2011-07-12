@@ -78,12 +78,17 @@ Jax.Mesh = (function() {
      **/
     setColor: function(red, green, blue, alpha) {
       var buf = this.getColorBuffer();
-      for (var i = 0; i < buf.js.length; i += 4) {
-        buf.js[i] = red;
-        buf.js[i+1] = green;
-        buf.js[i+2] = blue;
-        buf.js[i+3] = alpha;
-      }
+      if (arguments.length == 4)
+        for (var i = 0; i < buf.js.length; i += 4) {
+          buf.js[i] = red;
+          buf.js[i+1] = green;
+          buf.js[i+2] = blue;
+          buf.js[i+3] = alpha;
+        }
+      else
+        for (var i = 0; i < buf.js.length; i += 4)
+          for (var j = 0; j < 4; j++)
+            buf.js[i+j] = arguments[0][j];
       buf.refresh();
       return this;
     },
