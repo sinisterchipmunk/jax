@@ -332,7 +332,8 @@ Jax.Mesh = (function() {
         this.dataRegion.remap(this.indices,           indices);
       } else {
         // it's faster to preallocate a known number of bytes than it is to
-        // let the data region adapt automatically
+        // let the data region figure it out incrementally. We can be conservative here.
+        // If the number is too low, dataRegion will adapt.
         this.dataRegion = new Jax.DataRegion(
           (vertices.length+colors.length+textureCoords.length+normals.length) * Float32Array.BYTES_PER_ELEMENT +
           indices.length * Uint16Array.BYTES_PER_ELEMENT

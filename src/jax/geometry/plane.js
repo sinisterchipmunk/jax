@@ -29,7 +29,26 @@ Jax.Geometry.Plane = (function() {
      * the +set+ method is called. See +Jax.Geometry.Plane#set+
      **/
     initialize: function(points) {
-      if (points) this.set.apply(this, arguments);
+      /**
+       * Jax.Geometry.Plane#normal -> vec3
+       *
+       * The normal pointing perpendicular to this plane, assuming the front face is produced
+       * by winding the vertices counter-clockwise.
+       *
+       * If the plane is constructed with no arguments, the normal defaults to the world up
+       * direction [0,1,0].
+       **/
+      this.normal = vec3.create([0,1,0]);
+      
+      /**
+       * Jax.Geometry.Plane#d -> Number
+       *
+       * The fourth component in the plane equation.
+       **/
+      this.d = 0.0;
+      
+      if (arguments.length)
+        this.set.apply(this, arguments);
     },
     
     /**
@@ -54,18 +73,28 @@ Jax.Geometry.Plane = (function() {
      *
      * This plane is returned.
      **/
-    set: function(points) {
-      if (arguments.length == 3) points = [arguments[0], arguments[1], arguments[2]];
-      
-      this.normal = vec3.create();
-      var vec = vec3.create();
-      vec3.subtract(points[1], points[0], this.normal);
-      vec3.subtract(points[2], points[0], vec);
-      vec3.cross(this.normal, vec, this.normal);
-      vec3.normalize(this.normal);
-      
-      this.point = points[1];
-      this.d = -innerProduct(this.normal, this.point[0], this.point[1], this.point[2]);
+    set: function() {
+      var points = arguments;
+      if (arguments.length != 3) points = arguments[0];
+      if (typeof(points[0]) == 'object' && points[0].array) {
+        var vec = vec3.create();
+        vec3.subtract(points[1].array, points[0].array, this.normal);
+        vec3.subtract(points[2].array, points[0].array, vec);
+        vec3.cross(this.normal, vec, this.normal);
+        vec3.normalize(this.normal);
+
+        this.point = points[1].array;
+        this.d = -innerProduct(this.normal, this.point[0], this.point[1], this.point[2]);
+      } else {
+        var vec = vec3.create();
+        vec3.subtract(points[1], points[0], this.normal);
+        vec3.subtract(points[2], points[0], vec);
+        vec3.cross(this.normal, vec, this.normal);
+        vec3.normalize(this.normal);
+
+        this.point = points[1];
+        this.d = -innerProduct(this.normal, this.point[0], this.point[1], this.point[2]);
+      }
       
       return this;
     },
@@ -97,6 +126,7 @@ Jax.Geometry.Plane = (function() {
     {
       var x, y, z;
       if (arguments.length == 3) { x = arguments[0]; y = arguments[1]; z = arguments[2]; }
+      else if (point.array) { x = point.array[0]; y = point.array[1]; z = point.array[2]; }
       else { x = point[0]; y = point[1]; z = point[2]; }
       // same as ax + by + cz + d
       return this.d + innerProduct(this.normal, x, y, z);
@@ -119,9 +149,13 @@ Jax.Geometry.Plane = (function() {
      *
      * The point is expected to lie in the same 3D space as this plane.
      **/
-    whereis: function(point)
+    whereis: function()
     {
-      if (arguments.length == 3) point = [arguments[0], arguments[1], arguments[2]];
+      var point;
+      if (arguments.length == 3) point = arguments;
+      else if (arguments[0].array) point = arguments[0].array;
+      else point = arguments[0];
+      
       var d = this.distance(point);
       if (d > 0) return Jax.Geometry.Plane.FRONT;
       if (d < 0) return Jax.Geometry.Plane.BACK;
