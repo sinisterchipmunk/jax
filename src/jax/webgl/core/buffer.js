@@ -34,7 +34,7 @@ Jax.Buffer = (function() {
      *
      **/
     initialize: function(bufferType, classType, drawType, jsarr, itemSize) {
-      if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
+      // if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
       if (!itemSize) throw new Error("Expected an itemSize - how many JS array elements represent a single buffered element?");
       this.classType = classType;
       this.itemSize = itemSize;
@@ -54,22 +54,40 @@ Jax.Buffer = (function() {
      **/
     refresh: function() {
       var self = this;
-      if (self.classTypeInstance)
-        for (var i = 0; i < self.js.length; i++)
-          self.classTypeInstance[i] = self.js[i];
-      else
-        self.classTypeInstance = new self.classType(self.js);
-
-      self.numItems = self.length = self.js.length / self.itemSize;
+      var instance = this.refreshTypedArray();
       if (!self.gl) return;
 
       each_gl_buffer(self, function(context, buffer) {
-        buffer.numItems = buffer.length = self.js.length;
         context.glBindBuffer(self.bufferType, buffer);
-        context.glBufferData(self.bufferType, self.classTypeInstance, self.drawType);
+        context.glBufferData(self.bufferType, instance, self.drawType);
       });
       
       return this;
+    },
+    
+    /**
+     * Jax.Buffer#refreshTypedArray() -> TypedArray
+     *
+     * Refreshes the contents of the buffer's typed array and then returns
+     * the typed array itself. This does not cause the corresponding GL
+     * buffers to be refreshed.
+     **/
+    refreshTypedArray: function() {
+      var self = this;
+      var instance = this.getTypedArray();
+      instance.set(self.js);
+
+      self.numItems = self.length = self.js.length / self.itemSize;
+      return instance;
+    },
+    
+    /**
+     * Jax.Buffer#getTypedArray([defaultValues]) -> TypedArray
+     *
+     * Returns the typed array instance corresponding for this buffer.
+     **/
+    getTypedArray: function() {
+      return this.classTypeInstance = this.classTypeInstance || new this.classType(this.js);
     },
 
     /**
@@ -217,4 +235,51 @@ Jax.TextureCoordsBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
  **/
 Jax.NormalBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
   initialize: function($super, jsarr) { $super(jsarr, 3); }
+});
+
+
+/**
+ * class Jax.DataBuffer < Jax.Buffer
+ *
+ * Creates a buffer specifically designed for use with Jax.DataSegment.
+ *
+ * Jax meshes as of v1.1.0 use this kind of buffer in place of all others for memory efficiency.
+ * Using a Jax.DataBuffer cuts out the redundant data introduced by the other buffer types,
+ * and can be refreshed much more quickly since the data does not need to be copied into
+ * storage buffers before being dispatched to the GL.
+ *
+ * Example:
+ *     var region = new Jax.DataRegion();
+ *     var vertexData = region.map(Float32Array, 9); // allocate 1 triangle
+ *     var vertices = vertexData.group(3); // vertices are 3 groups of 3 (XYZ) elements each
+ *     var buffer = new Jax.DataBuffer(GL_ARRAY_BUFFER, vertices);
+ *
+ **/
+Jax.DataBuffer = Jax.Class.create(Jax.Buffer, {
+  
+  initialize: function($super, bufferType, data) {
+    var size = 1;
+    if (data.getRawData) {
+      size = data.size;
+      this.mirror = data;
+      this.data = data.getRawData();
+    } else {
+      this.data = data;
+    }
+    var type = this.data.type;
+    
+    if (!size || !type) throw new Error("Couldn't detect element size or type! Use a different buffer.");
+    
+    $super(bufferType, type, GL_DYNAMIC_DRAW, this.data.array, size);
+  },
+  
+  refreshTypedArray: function() {
+    this.numItems = this.length = (this.mirror ? this.mirror.length : this.data.length);
+    // we don't need to update anything else
+    return this.getTypedArray();
+  },
+  
+  getTypedArray: function() {
+    return this.data.array;
+  }
 });

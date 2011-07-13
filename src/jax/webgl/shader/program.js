@@ -112,11 +112,11 @@ Jax.Shader.Program = (function() {
       
       try {
         var buffer;
-        if (buffer = mesh.getIndexBuffer()) {
+        if ((buffer = mesh.getIndexBuffer()) && buffer.length > 0) {
           buffer.bind(context);
           context.glDrawElements(options.draw_mode, buffer.length, GL_UNSIGNED_SHORT, 0);
         }
-        else if (buffer = mesh.getVertexBuffer()) {
+        else if ((buffer = mesh.getVertexBuffer()) && buffer.length > 0) {
           context.glDrawArrays(options.draw_mode, 0, buffer.length);
         }
       } catch(e) {

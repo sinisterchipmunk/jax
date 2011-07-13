@@ -10,7 +10,8 @@ function makeTangentBuffer(self) {
   normals = normals.js;
   vertices = vertices.js;
   texcoords = texcoords.js;
-  if (indices) indices = indices.js;
+  if (indices && indices.length > 0) indices = indices.js;
+  else indices = null;
   
   var tangents = tangentBuffer ? tangentBuffer.js : [];
   var tan1 = [], tan2 = [], a;
@@ -52,7 +53,8 @@ function makeTangentBuffer(self) {
     sett2(a1); sett2(a2); sett2(a3);
   }
   
-  vertcount = indices ? indices.length : normals.length / 3;
+  vertcount = indices && indices.length > 0 ? indices.length : normals.length / 3;
+
   /* we need to pass the vertices into findTangentVector differently depending on draw mode */
   switch(self.draw_mode) {
     case GL_TRIANGLE_STRIP:

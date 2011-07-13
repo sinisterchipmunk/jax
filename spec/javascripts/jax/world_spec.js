@@ -133,7 +133,7 @@ describe("Jax.World", function() {
         // notice the explicit use of "basic" here. This is so we can test that explicit "basic" types
         // get rendered as such, instead of simply being chucked into the "lighting is enabled, use blinn-phong"
         // category.
-        model = new Jax.Model({mesh:new Jax.Mesh.Sphere({material:"basic",color:[0.5,0.5,0.5,1]}), lit:false });
+        model = new Jax.Model({mesh:new Jax.Mesh.Quad({material:"basic",color:[0.5,0.5,0.5,1]}), lit:false });
       });
       
       describe("and unshadowed", function() {

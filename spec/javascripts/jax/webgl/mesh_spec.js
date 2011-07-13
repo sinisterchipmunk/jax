@@ -15,7 +15,7 @@ describe("Mesh:", function() {
     });
     
     it("should set with rgba args", function() {
-      mesh.setColor(1,0,0,1);
+      try { mesh.setColor(1,0,0,1); } catch(e) { alert(e+"\n\n"+e.stack); }
       expect(mesh.getColorBuffer().getTypedArray()).toEqualVector([1,0,0,1]);
     });
     
@@ -35,11 +35,10 @@ describe("Mesh:", function() {
         mesh.color = [0.5,0,0.4,0.2];
         mesh.rebuild();
         var cbuf = mesh.getColorBuffer();
+        var color = vec4.create();
         for (var i = 0; i < mesh.getVertexBuffer().js.length / 3; i += 4) {
-          expect(cbuf.js[i+0]).toEqual(0.5);
-          expect(cbuf.js[i+1]).toEqual(0);
-          expect(cbuf.js[i+2]).toEqual(0.4);
-          expect(cbuf.js[i+3]).toEqual(0.2);
+          color[0] = cbuf.js[i]; color[1] = cbuf.js[i+1]; color[2] = cbuf.js[i+2]; color[3] = cbuf.js[i+3];
+          expect(color).toEqualVector([0.5, 0, 0.4, 0.2]);
         }
       });
     });
@@ -48,11 +47,10 @@ describe("Mesh:", function() {
       mesh.color = [0.5,0,0.4,0.2];
       mesh.rebuild();
       var cbuf = mesh.getColorBuffer();
+      var color = vec4.create();
       for (var i = 0; i < cbuf.js.length; i += 4) {
-        expect(cbuf.js[i+0]).toEqual(0.5);
-        expect(cbuf.js[i+1]).toEqual(0);
-        expect(cbuf.js[i+2]).toEqual(0.4);
-        expect(cbuf.js[i+3]).toEqual(0.2);
+        color[0] = cbuf.js[i]; color[1] = cbuf.js[i+1]; color[2] = cbuf.js[i+2]; color[3] = cbuf.js[i+3];
+        expect(color).toEqualVector([0.5, 0, 0.4, 0.2]);
       }
     });
   });

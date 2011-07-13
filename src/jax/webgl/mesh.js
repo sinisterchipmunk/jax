@@ -77,33 +77,32 @@ Jax.Mesh = (function() {
      * takes on the specified color (not just a particular vertex).
      **/
     setColor: function(red, green, blue, alpha) {
-      var buf = this.getColorBuffer();
-      if (arguments.length == 4)
-        for (var i = 0; i < buf.js.length; i += 4) {
-          buf.js[i] = red;
-          buf.js[i+1] = green;
-          buf.js[i+2] = blue;
-          buf.js[i+3] = alpha;
+      var colorBuffer = this.getColorBuffer();
+      
+      for (var i = 0; i < this.colors.length; i++) {
+        if (arguments.length == 4) {
+          this.colors[i].array[0] = red;
+          this.colors[i].array[1] = green;
+          this.colors[i].array[2] = blue;
+          this.colors[i].array[3] = alpha;
+        } else {
+          for (var j = 0; j < 4; j++) {
+            this.colors[i].array[j] = arguments[0][j];
+          }
         }
-      else
-        for (var i = 0; i < buf.js.length; i += 4)
-          for (var j = 0; j < 4; j++)
-            buf.js[i+j] = arguments[0][j];
-      buf.refresh();
+      }
+
+      colorBuffer.refresh();
       return this;
     },
 
     /**
      * Jax.Mesh#dispose() -> undefined
-     * Frees the various buffers used by this mesh.
+     * Frees the various WebGL buffers used by this mesh.
      **/
     dispose: function() {
-      while (this.faces && this.faces.length) this.faces.pop();
-      while (this.edges && this.edges.length) this.edges.pop();
-      for (var i in this.buffers) {
+      for (var i in this.buffers)
         this.buffers[i].dispose();
-        delete this.buffers[i];
-      }
       this.built = false;
     },
 
@@ -220,24 +219,67 @@ Jax.Mesh = (function() {
       if (this.init)
         this.init(vertices, colors, textureCoords, normals, indices);
       
-      if (this.color)
-        setColorCoords(this, vertices.length / 3, this.color, colors);
+      this.built = true;
       
-      if (colors.length == 0) // still no colors?? default to white
-        setColorCoords(this, vertices.length / 3, [1,1,1,1], colors);
-      
-      if (vertices.length > 0)
-      {
-        this.buffers.vertex_buffer = new Jax.VertexBuffer(vertices);
-        calculateBounds(this, vertices);
+      // mesh builder didn't set colors...default to this.color || white.
+      if (colors.length == 0 || this.color) {
+        if (!this.color) this.color = [1,1,1,1];
+        for (var i = 0; i < vertices.length / 3; i++) {
+          for (var j = 0; j < 4; j++)
+            colors[i*4+j] = this.color[j];
+        }
+      }
+
+      if (this.dataRegion) {
+        // we don'y simply call data.set(vertices) because the data count may
+        // have changed. Remapping will reallocate memory as needed.
+        this.dataRegion.remap(this.vertexData,        vertices);
+        this.dataRegion.remap(this.colorData,         colors);
+        this.dataRegion.remap(this.textureCoordsData, textureCoords);
+        this.dataRegion.remap(this.normalData,        normals);
+        this.dataRegion.remap(this.indices,           indices);
+      } else {
+        // it's faster to preallocate a known number of bytes than it is to
+        // let the data region adapt automatically
+        this.dataRegion = new Jax.DataRegion(
+          (vertices.length+colors.length+textureCoords.length+normals.length) * Float32Array.BYTES_PER_ELEMENT +
+          indices.length * Uint16Array.BYTES_PER_ELEMENT
+        );
+        
+        this.vertexData        = this.dataRegion.map(Float32Array, vertices);
+        this.colorData         = this.dataRegion.map(Float32Array, colors);
+        this.textureCoordsData = this.dataRegion.map(Float32Array, textureCoords);
+        this.normalData        = this.dataRegion.map(Float32Array, normals);
+        this.indices           = this.dataRegion.map(Uint16Array,  indices);
+        
+        this.vertices      = this.vertexData.group(3);
+        this.colors        = this.colorData.group(4);
+        this.textureCoords = this.textureCoordsData.group(2);
+        this.normals       = this.normalData.group(3);
+
+        // calculate bounds, assuming we have vertices
+        if (vertices.length) calculateBounds(this, vertices);
       }
       
-      if (colors.length > 0) this.buffers.color_buffer = new Jax.ColorBuffer(colors);
-      if (indices.length> 0) this.buffers.index_buffer = new Jax.ElementArrayBuffer(indices);
-      if (normals.length> 0) this.buffers.normal_buffer= new Jax.NormalBuffer(normals);
-      if (textureCoords.length > 0) this.buffers.texture_coords = new Jax.TextureCoordsBuffer(textureCoords);
-      
-      this.built = true;
+      if (this.vertices.length == 0) delete this.buffers.vertex_buffer;
+      else if (!this.buffers.vertex_buffer)
+        this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertices);
+        
+      if (this.colors.length == 0) delete this.buffers.color_buffer;
+      else if (!this.buffers.color_buffer)
+        this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colors);
+        
+      if (this.normals.length == 0) delete this.buffers.normal_buffer;
+      else if (!this.buffers.normal_buffer)
+        this.buffers.normal_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.normals);
+        
+      if (this.textureCoords.length == 0) delete this.buffers.textureCoords;
+      else if (!this.buffers.texture_coords)
+        this.buffers.texture_coords = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.textureCoords);
+        
+      if (this.indices.length == 0) delete this.buffers.index_buffer;
+      else if (!this.buffers.index_buffer)
+        this.buffers.index_buffer   = new Jax.DataBuffer(GL_ELEMENT_ARRAY_BUFFER, this.indices);
 
       if (this.after_initialize) this.after_initialize();
     }
