@@ -30,6 +30,7 @@ Jax.Geometry.Triangle = (function() {
       this.b = vec3.create();
       this.c = vec3.create();
       this.center = vec3.create();
+      this.normal = vec3.create();
     
       if (arguments.length > 0)
         this.set.apply(this, arguments);
@@ -46,20 +47,63 @@ Jax.Geometry.Triangle = (function() {
      * the value for the center of this triangle as well as its normal.
      *
      * **Note** This is a copy by value, not by reference -- that is, the internal
-     * vertex XYZ values are replaced but the vertex objects themselves are not.
+     * vertex XYZ values are replaced but the vertex objects themselves are not. To
+     * perform a copy by reference (thus retaining a reference to the exact arrays
+     * passed in as arguments), see +Jax.Geometry.Triangle#assign+.
      **/
     set: function(a, b, c) {
-      vec3.set(a, this.a);
-      vec3.set(b, this.b);
-      vec3.set(c, this.c);
+      return this.assign(vec3.create(a), vec3.create(b), vec3.create(c));
+    },
+    
+    /**
+     * Jax.Geometry.Triangle#assign(v1, v2, v3) -> Jax.Geometry.Triangle
+     * - v1 (vec3): the first vertex.
+     * - v2 (vec3): the second vertex.
+     * - v3 (vec3): the third vertex.
+     * 
+     * Sets or replaces the current vertices with the given ones, then recalculates
+     * the value for the center of this triangle as well as its normal.
+     *
+     * **Note** This is a copy by reference, not by value -- that is, the triangle
+     * will maintain a handle to each of the vec3 instances passed in as parameters.
+     * If you don't know what this means, you probably want +Jax.Geometry.Triangle#set+
+     * instead.
+     **/
+    assign: function(a, b, c) {
+      this.a = a;
+      this.b = b;
+      this.c = c;
     
       // (a+b+c) / 3
       vec3.add(a, b, this.center);
       vec3.add(c, this.center, this.center);
       vec3.scale(this.center, 1/3);
       
+      // calculate triangle normal
+      var tmp = bufs.tmp = bufs.tmp || vec3.create();
+      vec3.subtract(b, a, this.normal);
+      vec3.subtract(c, a, tmp);
+      vec3.cross(this.normal, tmp, this.normal);
+      vec3.normalize(this.normal);
+      
       this.updateDescription();
       return this;
+    },
+    
+    /**
+     * Jax.Geometry.Triangle#getNormal() -> vec3
+     *
+     * Returns the normal for this triangle. The normal is the vector
+     * pointing perpendicular to the plane this triangle represents,
+     * following the triangle's vertices in a counter-clockwise direction.
+     *
+     **/
+    getNormal: function() {
+      return this.normal;
+    },
+    
+    toString: function() {
+      return "Triangle: "+this.a+"; "+this.b+"; "+this.c;
     },
     
     /**

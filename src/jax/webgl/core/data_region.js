@@ -65,7 +65,7 @@ Jax.DataRegion = (function() {
       
       var newlen = this.data.byteLength;
       if (newlen >= amount) return this;
-      newlen += parseInt(amount / CHUNK_SIZE) + 1;
+      newlen += (parseInt(amount / CHUNK_SIZE) + 1) * CHUNK_SIZE;
       
       this.data = new ArrayBuffer(newlen);
       
@@ -143,14 +143,14 @@ Jax.DataRegion = (function() {
         length = values.length;
       }
 
-      this.allocate(offset + length * segment.type.BYTES_PER_ELEMENT);
-      
       var oldLength = segment.length;
       if (oldLength == length && offset == segment.byteOffset) {
         // no need to reallocate the same structure
         if (values) segment.set(values);
-        return;
+        return segment;
       }
+      
+      this.allocate(offset + length * segment.type.BYTES_PER_ELEMENT);
       
       var newAry = new segment.type(this.data, offset, length);
         if (values) { 

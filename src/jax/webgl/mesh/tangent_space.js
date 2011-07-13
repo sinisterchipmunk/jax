@@ -56,6 +56,7 @@ function makeTangentBuffer(self) {
   vertcount = indices && indices.length > 0 ? indices.length : normals.length / 3;
 
   /* we need to pass the vertices into findTangentVector differently depending on draw mode */
+  /* TODO refactor: merge this with mesh support */
   switch(self.draw_mode) {
     case GL_TRIANGLE_STRIP:
       for (a = 2; a < vertcount; a += 2) {

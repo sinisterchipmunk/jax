@@ -1,5 +1,118 @@
-describe("Mesh:", function() {
+describe("Jax.Mesh", function() {
   var mesh;
+  
+  describe("triangles", function() {
+    describe("GL_TRIANGLES vertices", function() {
+      beforeEach(function() {
+        mesh = new Jax.Mesh({init: function(v) {
+          this.draw_mode = GL_TRIANGLES;
+          v.push(0,0,0,  1,0,0,  0,1,0);
+          v.push(0,1,0,  1,0,0,  1,1,0);
+        }});
+      });
+      
+      it("should build triangles", function() {
+        var tri1 = mesh.getTriangles()[0];
+        var tri2 = mesh.getTriangles()[1];
+        
+        expect(tri1.a).toEqualVector([0,0,0]);
+        expect(tri1.b).toEqualVector([1,0,0]);
+        expect(tri1.c).toEqualVector([0,1,0]);
+
+        expect(tri2.a).toEqualVector([0,1,0]);
+        expect(tri2.b).toEqualVector([1,0,0]);
+        expect(tri2.c).toEqualVector([1,1,0]);
+      });
+    });
+
+    describe("GL_TRIANGLE_STRIP vertices", function() {
+      beforeEach(function() {
+        mesh = new Jax.Mesh({init: function(v) {
+          this.draw_mode = GL_TRIANGLE_STRIP;
+          v.push(0,0,0,  1,0,0);
+          v.push(0,1,0,  1,1,0);
+        }});
+      });
+      
+      it("should build triangles", function() {
+        var tri1 = mesh.getTriangles()[0];
+        var tri2 = mesh.getTriangles()[1];
+        
+        expect(tri1.a).toEqualVector([0,0,0]);
+        expect(tri1.b).toEqualVector([1,0,0]);
+        expect(tri1.c).toEqualVector([0,1,0]);
+
+        expect(tri2.a).toEqualVector([0,1,0]);
+        expect(tri2.b).toEqualVector([1,0,0]);
+        expect(tri2.c).toEqualVector([1,1,0]);
+      });
+    });
+
+    describe("GL_TRIANGLE_FAN vertices", function() {
+      beforeEach(function() {
+        mesh = new Jax.Mesh({init: function(v) {
+          this.draw_mode = GL_TRIANGLE_FAN;
+          v.push(0,0,0,  1,0,0);
+          v.push(1,1,0,  0,1,0);
+        }});
+      });
+      
+      it("should build triangles", function() {
+        var tri1 = mesh.getTriangles()[0];
+        var tri2 = mesh.getTriangles()[1];
+        
+        expect(tri1.a).toEqualVector([0,0,0]);
+        expect(tri1.b).toEqualVector([1,0,0]);
+        expect(tri1.c).toEqualVector([1,1,0]);
+
+        expect(tri2.a).toEqualVector([0,0,0]);
+        expect(tri2.b).toEqualVector([1,1,0]);
+        expect(tri2.c).toEqualVector([0,1,0]);
+      });
+    });
+  });
+  
+  describe("without vertices", function() {
+    beforeEach(function() {
+      mesh = new Jax.Mesh({init: function(v) { } });
+      mesh.getBounds().left = 1;
+      mesh.rebuild();
+    });
+    
+    it("should be renderable", function() {
+      expect(function() { mesh.render(SPEC_CONTEXT); }).not.toThrow();
+    });
+    
+    it("should have valid (but zero) bounds", function() {
+      expect(mesh.getBounds().left).toEqual(0);
+      expect(mesh.getBounds().right).toEqual(0);
+      expect(mesh.getBounds().top).toEqual(0);
+      expect(mesh.getBounds().bottom).toEqual(0);
+      expect(mesh.getBounds().front).toEqual(0);
+      expect(mesh.getBounds().back).toEqual(0);
+      expect(mesh.getBounds().width).toEqual(0);
+      expect(mesh.getBounds().height).toEqual(0);
+      expect(mesh.getBounds().depth).toEqual(0);
+    });
+  });
+  
+  describe("without normals", function() {
+    beforeEach(function() {
+      mesh = new Jax.Mesh({init: function(v) { v.push(0,1,0, -1,0,0, 1,0,0); }});
+      mesh.rebuild();
+    });
+    
+    it("should auto-generate the normals when requested, but not before", function() {
+      // This is cheating BDD a bit because the only way to get the normal
+      // buffer without requesting it is to access the mesh's private properties.
+      // We'll test the data buffer and add some mocks, rather than test the data segments directly,
+      // to make the test a little less brittle.
+      expect((mesh.buffers.normal_buffer || {length:0}).length).toEqual(0);
+      expect(mesh.getNormalBuffer().getTypedArray()).toEqualVector([
+        0,0,1,  0,0,1,  0,0,1
+      ]);
+    });
+  });
   
   describe("a torus", function() {
     beforeEach(function() { mesh = new Jax.Mesh.Torus(); mesh.rebuild(); });

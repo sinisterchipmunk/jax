@@ -24,8 +24,81 @@ function findMaterial(name_or_instance) {
                   "a string representing a material in the Jax material registry");
 }
 
+function eachTriangle(mesh, callback) {
+  var vertcount, a;
+  
+  var indices = mesh.getIndexBuffer(), vertices = mesh.vertices;
+  if (vertices.length == 0) return;
+  
+  if (indices) {
+    if (indices.length == 0) return;
+    indices = indices.getTypedArray();
+    vertcount = indices.length;
+  } else
+    vertcount = vertices.length;
+    
+  function call(i1, i2, i3) {
+    var v1, v2, v3, i = false;
+    
+    if (indices) {
+      i = true;
+      v1 = vertices[indices[i1]];
+      v2 = vertices[indices[i2]];
+      v3 = vertices[indices[i3]];
+    } else {
+      i = false;
+      v1 = vertices[i1];
+      v2 = vertices[i2];
+      v3 = vertices[i3];
+    }
+      
+    if (!v1 || !v2 || !v3) return;
+    callback(v1.array, v2.array, v3.array);
+  }
+  
+  switch(mesh.draw_mode) {
+    case GL_TRIANGLE_STRIP:
+      for (a = 2; a < vertcount; a += 2) {
+        call(a-2, a-1, a);
+        call(a, a-1, a+1);
+      }
+      break;
+    case GL_TRIANGLES:
+      for (a = 0; a < vertcount; a += 3)
+        call(a, a+1, a+2);
+      break;
+    case GL_TRIANGLE_FAN:
+      for (a = 2; a < vertcount; a++)
+        call(0, a-1, a);
+      break;
+    default:
+      return;
+  }
+}
+
+function buildTriangles(mesh) {
+  mesh.triangles.clear();
+  
+  eachTriangle(mesh, function(v1, v2, v3) {
+    var tri = new Jax.Geometry.Triangle();
+    tri.assign(v1, v2, v3);
+    mesh.triangles.push(tri);
+  });
+}
+
 function calculateBounds(self, vertices) {
-  self.bounds = {left:null,right:null,top:null,bottom:null,front:null,back:null,width:null,height:null,depth:null};
+  if (vertices.length == 0) {
+    self.bounds.left = self.bounds.right = 0;
+    self.bounds.top = self.bounds.bottom = 0;
+    self.bounds.front = self.bounds.back = 0;
+    self.bounds.width = self.bounds.height = self.bounds.depth = 0;
+  } else {
+    self.bounds.left = self.bounds.right = null;
+    self.bounds.top = self.bounds.bottom = null;
+    self.bounds.front = self.bounds.back = null;
+    self.bounds.width = self.bounds.height = self.bounds.depth = null;
+  }
+
   var i, v;
   
   for (i = 0; i < vertices.length; i++)

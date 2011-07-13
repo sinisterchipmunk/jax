@@ -33,10 +33,18 @@
 Jax.Mesh = (function() {
   //= require "mesh/tangent_space"
   //= require "mesh/support"
+  //= require "mesh/normals"
   
   return Jax.Class.create({
     initialize: function(options) {
       this.buffers = {};
+      
+      this.bounds = {
+        left: 0, right: 0, front: 0, back: 0, top: 0, bottom: 0,
+        width: 0, height: 0, depth: 0
+      };
+      
+      this.triangles = [];
 
       /**
        * Jax.Mesh#material -> String | Jax.Material
@@ -68,6 +76,47 @@ Jax.Mesh = (function() {
 
       if (!this.draw_mode)
         this.draw_mode = GL_TRIANGLES;
+    },
+    
+    /**
+     * Jax.Mesh#getBounds() -> Object
+     *
+     * Returns a generic object containing the following properties describing
+     * an axis-aligned bounding box (AABB):
+     *
+     * <table>
+     *   <tr><th>left, right</th><td>X-axis coordinates of the left-most and right-most vertices</td></tr>
+     *   <tr><th>top, bottom</th><td>Y-axis coordinates of the top-most and bottom-most vertices</td></tr>
+     *   <tr><th>front, back<sup>1</sup></th><td>Z-axis coordinates of the closest and furthest vertices</td></tr>
+     *   <tr><th>width, height, depth</th><td>non-negative dimensions of the cube</td></tr>
+     * </table>
+     *
+     * <sup>1</sup> as with most units in WebGL, the front is the greatest value, while the back
+     * is the lowest.
+     *
+     * If the mesh has not been built yet (e.g. +Jax.Mesh#isValid+ returns false), these properties will
+     * all be zero, or they will be whatever their previous values were if the mesh has been invalidated.
+     *
+     * These properties will also all be zero if the mesh has been built but has no vertices.
+     **/
+    getBounds: function() { return this.bounds; },
+    
+    /**
+     * Jax.Mesh#getTriangles() -> Array<Jax.Geometry.Triangle>
+     *
+     * Returns an array of +Jax.Geometry.Triangle+ built from the vertices in this mesh.
+     * If the draw mode for the mesh is not one of +GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN+,
+     * then the array will be empty.
+     *
+     * Also, it is up to the +init+ method to make sure that the number of vertices produced
+     * matches the selected draw mode. If, for instance, the draw mode is +GL_TRIANGLES+ but
+     * the number of vertices is not divisible by 3, this method will simply return an incomplete
+     * or empty triangle array rather than raise an error.
+     **/
+    getTriangles: function() {
+      this.validate();
+      if (this.triangles.length == 0 && this.vertices.length != 0) buildTriangles(this);
+      return this.triangles;
     },
     
     /**
@@ -137,32 +186,60 @@ Jax.Mesh = (function() {
     },
 
     /**
-     * Jax.Mesh#getVertexBuffer() -> Jax.VertexBuffer
+     * Jax.Mesh#getVertexBuffer() -> Jax.DataBuffer
      **/
-    getVertexBuffer: function() { this.validate(); return this.buffers.vertex_buffer; },
+    getVertexBuffer: function() {
+      this.validate();
+      if (this.buffers.vertex_buffer.length == 0) return null;
+      return this.buffers.vertex_buffer;
+    },
+    
     /**
-     * Jax.Mesh#getColorBuffer() -> Jax.ColorBuffer
+     * Jax.Mesh#getColorBuffer() -> Jax.DataBuffer
      **/
-    getColorBuffer:  function() { this.validate(); return this.buffers.color_buffer;  },
+    getColorBuffer:  function() {
+      this.validate();
+      if (this.buffers.color_buffer.length == 0) return null;
+      return this.buffers.color_buffer;
+    },
+    
     /**
-     * Jax.Mesh#getIndexBuffer() -> Jax.ElementArrayBuffer
+     * Jax.Mesh#getIndexBuffer() -> Jax.DataBuffer
      **/
-    getIndexBuffer:  function() { this.validate(); return this.buffers.index_buffer;  },
+    getIndexBuffer:  function() {
+      this.validate();
+      if (this.buffers.index_buffer.length == 0) return null;
+      return this.buffers.index_buffer;
+    },
+    
     /**
-     * Jax.Mesh#getNormalBuffer() -> Jax.NormalBuffer
+     * Jax.Mesh#getNormalBuffer() -> Jax.DataBuffer
      **/
-    getNormalBuffer: function() { this.validate(); return this.buffers.normal_buffer; },
+    getNormalBuffer: function() {
+      this.validate();
+      if (this.buffers.normal_buffer.length == 0 && this.buffers.vertex_buffer.length > 0)
+        this.recalculateNormals();
+      if (this.buffers.normal_buffer.length == 0) return null;
+      return this.buffers.normal_buffer;
+    },
+    
     /**
-     * Jax.Mesh#getTextureCoordsBuffer() -> Jax.TextureCoordsBuffer
+     * Jax.Mesh#getTextureCoordsBuffer() -> Jax.DataBuffer
      **/
-    getTextureCoordsBuffer: function() { this.validate(); return this.buffers.texture_coords; },
+    getTextureCoordsBuffer: function() {
+      this.validate();
+      if (this.buffers.texture_coords.length == 0) return null;
+      return this.buffers.texture_coords;
+    },
+    
     /**
-     * Jax.Mesh#getTangentBuffer() -> Jax.NormalBuffer
+     * Jax.Mesh#getTangentBuffer() -> Jax.DataBuffer
      * Returns tangent normals for each normal in this Mesh. Used for normal / bump mapping.
      **/
     getTangentBuffer: function() {
-      if (this.buffers.tangent_buffer) return this.buffers.tangent_buffer;
-      return makeTangentBuffer(this);
+      if (!this.buffers.tangent_buffer) return this.rebuildTangentBuffer();
+      if (this.buffers.tangent_buffer.length == 0) return null;
+      return this.buffers.tangent_buffer;
     },
 
     /**
@@ -194,6 +271,17 @@ Jax.Mesh = (function() {
      * Jax.Mesh#render().
      **/
     isValid: function() { return !!this.built; },
+    
+    /**
+     * Jax.Mesh#recalculateNormals() -> Jax.Mesh
+     *
+     * Recalculates all vertex normals based on the vertices themselves (and vertex indices, if present),
+     * replacing all current values. This is a very expensive operation and should be avoided if at all
+     * possible by populating the normals directly within this mesh's +init+ method.
+     **/
+    recalculateNormals: function() {
+      calculateNormals(this);
+    },
 
     /**
      * Jax.Mesh#rebuild() -> undefined
@@ -214,6 +302,10 @@ Jax.Mesh = (function() {
      **/
     rebuild: function() {
       this.dispose();
+      
+      // we are about to recalculate vertices, that means triangles will (maybe) be inaccurate
+      while (this.triangles.length > 0)
+        this.triangles.pop();
 
       var vertices = [], colors = [], textureCoords = [], normals = [], indices = [];
       if (this.init)
@@ -256,30 +348,15 @@ Jax.Mesh = (function() {
         this.colors        = this.colorData.group(4);
         this.textureCoords = this.textureCoordsData.group(2);
         this.normals       = this.normalData.group(3);
-
-        // calculate bounds, assuming we have vertices
-        if (vertices.length) calculateBounds(this, vertices);
       }
       
-      if (this.vertices.length == 0) delete this.buffers.vertex_buffer;
-      else if (!this.buffers.vertex_buffer)
-        this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertices);
-        
-      if (this.colors.length == 0) delete this.buffers.color_buffer;
-      else if (!this.buffers.color_buffer)
-        this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colors);
-        
-      if (this.normals.length == 0) delete this.buffers.normal_buffer;
-      else if (!this.buffers.normal_buffer)
-        this.buffers.normal_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.normals);
-        
-      if (this.textureCoords.length == 0) delete this.buffers.textureCoords;
-      else if (!this.buffers.texture_coords)
-        this.buffers.texture_coords = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.textureCoords);
-        
-      if (this.indices.length == 0) delete this.buffers.index_buffer;
-      else if (!this.buffers.index_buffer)
-        this.buffers.index_buffer   = new Jax.DataBuffer(GL_ELEMENT_ARRAY_BUFFER, this.indices);
+      calculateBounds(this, vertices);
+
+      this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertices);
+      this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colors);
+      this.buffers.normal_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.normals);
+      this.buffers.texture_coords = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.textureCoords);
+      this.buffers.index_buffer   = new Jax.DataBuffer(GL_ELEMENT_ARRAY_BUFFER, this.indices);
 
       if (this.after_initialize) this.after_initialize();
     }

@@ -135,10 +135,8 @@ Jax.DataSegment = (function() {
       // update groups
       for (var i = 0; i < this.groups.length; i++) {
         var group = this.groups[i];
-        if (group.length > 0) {
-          var size = group.size || group[0].length;
-          populateGroup(this, group, size);
-        }
+        var size = group.size;
+        populateGroup(this, group, size);
       }
       
       return this;

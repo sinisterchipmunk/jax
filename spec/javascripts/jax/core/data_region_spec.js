@@ -4,6 +4,14 @@ describe("Jax.DataRegion", function() {
   describe("for default bytes", function() {
     beforeEach(function() { region = new Jax.DataRegion(); });
     
+    it("remap with groups", function() {
+      var vdata = region.map(Float32Array, 0);
+      var vgroup = vdata.group(3);
+      
+      region.remap(vdata, 6);
+      expect(vgroup.length).toEqual(2);
+    });
+    
     it("map several segments", function() {
       var vertices = [0,0,0], colors = [1,1,1,1], textureCoords = [], normals = [], indices = [1];
       
