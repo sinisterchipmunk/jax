@@ -19,7 +19,7 @@ Math.radToDeg = Math.radToDeg || function(rad) {
 };
 
 /** alias of: Math.radToDeg
- * Math.radToDeg(rad) -> Number
+ * Math.rad2deg(rad) -> Number
  * Helper to convert radians to degrees.
  **/
 Math.rad2deg = Math.rad2deg || Math.radToDeg;
