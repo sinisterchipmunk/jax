@@ -284,11 +284,11 @@ Jax.Shader = (function() {
 })();
 
 
-Jax.Shader.max_varyings          = gl.getParameter(GL_MAX_VARYING_VECTORS);
-Jax.Shader.max_vertex_uniforms   = gl.getParameter(GL_MAX_VERTEX_UNIFORM_VECTORS);
-Jax.Shader.max_fragment_uniforms = gl.getParameter(GL_MAX_FRAGMENT_UNIFORM_VECTORS);
-Jax.Shader.max_attributes        = gl.getParameter(GL_MAX_VERTEX_ATTRIBS);
-Jax.Shader.max_vertex_textures   = gl.getParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+Jax.Shader.max_varyings          = gl ? gl.getParameter(GL_MAX_VARYING_VECTORS) : 0;
+Jax.Shader.max_vertex_uniforms   = gl ? gl.getParameter(GL_MAX_VERTEX_UNIFORM_VECTORS) : 0;
+Jax.Shader.max_fragment_uniforms = gl ? gl.getParameter(GL_MAX_FRAGMENT_UNIFORM_VECTORS) : 0;
+Jax.Shader.max_attributes        = gl ? gl.getParameter(GL_MAX_VERTEX_ATTRIBS) : 0;
+Jax.Shader.max_vertex_textures   = gl ? gl.getParameter(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS) : 0;
 
 // FIXME differentiate between vertex & fragment uniforms
 Jax.Shader.max_uniforms           = Math.min(Jax.Shader.max_fragment_uniforms, Jax.Shader.max_vertex_uniforms);

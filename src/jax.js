@@ -7,6 +7,8 @@ var Jax = {
   
   VERSION: "<%=JAX_VERSION%>",
   
+  webgl_not_supported_path: "/webgl_not_supported.html",
+  
   /**
    * Global
    * Objects and functions defined here are available in the global scope.

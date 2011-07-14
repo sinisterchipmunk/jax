@@ -52,12 +52,56 @@
  * by calling Jax.Context#startRendering or Jax.Context#startUpdating,
  * respectively.
  *
+ * #### MVC Error Handling
+ *
+ * Your controllers can have an +error+ function which will be automatically
+ * called whenever an error occurs. If the +error+ function returns any value
+ * that evaluates to +true+, the error will be considered non-fatal and
+ * no further error handling will be performed. Event handlers listening for 
+ * error events will still be called, but the error will not be processed
+ * in any other way.
+ *
+ * Example:
+ *
+ *     var ApplicationController = Jax.Controller.create("application", {
+ *       error: function(error) {
+ *         // handle the error, then return true
+ *         // to indicate that it is non-fatal.
+ *         return true;
+ *       }
+ *     });
+ *
+ * Returning a +false+ value will cause rendering and updating to be halted,
+ * and will also invoke the default error handling behavior unless the error
+ * is silenced.
+ *
+ * Error functions are inherited when a base controller is inherited. Since
+ * the +ApplicationController+ is the base for all controllers, defining an
+ * +error+ function on +ApplicationController+ will define the same error
+ * function on all controllers. This provides a nice, DRY way to implement
+ * consistent error handling across all controllers.
+ *
+ * When a Jax context is first being initialized, an error may occur if the
+ * client does not support a WebGL context. This is a special case because
+ * there are no controllers registered during context initialization. In
+ * this event, the +ApplicationController+ prototype's +error+ function
+ * will be called if it exists. In practice, this is identical to any other
+ * controller-based error handling with the following exception:
+ *
+ * If the +error+ function returns a falsy value when given an error which
+ * occurred during context initialization, Jax will redirect the user to
+ * +Jax.webgl_not_supported_path+, which defaults to +/webgl_not_supported.html+.
+ * If the function returns a truthy value, Jax will assume that the error
+ * has been handled appropriately and will silence the error and then return
+ * without further ado.
+ *
+ * In all cases, if an error occurs, rendering and updating are halted (even
+ * for non-fatal errors); it is up to the error handler to restart rendering
+ * and/or updating as necessary.
+ *
  **/
 Jax.Context = (function() {
   function setupContext(self) {
-    try { self.gl = self.canvas.getContext(WEBGL_CONTEXT_NAME, WEBGL_CONTEXT_OPTIONS); } catch(e) { }
-    if (!self.gl) throw new Error("WebGL could not be initialized!");
-    
     if (!self.canvas.eventListeners) {
       /* TODO merge this with jax/webgl/core/events.js and use for all Jax event handling */
       self.canvas.eventListeners = {};
@@ -92,6 +136,9 @@ Jax.Context = (function() {
         }
       };
     }
+    
+    try { self.gl = self.canvas.getContext(WEBGL_CONTEXT_NAME, WEBGL_CONTEXT_OPTIONS); } catch(e) { }
+    if (!self.gl) throw new Error("WebGL could not be initialized!");
   }
   
   function updateFramerate(self) {
@@ -214,48 +261,54 @@ Jax.Context = (function() {
      *
      **/
     initialize: function(canvas) {
-      if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
-      if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
-      this.id = ++Jax.Context.identifier;
-      this.canvas = canvas;
-      setupContext(this);
-      this.setupEventListeners();
-      this.render_interval = null;
-      this.glClearColor(0.0, 0.0, 0.0, 1.0);
-      this.glClearDepth(1.0);
-      this.glEnable(GL_DEPTH_TEST);
-      this.glDepthFunc(GL_LEQUAL);
-      this.glEnable(GL_BLEND);
-      this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      this.checkForRenderErrors();
-      this.world = new Jax.World(this);
-      this.player = {camera: new Jax.Camera()};
-      this.player.camera.perspective({width:canvas.width, height:canvas.height});
-      this.matrix_stack = new Jax.MatrixStack();
-      this.current_pass = Jax.Scene.AMBIENT_PASS;
-      this.afterRenderFuncs = [];
-      this.afterUpdateFuncs = [];
-      this.framerate = 0;
-      this.frames_per_second = 0;
-      this.updates_per_second = 0;
+      try {
+        if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
+        if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
+        
+        this.id = ++Jax.Context.identifier;
+        this.canvas = canvas;
+        this.setupEventListeners();
+        this.render_interval = null;
+        this.world = new Jax.World(this);
+        this.player = {camera: new Jax.Camera()};
+        this.player.camera.perspective({width:canvas.width, height:canvas.height});
+        this.matrix_stack = new Jax.MatrixStack();
+        this.current_pass = Jax.Scene.AMBIENT_PASS;
+        this.afterRenderFuncs = [];
+        this.afterUpdateFuncs = [];
+        this.framerate = 0;
+        this.frames_per_second = 0;
+        this.updates_per_second = 0;
       
-      /**
-       * Jax.Context#framerate_sample_ratio -> Number
-       *
-       * A number between 0 and 1, to be used in updates to frames per second and updates per second.
-       *
-       * Setting this to a high value will produce "smoother" results; they will change less frequently,
-       * but it will take longer to get initial results. High values are better for testing framerate
-       * over the long term, while lower values are better for testing small disruptions in framerate
-       * (such as garbage collection).
-       *
-       * Defaults to 0.9.
-       **/
-      this.framerate_sample_ratio = 0.9;
+        /**
+         * Jax.Context#framerate_sample_ratio -> Number
+         *
+         * A number between 0 and 1, to be used in updates to frames per second and updates per second.
+         *
+         * Setting this to a high value will produce "smoother" results; they will change less frequently,
+         * but it will take longer to get initial results. High values are better for testing framerate
+         * over the long term, while lower values are better for testing small disruptions in framerate
+         * (such as garbage collection).
+         *
+         * Defaults to 0.9.
+         **/
+        this.framerate_sample_ratio = 0.9;
       
-      this.startUpdating();
-      if (Jax.routes.isRouted("/"))
-        this.redirectTo("/");
+        setupContext(this);
+        this.glClearColor(0.0, 0.0, 0.0, 1.0);
+        this.glClearDepth(1.0);
+        this.glEnable(GL_DEPTH_TEST);
+        this.glDepthFunc(GL_LEQUAL);
+        this.glEnable(GL_BLEND);
+        this.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        this.checkForRenderErrors();
+
+        this.startUpdating();
+        if (Jax.routes.isRouted("/"))
+          this.redirectTo("/");
+      } catch(e) {
+        this.handleError('initialize', e);
+      }
     },
     
     /**
@@ -541,29 +594,66 @@ Jax.Context = (function() {
       }
     },
     
+    /**
+     * Jax.Context#handleError(phase, error) -> Jax.Context
+     * - phase (String): the processing stage during which this error was encountered; examples
+     *                   include +initialize+, +update+ and +render+.
+     * - error (Error): the error itself
+     *
+     * Handles the given error by first notifying any 'error' event listeners,
+     * then passing the error into the current controller's +error+ method. If
+     * there is no current controller or if the controller has no +error+ method,
+     * the ApplicationController's +error+ method is called instead. In both
+     * cases, the +error+ method may optionally return a non-false expression;
+     * if they do, the error is silenced and the next processing step is skipped.
+     *
+     * If the error has not been silenced by either an error event listener or
+     * a controller, the error is logged to the console and, in development mode,
+     * an +alert+ box is shown indicating all known information about the error.
+     *
+     * Finally, the method returns this instance of Jax.Context.
+     **/
     handleError: function(phase, error) {
       // not to be confused with handleRenderError(), this function is called
       // by render() and update() when an error is encountered anywhere within
       // them.
-      error.phase = phase;
+      var message = error.toString();
+      error = { phase: phase, error: error, stack: error._stack || error.stack, toString: function() { return message; } };
       this.fireEvent('error', error);
       
+      var errorHandler = this.current_controller;
+      if ((!errorHandler || !errorHandler.error) && typeof(ApplicationController) != 'undefined')
+        errorHandler = Jax.getGlobal().ApplicationController.prototype;
+      if (errorHandler && errorHandler.error) error.silence = errorHandler.error(error);
+
+      // default error handling
       if (!error.silence && !error.silenced) {
+        if (error.phase == 'initialize') {
+          // init failure: most likely, webgl is not supported
+          // TODO solidify this with new error types. Can check the error type for verification.
+          
+          document.location.pathname = Jax.webgl_not_supported_path || "/webgl_not_supported.html";
+          throw error.toString()+"\n\n"+error.stack;
+          // throw new Error("WebGL is disabled or is not supported by this browser!");
+        }
+        
         var log = null, stack = error._stack || error.stack || "(backtrace unavailable)";
         var message = error.toString()+"\n\n"+stack.toString();
-      
+    
         if (typeof(console) != 'undefined') {
           log = console.error || console.log;
           if (log) log.call(console, message);
         }
         if (Jax.environment != Jax.PRODUCTION) alert(message);
       }
+      
+      return this;
     },
     
     handleRenderError: function(method_name, args, err) {
       // FIXME this is going to be eventually caught by the try{} around render()
       // so, I'm not convinced we even need this function any more... maybe better
-      // to throw it outright than to call handleRenderError().
+      // to throw the error outright than to call handleRenderError().
       throw err;
     }
   });

@@ -27,8 +27,10 @@ Jax.getGlobal()['GL_METHODS'] = {};
   try {
     var gl = canvas.getContext(WEBGL_CONTEXT_NAME);
   } catch(e) {
-    document.location.pathname = "/webgl_not_supported.html";
-    throw new Error("WebGL is disabled or is not supported by this browser!");
+    // these are now handled by the Context upon initialization.
+    // document.location.pathname = "/webgl_not_supported.html";
+    // throw new Error("WebGL is disabled or is not supported by this browser!");
+    gl = null;
   }
 
   if (gl) {

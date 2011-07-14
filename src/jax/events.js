@@ -207,8 +207,8 @@ Jax.EVENT_METHODS = (function() {
     },
     
     unregisterMouseListeners: function() {
-      this.canvas.removeEventListener(this._evt_mousefunc);
-      this.canvas.removeEventListener(this._evt_mousemovefunc);
+      if (this._evt_mousefunc)     this.canvas.removeEventListener(this._evt_mousefunc);
+      if (this._evt_mousemovefunc) this.canvas.removeEventListener(this._evt_mousemovefunc);
     },
     
     registerKeyListeners: function() {
@@ -226,6 +226,8 @@ Jax.EVENT_METHODS = (function() {
     },
     
     unregisterKeyListeners: function() {
+      if (!this._evt_keyfunc) return;
+      
       this.canvas.removeEventListener(this._evt_keyfunc);
       document.removeEventListener('keydown', this._evt_keyfunc, false);
       document.removeEventListener('keyup', this._evt_keyfunc, false);

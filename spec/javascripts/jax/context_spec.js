@@ -1,6 +1,55 @@
 describe("Jax.Context", function() {
   var context, canvas;
   
+  describe("errors", function() {
+    beforeEach(function() {
+      Jax.routes.clear();
+
+      context = null;
+      canvas = document.createElement('canvas');
+      canvas.setAttribute("id", "c");
+      canvas.setAttribute("width", "100");
+      canvas.setAttribute("height", "100");
+      canvas.style.display = "none";
+      document.body.appendChild(canvas);
+    });
+    
+    afterEach(function() {
+      if (context) context.dispose();
+      document.body.removeChild(canvas);
+    });
+    
+    describe("with an error function in the current controller", function() {
+      
+    });
+    
+    describe("with an error function in ApplicationController", function() {
+      var _app, _error;
+
+      beforeEach(function() {
+        _error = undefined;
+        _app = Jax.getGlobal().ApplicationController;
+        Jax.getGlobal().ApplicationController = Jax.Controller.create("application", Jax.Controller, {
+          error: function(error) {
+            _error = error;
+            return true;
+          }
+        });
+      });
+      
+      afterEach(function() {
+        if (!_app) delete Jax.getGlobal().ApplicationController;
+        else Jax.getGlobal().ApplicationController = _app;
+      });
+      
+      it("should let ApplicationController process the error", function() {
+        canvas.getContext = function() { return null; };
+        context = new Jax.Context(canvas);
+        // expect(_error).not.toBeUndefined();
+      });
+    });
+  });
+  
   describe("with no routes", function() {
     beforeEach(function() { 
       Jax.routes.clear();

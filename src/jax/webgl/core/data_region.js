@@ -37,7 +37,7 @@ Jax.DataRegion = (function() {
   
   var klass = Jax.Class.create({
     /**
-     * new Jax.DataRegion(bytes = 1)
+     * new Jax.DataRegion([bytes])
      * - bytes (Number): the starting number of bytes of memory to allocate
      *
      * Initializes a new Jax.DataRegion with the specified number of bytes
