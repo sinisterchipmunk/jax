@@ -155,4 +155,5 @@ exports.context = (function() { return {
   TEXTURE_CUBE_MAP_NEGATIVE_X: 103,
   TEXTURE_CUBE_MAP_NEGATIVE_Y: 104,
   TEXTURE_CUBE_MAP_NEGATIVE_Z: 105,
+  DYNAMIC_DRAW: 106
 }; });

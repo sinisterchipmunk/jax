@@ -8,6 +8,7 @@ for (var k in jasmineGlobals)
 
 // set up Jax node helpers
 global.document = require("node/mocks/dom.js").document;
+require("node/mocks/typed_arrays.js");
 
 // pull in Jax
 var g = require("../../dist/jax.js");
@@ -146,8 +147,9 @@ jasmine.executeSpecs(specs, function(runner, log) {
   Jax.shutdown();
 
   if (runner.results().failedCount === 0) {
-   process.exit(0);
+    process.exit(0);
   } else {
-   process.exit(1);
+    process.exit(1);
   }
 }, isVerbose, showColors);
+

@@ -5,7 +5,7 @@ describe("LightManager", function() {
     var _real_console, light;
     
     beforeEach(function() {
-      _real_console = window.console;
+      _real_console = Jax.getGlobal().console;
       Jax.getGlobal().console = {messages:[], log:function(msg) { this.messages.push(msg); }};
       mgr = new Jax.Scene.LightManager();
       light = new Jax.Scene.LightSource();
