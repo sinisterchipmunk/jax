@@ -1,5 +1,5 @@
 class Jax::Shader
-  attr_reader :common, :fragment, :vertex
+  # attr_reader :common, :fragment, :vertex
   attr_accessor :name, :path, :exports, :manifest
   
   def initialize(path, name = File.basename(path))
@@ -8,6 +8,21 @@ class Jax::Shader
     @path = path
     
     detect_sources
+  end
+  
+  def common
+    detect_sources # force reloads the latest sources
+    @common
+  end
+  
+  def fragment
+    detect_sources # force reloads the latest sources
+    @fragment
+  end
+  
+  def vertex
+    detect_sources # force reloads the latest sources
+    @vertex
   end
   
   def description
