@@ -38,29 +38,30 @@ float pcf_lookup(float s, vec2 offset) {
 
 void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
 //ambient = vec4(0);
-  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%> || !SHADOWMAP_ENABLED) return;
-  float visibility = 1.0;
-  float s = vShadowCoord.z / vShadowCoord.w;
-  if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
-    visibility = dp_lookup();
-  } else {
-    vec2 offset = vec2(0.0, 0.0);
-    if (!SHADOWMAP_PCF_ENABLED)
-      visibility = pcf_lookup(s, offset);
-    else {
-      // do PCF filtering
-      float dx, dy;
-      visibility = 0.0;
-      for (float dx = -1.5; dx <= 1.5; dx += 1.0)
-        for (float dy = -1.5; dy <= 1.5; dy += 1.0) {
-          offset.x = dx/2048.0;
-          offset.y = dy/2048.0;
-          visibility += pcf_lookup(s, offset);
-        }
-      visibility /= 16.0;
+  if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%> && SHADOWMAP_ENABLED) {
+    float visibility = 1.0;
+    float s = vShadowCoord.z / vShadowCoord.w;
+    if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
+      visibility = dp_lookup();
+    } else {
+      vec2 offset = vec2(0.0, 0.0);
+      if (!SHADOWMAP_PCF_ENABLED)
+        visibility = pcf_lookup(s, offset);
+      else {
+        // do PCF filtering
+        float dx, dy;
+        visibility = 0.0;
+        for (float dx = -1.5; dx <= 1.5; dx += 1.0)
+          for (float dy = -1.5; dy <= 1.5; dy += 1.0) {
+            offset.x = dx/2048.0;
+            offset.y = dy/2048.0;
+            visibility += pcf_lookup(s, offset);
+          }
+        visibility /= 16.0;
+      }
     }
-  }
 
-  diffuse *= visibility;
-  specular *= visibility;
+    diffuse *= visibility;
+    specular *= visibility;
+  }
 }
