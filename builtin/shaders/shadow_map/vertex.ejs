@@ -1,9 +1,7 @@
 void main(void) {
-  if (PASS_TYPE == <%=Jax.Scene.AMBIENT_PASS%> || !SHADOWMAP_ENABLED) return;
-
-  vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;
-  
-//  if (LIGHT.type == <%=Jax.POINT_LIGHT%>) {
+  if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%> && SHADOWMAP_ENABLED) {
+    vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;
+    
     /* Perform dual-paraboloid shadow map calculations - for point lights only */
     vec4 p = vShadowCoord;
     vec3 pos = p.xyz / p.w;
@@ -42,5 +40,5 @@ void main(void) {
       vDP1.w = vDP1.z;
       //vDPDepth = vDP1.z;
     }
-//  }
+  }
 }
