@@ -43,7 +43,7 @@ class Jax::Application::Configuration < Jax::Engine::Configuration
   
   private
   def read_config_files
-    @config_file = {}
+    @config_file = {}.with_indifferent_access
     @config_file.merge! hash_from_config_file(File.expand_path("~/.jax", File.dirname(__FILE__)))
     @config_file.merge! hash_from_config_file(File.expand_path(".jax", root))
   end

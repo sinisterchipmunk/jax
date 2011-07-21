@@ -71,7 +71,7 @@ module Jax
       def get_remote_plugins_matching(name = nil)
         plugins = rest_resource("plugins")
         if name
-          extract_hash_from_response plugins[name].get
+          extract_hash_from_response plugins['search'][name].get
         else
           extract_hash_from_response plugins.get
         end

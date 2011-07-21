@@ -142,10 +142,14 @@ module Jax
           credentials = Jax::Generators::Plugin::Credentials.new
           api_key = credentials.api_key
           tmp = Jax.application.config.paths.tmp.to_a.first
+          
           file = File.join(tmp, "#{manifest.name}-#{manifest.version}.tgz")
           FileUtils.mkdir_p File.dirname(file) unless File.directory?(File.dirname(file))
-          tar = File.open(file, "wb")
-          Archive::Tar::Minitar.pack(Jax.root.join("vendor/plugins", manifest.name).to_s, tar) # closes tar
+          tar = Zlib::GzipWriter.new(File.open(file, "wb"))
+          Dir.chdir Jax.root.join("vendor/plugins", manifest.name).to_s do
+            Archive::Tar::Minitar.pack(".", tar) # closes tar
+          end
+          
           plugin = {
             :single_access_token => api_key,
             :plugin => {
@@ -157,9 +161,12 @@ module Jax
           }
           
           begin
-            res = Hash.from_xml(credentials.author['plugins'].post plugin)
-            # puts res.inspect
-            say_status :done, "Plugin #{File.basename(file)} published", :green
+            res = Hash.from_xml(credentials.plugins.post plugin).with_indifferent_access
+            if res && res[:hash] && !res[:hash][:error].blank?
+              say_status :error, res[:hash][:error], :red
+            else
+              say_status :done, "Plugin #{File.basename(file)} published", :green
+            end
           rescue RestClient::RequestFailed
             res = Hash.from_xml($!.http_body)
             if error = res['hash'] && res['hash']['error']
@@ -187,12 +194,23 @@ module Jax
             run_install_script plugin_dir
           end
           
-          save_manifest plugin_dir, details
+          save_manifest plugin_dir, details unless File.exist?(File.join(plugin_dir, "manifest.yml"))
           
           say_status :installed, "#{plugin_dir} -v=#{version}", :green
         end
         
         def save_manifest(plugin_dir, details)
+          # collect necessary details
+          details = details.inject({}) do |hash,(k,v)|
+            case k.to_s
+            when 'name', 'description', 'version' then hash[k.to_s] = v
+            when 'releases' then
+              version = v.last['version']
+              hash['version'] = version if hash['version'].blank? || hash['version'] < version
+            end
+            hash
+          end
+          
           File.open(File.join(plugin_dir, "manifest.yml"), "w") do |f|
             f.print details.to_yaml
           end

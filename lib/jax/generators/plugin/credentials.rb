@@ -16,18 +16,26 @@ class Jax::Generators::Plugin::Credentials
   def config_file
     File.join(home, ".jax")
   end
+  
+  def plugins
+    @plugins ||= RestClient::Resource.new(File.join(Jax.application.plugin_repository_url, "plugins"), :accept => :xml)
+  end
 
-  def author
-    @author ||= RestClient::Resource.new(File.join(Jax.application.plugin_repository_url, "author"), :accept => :xml)
+  def authors
+    @authors ||= RestClient::Resource.new(File.join(Jax.application.plugin_repository_url, "authors"), :accept => :xml)
+  end
+  
+  def profile
+    @profile ||= RestClient::Resource.new(File.join(Jax.application.plugin_repository_url, "profile"), :accept => :xml)
   end
   
   private
   def login
-    author.options[:user] = email
-    author.options[:password] = password
+    profile.options[:user] = email
+    profile.options[:password] = password
     
     begin
-      Hash.from_xml(author.get).with_indifferent_access
+      Hash.from_xml(profile.get).with_indifferent_access
     rescue RestClient::RequestFailed => err # login doesn't exist
       message = Hash.from_xml($!.http_body)
       if message && (message = message['hash']) && (message = message['error']) && (message =~ /Login not found/i)
@@ -59,8 +67,9 @@ class Jax::Generators::Plugin::Credentials
     confirmation = gets.chomp
     raise "Password and confirmation don't match" if confirmation != password
     
-    Hash.from_xml(author.post(:author => {
-      :login => email, :password => password, :password_confirmation => confirmation, :email => email
+    login = email && email[/\@/] ? email[0...$~.offset(0)[0]] : email
+    Hash.from_xml(profile.post(:author => {
+      :login => login, :password => password, :password_confirmation => confirmation, :email => email
     })).with_indifferent_access
   rescue RestClient::RequestFailed
     raise Hash.from_xml($!.http_body)['hash']['error']
@@ -81,7 +90,14 @@ class Jax::Generators::Plugin::Credentials
   def find_api_key
     if File.file?(config_file)
       yml = (YAML::load(File.read(config_file)) || {}).with_indifferent_access
-      yml[:api_key] || login[:author][:single_access_token]
+      if yml[:api_key]
+        yml[:api_key]
+      else
+        key = login[:author][:single_access_token]
+        yml[:api_key] = key
+        File.open(config_file, "w") { |f| f.print yml.to_yaml }
+        key
+      end
     else login[:author][:single_access_token]
     end
   end
