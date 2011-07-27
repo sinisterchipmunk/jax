@@ -3,6 +3,14 @@ require 'test_helper'
 
 class Jax::Generators::Plugin::PluginGeneratorTest < Jax::Generators::TestCase
   EXPECTED_FILES = %w(
+    vendor/plugins/cloud/app/controllers
+    vendor/plugins/cloud/app/models
+    vendor/plugins/cloud/app/helpers
+    vendor/plugins/cloud/app/views
+    vendor/plugins/cloud/app/resources
+    vendor/plugins/cloud/public
+    vendor/plugins/cloud/spec
+    vendor/plugins/cloud/manifest.yml
     vendor/plugins/cloud/init.rb
     vendor/plugins/cloud/install.rb
     vendor/plugins/cloud/uninstall.rb

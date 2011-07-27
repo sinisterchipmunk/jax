@@ -8,13 +8,17 @@ class Jax::Generators::Plugin::Credentials
   end
   
   def initialize(options = {})
-    @home = File.expand_path(options[:home] || "~")
+    @home = home_path(options)
     @out = options[:out] || $stdout || STDOUT
     @in = options[:in] || $stdin || STDIN
   end
   
   def config_file
     File.join(home, ".jax")
+  end
+  
+  def home_path(options = {})
+    File.expand_path(options[:home] || Thor::Util.user_home)
   end
   
   def plugins

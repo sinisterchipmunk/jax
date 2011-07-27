@@ -59,6 +59,7 @@ module Jax
         
         def create_manifest
           Jax::Plugin::Manifest.new(name).save
+          say_status :create, File.join("vendor/plugins", name, 'manifest.yml')
         end
         
         private
