@@ -1,5 +1,21 @@
 require 'pathname'
 
+if ARGV.include? '-v' or ARGV.include? '--version'
+  require 'thor'
+  require File.expand_path("../version", File.dirname(__FILE__))
+  
+  class VersionGenerator < Thor
+    map "--version" => :version, "-v" => :version
+    desc "--version, -v", "display the Jax version number"
+    def version
+      say "Jax v#{Jax::VERSION}"
+    end
+  end
+  VersionGenerator.start(['--version'])
+  exit
+end
+
+
 module Jax
   module Generators
     # Shamelessly lifted from Ruby on Rails
