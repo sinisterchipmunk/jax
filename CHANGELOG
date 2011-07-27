@@ -1,3 +1,126 @@
+* 1.1.0 *
+
+* If a mesh #init method does not specify any vertex normals for the mesh, and
+  Jax.Mesh#getNormalBuffer() is called, Jax.Mesh will automatically calculate
+  vertex normals for the mesh. This is a relatively expensive operation (though
+  only for the first frame or so), so you should still strive to give your own set
+  of normals when possible.
+
+* Jax.Mesh#setColor now accepts the color as a single RGBA array or as 4 separate R, G, B, A
+  arguments.
+
+* Added Jax.Geometry.Triangle, and exposed Jax.Mesh#getTriangles(). This class comes
+  complete with triangle/triangle, triangle/ray, triangle/sphere, and triangle/point
+  intersection tests! See API documentation. Jax.Geometry.Triangle can also return
+  its face normal.
+  
+* Added Jax.DataRegion, Jax.DataSegment, and Jax.DataBuffer, all of which are now used
+  internally by Jax.Mesh to manage its mesh data. This has cut memory usage for any
+  given Jax.Mesh in half, makes the additional memory footprint of Jax.Geometry.Triangle
+  negligible, and even nets a minor performance gain. Moreover, altering vertex data
+  in the Jax.Mesh is now immediately reflected in Jax.Geometry.Triangle and
+  Jax.Geometry.Plane, since they are sharing the same region of memory.
+  
+* Made most instance methods of Jax.Geometry.Plane faster and more memory efficient. Also
+  altered Jax.Geometry.Plane to take advantage of Jax.DataSegment for further memory gains.
+
+* Exposed Jax.Mesh#validate(), which makes sure the mesh has been built and builds it
+  immediately if it hasn't, or if it is out of date.
+
+* Thoroughly documented all Jax-specific extensions to the glMatrix library.
+
+* Exposed and improved Jax.Mesh#getBounds() to calculate an axis-aligned bounding box
+  (AABB) in object space, and to handle meshes with no vertices (in which case all values
+  are set to zero).
+
+* Added lib/**/*.js to the generated jasmine.yml file. (New applications only.)
+
+* Exposed Jax.Camera#frustum to the API. Improved Jax.Frustum and thoroughly documented
+  its use.
+
+* Vastly simplified usage of built-in Perlin noise. Replace all previous code with:
+
+    Jax.noise.bind(context, uniforms);
+    
+  Previous code is still compatible, but should be considered deprecated.
+  
+* Helpers can optionally be defined as arrays, rather than as functions which return
+  arrays. For example, the following two lines are equivalent to one another:
+  
+    helpers: [ UserInputHelper ]
+    helpers: function() { return [ UserInputHelper]; }
+    
+  This addition is purely to reduce typing. Use the old, function-based approach to defer
+  execution until runtime; use the array-based approach if you don't care.
+
+* Jax.Camera now uses quaternions instead of calculating the transform matrix directly.
+  This nets some potential performance improvements, but since the matrix still has to
+  eventually be calculated, it's more for internal efficiency and code maintenence than
+  anything. Using quaternions does significantly reduce the Jax.Camera memory footprint,
+  however.
+  
+* Jax.Camera now uses a fixed yaw axis by default. Use Jax.Camera#setFixedYawAxis(false)
+  to disable. The new default represents the standard camera orientation, as in first-person
+  and third-person demos. Disabling fixed yaw axis will result in a more "flight simulator"
+  type of camera.
+
+* Some minor movement-related bugfixes for Jax.Camera.
+
+* Renamed Jax.IDENTITY_MATRIX to mat4.IDENTITY for clarity and consistency.
+
+* Temporarily disabled calls to Jax.Context#checkForRenderErrors() in development under
+  Chrome, because the calls have proven far too detrimental to performance. When the
+  issue is fixed in Chrome, I'll re-enable this. In the meantime, do performance testing
+  in Chrome, but expect an overall more robust development cycle using Firefox.
+
+* App generator: added a default but customizable stylesheet and index.html used when
+  packaging apps. Affects new applications only.
+
+* Jax JavaScript library is no longer minified; this is left for developers to do after
+  packaging an application for production. This change makes it much simpler to track
+  errors in the field. May consider auto-minifying the entire package when
+  `rake package` is executed, but I'm not ready to do that yet.
+  
+* New error handling API lets developers hook directly into (and recover gracefully
+  from) otherwise catastrophic errors
+  
+* Developers can hook into "webgl not supported" errors to customize the framework's
+  response. By default, Jax redirects to an error page as per v1.0.0.
+
+* Added Rails as a dependency; Jax now internally takes advantage of Railtie
+  to implement a highly modular application structure; Jax::Plugin and
+  Jax::Application both inherit from Railtie. This is not to be confused with
+  support for or integration with Ruby on Rails.
+  
+* Controller generator now accepts the `--root` option to automatically make it the
+  root controller
+  
+* Improved the light source API so that developers can replace this:
+      this.world.addLightSource(LightSource.find("sun"));
+    with:
+      this.world.addLightSource("sun");
+
+* Jax now supports both Ruby 1.9.2 and Ruby 1.8.7.
+
+* Added a benchmark script. Internal use only, but it also demonstrates a bare-bones,
+  JavaScript-only [no Ruby counterpart] Jax application. Check it out:
+  https://github.com/sinisterchipmunk/jax/blob/1-1-stable/spec/benchmark.htm
+
+* Tons of documentation for the JavaScript API
+
+* Plugin generator to create new plugins
+
+* Plugin manager to search for, install, publish and remove plugins
+
+* Plugin Repository (http://plugins.jaxgl.com)
+
+* Plugin Guide (http://guides.jaxgl.com/plugins.html)
+
+* Jax.Context now Unregisters event handlers upon disposal
+
+* If a Jax.Context has been disposed, it will no longer render or update.
+
+
 * 1.0.1 *
 
 * If a render error is encountered while generating shadow maps, the corresponding
