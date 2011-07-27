@@ -1,0 +1,206 @@
+h2. Extending Jax With Plugins
+
+Inevitably, you will find yourself coding something exciting. Perhaps it's an extension to the core framework, a suite of materials, or an awesome new shader. The best way to preserve your work and make it reusable in other Jax applications is to save it in the form of a Plugin.
+
+There are two types of plugin: those created by you, and those created by someone else. This guide will show you how to take advantage of both.
+
+This guide will cover the following topics in the form of a step-by-step tutorial:
+
+* Searching for new plugins to install
+* Installing a plugin created by someone else
+* Removing a plugin that's no longer needed
+* Creating and publishing your own new Jax plugin
+
+endprologue.
+
+
+h3. Assumptions
+
+This guide is for people who are already familiar with the Jax environment. If this doesn't describe you, try reading the "Getting Started Guide":getting_started.html first.
+
+IMPORTANT: Plugins must be created and installed as sub-components of a standard Jax application. Therefore, this entire guide assumes you have a working Jax application. Unless otherwise specified, all paths are relative to the root of the Jax application itself.
+
+
+h3. Plugins Defined
+
+Before getting started, it's important that we establish exactly what a plugin represents. In Jax, a plugin is a modular piece of reusable code that somehow extends the framework itself. A shader is not, in itself, a plugin; but any number of shaders can be _part_ of a plugin.
+
+Plugins have exactly the same directory structure as the Jax application itself, and can be used to extend either the Ruby or the Javascript portion of Jax -- or both. Because writing a plugin is essentially similar to writing a standard Jax application, it's very easy to transition to them.
+
+
+h4. The Command Line Interface
+
+The most important part of interacting with plugins in Jax is the Command Line Interface, or CLI. You can try the CLI out immediately in any console by simply typing:
+
+<shell>
+  $ jax plugin
+  
+  Tasks:
+    jax plugin help [TASK]              # Describe available tasks or one specific task
+    jax plugin install NAME [NAME2...]  # Installs the named plugin from the plugin repos...
+    jax plugin list [NAME]              # Lists all plugins, or searches for a plugin by ...
+    jax plugin push                     # Pushes this plugin to the repository, making it...
+    jax plugin uninstall NAME           # Removes the named plugin from this application
+</shell>
+
+As you can see, there are a number of plugin management tasks available to you. You can get more information about any particular task by invoking +help+, like so:
+
+<shell>
+  $ jax plugin help install
+  
+  Usage:
+    jax plugin install NAME [NAME2...]
+
+  Options:
+    -v, [--version=VERSION]  # The exact version to install. If not given, the latest will be used.
+
+  Description:
+    Searches for a plugin by the specified name and installs it. The search is 
+    case-insensitive. If an exact match (other than case) is found, the matching plugin will 
+    be installed. Otherwise, a list of potential matches will be shown, and you will be 
+    prompted with a selection.
+</shell>
+
+
+h3. Third Party Plugins
+
+Plugins are extremely easy to find, install and uninstall. Let's try that now.
+
+h4. Searching for Plugins
+
+There are two ways to go about finding new plugins. The first, and most user-friendly, is to simply visit the "Jax Plugin Repository":http://plugins.jaxgl.com and start browsing.
+
+Sometimes you don't want to waste time with the browser, though. In this case, you can use the +list+ command via the CLI.
+
+Let's list all plugins beginning with +guide+:
+
+<shell>
+  $ jax plugin list guide
+  
+  guide               Part of the Jax Plugins Guide.
+</shell>
+
+If you find a particularly interesting result, you can get more detailed output by using the +--detailed+ flag:
+
+<shell>
+  $ jax plugin list guide --detailed
+</shell>
+
+
+h4. Installing a Plugin
+
+Now that we've settled upon a plugin to install, let's install it!
+
+<shell>
+  $ jax plugin install guide
+  
+     installed  vendor/plugins/guide -v=1.0.0
+</shell>
+
+It's as simple as that. The next time you start your Jax server, the plugin will be picked up automatically and will be made part of the application.
+
+h4. Uninstalling a Plugin
+
+Sometimes you'll install a plugin only to realize it's not a good match for your application, and other times your application will simply evolve away from needing them. It's important to have a good, clean way of removing plugins. We have the +uninstall+ command for exactly that purpose:
+
+<shell>
+  $ jax plugin uninstall guide
+  
+    complete  Plugin 'guide' has been removed.
+</shell>
+
+
+h3. Pushing Your Own
+
+At some point, you'll find you've written some particularly useful or impressive code that you'd like to reuse in other applications. This is a perfect time to turn it into a plugin -- or into more than one!
+
+Publishing a plugin is brain-dead simple. First, generate the plugin by invoking the Jax code generator:
+
+<shell>
+  $ jax generate plugin [name-of-plugin]
+
+  create  vendor/plugins/name-of-plugin
+  create  vendor/plugins/name-of-plugin/app/controllers
+  create  vendor/plugins/name-of-plugin/app/helpers
+  create  vendor/plugins/name-of-plugin/app/models
+  create  vendor/plugins/name-of-plugin/app/resources
+  create  vendor/plugins/name-of-plugin/app/views
+  create  vendor/plugins/name-of-plugin/config/routes.rb
+  create  vendor/plugins/name-of-plugin/init.rb
+  create  vendor/plugins/name-of-plugin/install.rb
+  create  vendor/plugins/name-of-plugin/public
+  create  vendor/plugins/name-of-plugin/spec
+  create  vendor/plugins/name-of-plugin/uninstall.rb
+  create  vendor/plugins/name-of-plugin/manifest.yml
+</shell>
+
+NOTE: By default, Jax will automatically check to see whether any other plugins in the repository have names conflicting with the one you've chosen. If so, Jax will ask you if you're sure you want to continue using that name anyway. To skip the check completely, use the +--local+ switch:
+
+<shell>
+  $ jax generate plugin [name-of-plugin] --local
+</shell>
+
+h4. The File Structure
+
+For the most part, a plugin is structured identically to a standalone Jax application, with a few exceptions. We'll go through the noteworthy files now:
+
+| File/Folder        | Purpose |
+| +init.rb+          | This file is executed whenever the Ruby component of Jax is loaded. This allows you to hook into the Jax framework at the highest levels, if needed. Most plugins won't use this, but some will do so to great effect. |
+| +install.rb+       | This file is executed immediately after the plugin has been installed. This lets you perform any necessary one-time changes to the application structure at large. |
+| +uninstall.rb+     | This file is executed immediately before the plugin is uninstalled, so that your plugin can undo any changes applied by +install.rb+ when the plugin was installed. |
+| +manifest.yml+     | The most important file of the plugin, this file must not be deleted. It describes high-level details of your plugin such as its name, description and current version number. More on this file later. |
+| +config/routes.rb+ | Identical to the Jax application's counterpart, except that the application will always override it. For example, the plugin can map a +root+ controller, but it will only take effect if the application fails to map one. |
+
+NOTE: The only file absolutely required in order to publish a plugin is the +manifest.yml+ file; all others can be safely deleted if your plugin does not make use of them.
+
+
+h4. The Jax Generators
+
+While not necessarily worthy of its own chapter, it's worth drawing attention to the fact that all Jax generators will work from a plugin root. For instance, you can generate a new model from within a plugin and rest assured that the generator will place the model into the _plugin_ root, and not the _application_ root.
+
+IMPORTANT: Code generation in Jax is entirely context-sensitive, based on the directory from which you invoked the generator. Invoking the generator from directory other than a plugin directory (or its subdirectories) will place the generated code into the application itself.
+
+
+h4. Getting Ready for Release
+
+When you're satisfied that your plugin is working properly, it's time to release it into the wild! Before the "Jax Plugin Repository":http://plugins.jaxgl.com will accept the plugin, you'll first have to edit the +manifest.yml+ file.
+
+h5. The Manifest
+
+A manifest is a document which describes the contents of a particular package. Jax plugins don't require a file-by-file description of the plugin, but they do require some basic high-level details:
+
+* *name*: the name of the plugin. You can modify this if you named the plugin incorrectly when running the plugin generator, but _only_ if you've never actually *published* the plugin.
+* *description*: the description of the plugin. You can change this from one release to the next, as long as the version number changes with it.
+* *version*: a numeric version number. Increase this whenever you're ready to release a new version of the plugin.
+
+h5. Versioning
+
+When a plugin is generated, its version number defaults to "1.0.0" -- or, initial stable release. If you are uncertain as to your plugin's stability, you should consider reducing the first number to "0" to signify that the plugin has not yet reached maturity.
+
+NOTE: Software versioning is not so much a set of rules as it is a set of very loose guidelines; version numbers can have very different meanings from one project to another, even in the same organization. Therefore, it's important to develop a consensus on what each version number means. Jax borrows its versioning system from the Ruby community, where by convention the numbers have come to have the following meanings:
+
+* +<u>1</u>.0.0+ -- The first number is the "major" version number, and only changes when the software has undergone significant changes. A change in the major version number implies that the software may not be compatible with other major versions of the same software.
+* +1.<u>0</u>.0+ -- The second number is the "minor" version number. This changes when significant bugs are resolved and/or noteworthy features are introduced. Compatibility is generally expected from one minor number to another.
+* +1.0.<u>0</u>+ -- The third number is the "tiny" or "patch" version number. It represents only small bugfixes and no new features. Compatibility with previous versions is expected.
+* +1.0.0.<u>1</u>+ -- The fourth number, if present, signifies a pre-release, such as a beta or release candidate. Stability is not guaranteed. Four-digit releases may have bugs that still need to be resolved, and are never intended for production use. They are usually supplied so that the software can gain some in-field testing prior to its official release. Sometimes text instead of a number is used in this position, such as "beta2" or "rc3". The prerelease version number is usually omitted for stable releases.
+
+
+h4. Releasing a Plugin
+
+Once you've updated the manifest, you're ready to publish the plugin! From the plugin directory, simply issue the following command:
+
+<shell>
+  $ jax plugin push
+</shell>
+
+This will package the plugin, communicate with the server, and publish the plugin under your name.
+
+h5. Credentials
+
+If you've never published a plugin before, you'll be prompted for an email address and password the first time you do so. After an account has been created for you, the "Jax Plugin Repository":http://plugins.jaxgl.com will issue you an API Key. This key will take the place of your email address and password.
+
+An API Key is used to perform a limited set of actions, such as publish a plugin. Using an API key instead of your full credentials means that, should your API key become compromised, no lasting damage can be done with it because the attacker won't be able to access your account or change your password.
+
+After your first successful connection, the API key is stored in a file called +.jax+ in your home folder.
+
+NOTE: If you suspect your API key has become compromised, you can regenerate the key via the "Jax Plugin Repository":http://plugins.jaxgl.com after logging in with your email and password. Be aware that regenerating the key will require you to either delete or modify the +.jax+ file in your home folder. Deleting the file will require you to enter your email and password again, but won't erase your account.

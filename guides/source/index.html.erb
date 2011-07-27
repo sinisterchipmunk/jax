@@ -22,7 +22,7 @@
 <h3>Start Here</h3>
 
 <dl>
-<%= guide('Getting Started with Jax', 'getting_started.html', :work_in_progress => false) do %>
+<%= guide('Getting Started with Jax', 'getting_started.html') do %>
   <p>Everything you need to know to install Jax and create your first application.</p>
 <% end %>
 </dl>
@@ -31,8 +31,12 @@
 
 <dl>
 
-<%= guide("Custom Shaders", 'shaders.html', :work_in_progress => false) do %>
+<%= guide("Custom Shaders", 'shaders.html') do %>
   <p>This guide shows how to add and use your own shaders to add advanced custom visual effects.</p>
+<% end %>
+
+<%= guide("Plugins", 'plugins.html') do %>
+  <p>Jax can do a lot, but there will inevitably be new, exciting techniques and smarter approaches. This guide shows you how to fill in the gaps by installing reusable chunks of code from other developers, as well as how to make your own contributions available to the rest of the Jax community.</p>
 <% end %>
 
 <%= guide("Materials", 'materials.html', :work_in_progress => true) do %>
