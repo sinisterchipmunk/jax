@@ -7,6 +7,9 @@
   a fatal error. Note that this condition is only triggered by a hard error during
   shadowmap generation; soft errors like drastically low framerates are not handled.
 
+* Driver bug workaround: avoid early returning from void functions. Apparently some
+  drivers crash when void functions encounter a `return` statement. See issue #20:
+  https://github.com/sinisterchipmunk/jax/issues/20
 
 
 * 1.0.0 *
