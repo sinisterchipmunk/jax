@@ -635,7 +635,7 @@ Jax.Context = (function() {
       var message = error.toString();
       error = {
         phase: phase,
-        error: error,
+        error: error.error || error,
         stack: error._stack || error.stack, 
         message: error.toString(),
         toString: function() { return message; }
@@ -666,7 +666,7 @@ Jax.Context = (function() {
         }
         if (Jax.environment != Jax.PRODUCTION && this.alertErrors)
           alert(message);
-        throw error;
+        throw error.error;
       }
       
       return this;

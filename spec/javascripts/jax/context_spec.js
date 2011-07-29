@@ -150,7 +150,7 @@ describe("Jax.Context", function() {
         context.redirectTo("invalid");
         throw new Error("No error raised!");
       } catch(e) {
-        expect(e.message || e.toString()).toEqual("Error: Route not recognized: 'invalid'");
+        expect(e.toString()).toEqual("Error: Route not recognized: 'invalid'");
       }
       expect(context.world.objects.length).toEqual(0);
       
