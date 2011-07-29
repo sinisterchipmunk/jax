@@ -295,9 +295,47 @@ Jax.Camera = (function() {
      * - amount (Number): amount to rotate, in radians
      * - vector (vec3): vector form of the axis around which to rotate
      * 
-     * Rotates the camera by the specified amount around some axis.
+     * Rotates the camera by the specified amount around some axis. Note that this
+     * axis is relative to the camera; see +Jax.Camera#rotateWorld+ if you need to
+     * rotate around an axis in world space.
      **/
     rotate: function() {
+      var amount = arguments[0];
+      var vec;
+      switch(arguments.length) {
+        case 2: vec = arguments[1]; break;
+        case 4: vec = this._tmp[0]; vec[0] = arguments[1]; vec[1] = arguments[2]; vec[2] = arguments[3];  break;
+        default: throw new Error("Invalid arguments");
+      }
+      
+      return this.rotateWorld(amount, quat4.multiplyVec3(this.rotation, vec, this._tmp[0]));
+      
+      // var axis = storeVecBuf(this, RIGHT);
+      // this.rotateWorld(amount, axis);
+      // 
+      // var rotquat = quat4.fromAngleAxis(amount, vec, tmpRotQuat(this));
+      // quat4.normalize(rotquat);
+      // quat4.multiply(rotquat, this.rotation, this.rotation);
+      // 
+      // this.fireEvent('updated');
+      // return this;
+    },
+
+    /**
+     * Jax.Camera#rotateWorld(amount, x, y, z) -> rotated camera
+     * - amount (Number): amount to rotate, in radians
+     * - x (Number): X coordinate of the axis around which to rotate
+     * - y (Number): Y coordinate of the axis around which to rotate
+     * - z (Number): Z coordinate of the axis around which to rotate
+     * Jax.Camera.rotate(amount, vector) -> rotated camera
+     * - amount (Number): amount to rotate, in radians
+     * - vector (vec3): vector form of the axis around which to rotate
+     * 
+     * Rotates the camera by the specified amount around some axis. Note that this
+     * axis is in world space; see +Jax.Camera#rotate+ if you need to
+     * rotate around an axis relative to the camera's current orientation.
+     **/
+    rotateWorld: function() {
       var amount = arguments[0];
       var vec;
       switch(arguments.length) {
@@ -322,7 +360,7 @@ Jax.Camera = (function() {
      **/
     pitch: function(amount) {
       var axis = storeVecBuf(this, RIGHT);
-      this.rotate(amount, axis);
+      this.rotateWorld(amount, axis);
     },
 
     /**
@@ -341,7 +379,7 @@ Jax.Camera = (function() {
       var axis;
       if (this.fixed_yaw) axis = this.fixed_yaw_axis;
       else                axis = storeVecBuf(this, UP);
-      this.rotate(amount, axis);
+      this.rotateWorld(amount, axis);
     },
 
     /**
@@ -353,7 +391,7 @@ Jax.Camera = (function() {
      **/
     roll: function(amount) {
       var axis = storeVecBuf(this, VIEW);
-      this.rotate(amount, axis);
+      this.rotateWorld(amount, axis);
     },
 
     /**
