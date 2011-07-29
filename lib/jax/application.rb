@@ -89,12 +89,20 @@ module Jax
       @javascript_sources
     end
     
-    def resource_files
+    def resource_paths
       if !@resource_files
         @resource_files = []
         self.class.initialize!
       end
       @resource_files
+    end
+    
+    def resources
+      if !@resources
+        @resources = Jax::ResourceCompiler.new
+        self.class.initialize!
+      end
+      @resources
     end
     
     def javascript_source_roots

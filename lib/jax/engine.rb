@@ -58,7 +58,7 @@ class ::Jax::Engine < ::Rails::Railtie
     app.javascript_sources.concat sources.uniq
   end
   
-  initializer :resource_files do |app|
-    app.resource_files.concat config.paths.app.resources.to_a
+  initializer :resource_paths do |app|
+    app.resource_paths << config.paths.app.resources
   end
 end

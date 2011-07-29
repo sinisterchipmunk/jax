@@ -19,7 +19,7 @@ namespace :jax do
   
   task :generate_files do
     # resources
-    Jax::ResourceCompiler.new.save(Jax.root.join 'tmp/resources.js')
+    Jax.application.resources.save(Jax.root.join 'tmp/resources.js')
     
     # routes
     File.open("tmp/shaders.js", "w") { |file| Jax.application.shaders.each { |shader| shader.save_to file } }

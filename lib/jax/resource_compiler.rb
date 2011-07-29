@@ -1,32 +1,42 @@
 class Jax::ResourceCompiler
   def save(destination_file)
-    resources = gather_resources
-
     if destination_file.kind_of?(IO)
-      save_resources destination_file, resources
+      save_resources destination_file
     else
       mkdir_p File.dirname(destination_file) unless File.exist?(File.dirname(destination_file))
       File.open destination_file, "w" do |f|
-        save_resources f, resources
+        save_resources f
       end
     end
   end
   
-  private
-  def save_resources(io, resources)
-    resources.each do |model_name, instances|
-      io.puts "#{model_name.camelize}.addResources(#{instances.to_json});"
+  def to_s
+    resources.inject("") do |result, (model_name, instances)|
+      result + "#{model_name.camelize}.addResources(#{instances.to_json});\n"
     end
   end
   
+  def resources
+    gather_resources
+  end
+  
+  private
+  def save_resources(io)
+    io.puts to_s
+  end
+  
   def gather_resources
-    Jax.application.resource_files.inject({}) do |resources, yml|
-      model_name = File.basename(File.dirname(yml)).singularize
-      resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
-      hash = YAML::load(File.read(yml)) || {}
+    # app.resource_files.concat config.paths.app.resources.to_a
+    
+    Jax.application.resource_paths.inject({}) do |resources, paths|
+      paths.to_a.each do |yml|
+        model_name = File.basename(File.dirname(yml)).singularize
+        resource_id = File.basename(yml).sub(/^(.*)\..*$/, '\1')
+        hash = YAML::load(File.read(yml)) || {}
 
-      resources[model_name] ||= {}
-      resources[model_name].merge!({ resource_id => hash })
+        resources[model_name] ||= {}
+        resources[model_name].merge!({ resource_id => hash })
+      end
       resources
     end
   end
