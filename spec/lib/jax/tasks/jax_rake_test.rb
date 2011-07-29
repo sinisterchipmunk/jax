@@ -46,6 +46,15 @@ class Jax::RakeTasksTest < Rails::Generators::TestCase
     assert_match /jax:update/, File.read(File.expand_path('tmp/version_check.js'))
   end
   
+  test "jax:generate_files does not duplicate routes" do
+    rake('jax:generate_files')
+    assert_file "tmp/routes.js" do |routes|
+      routes.lines.each do |line|
+        assert routes.split(line.chomp).length < 3
+      end
+    end
+  end
+  
   test "jax:package" do
     rake('jax:package')
 
