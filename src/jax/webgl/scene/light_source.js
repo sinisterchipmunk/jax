@@ -58,8 +58,8 @@ Jax.Scene.LightSource = (function() {
 
       this.shadowMatrix = mat4.create();
       
-      this.framebuffers = [new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA}),
-                           new Jax.Framebuffer({width:2048,height:2048,depth:true,color:GL_RGBA})];
+      this.framebuffers = [new Jax.Framebuffer({width:1024,height:1024,depth:true,color:GL_RGBA}),
+                           new Jax.Framebuffer({width:1024,height:1024,depth:true,color:GL_RGBA})];
 
       setupProjection(this);
     },
