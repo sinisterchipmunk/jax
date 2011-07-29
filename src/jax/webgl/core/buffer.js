@@ -254,11 +254,18 @@ Jax.NormalBuffer = Jax.Class.create(Jax.FloatArrayBuffer, {
  *     var vertices = vertexData.group(3); // vertices are 3 groups of 3 (XYZ) elements each
  *     var buffer = new Jax.DataBuffer(GL_ARRAY_BUFFER, vertices);
  *
+ * An alternative usage is to use a data segment directly, without remapping it into a group.
+ * This usage requires an extra argument, the element size, which will default to 1 if omitted:
+ *
+ *     var region = new DataRegion();
+ *     var vertexData = region.map(Float32Array, 9); // allocate 1 triangle
+ *     var buffer = new Jax.DataBuffer(GL_ARRAY_BUFFER, vertexData, 3);
+ *
  **/
 Jax.DataBuffer = Jax.Class.create(Jax.Buffer, {
   
-  initialize: function($super, bufferType, data) {
-    var size = 1;
+  initialize: function($super, bufferType, data, size) {
+    size = size || 1;
     if (data.getRawData) {
       size = data.size;
       this.mirror = data;
@@ -274,7 +281,7 @@ Jax.DataBuffer = Jax.Class.create(Jax.Buffer, {
   },
   
   refreshTypedArray: function() {
-    this.numItems = this.length = (this.mirror ? this.mirror.length : this.data.length);
+    this.numItems = this.length = (this.mirror ? this.mirror.length : this.data.length / this.itemSize);
     // we don't need to update anything else
     return this.getTypedArray();
   },

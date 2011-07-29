@@ -23,6 +23,19 @@
  *
  **/
 Jax.DataSegment = (function() {
+  var DataGroup = Jax.Class.create({
+    initialize: function(raw, size) {
+      this.raw = raw;
+      this.type = raw.type;
+      this.size = size;
+      this.length = 0;
+    },
+    
+    push: function(seg) { this[this.length] = seg; this.length++; return seg; },
+    pop: function() { this.length--; var ret = this[this.length]; delete this[this.length]; return ret; },
+    getRawData: function() { return this.raw; }
+  });
+  
   function populateGroup(self, group, size) {
     var i, j, bytes = self.type.BYTES_PER_ELEMENT, len = 0, buf;
     for (i = 0; i < self.array.length; i += size) {
@@ -173,15 +186,7 @@ Jax.DataSegment = (function() {
     group: function(size) {
       if (this.array.length % size != 0)
         throw new Error("Data segment size "+this.array.length+" is not divisible by group size "+size);
-      var self = this;
-      var group = {
-        length: 0,
-        push: function(seg) { this[this.length] = seg; this.length++; return seg; },
-        pop: function() { this.length--; var ret = this[this.length]; delete this[this.length]; return ret; },
-        getRawData: function() { return self; },
-        size: size,
-        type: self.type
-      };
+      var group = new DataGroup(this, size);
       populateGroup(this, group, size);
       this.groups.push(group);
       return group;

@@ -35,6 +35,62 @@ Jax.Mesh = (function() {
   //= require "mesh/support"
   //= require "mesh/normals"
   
+  var BUFFERS = {
+    /**
+     * Jax.Mesh#vertices -> Array
+     *
+     * A subgroup of Jax.Mesh#vertexData.
+     * 
+     * This is essentially an array of arrays, each inner array
+     * containing 3 elements (an X, Y, Z value). This shares the same memory as the raw data it is
+     * based on, so the memory footprint is negligible, though it does take some time to construct
+     * the data group the first time it is called.
+     **/
+    vertices:['vertexData',3],
+    /**
+     * Jax.Mesh#normals -> Array
+     *
+     * A subgroup of Jax.Mesh#normalData.
+     * 
+     * This is essentially an array of arrays, each inner array
+     * containing 3 elements (an X, Y, Z value). This shares the same memory as the raw data it is
+     * based on, so the memory footprint is negligible, though it does take some time to construct
+     * the data group the first time it is called.
+     *
+     * You can modify the inner arrays of this object, but you should then call refresh() on
+     * Jax.Mesh#getNormalBuffer().
+     **/
+    normals:['normalData',3],
+    /**
+     * Jax.Mesh#colors -> Array
+     *
+     * A subgroup of Jax.Mesh#colorData.
+     * 
+     * This is essentially an array of arrays, each inner array
+     * containing 4 elements (an R, G, B, A value). This shares the same memory as the raw data it is
+     * based on, so the memory footprint is negligible, though it does take some time to construct
+     * the data group the first time it is called.
+     *
+     * You can modify the inner arrays of this object, but you should then call refresh() on
+     * Jax.Mesh#getColorBuffer().
+     **/
+    colors:['colorData',4],
+    /**
+     * Jax.Mesh#textureCoords -> Array
+     *
+     * A subgroup of Jax.Mesh#textureCoordsData.
+     * 
+     * This is essentially an array of arrays, each inner array
+     * containing 2 elements (a U, V value). This shares the same memory as the raw data it is
+     * based on, so the memory footprint is negligible, though it does take some time to construct
+     * the data group the first time it is called.
+     *
+     * You can modify the inner arrays of this object, but you should then call refresh() on
+     * Jax.Mesh#getTextureCoordsBuffer().
+     **/
+    textureCoords:['textureCoordsData',2]
+  };
+                 
   return Jax.Class.create({
     initialize: function(options) {
       this.buffers = {};
@@ -46,6 +102,23 @@ Jax.Mesh = (function() {
       
       this.triangles = [];
 
+      var self = this;
+      for (var i in BUFFERS) {
+        Object.defineProperty(self, i, (function() {
+          var j = "_"+i, k = BUFFERS[i];
+          return {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+              if (!self[j])                                   // if (!self._vertices)
+                self[j] = self.validate()[k[0]].group(k[1]);  //   self._vertices = self.validate().vertexData.group(3);
+              return self[j];                                 // return self._vertices;
+            },
+            // set: function(v) { }
+          };
+        })());
+      }
+      
       /**
        * Jax.Mesh#material -> String | Jax.Material
        * This property represents the material that will be used to render this mesh. If
@@ -344,19 +417,19 @@ Jax.Mesh = (function() {
         this.textureCoordsData = this.dataRegion.map(Float32Array, textureCoords);
         this.normalData        = this.dataRegion.map(Float32Array, normals);
         this.indices           = this.dataRegion.map(Uint16Array,  indices);
-        
-        this.vertices      = this.vertexData.group(3);
-        this.colors        = this.colorData.group(4);
-        this.textureCoords = this.textureCoordsData.group(2);
-        this.normals       = this.normalData.group(3);
       }
+      
+      this._vertices = null;
+      this._colors = null;
+      this._textureCoords = null;
+      this._normals = null;
       
       calculateBounds(this, vertices);
 
-      this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertices);
-      this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colors);
-      this.buffers.normal_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.normals);
-      this.buffers.texture_coords = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.textureCoords);
+      this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertexData, 3);
+      this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colorData, 4);
+      this.buffers.normal_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.normalData, 3);
+      this.buffers.texture_coords = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.textureCoordsData, 2);
       this.buffers.index_buffer   = new Jax.DataBuffer(GL_ELEMENT_ARRAY_BUFFER, this.indices);
 
       if (this.after_initialize) this.after_initialize();
