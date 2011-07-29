@@ -19,8 +19,22 @@ describe("Jax.Context", function() {
       document.body.removeChild(canvas);
     });
     
-    describe("with an error function in the current controller", function() {
+    describe("encountering a non-compatability error during init", function() {
+      beforeEach(function() {
+        Jax.routes.clear();
+
+        Jax.views.push('one/index', function() { });
+        var one = Jax.Controller.create("one", {index:function() {throw new Error("my bad")}});
+        Jax.routes.root(one, "index");
+      });
       
+      afterEach(function() { Jax.routes.clear(); });
+      
+      it("should not redirect", function() {
+        var href = document.location.pathname;
+        try { context = new Jax.Context(canvas, {alertErrors: false}); } catch(e) { }
+        expect(document.location.pathname).toEqual(href);
+      });
     });
     
     describe("with an error function in ApplicationController", function() {
@@ -116,6 +130,7 @@ describe("Jax.Context", function() {
       Jax.routes.map("two", two);
       
       context = new Jax.Context(SPEC_CONTEXT.canvas);
+      context.alertErrors = false;
     });
     
     afterEach(function() { context.dispose(); });
@@ -131,7 +146,12 @@ describe("Jax.Context", function() {
       var two_instance = context.current_controller;
       
       jasmine.Clock.tick(Jax.update_speed+1);
-      expect(function() { context.redirectTo("invalid"); }).toThrow("Route not recognized: 'invalid'");
+      try {
+        context.redirectTo("invalid");
+        throw new Error("No error raised!");
+      } catch(e) {
+        expect(e.message || e.toString()).toEqual("Error: Route not recognized: 'invalid'");
+      }
       expect(context.world.objects.length).toEqual(0);
       
       spyOn(two_instance, "update"); // notice we can't do this earlier because it *does* get called above

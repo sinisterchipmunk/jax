@@ -254,17 +254,27 @@ Jax.Context = (function() {
      *
      * <table>
      *   <tr>
-     *     <th></th>
+     *     <th>alertErrors</th>
+     *     <td>see +Jax.Context#alertErrors+</td>
      *   </tr>
      * </table>
      *
      *
      **/
-    initialize: function(canvas) {
+    initialize: function(canvas, options) {
       try {
         if (typeof(canvas) == "string") canvas = document.getElementById(canvas);
         if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
         
+        /**
+         * Jax.Context#alertErrors = true
+         * 
+         * If true, an +alert+ prompt will be used to display errors encountered in development mode.
+         * In production, they will be silenced (but logged to the console). If an error is silenced,
+         * regardless of runmode, this won't happen.
+         **/
+        options = Jax.Util.normalizeOptions(options, { alertErrors: true });
+        this.alertErrors = options.alertErrors;
         this.id = ++Jax.Context.identifier;
         this.canvas = canvas;
         this.setupEventListeners();
@@ -304,11 +314,12 @@ Jax.Context = (function() {
         this.checkForRenderErrors();
 
         this.startUpdating();
-        if (Jax.routes.isRouted("/"))
-          this.redirectTo("/");
       } catch(e) {
         this.handleError('initialize', e);
       }
+
+      if (Jax.routes.isRouted("/"))
+        this.redirectTo("/");
     },
     
     /**
@@ -425,24 +436,28 @@ Jax.Context = (function() {
      * World, so be prepared to initialize a new scene.
      **/
     redirectTo: function(path) {
-      this.unregisterMouseListeners();
+      try {
+        this.unregisterMouseListeners();
       
-      this.stopRendering();
+        this.stopRendering();
 
-      this.world.dispose();
-      this.player.camera.reset();
-      /* yes, this is necessary. If the routing fails, controller must be null to prevent #update with a new world. */
-      this.current_controller = this.current_view = null;
-      this.current_controller = Jax.routes.dispatch(path, this);
-      if (!this.current_controller.view_key)
-        throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
-      this.current_view = Jax.views.find(this.current_controller.view_key);
+        this.world.dispose();
+        this.player.camera.reset();
+        /* yes, this is necessary. If the routing fails, controller must be null to prevent #update with a new world. */
+        this.current_controller = this.current_view = null;
+        this.current_controller = Jax.routes.dispatch(path, this);
+        if (!this.current_controller.view_key)
+          throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
+        this.current_view = Jax.views.find(this.current_controller.view_key);
       
-      setupView(this, this.current_view);
-      if (!this.isRendering()) this.startRendering();
+        setupView(this, this.current_view);
+        if (!this.isRendering()) this.startRendering();
       
-      if (this.current_controller && this.current_controller)
-        this.registerMouseListeners(this.current_controller);
+        if (this.current_controller && this.current_controller)
+          this.registerMouseListeners(this.current_controller);
+      } catch(e) {
+        this.handleError('redirect', e);
+      }
         
       return this.current_controller;
     },
@@ -618,7 +633,13 @@ Jax.Context = (function() {
       // by render() and update() when an error is encountered anywhere within
       // them.
       var message = error.toString();
-      error = { phase: phase, error: error, stack: error._stack || error.stack, toString: function() { return message; } };
+      error = {
+        phase: phase,
+        error: error,
+        stack: error._stack || error.stack, 
+        message: error.toString(),
+        toString: function() { return message; }
+      };
       this.fireEvent('error', error);
       
       var errorHandler = this.current_controller;
@@ -634,7 +655,6 @@ Jax.Context = (function() {
           
           document.location.pathname = Jax.webgl_not_supported_path || "/webgl_not_supported.html";
           throw error.toString()+"\n\n"+error.stack;
-          // throw new Error("WebGL is disabled or is not supported by this browser!");
         }
         
         var log = null, stack = error._stack || error.stack || "(backtrace unavailable)";
@@ -644,7 +664,9 @@ Jax.Context = (function() {
           log = console.error || console.log;
           if (log) log.call(console, message);
         }
-        if (Jax.environment != Jax.PRODUCTION) alert(message);
+        if (Jax.environment != Jax.PRODUCTION && this.alertErrors)
+          alert(message);
+        throw error;
       }
       
       return this;
