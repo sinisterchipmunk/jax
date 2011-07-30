@@ -25,7 +25,7 @@ class Jax::Plugin < Jax::Engine
   
   def initialize(path)
     super()
-    @relative_path = path
+    @relative_path = path.sub(/^#{Regexp::escape Jax.root.to_s}\/?/, '')
   end
   
   def manifest
