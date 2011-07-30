@@ -250,7 +250,7 @@ Next, we need the controller to add it to the scene. Edit your controller file a
 <js>
 index: function() {
   // ...
-  this.world.addLightSource(LightSource.find("sun"));
+  this.world.addLightSource("sun");
 }
 </js>
 
@@ -263,7 +263,7 @@ direction:
   z:  1
 </yaml>
 
-This tells the light to shine left, down, and backward relative to world space.
+This tells the light to shine left, down, and forward relative to world space.
 
 INFO: Remember that, currently, our camera is unmodified, so world space and camera space are the same thing. When we get around to rotating the camera, the difference between camera and world space will become more important. For more information about the various spaces and the differences between them, take a look at the "Matrices Guide":matrices.html.
 
@@ -287,7 +287,7 @@ Again, add the light source to the scene from the controller +app/controllers/te
 <js>
 index: function() {
   // ...
-  this.world.addLightSource(LightSource.find("candle"));
+  this.world.addLightSource("candle");
 }
 </js>
 
@@ -347,7 +347,7 @@ Like the others, add this light to the scene in +app/controllers/teapot_controll
 <js>
 index: function() {
   // ...
-  this.world.addLightSource(LightSource.find("searchlight"));
+  this.world.addLightSource("searchlight");
 }
 </js>
 
@@ -549,6 +549,8 @@ this.camera.rotate(this.rotation_speed * timechange, rotation_axis);
 
 This will cause the teapot to rotate about the Y axis at a speed of +rotation_speed+ radians per second. Because the speed was specified in the resource files, you now have enough code in place to actually create several different teapots rotating at different speeds! Just add resource files for each teapot you intend to use; remember to set the individual teapots up in the +teapot_controller.js+ file, and you're all set!
 
+NOTE: There are a number of methods available to make an object rotate. The example above rotates on an axis that we specify, relative to the object's _current_ orientation. Other rotation methods include +pitch+, +yaw+, +roll+, +rotateWorld+. You can read about them at "the JavaScript API documentation":http://guides.jaxgl.com/api/js/Jax/Camera/index.html.
+
 h3. Handling Input
 
 Nearly every application is going to have to deal with user input at one time or another. If it doesn't, it can never become more than yet another WebGL demo with a rotating globe.
@@ -561,14 +563,14 @@ h4. Mouse Events
 
 For this guide, we're going to allow the user to _rotate_ the camera in-place (as if turning their head) only when the mouse is _dragged_. Jax actually supports virtually every possible mouse event, and they are all handled identically to what we're about to do.
 
-NOTE: Most first-person applications track whether the mouse was _moved_ instead of just when it was _dragged_, but this is a bit of a sticking point with WebGL. The HTML5 standard provides no way to capture mouse input once the mouse itself is blocked from movement; that is, if you move the mouse to the left-hand side of the screen and continue to move it leftward, there will be no way to tell when you are attempting to move it past the edge of the screen. Similarly, there is no way under the current standard to reposition the mouse toward the center of the screen; this would pose too many security issues. Therefore, traditional "mouse-look" is not currently possible because mouse events will suddenly stop firing when the mouse becomes blocked by the screen dimensions. A cheap and cumbersome, but theoretically workable, solution is to listen to mouse _drag_ events instead of mouse _move_ events. This forces the user to move the mouse back to its origin before dragging again, thus not breaking the application. (This issue alone is probably going to pose significant design frustrations for WebGL-based first-person application developers.)
+NOTE: Most first-person applications track whether the mouse was _moved_ instead of just when it was _dragged_, but this is a bit of a sticking point with WebGL. The HTML5 standard provides no way to capture mouse input once the mouse itself is blocked from movement; that is, if you move the mouse to the left-hand side of the screen and continue to move it leftward, there will be no way to tell when you are attempting to move it past the edge of the screen. Similarly, there is no way under the current standard to reposition the mouse toward the center of the screen; this would pose too many security issues. Therefore, traditional "mouse-look" is not currently possible because mouse events will suddenly stop firing when the mouse becomes blocked by the screen dimensions. A cheap and cumbersome, but theoretically workable, solution is to listen to mouse _drag_ events instead of mouse _move_ events. This forces the user to move the mouse back to its origin before dragging again, thus not breaking the application.
 
 In your controller, define a new action called +mouse_dragged+. It takes a single +event+ argument:
 
 <js>
 mouse_dragged: function(event) {
-  this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
-  this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+  this.player.camera.pitch(0.01 * event.diffy);
+  this.player.camera.yaw(0.01 * -event.diffx);
 }
 </js>
 
@@ -580,11 +582,7 @@ Rotating about the Z axis is to rotate about a line drawn straight out in front 
 
 If you reload your test suite, you'll now see that you can drag the mouse to cause the appropriate rotation.
 
-The last line in the mouse_dragged function may be a bit confusing. The most effective way to see what it does is to simply comment that last line out, reload your test suite, and see how the camera functions. You'll notice that first of all, you can rotate the camera into a completely upside-down state; not ideal for a first-person application, but quite appropriate for a flight simulator.
-
-The second thing you may notice with the last line commented out is that the camera has a way of losing its "up" axis, as if you'd rotated about the Z axis. This is due to floating point imprecision. In many applications, it's no big deal, but it's probably not a good thing to allow players to lose their sense of "up" in a first-person environment. A quick and dirty, but effective, way to work around this is to explicitly reorient the camera so that "up" is always pointing in the same hard-coded direction (usually, along the positive Y axis). That's what that last line was responsible for. After doing the appropriate camera rotations, it gathered the new view direction from the camera, and restricted it to be in line with the world "up" axis.
-
-As we eluded to before, Jax can handle a lot more than +mouse_dragged+ events. Here's the full list:
+As we eluded to before, Jax can handle a lot more than +mouse_dragged+ events. Here's the full list of mouse events:
 
 | Event         | Condition |
 | mouse_entered | When the mouse enters the WebGL canvas |
@@ -695,7 +693,7 @@ h3. Helpers
 
 In both models and controllers, it's easy to end up duplicating previous efforts. For instance, in this example we're going to use exactly the same keyboard and mouse input handling for the +Dungeon+ controller as we have already implemented for the +Teapot+ controller.
 
-Though it might seem tempting to copy-and-paste the code from one controller into the other, Jax frowns upon this. As an interpreted language, one of JavaScript's greatest strengths is also its greatest weakness. Code is not evaluated until it is time to execute it, so if there is an error in the code, you won't know it until it actually runs. Therefore, every line of additional code in an application should be carefully thought out because every line of code potentially introduces another point of failure. Following this line of thought, copy and paste is a very dangerous tool that should only be done in extreme circumstances. What's more, copying code in this way is a quick path to a maintenance nightmare; if you have to change anything, you'll have to make the same changes elsewhere, and this problem only grows more complex as more controllers and models are added to the mix.
+WARNING: Though it might seem tempting to copy-and-paste the code from one controller into the other, Jax frowns upon this. As an interpreted language, one of JavaScript's greatest strengths is also its greatest weakness. Code is not evaluated until it is time to execute it, so if there is an error in the code, you won't know it until it actually runs. Therefore, every line of additional code in an application should be carefully thought out because every line of code potentially introduces another point of failure. Following this line of thought, copy and paste is a very dangerous tool that should only be done in extreme circumstances. What's more, copying code in this way is a quick path to a maintenance nightmare; if you have to change anything, you'll have to make the same changes elsewhere, and this problem only grows more complex as more controllers and models are added to the mix.
 
 Fortunately, Jax presents a solution to this redundancy problem: Helpers.
 
@@ -727,8 +725,8 @@ var UserInputHelper = (function() {
 
   return Jax.Helper.create({
     mouse_dragged: function(event) {
-      this.player.camera.rotate(0.01, [event.diffy, -event.diffx, 0]);
-      this.player.camera.orient(this.player.camera.getViewVector(), [0,1,0]);
+      this.player.camera.pitch(0.01 * event.diffy);
+      this.player.camera.yaw(0.01 * -event.diffx);
     },
 
     key_pressed: function(event) {
@@ -768,7 +766,7 @@ Since Jax won't just automatically include the helper for us, we need to tell it
 <js>
 helpers: function() {
   return [ UserInputHelper ];
-}
+},
 </js>
 
 That's it! Jax will detect the presence of this function and use it to mix in the helper methods with this controller <em>as if they were defined by the controller itself</em>.
@@ -855,7 +853,7 @@ function parse(str) {
 }
 </js>
 
-This method is _private_ because it is declared within a generic function (see the line just preceding it), making it accessible only to code that is _also_ in the same function. That limits the scope of the +parseVectorString+ function just to the +Dungeon+ model.
+This method is _private_ because it is declared within a generic function (see the line just preceding it), making it accessible only to code that is _also_ in the same function. That limits the scope of the +parse+ function just to the +Dungeon+ model.
 
 Now, on line 12, within the +after_initialize+ method body, add the following:
 
@@ -955,7 +953,7 @@ We only need to add one function, +init+, to the mesh. When Jax determines that 
 | +vertices+ | Vertex coordinate data. Must be stored in multiples of 3 (X, Y, Z). | ... the mesh can't be rendered. |
 | +colors+   | Per-vertex color information. Must be stored in multiples of 4 (red, green, blue, alpha transparency) and must have one color per vertex stored in +vertices+. | ... the color data will default to all 1's (pure white, completely opaque). |
 | +textureCoords+ | Texture coordinate information. Multiples of 2 (U, V). Must specify one texture coordinate per vertex. Individual materials may scale these numbers as needed. | ... the mesh cannot be rendered with any texture-based shaders. Attempting to do so will probably result in a GL_INVALID_OPERATION error. |
-| +normals+ | Directional vectors representing the direction each vertex is pointing. Multiples of 3 (X, Y, Z). Must specify one normal per vertex. | ... the mesh cannot be lit effectively, and trying to render with lighting support or any other normals-based shader may result in a GL_INVALID_OPERATION error. Also, since tangent space cannot be calculated without normal data, normal maps and other shaders relying on tangent vectors will probably fail. |
+| +normals+ | Directional vectors representing the direction each vertex is pointing. Multiples of 3 (X, Y, Z). Must specify one normal per vertex. | ... Jax will attempt to calculate the normals if they are required by a shader. This is an expensive operation and may cause significant delay on some machines, directly depending upon the number of vertices in the mesh. To compensate for the performance implications, if normal data is not requested, Jax won't auto-calculate it. |
 | +vertexIndices+ | Vertex index data. Stored in multiples of 1, each index is an integer value pointing to a vertex to be drawn. For instance, index 0 represents <tt>vertices[0..2]</tt>; index 1 represents <tt>vertices[3..5]</tt>; and so on. Note that each index corresponds identically to color index, textureCoords index, and so on. | If left empty, Jax will automatically use the +vertices+ data sequentially as if the vertex indices were equal to <tt>[0, 1, 2, ... n]</tt>. No errors should occur, though the mesh may not be rendered properly if the vertex data is not meant to be rendered sequentially. |
 
 INFO: In order to achieve maximum compatibility, you should do your best not to leave any of the data arrays empty, except perhaps +vertexIndices+ if your mesh doesn't rely on vertex indices.
@@ -1050,15 +1048,23 @@ var DungeonController = (function() {
 })();
 </js>
 
-Don't forget to change the +root+ in +config/routes.rb+. Your +config/routes.rb+ file should now look like:
+h3. Redirection
+
+We still need to tell the controller to actually load. We _could_ make the appropriate modifications to +config/routes.rb+ to make the **dungeon** controller the root, but this is a perfect time to explain one of the most fundamental requirements of a complex application: redirection.
+
+As your application grows, it's probably going to need more than one scene. Even in our relatively minor example, we're making use of two controllers (+teapot+ and +dungeon+), each representing a completely separate, unrelated scene. With multiple controllers comes a need to transfer focus from one to the other -- that is, unload the current scene and begin loading the next one.
+
+For this example, let's hook the redirect up to a mouse click: when the user clicks anywhere on the canvas while in the +teapot+ controller, Jax will redirect the user to the +dungeon+ controller. Edit +app/controllers/teapot_controller.rb+ and add the following event handler:
 
 <js>
-Dungeon.routes.map do
-  map 'dungeon/index'
-  map 'teapot/index'
-  root 'dungeon'
-end
+mouse_clicked: function(event) {
+  this.context.redirectTo("dungeon/index");
+},
 </js>
+
+The "dungeon/index" path is set up in the +config/routes.rb+ file and represents the **dungeon** controller and the **index** action.
+
+NOTE: If you redirect to a different action within the same controller, the scene will _not_ be unloaded; that is, all the objects in the world at the time of the redirect will still be in the world when the action is fired. In order to automatically unload the scene, Jax needs to redirect to a completely different controller. This allows you to set up scripted events in the form of redirects, as long as they all occur within the current controller.
 
 After making this change and reloading your Jax suite, you should be standing within (and able to walk / look around in) your new, brightly-colored Dungeon!
 

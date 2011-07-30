@@ -267,11 +267,14 @@ Jax.Context = (function() {
         if (!canvas) throw new Error("Can't initialize a WebGL context without a canvas!");
         
         /**
-         * Jax.Context#alertErrors = true
+         * Jax.Context#alertErrors -> Boolean
          * 
          * If true, an +alert+ prompt will be used to display errors encountered in development mode.
          * In production, they will be silenced (but logged to the console). If an error is silenced,
          * regardless of runmode, this won't happen.
+         *
+         * Defaults to +true+.
+         *
          **/
         options = Jax.Util.normalizeOptions(options, { alertErrors: true });
         this.alertErrors = options.alertErrors;
