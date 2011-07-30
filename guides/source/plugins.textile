@@ -175,7 +175,7 @@ A manifest is a document which describes the contents of a particular package. J
 
 h5. Versioning
 
-When a plugin is generated, its version number defaults to "1.0.0" -- or, initial stable release. If you are uncertain as to your plugin's stability, you should consider reducing the first number to "0" to signify that the plugin has not yet reached maturity.
+When a plugin is generated, its version number defaults to "0.0.1". This is generally a good release number to start at because it lets people know that your plugin has seen little or no real-world use.
 
 NOTE: Software versioning is not so much a set of rules as it is a set of very loose guidelines; version numbers can have very different meanings from one project to another, even in the same organization. Therefore, it's important to develop a consensus on what each version number means. Jax borrows its versioning system from the Ruby community, where by convention the numbers have come to have the following meanings:
 

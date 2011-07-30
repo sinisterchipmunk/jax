@@ -65,7 +65,7 @@ class Jax::Plugin::Manifest < ActiveSupport::HashWithIndifferentAccess
   
   def defaults
     self[:description] ||= ""
-    self[:version] ||= "1.0.0"
+    self[:version] ||= "0.0.1"
     self
   end
 end
