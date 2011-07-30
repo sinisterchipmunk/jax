@@ -17,7 +17,7 @@ module Jax
           @map << args
         end
       end
-      @map.uniq!
+      @map && @map.uniq!
       @map
     end
     
