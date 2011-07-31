@@ -35,7 +35,26 @@ var Jax = {
     if (original_error._stack) new_error._stack = original_error._stack;
     else if (original_error.stack) new_error._stack = original_error.stack;
     throw new_error;
-  }
+  },
+  
+  /**
+   * Jax.click_speed = 0.2
+   *
+   * Think of an input button. The 'mouse_clicked' event fires after the button has been
+   * depressed, regardless of how long the button has been held down. However, in
+   * terms of UI events, a "mouse clicked" event generally corresponds to a mouse
+   * button press followed by a mouse button release within a relatively short
+   * timeframe.
+   *
+   * In order to prevent 'mouse_clicked' events from interfering with other button-related
+   * events, such as 'mouse_dragged', Jax imposes a UI-like click speed. If the
+   * 'mouse_clicked' event is not received within this number of seconds from the
+   * previous 'mouse_pressed' event, it will be ignored.
+   *
+   * To revert to HTML-style, button-like clicking, simply set this number to +null+.
+   *
+   **/
+  click_speed: 0.2,
 };
 
 /* Called by Jax applications as of version 0.0.0.5 to alert the user to incomplete upgrades */

@@ -110,17 +110,34 @@ Jax.EVENT_METHODS = (function() {
       mouse.diffx = mouse.x - mouse.offsetx;
       mouse.diffy = mouse.y - mouse.offsety;
     }
-
-    // check for button presses
+    
+    // check button state special cases
     if (evt.type == "mousedown" || evt.type == "onmousedown") {
+      // begin dragging, and possibly click
       mouse.down = mouse.down || {count:0};
-      mouse.down["button"+evt.which] = {at:[mouse.x,mouse.y]};
+      mouse.down["button"+evt.which] = {at:[mouse.x,mouse.y],time:Jax.uptime};
+      mouse.down.count++;
+    } else if (evt.type == "click" || evt.type == "onclick") {
+      // complete click
+      evt.cancel = false;
+      if (mouse.down && mouse.down["button"+evt.which]) {
+        evt.cancel = !!Jax.click_speed && (Jax.uptime - mouse.down["button"+evt.which].time) > Jax.click_speed;
+      }
     } else if (evt.type == "mouseup" || evt.type == "onmouseup") {
+      // stop dragging
       if (mouse.down)
       {
         mouse.down.count--;
-        if (mouse.down.count <= 0) mouse.down = null;
+        // mouse.down = null;
+        if (mouse.down.count < 0) mouse.down.count = 0;
       }
+    } else if (evt.type == "mouseout" || evt.type == "onmouseout") {
+      // reset all mousedown state so when mouse re-enters we won't be dragging
+      // in practice, this behavior is accurate more often than the opposite
+      // (e.g. drag out and then back in without releasing).
+      // Requiring an extra mouse-up in this opposite instance is harmless and
+      // relatively unobtrusive.
+      mouse.down = null;
     }
     
     evt.x = mouse.x;
@@ -133,6 +150,7 @@ Jax.EVENT_METHODS = (function() {
   }
 
   function dispatchEvent(self, evt) {
+    if (evt.cancel) return;
     var type = evt.type.toString();
     if (type.indexOf("on") == 0) type = type.substring(2, type.length);
     type = type.toLowerCase();
@@ -192,7 +210,7 @@ Jax.EVENT_METHODS = (function() {
           case 'mouse_released': register['mouseup'] = 1; break;
           case 'mouse_dragged' : // same as mouse_moved
           case 'mouse_moved'   : register['mousedown'] = register['mouseup'] = register['mousemove'] = 1; break;
-          case 'mouse_clicked' : register['click'] = 1; break;
+          case 'mouse_clicked' : register['click'] = register['mousedown'] = 1; break;
           case 'mouse_exited'  : register['mouseout'] = 1; break;
           case 'mouse_entered' : register['mouseover'] = 1; break;
         };
@@ -219,9 +237,9 @@ Jax.EVENT_METHODS = (function() {
         document.addEventListener('keyup',     this._evt_keyfunc,       false);
       } else {
         /* IE */
-        document.attachEvent('onkeydown',   this._evt_keyfunc      );
-        document.attachEvent('onkeypress',  this._evt_keyfunc      );
-        document.attachEvent('onkeyup',     this._evt_keyfunc      );
+        document.attachEvent('onkeydown',   this._evt_keyfunc);
+        document.attachEvent('onkeypress',  this._evt_keyfunc);
+        document.attachEvent('onkeyup',     this._evt_keyfunc);
       }
     },
     
@@ -229,11 +247,11 @@ Jax.EVENT_METHODS = (function() {
       if (!this._evt_keyfunc) return;
       
       this.canvas.removeEventListener(this._evt_keyfunc);
-      document.removeEventListener('keydown', this._evt_keyfunc, false);
-      document.removeEventListener('keyup', this._evt_keyfunc, false);
-      document.removeEventListener('keypress', this._evt_keyfunc, false);
-      document.removeEventListener('onkeydown', this._evt_keyfunc, false);
-      document.removeEventListener('onkeyup', this._evt_keyfunc, false);
+      document.removeEventListener('keydown',    this._evt_keyfunc, false);
+      document.removeEventListener('keyup',      this._evt_keyfunc, false);
+      document.removeEventListener('keypress',   this._evt_keyfunc, false);
+      document.removeEventListener('onkeydown',  this._evt_keyfunc, false);
+      document.removeEventListener('onkeyup',    this._evt_keyfunc, false);
       document.removeEventListener('onkeypress', this._evt_keyfunc, false);
     },
         
@@ -252,7 +270,7 @@ Jax.EVENT_METHODS = (function() {
       this._evt_mousemovefunc = function(evt) {
         if (!self.current_controller) return;
         evt = buildMouseEvent(self, evt);
-        if (self.mouse && self.mouse.down == null) // mouse is not being dragged
+        if (self.mouse && (!self.mouse.down || self.mouse.down.count <= 0)) // mouse is not being dragged
           evt.move_type = "mousemove";
         else
           evt.move_type = "mousedrag";

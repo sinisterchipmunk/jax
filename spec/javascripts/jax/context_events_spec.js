@@ -42,6 +42,104 @@ describe("Jax.Context.Events", function() {
       describe("listener", fn);
     });
   }
+  
+  describe("controller mouse events", function() {
+    var controller, evt;
+    beforeEach(function() {
+      controller = Jax.Controller.create('test', { index: function() { } });
+      Jax.views.push('test/index', function() { });
+      Jax.routes.map('test/index', controller, 'index');
+    });
+    
+    function sendMouseEvent(type) {
+      evt = document.createEvent('MouseEvents');
+      evt.initMouseEvent(type, true, true, Jax.getGlobal(), 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      SPEC_CONTEXT.canvas.dispatchEvent(evt);
+    }
+    
+    describe("mouse exit canvas (mouseout)", function() {
+      var dragged;
+      beforeEach(function() {
+        dragged = false;
+        controller.prototype.mouse_dragged = function() { dragged = true; };
+        SPEC_CONTEXT.redirectTo('test');
+      });
+      
+      it("should not continue dragging", function() {
+        // simulate mouse down, then drag, then exit
+        sendMouseEvent('mousedown');
+        sendMouseEvent('mousemove');
+        sendMouseEvent('mouseout');
+        // reset +dragged+ so we can track the next result
+        dragged = false;
+        // bring mouse back in
+        sendMouseEvent('mouseover');
+        sendMouseEvent('mousemove');
+        
+        expect(dragged).toBeFalsy();
+      });
+    });
+
+    describe("mouse move", function() {
+      var dragged;
+      beforeEach(function() {
+        dragged = false;
+        controller.prototype.mouse_dragged = function() { dragged = true; };
+        SPEC_CONTEXT.redirectTo('test');
+      });
+      
+      it("should not be dragged after clicking", function() {
+        // simulate a click
+        sendMouseEvent('mousedown');
+        sendMouseEvent('mouseup');
+        sendMouseEvent('click');
+        // move the mouse
+        sendMouseEvent('mousemove');
+        
+        expect(dragged).toBeFalsy();
+      });
+    });
+
+    describe("mouse click", function() {
+      var clicked;
+
+      beforeEach(function() {
+        clicked = false;
+        controller.prototype.mouse_clicked = function() { clicked = true; };
+        SPEC_CONTEXT.redirectTo('test');
+        sendMouseEvent('mousedown');
+        expect(Jax.click_speed).toBeGreaterThan(0); // sanity check
+      });
+
+      it("should not be interfered with by mouse movement", function() {
+        Jax.uptime += Jax.click_speed / 2 + 1;
+        sendMouseEvent('mousemove');
+        Jax.uptime += Jax.click_speed / 2 + 1;
+        sendMouseEvent('click');
+        expect(clicked).toBeFalsy();
+      });
+
+      it("should not fire if too much time elapses between down and up", function() {
+        Jax.uptime += Jax.click_speed+1;
+        sendMouseEvent('click');
+        expect(clicked).toBeFalsy();
+      });
+
+      it("should carry through if time elapsed < click_speed", function() {
+        Jax.uptime += Jax.click_speed-1;
+        sendMouseEvent('click');
+        expect(clicked).toBeTruthy();
+      });
+
+      it("should carry through if click_speed is nil", function() {
+        var speed = Jax.click_speed;
+        Jax.click_speed = null;
+        sendMouseEvent('click');
+        expect(clicked).toBeTruthy();
+        Jax.click_speed = speed;
+      });
+    });
+  });
 
   // test listeners individually.
   withListener('mouse_entered', function() {
