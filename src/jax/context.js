@@ -440,23 +440,47 @@ Jax.Context = (function() {
      **/
     redirectTo: function(path) {
       try {
-        this.unregisterMouseListeners();
-      
         this.stopRendering();
+        this.stopUpdating();
 
-        this.world.dispose();
-        this.player.camera.reset();
+        var current_controller = this.current_controller, current_view = this.current_view;
+        var route = Jax.routes.recognize_route(path);
+
         /* yes, this is necessary. If the routing fails, controller must be null to prevent #update with a new world. */
-        this.current_controller = this.current_view = null;
-        this.current_controller = Jax.routes.dispatch(path, this);
-        if (!this.current_controller.view_key)
-          throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
-        this.current_view = Jax.views.find(this.current_controller.view_key);
-      
-        setupView(this, this.current_view);
+        // this.current_controller = this.current_view = null;
+
+        if (!current_controller || current_controller.klass != route.controller) {
+          // different controller, unload the scene
+          this.unregisterMouseListeners();
+          this.world.dispose();
+          this.player.camera.reset();
+          this.current_controller = Jax.routes.dispatch(path, this);
+
+          if (!this.current_controller.view_key)
+            throw new Error("Controller '"+this.current_controller.getControllerName()+"' did not produce a renderable result");
+
+          this.current_view = Jax.views.find(this.current_controller.view_key);
+          setupView(this, this.current_view);
+        } else {
+          current_controller.fireAction(route.action);
+          this.current_controller = current_controller;
+
+          var newView, currentKey = current_controller.view_key;
+          try {
+            if (current_controller.view_key && (newView = Jax.views.find(current_controller.view_key))) {
+              this.current_view = newView;
+              setupView(this, newView);
+            }
+          } catch(e) {
+            current_controller.view_key = currentKey;
+            this.current_view = current_view;
+          }
+        }
+        
         if (!this.isRendering()) this.startRendering();
+        if (!this.isUpdating())  this.startUpdating();
       
-        if (this.current_controller && this.current_controller)
+        if (this.current_controller)
           this.registerMouseListeners(this.current_controller);
       } catch(e) {
         this.handleError('redirect', e);
