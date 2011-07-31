@@ -16,7 +16,7 @@ class Jax::ReloadingTest < IsolatedTestCase
   end
 
   test "resources" do
-    assert_not_match(/#{Regexp::escape "Door"}/, Jax.application.resources.to_s)
+    assert_no_match(/#{Regexp::escape "Door"}/, Jax.application.resources.to_s)
     app_file "app/resources/doors/default.yml", "one: 1"
     assert_match(/#{Regexp::escape "Door"}/, Jax.application.resources.to_s)
   end
