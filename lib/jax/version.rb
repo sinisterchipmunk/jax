@@ -3,7 +3,7 @@ module Jax
     MAJOR  = 1
     MINOR  = 1
     TINY   = 0
-    PREREL = "rc1"
+    PREREL = nil 
 
     STRING = PREREL ? "#{MAJOR}.#{MINOR}.#{TINY}.#{PREREL}" : "#{MAJOR}.#{MINOR}.#{TINY}"
   end
