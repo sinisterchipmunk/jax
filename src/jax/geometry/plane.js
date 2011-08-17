@@ -11,19 +11,117 @@
  *
  **/
 Jax.Geometry.Plane = (function() {
+  var bufs = {};
+  
   function innerProduct(a, x, y, z) {
     return (a[0]*x + a[1]*y + a[2]*z);
   }
 
   return Jax.Class.create({
     /**
+     * Jax.Geometry.Plane#intersectRay(origin, direction) -> vec3 | false
+     * - origin (vec3): the point at which the ray begins
+     * - direction (vec3): the direction the ray extends. This must be
+     *                     a unit vector.
+     *
+     * Returns the distance along the ray at which an intersection with this
+     * plane occurs. If the ray is parallel to this plane, returns false.
+     * If the ray is pointing away from this plane, a negative number will
+     * be returned.
+     *
+     * The +direction+ argument must be normalized for the result to be accurate.
+     **/
+    intersectRay: function(origin, direction) {
+      var numer = vec3.dot(this.normal, origin) + this.d;
+      var denom = vec3.dot(this.normal, direction);
+      
+      if (denom == 0) // normal is orthogonal to vector, can't intersect
+        return false;
+        
+      var result = -(numer / denom);
+      return -(numer / denom);
+    },
+    
+    /**
+     * Jax.Geometry.Plane#intersectPlane(p[, line]) -> Number
+     * - p (Jax.Geometry.Plane): the plane to test for intersection
+     * - line (Jax.Geometry.Line): an optional receiving Line to contain the intersection
+     *
+     * Tests this plane against the +p+ for intersection. If no intersection is found,
+     * the value Jax.Geometry.DISJOINT (which equals 0) is returned.
+     *
+     * If the planes are the same, the value Jax.Geometry.COINCIDE is returned.
+     *
+     * Otherwise, the value Jax.Geometry.INTERSECT is returned. If +line+ was given,
+     * the exact line of intersection will be stored within it. Otherwise, this data
+     * is ignored.
+     **/
+    intersectPlane: function(p, line) {
+      var d1 = this.d, d2 = p.d;
+      var p1n = this.normal, p2n = p.normal;
+      var u = bufs.u = bufs.u || vec3.create();
+      vec3.cross(p1n, p2n, u);
+      var ax = (u[0] >= 0 ? u[0] : -u[0]);
+      var ay = (u[1] >= 0 ? u[1] : -u[1]);
+      var az = (u[2] >= 0 ? u[2] : -u[2]);
+      
+      // test if the two planes are parallel
+      if ((ax+ay+az) < Math.EPSILON) { // planes are near parallel
+        // test if disjoint or coincide
+        if (Math.equalish(d1, d2)) return Jax.Geometry.COINCIDE;
+        else return Jax.Geometry.DISJOINT;
+      }
+      
+      if (line) {
+        // both planes intersect a line
+        // first determine max abs coordinate of cross product
+        var maxc;
+        if (ax > ay)
+          if (ax > az) maxc = 0;
+          else maxc = 2;
+        else
+          if (ay > az) maxc = 1;
+          else maxc = 2;
+        
+        // next, to get a point on the intersect line
+        // zero the max coord, and solve for the other two
+        var iP = bufs.iP = bufs.iP || vec3.create(); // intersection point
+        switch(maxc) {
+          case 0: // intersect with x = 0
+            iP[0] = 0;
+            iP[1] = (d2 * p1n[2] - d1 * p2n[2]) / u[0];
+            iP[2] = (d1 * p2n[1] - d2 * p1n[1]) / u[0];
+            break;
+          case 1: // intersect with y = 0
+            iP[0] = (d1 * p2n[2] - d2 * p1n[2]) / u[1];
+            iP[1] = 0;
+            iP[2] = (d2 * p1n[0] - d1 * p2n[0]) / u[1];
+            break;
+          case 2: // intersect with z = 0
+            iP[0] = (d2 * p1n[1] - d1 * p2n[1]) / u[2];
+            iP[1] = (d1 * p2n[0] - d2 * p1n[0]) / u[2];
+            iP[2] = 0;
+            break;
+        }
+        
+        vec3.set(iP,    line[0]);
+        vec3.add(iP, u, line[1]);
+      }
+      
+      return Jax.Geometry.INTERSECT;
+    },
+    
+    /**
      * new Jax.Geometry.Plane(v1, v2, v3)
+     * new Jax.Geometry.Plane(position, normal)
      * new Jax.Geometry.Plane(array_of_vertices)
      * new Jax.Geometry.Plane()
      * - v1 (vec3): first vertex
      * - v2 (vec3): second vertex
      * - v3 (vec3): third vertex
      * - array_of_vertices (Array): array of vertices in the form +[[x,y,z], [x,y,z], [x,y,z]]+
+     * - position (vec3): the position of a point known to be in the plane
+     * - normal (vec3): the vector normal to the surface of the plane
      *
      * If initialized with no arguments, the result is undefined until
      * the +set+ method is called. See +Jax.Geometry.Plane#set+
@@ -63,37 +161,40 @@ Jax.Geometry.Plane = (function() {
     
     /**
      * Jax.Geometry.Plane#set(points) -> Jax.Geometry.Plane
-     * - points (Array): an array of 3 vectors.
      * Jax.Geometry.Plane#set(point0, point1, point2) -> Jax.Geometry.Plane
+     * Jax.Geometry.Plane#set(position, normal) -> Jax.Geometry.Plane
+     * - points (Array): an array of 3 vectors.
      * - point0 (vec3): the first of 3 vectors.
      * - point1 (vec3): the second of 3 vectors.
      * - point2 (vec3): the third of 3 vectors.
+     * - position (vec3): the position of a point known to be in the plane
+     * - normal (vec3): the vector normal to the surface of the plane
      * 
-     * Sets this plane's coefficients based off of a set of three 3D points.
+     * Sets this plane's coefficients based off of either a set of three 3D points,
+     * or a single known point on the plane and the plane's normal.
      *
      * This plane is returned.
      **/
     set: function() {
-      var points = arguments;
-      if (arguments.length != 3) points = arguments[0];
-      if (typeof(points[0]) == 'object' && points[0].array) {
-        var vec = vec3.create();
-        vec3.subtract(points[1].array, points[0].array, this.normal);
-        vec3.subtract(points[2].array, points[0].array, vec);
-        vec3.cross(this.normal, vec, this.normal);
-        vec3.normalize(this.normal);
-
-        this.point = points[1].array;
-        this.d = -innerProduct(this.normal, this.point[0], this.point[1], this.point[2]);
+      if (arguments.length == 2) {
+        vec3.set(arguments[1], this.normal);
+        this.d = -vec3.dot(arguments[1], arguments[0]);
       } else {
-        var vec = vec3.create();
-        vec3.subtract(points[1], points[0], this.normal);
-        vec3.subtract(points[2], points[0], vec);
-        vec3.cross(this.normal, vec, this.normal);
-        vec3.normalize(this.normal);
-
-        this.point = points[1];
-        this.d = -innerProduct(this.normal, this.point[0], this.point[1], this.point[2]);
+        var tmp1 = this.normal, tmp2 = vec3.create();
+        var points = arguments;
+        
+        if (arguments.length != 3) points = arguments[0];
+        if (typeof(points[0]) == 'object' && points[0].array) {
+          vec3.subtract(points[1].array, points[0].array, tmp1);
+          vec3.subtract(points[2].array, points[0].array, tmp2);
+          vec3.normalize(vec3.cross(tmp1, tmp2, this.normal));
+          this.d = -vec3.dot(this.normal, points[0].array);
+        } else {
+          vec3.subtract(points[1], points[0], tmp1);
+          vec3.subtract(points[2], points[0], tmp2);
+          vec3.normalize(vec3.cross(tmp1, tmp2, this.normal));
+          this.d = -vec3.dot(this.normal, points[0]);
+        }
       }
       
       return this;
