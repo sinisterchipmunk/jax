@@ -182,6 +182,16 @@ describe("Jax.Context", function() {
       expect(context.world.dispose).toHaveBeenCalled();
     });
     
+    it("should reset the player camera", function() {
+      context.player.camera.setPosition([10,10,10]);
+      context.player.camera.rotate(1, [1,1,1]);
+      context.redirectTo("two");
+      expect(context.player.camera.getPosition()).toEqualVector([0,0,0]);
+      expect(context.player.camera.getViewVector()).toEqualVector([0,0,-1]);
+      expect(context.player.camera.getUpVector()).toEqualVector([0,1,0]);
+      expect(context.player.camera.getRightVector()).toEqualVector([1,0,0]);
+    });
+    
     it("to a bad route should stop execution of current controller", function() {
       context.redirectTo("two");
       var two_instance = context.current_controller;
