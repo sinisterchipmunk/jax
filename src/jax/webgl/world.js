@@ -217,7 +217,7 @@ Jax.World = (function() {
       this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       var unlit = Jax.Util.normalizeOptions(options, {unlit:true});
       
-      if (this.lighting.isEnabled() && (!unlit.material || unlit.material.supportsLighting())) {
+      if (this.lighting.isEnabled() && (!unlit.material || (unlit.material.supportsLighting && unlit.material.supportsLighting()))) {
         /* ambient pass - unlit objects only because lit objects get ambient+diffuse+specular in one pass */
         for (i = 0; i < this.objects.length; i++)
           if (!this.objects[i].isLit()) {
