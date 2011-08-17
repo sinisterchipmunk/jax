@@ -100,6 +100,12 @@ Jax.EVENT_METHODS = (function() {
     var cumulativeOffset = getCumulativeOffset(self.canvas);
     mouse.x = evt.pageX - cumulativeOffset[0];
     mouse.y = evt.pageY - cumulativeOffset[1];
+
+    if (self.canvas) {
+      if (self.canvas.offsetWidth)  mouse.x = mouse.x / self.canvas.offsetWidth  * self.canvas.width;
+      if (self.canvas.offsetHeight) mouse.y = mouse.y / self.canvas.offsetHeight * self.canvas.height;
+    }
+
     mouse.y = self.canvas.height - mouse.y; // invert y
 
     // calculate differences, useful for checking movement relative to last position

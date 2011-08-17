@@ -2,7 +2,7 @@ describe("Jax.Context.Events", function() {
   // I don't want to tie to a specific # of listeners because of nuances like tracking
   // (move,down,up) for 'dragged' events; it stands to reason that each event should
   // require greater than 0 listeners, but not one of +every+ listener (totalling 6).
-
+  
   describe("with no controller", function() {
     it("sanity check", function() { expect(SPEC_CONTEXT.current_controller).toBeUndefined(); });
     
@@ -48,14 +48,33 @@ describe("Jax.Context.Events", function() {
     beforeEach(function() {
       controller = Jax.Controller.create('test', { index: function() { } });
       Jax.views.push('test/index', function() { });
-      Jax.routes.map('test/index', controller, 'index');
+      // Jax.routes.map('test/index', controller, 'index');
     });
     
-    function sendMouseEvent(type) {
+    function sendMouseEvent(type, x, y) {
       evt = document.createEvent('MouseEvents');
-      evt.initMouseEvent(type, true, true, Jax.getGlobal(), 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      evt.initMouseEvent(type, true, true, Jax.getGlobal(), 1, x, y, x, y, false, false, false, false, 0, null);
       SPEC_CONTEXT.canvas.dispatchEvent(evt);
     }
+    
+    describe("with a scaled canvas", function() {
+      beforeEach(function() {
+        SPEC_CONTEXT.canvas.offsetWidth  = SPEC_CONTEXT.canvas.width*2;
+        SPEC_CONTEXT.canvas.offsetHeight = SPEC_CONTEXT.canvas.height*2;
+      });
+
+      it("should translate event to real dimensions", function() {
+        if (SPEC_CONTEXT.canvas.offsetWidth) {
+          var evt;
+          controller.prototype.mouse_moved = function(e) { evt = e; };
+          SPEC_CONTEXT.redirectTo('test');
+          sendMouseEvent("mousemove", SPEC_CONTEXT.canvas.width, SPEC_CONTEXT.canvas.height);
+          expect(evt.x).toEqual(SPEC_CONTEXT.canvas.width/2);
+          expect(evt.y).toEqual(SPEC_CONTEXT.canvas.height/2);
+        }
+      });
+    });
+
     
     describe("mouse exit canvas (mouseout)", function() {
       var dragged;
