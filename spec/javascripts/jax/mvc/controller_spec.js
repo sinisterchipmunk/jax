@@ -43,6 +43,11 @@ describe("Jax.Controller", function() {
   });
 
   describe("with event actions", function() {
+    beforeEach(function() {
+      klass = Jax.Controller.create("welcome", { index: function() { } });
+      instance = new klass();
+    });
+
     var evt;
 
     function doMouseEvent(type) {
@@ -89,6 +94,7 @@ describe("Jax.Controller", function() {
       Jax.routes.clear();
       SPEC_CONTEXT.current_controller = instance;
       SPEC_CONTEXT.registerMouseListeners(instance);
+      SPEC_CONTEXT.registerKeyListeners(instance);
     });
 
     it("should dispatch key pressed events", function() {
