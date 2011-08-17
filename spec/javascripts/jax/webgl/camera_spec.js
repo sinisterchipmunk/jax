@@ -10,6 +10,18 @@ describe("Camera", function() {
     expect(camera.getPosition()).toEqualVector(-10, 0, -10);
   });
   
+  it("rotation then reset", function() {
+    camera.setPosition([1,1,1]);
+    camera.pitch(1);
+    camera.yaw(1);
+    camera.roll(1);
+    camera.reset();
+    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
+    expect(camera.getPosition()).toEqualVector([0,0,0]);
+    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+    expect(camera.getRightVector()).toEqualVector([1,0,0]);
+  });
+  
   it("strafing with rotations", function() {
     camera.move(10);
     camera.yaw(Math.PI/2);
@@ -22,6 +34,27 @@ describe("Camera", function() {
     camera.yaw(Math.PI/6); // rotate to side a bit
     // check for camera drift
     expect(camera.getUpVector()).toEqualVector([0.25,0.8660253286361694,0.4330127239227295]);
+  });
+  
+  it("should project move and strafe", function() {
+    var pos = camera.projectMovement(1, 1);
+    vec3.subtract(camera.getPosition(), pos);
+    expect(pos).toEqualVector([1,0,-1])
+  });
+  
+  describe("with fixed yaw axis", function() {
+    // this is the default, no beforeEach necessary
+    
+    it("should not lose up vector", function() {
+      camera.setPosition([-1.8,0.35,1.8]);
+      camera.lookAt([0,0,0]);
+      var up = camera.getUpVector();
+      // FIXME is this safe?
+      expect(Math.abs(up[0])).toBeLessThan(0.1);
+      expect(Math.abs(up[1])).toBeGreaterThan(0.9);
+      expect(Math.abs(up[2])).toBeLessThan(0.1);
+      // expect(camera.getUpVector()).toEqualVector([0,1,0]);
+    });
   });
   
   describe("without fixed yaw axis", function() {

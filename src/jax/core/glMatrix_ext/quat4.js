@@ -1,4 +1,81 @@
 /**
+ * quat4.fromAxes(view, right, up[, dest]) -> quat4
+ * - view (vec3): the view vector
+ * - right (vec3): the right vector
+ * - up (vec3): the up vector
+ * - dest (quat): an optional receiving quat4. If omitted, a new one is created.
+ *
+ * Creates a quaternion from the 3 given vectors. They must be perpendicular
+ * to one another.
+ **/
+quat4.fromAxes = function(view, right, up, dest) {
+  var mat = quat4.fromAxes.mat = quat4.fromAxes.mat || mat3.create();
+  
+  mat[0] = right[0];
+  mat[3] = right[1];
+  mat[6] = right[2];
+
+  mat[1] = up[0];
+  mat[4] = up[1];
+  mat[7] = up[2];
+
+  mat[2] = view[0];
+  mat[5] = view[1];
+  mat[8] = view[2];
+
+  quat4.fromRotationMatrix(mat, dest);
+};
+
+/**
+ * quat4.fromRotationMatrix(mat[, dest]) -> quat4
+ * - mat (mat3): a 3x3 rotation matrix
+ * - dest (quat4): an optional receiving quat4. If omitted, a new one is created.
+ *
+ * Creates a quaternion from the given rotation matrix.
+ **/
+quat4.fromRotationMatrix = function(mat, dest) {
+  if (!dest) dest = quat4.create();
+  
+  // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+  // article "Quaternion Calculus and Fast Animation".
+
+  var fTrace = mat[0] + mat[4] + mat[8];
+  var fRoot;
+
+  if ( fTrace > 0.0 )
+  {
+    // |w| > 1/2, may as well choose w > 1/2
+    fRoot = Math.sqrt(fTrace + 1.0);  // 2w
+    dest[3] = 0.5 * fRoot;
+    fRoot = 0.5/fRoot;  // 1/(4w)
+    dest[0] = (mat[7]-mat[5])*fRoot;
+    dest[1] = (mat[2]-mat[6])*fRoot;
+    dest[2] = (mat[3]-mat[1])*fRoot;
+  }
+  else
+  {
+    // |w| <= 1/2
+    var s_iNext = quat4.fromRotationMatrix.s_iNext = quat4.fromRotationMatrix.s_iNext || [1,2,0];
+    var i = 0;
+    if ( mat[4] > mat[0] )
+      i = 1;
+    if ( mat[8] > mat[i*3+i] )
+      i = 2;
+    var j = s_iNext[i];
+    var k = s_iNext[j];
+    
+    fRoot = Math.sqrt(mat[i*3+i]-mat[j*3+j]-mat[k*3+k] + 1.0);
+    dest[i] = 0.5 * fRoot;
+    fRoot = 0.5 / fRoot;
+    dest[3] = (mat[k*3+j] - mat[j*3+k]) * fRoot;
+    dest[j] = (mat[j*3+i] + mat[i*3+j]) * fRoot;
+    dest[k] = (mat[k*3+i] + mat[i*3+k]) * fRoot;
+  }
+    
+  return dest;
+};
+
+/**
  * quat4.toAngleAxis(src[, dest]) -> vec4
  * - src (quat4): the quaternion to convert into an axis with angle
  * - dest (vec4): the optional destination vec4 to store the axis and angle in

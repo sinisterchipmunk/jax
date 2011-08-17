@@ -275,12 +275,19 @@ Jax.Camera = (function() {
       var vec;
       if (arguments.length == 3) vec = arguments;
       else vec = vec3.create(vector);
+      vec3.scale(vec, -1);
       vec3.normalize(vec);
       
-      var rotquat = vec3.toQuatRotation(storeVecBuf(this, VIEW), vec, tmpRotQuat(this));
-      quat4.multiply(rotquat, this.rotation, this.rotation);
-      quat4.normalize(this.rotation);
+      if (this.fixed_yaw) {
+        var right = vec3.normalize(vec3.cross(this.fixed_yaw_axis, vec, vec3.create()));
+        var up = vec3.normalize(vec3.cross(vec, right, vec3.create()));
+        quat4.fromAxes(vec, right, up, this.rotation);
+      } else {
+        var rotquat = vec3.toQuatRotation(storeVecBuf(this, VIEW), vec, tmpRotQuat(this));
+        quat4.multiply(rotquat, this.rotation, this.rotation);
+      }
       
+      quat4.normalize(this.rotation);
       this.fireEvent('updated');
       return this;
     },
@@ -641,6 +648,31 @@ Jax.Camera = (function() {
       this.fireEvent('updated');
       return this;
     },
+    
+    /**
+     * Jax.Camera#projectMovement(forward[, strafe, dest]) -> vec3
+     * - forward (Number): the amount of forward movement. Use a negative number for going
+     *                     backwards.
+     * - strafe (Number): the amount of horizontal movement. Use a negative number for going
+     *                    left.
+     * - dest (vec3): an optional receiving vec3 to store the projected result. If omitted, a
+     *                new vec3 will be created.
+     *
+     * Projects the given movement amounts along this camera's view and right vectors, returning
+     * the result without actually modifying this Camera.
+     **/
+    projectMovement: function(forward, strafe, dest) {
+      if (!strafe) strafe = 0;
+      if (!dest) dest = vec3.create();
+      
+      var view = vec3.scale(storeVecBuf(this, VIEW), forward);
+      var right = vec3.scale(storeVecBuf(this, RIGHT), strafe);
+      vec3.set(this.position, dest);
+      vec3.add(view, dest, dest);
+      vec3.add(right, dest, dest);
+      
+      return dest;
+    },
 
     /**
      * Jax.Camera#reset() -> the reset camera
@@ -648,7 +680,12 @@ Jax.Camera = (function() {
      * Resets this camera by moving it back to the origin and pointing it along the negative
      * Z axis with the up vector along the positive Y axis.
      **/
-    reset: function() { this.lookAt([0,0,-1], [0,0,0]); }
+    reset: function() {
+      this.position[0] = this.position[1] = this.position[2] = 0;
+      this.rotation[0] = this.rotation[1] = this.rotation[2] = 0;
+      this.rotation[3] = 1;
+      this.fireEvent('updated');
+    }
   });
 })();
 
