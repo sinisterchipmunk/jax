@@ -18,6 +18,13 @@ describe("Jax.Geometry.Triangle", function() {
           var tri2 = new Jax.Geometry.Triangle([0,0.95,-1],[-1,0.95,2],[1,0.95,2]);
           expect(tri.intersectTriangle(tri2)).toBeTruthy();
         });
+        
+        it("identical, positioned above", function() {
+          tri = new Jax.Geometry.Triangle([0,0.95,-1],[-1,0.95,2],[1,0.95,2]);
+          var tri2 = new Jax.Geometry.Triangle([0,3.95,-1],[-1,3.95,2],[1,3.95,2]);
+
+          expect(tri.intersectTriangle(tri2)).toBeFalsy();
+        });
       });
     
       describe("with ray", function() {
