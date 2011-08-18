@@ -5,11 +5,15 @@
  * of a triangle.
  **/
 Jax.Geometry.Triangle = (function() {
-  //= require "triangle/tri_tri_intersect.js"
+  /* for capturing point of intersection */
+  //= require "triangle/slow_tri_tri_intersect.js"
+
+  /* faster than capturing intersection point when we don't care about it */
+  //= require "triangle/tri_tri_intersect_optimized.js"
   
   var bufs = {};
   
-  return Jax.Class.create({
+  var Triangle = Jax.Class.create({
     /**
      * new Jax.Geometry.Triangle(v1, v2, v3)
      * - v1 (vec3): the first vertex. Optional.
@@ -192,13 +196,19 @@ Jax.Geometry.Triangle = (function() {
     },
     
     /**
-     * Jax.Geometry.Triangle#intersect(t) -> Boolean
+     * Jax.Geometry.Triangle#intersect(t[, dest]) -> Boolean
      * - t (Jax.Geometry.Triangle): the triangle to test
+     * - dest (vec3): optional vec3 to contain the point of intersection.
      *
      * Returns true if the given triangle intersects this one.
+     *
+     * If no receiving vector is supplied in which to store the point
+     * of intersection, this data is ignored.
+     *
      **/
-    intersectTriangle: function(t) {
-      return tri_tri_intersect(this.a, this.b, this.c, t.a, t.b, t.c);
+    intersectTriangle: function(t, dest) {
+      if (dest) return slow_tri_tri_intersect(this, t, dest);
+      else return tri_tri_intersect(this.a, this.b, this.c, t.a, t.b, t.c);
     },
   
     /**
@@ -210,7 +220,7 @@ Jax.Geometry.Triangle = (function() {
      * This method is called automatically by +Jax.Geometry.Triangle#set()+.
      **/
     updateDescription: function() {
-      var p = this._p = this._p || new Jax.Geometry.Plane(this.a, this.b, this.c);
+      var p = this.plane = this.plane || new Jax.Geometry.Plane(this.a, this.b, this.c);
       var n = p.normal;
       var a = [Math.abs(n.x), Math.abs(n.y), Math.abs(n.z)];
 
@@ -258,4 +268,28 @@ Jax.Geometry.Triangle = (function() {
       return a >= 0 && (a+b) <= 1;
     }
   });
+  
+  // array-style accessors
+  Object.defineProperty(Triangle.prototype, 0, {
+    get: function() { return this.a; },
+    set: function(v) { return this.a = v; },
+    enumerable: false,
+    configurable: false
+  });
+  
+  Object.defineProperty(Triangle.prototype, 1, {
+    get: function() { return this.b; },
+    set: function(v) { return this.b = v; },
+    enumerable: false,
+    configurable: false
+  });
+  
+  Object.defineProperty(Triangle.prototype, 2, {
+    get: function() { return this.c; },
+    set: function(v) { return this.c = v; },
+    enumerable: false,
+    configurable: false
+  });
+  
+  return Triangle;
 })();

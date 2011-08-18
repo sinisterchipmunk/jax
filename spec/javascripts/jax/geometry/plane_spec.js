@@ -9,6 +9,13 @@ describe("Jax.Geometry.Plane", function() {
     })
   });
   
+  it('should be able to reconstruct itself using point and normal getters', function() {
+    var p = new Jax.Geometry.Plane([0,1,0], [-1,0,0], [1,0,0]);
+    var p2 = new Jax.Geometry.Plane(p.point, p.normal);
+    expect(p.normal).toEqualVector(p2.normal);
+    expect(p.d).toEqual(p2.d);
+  });
+  
   describe("intersections", function() {
     var p;
     
@@ -16,7 +23,27 @@ describe("Jax.Geometry.Plane", function() {
       p = new Jax.Geometry.Plane([0,1,0], [-1,0,0], [1,0,0]);
     });
     
-    describe("plane intersection", function() {
+    describe("triangle", function() {
+      it("parallel", function() {
+        expect(p.intersectTriangle(new Jax.Geometry.Triangle([0,1,1], [-1,0,1], [1,0,1]))).toBeFalsy();
+      });
+
+      it("outside", function() {
+        expect(p.intersectTriangle(new Jax.Geometry.Triangle([0,0,2], [-1,0,1], [1,0,1]))).toBeFalsy();
+      });
+
+      it("intersect", function() {
+        expect(p.intersectTriangle(new Jax.Geometry.Triangle([0,0,-1], [-1,0,1], [1,0,1]))).toBeTruthy();
+      });
+      
+      it("intersect with receiver", function() {
+        var r = new Jax.Geometry.Line();
+        p.intersectTriangle(new Jax.Geometry.Triangle([0,0,-1], [-1,0,1], [1,0,1]), r);
+        expect(r.length).toBeGreaterThan(Math.EPSILON);
+      });
+    });
+    
+    describe("plane", function() {
       it("disjoint (no intersect)", function() {
         var p2 = new Jax.Geometry.Plane([0,1,1], [-1,0,1], [1,0,1]);
         expect(p.intersectPlane(p2)).toBeFalsy();
@@ -41,7 +68,7 @@ describe("Jax.Geometry.Plane", function() {
       });
     });
     
-    describe("ray intersection", function() {
+    describe("ray", function() {
       it("parallel should not intersect", function() {
         expect(p.intersectRay([0,0,1], [1,0,0])).toBeFalsy();
       });
@@ -56,6 +83,34 @@ describe("Jax.Geometry.Plane", function() {
 
       it("pointing away", function() {
         expect(p.intersectRay([0,0,-1],[0,0,-1])).toEqual(-1);
+      });
+    });
+
+    describe("line segment", function() {
+      it("store intersection point", function() {
+        var i = vec3.create();
+        p.intersectLineSegment(new Jax.Geometry.Line([0,0,1], [0,0,-1]), i);
+        expect(i).toEqualVector([0,0,0]);
+      });
+      
+      it("parallel", function() {
+        expect(p.intersectLineSegment(new Jax.Geometry.Line([0,0,1], [1,0,1]))).toBeFalsy();
+      });
+      
+      it("coincident", function() {
+        expect(p.intersectLineSegment(new Jax.Geometry.Line([0,0,0], [0.5,0,0]))).toEqual(Jax.Geometry.COINCIDE);
+      });
+      
+      it("from the front", function() {
+        expect(p.intersectLineSegment(new Jax.Geometry.Line([0,0,1], [0,0,-1]))).toEqual(Jax.Geometry.INTERSECT);
+      });
+      
+      it("from behind", function() {
+        expect(p.intersectLineSegment(new Jax.Geometry.Line([0,0,-1],[0,0, 1]))).toEqual(Jax.Geometry.INTERSECT);
+      });
+
+      it("pointing away", function() {
+        expect(p.intersectLineSegment(new Jax.Geometry.Line([0,0,-1],[0,0,-2]))).toEqual(Jax.Geometry.DISJOINT);
       });
     });
   });

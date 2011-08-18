@@ -196,7 +196,7 @@ Jax.Shader = (function() {
     
     getRawSource: function(options, which) {
       var source = this.options[which];
-      options = Jax.Util.normalizeOptions(options, {shader_type:which});
+      options = Jax.Util.normalizeOptions(options, {shader:this,shader_type:which});
       if (source && (source = source.render(options))) {
         var result = this.getPreamble(options);
         if (!options || !options.skip_export_definitions)

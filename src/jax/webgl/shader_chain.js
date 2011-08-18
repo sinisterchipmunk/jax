@@ -13,6 +13,7 @@ Jax.ShaderChain = (function() {
   
   function preprocessorOptions(self) {
     return {
+      shader: self,
       ignore_es_precision: true,
       export_prefix: self.getName(),
       exports: self.gatherExports(),

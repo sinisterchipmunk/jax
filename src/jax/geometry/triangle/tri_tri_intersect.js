@@ -1,55 +1,75 @@
-function SORT(isect) {
-  if(isect[0] > isect[1])
+var bufs;
+if (typeof(bufs) == 'undefined') // in case it was defined elsewhere
+  bufs = {};
+
+function /* inline */ CROSS(dest,v1,v2) {
+  dest[0]=v1[1]*v2[2]-v1[2]*v2[1];
+  dest[1]=v1[2]*v2[0]-v1[0]*v2[2];
+  dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
+}
+
+function /* inline */ DOT(v1,v2) { (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]) }
+
+function /* inline */ SUB(dest,v1,v2) {
+  dest[0]=v1[0]-v2[0];
+  dest[1]=v1[1]-v2[1];
+  dest[2]=v1[2]-v2[2]; 
+}
+
+/* sort so that a<=b */
+function /* inline */ SORT(a,b) {
+  if(a>b)
   {
-    var c = isect[0];
-    isect[0] = isect[1];
-    isect[1] = c;
+    var c;
+    c=a;
+    a=b;
+    b=c;
   }
 }
 
-function ISECT(VV0, VV1, VV2, D0, D1, D2, isect) {
-  isect[0] = VV0 + (VV1 - VV0) * D0 / (D0 - D1);
-  isect[1] = VV0 + (VV2 - VV0) * D0 / (D0 - D2);
+function /* inline */ ISECT(VV0,VV1,VV2,D0,D1,D2,isect0,isect1) {
+  isect0=VV0+(VV1-VV0)*D0/(D0-D1);
+  isect1=VV0+(VV2-VV0)*D0/(D0-D2);
 }
 
-function COMPUTE_INTERVALS(VV0,VV1,VV2,D0,D1,D2,D0D1,D0D2,isect) {
-  if(D0D1 > 0)
+
+function /* inline */ COMPUTE_INTERVALS(VV0,VV1,VV2,D0,D1,D2,D0D1,D0D2,isect0,isect1) {
+  if(D0D1>0.0)
   {
     /* here we know that D0D2<=0.0 */
     /* that is D0, D1 are on the same side, D2 on the other or on the plane */
-    ISECT(VV2,VV0,VV1,D2,D0,D1,isect);
+    ISECT(VV2,VV0,VV1,D2,D0,D1,isect0,isect1);
   }
-  else if(D0D2 > 0)
+  else if(D0D2>0.0)
   {
     /* here we know that d0d1<=0.0 */
-    ISECT(VV1,VV0,VV2,D1,D0,D2,isect);
+    ISECT(VV1,VV0,VV2,D1,D0,D2,isect0,isect1);
   }
-  else if(D1 * D2 > 0 || D0 != 0)
+  else if(D1*D2>0.0 || D0!=0.0)
   {
     /* here we know that d0d1<=0.0 or that D0!=0.0 */
-    ISECT(VV0,VV1,VV2,D0,D1,D2,isect);
+    ISECT(VV0,VV1,VV2,D0,D1,D2,isect0,isect1);
   }
-  else if(D1 != 0)
+  else if(D1!=0.0)
   {
-    ISECT(VV1,VV0,VV2,D1,D0,D2,isect);
+    ISECT(VV1,VV0,VV2,D1,D0,D2,isect0,isect1);
   }
-  else if(D2 != 0)
+  else if(D2!=0.0)
   {
-    ISECT(VV2,VV0,VV1,D2,D0,D1,isect);
+    ISECT(VV2,VV0,VV1,D2,D0,D1,isect0,isect1);
   }
   else
   {
     /* triangles are coplanar */
-    throw 1;
+    return coplanar_tri_tri(N1,V0,V1,V2,U0,U1,U2);
   }
 }
+
 
 /* this edge to edge test is based on Franlin Antonio's gem:
    "Faster Line Segment Intersection", in Graphics Gems III,
    pp. 199-202 */ 
-function EDGE_EDGE_TEST(Ax, Ay, V0,U0,U1, i0, i1) {
-  var Bx,By,Cx,Cy,e,d,f;
-
+function /* inline */ EDGE_EDGE_TEST(V0,U0,U1) {
   Bx=U0[i0]-U1[i0];
   By=U0[i1]-U1[i1];
   Cx=V0[i0]-U0[i0];
@@ -67,53 +87,49 @@ function EDGE_EDGE_TEST(Ax, Ay, V0,U0,U1, i0, i1) {
     {
       if(e<=0 && e>=f) return true;
     }
-  }
-  return false;
+  }                                
 }
 
-function EDGE_AGAINST_TRI_EDGES(V0,V1,U0,U1,U2,  i0, i1)
-{
-  var Ax,Ay;
-  Ax=V1[i0]-V0[i0];
-  Ay=V1[i1]-V0[i1];
-  
-  /* test edge U0,U1 against V0,V1 */
-  return EDGE_EDGE_TEST(Ax,Ay, V0,U0,U1, i0,i1) ||
-  /* test edge U1,U2 against V0,V1 */
-         EDGE_EDGE_TEST(Ax,Ay, V0,U1,U2, i0,i1) ||
-  /* test edge U2,U1 against V0,V1 */
-         EDGE_EDGE_TEST(Ax,Ay, V0,U2,U0, i0,i1);
-}
-
-function POINT_IN_TRI(V0,U0,U1,U2, i0,i1)
-{
-  var a,b,c,d0,d1,d2;
-  /* is T1 completly inside T2? */
-  /* check if V0 is inside tri(U0,U1,U2) */
-  a  = U1[i1]-U0[i1];
-  b  = -(U1[i0]-U0[i0]);
-  c  = -a*U0[i0]-b*U0[i1];
-  d0 = a*V0[i0]+b*V0[i1]+c;
-  
-  a  = U2[i1]-U1[i1];
-  b  = -(U2[i0]-U1[i0]);
-  c  = -a*U1[i0]-b*U1[i1];
-  d1 = a*V0[i0]+b*V0[i1]+c;
-  
-  a  =      U0[i1] -     U2[i1];
-  b  = -   (U0[i0] -     U2[i0]);
-  c  = -a * U2[i0] - b * U2[i1];
-  d2 =  a * V0[i0] + b * V0[i1] + c;
-  
-  if(d0 * d1 > 0.0)
+function /* inline */ EDGE_AGAINST_TRI_EDGES(V0,V1,U0,U1,U2) {
   {
-    if(d0 * d2 > 0.0) return true;
+    var Ax,Ay,Bx,By,Cx,Cy,e,d,f;
+    Ax=V1[i0]-V0[i0];
+    Ay=V1[i1]-V0[i1];
+    /* test edge U0,U1 against V0,V1 */
+    EDGE_EDGE_TEST(V0,U0,U1);
+    /* test edge U1,U2 against V0,V1 */
+    EDGE_EDGE_TEST(V0,U1,U2);
+    /* test edge U2,U1 against V0,V1 */
+    EDGE_EDGE_TEST(V0,U2,U0);
   }
-  return false;
+}
+
+function /* inline */ POINT_IN_TRI(V0,U0,U1,U2) {
+  {
+    var a,b,c,d0,d1,d2;
+    /* is T1 completly inside T2? */
+    /* check if V0 is inside tri(U0,U1,U2) */
+    a=U1[i1]-U0[i1];
+    b=-(U1[i0]-U0[i0]);
+    c=-a*U0[i0]-b*U0[i1];
+    d0=a*V0[i0]+b*V0[i1]+c;
+    a=U2[i1]-U1[i1];
+    b=-(U2[i0]-U1[i0]);
+    c=-a*U1[i0]-b*U1[i1];
+    d1=a*V0[i0]+b*V0[i1]+c;
+    a=U0[i1]-U2[i1];
+    b=-(U0[i0]-U2[i0]);
+    c=-a*U2[i0]-b*U2[i1];
+    d2=a*V0[i0]+b*V0[i1]+c;
+    if(d0*d1>0.0)
+    {
+      if(d0*d2>0.0) return true;
+    }
+  }
 }
 
 function coplanar_tri_tri(N, V0, V1, V2, U0, U1, U2) {
-  var A = this.A = this.A || vec3.create();
+  var A = bufs.tritri_A = bufs.tritri_A || vec3.create();
   var i0, i1;
 
   /* first project onto an axis-aligned plane, that maximizes the area */
@@ -150,26 +166,26 @@ function coplanar_tri_tri(N, V0, V1, V2, U0, U1, U2) {
   }               
                 
   /* test all edges of triangle 1 against the edges of triangle 2 */
-  if (EDGE_AGAINST_TRI_EDGES(V0,V1,U0,U1,U2,i0,i1) ||
-      EDGE_AGAINST_TRI_EDGES(V1,V2,U0,U1,U2,i0,i1) || 
-      EDGE_AGAINST_TRI_EDGES(V2,V0,U0,U1,U2,i0,i1)) return true;
-            
+  EDGE_AGAINST_TRI_EDGES(V0,V1,U0,U1,U2);
+  EDGE_AGAINST_TRI_EDGES(V1,V2,U0,U1,U2);
+  EDGE_AGAINST_TRI_EDGES(V2,V0,U0,U1,U2);
+              
   /* finally, test if tri1 is totally contained in tri2 or vice versa */
-  if (POINT_IN_TRI(V0,U0,U1,U2, i0,i1) ||
-      POINT_IN_TRI(U0,V0,V1,V2, i0,i1)) return true;
-      
+  POINT_IN_TRI(V0,U0,U1,U2);
+  POINT_IN_TRI(U0,V0,V1,V2);
+
   return false;
 }
 
 function tri_tri_intersect(V0, V1, V2, U0, U1, U2)
 {
-  var E1 = this.E1 = this.E1 || vec3.create(),
-      E2 = this.E2 = this.E2 || vec3.create(),
-      N1 = this.N1 = this.N1 || vec3.create(),
-      N2 = this.N2 = this.N2 || vec3.create(),
-      D  = this.D  = this.D  || vec3.create(),
-      isect1 = this.isect1 = this.isect1 || vec2.create(),
-      isect2 = this.isect2 = this.isect2 || vec2.create();
+  var E1 = bufs.tritri_E1 = bufs.tritri_E1 || vec3.create(),
+      E2 = bufs.tritri_E2 = bufs.tritri_E2 || vec3.create(),
+      N1 = bufs.tritri_N1 = bufs.tritri_N1 || vec3.create(),
+      N2 = bufs.tritri_N2 = bufs.tritri_N2 || vec3.create(),
+      D  = bufs.tritri_D  = bufs.tritri_D  || vec3.create(),
+      isect1 = bufs.tritri_isect1 = bufs.tritri_isect1 || vec2.create(),
+      isect2 = bufs.tritri_isect2 = bufs.tritri_isect2 || vec2.create();
   var d1, d2;
   var du0,du1,du2,dv0,dv1,dv2;
   var du0du1,du0du2,dv0dv1,dv0dv2;
@@ -246,17 +262,17 @@ function tri_tri_intersect(V0, V1, V2, U0, U1, U2)
 
   try {
     /* compute interval for triangle 1 */
-    COMPUTE_INTERVALS(vp0,vp1,vp2,dv0,dv1,dv2,dv0dv1,dv0dv2,isect1);
+    COMPUTE_INTERVALS(vp0,vp1,vp2,dv0,dv1,dv2,dv0dv1,dv0dv2,isect1[0],isect1[1]);
 
     /* compute interval for triangle 2 */
-    COMPUTE_INTERVALS(up0,up1,up2,du0,du1,du2,du0du1,du0du2,isect2);
+    COMPUTE_INTERVALS(up0,up1,up2,du0,du1,du2,du0du1,du0du2,isect2[0],isect2[1]);
   } catch(e) {
     if (e == 1) return coplanar_tri_tri(N1, V0, V1, V2, U0, U1, U2);
     throw e;
   }
 
-  SORT(isect1);
-  SORT(isect2);
+  SORT(isect1[0], isect1[1]);
+  SORT(isect2[0], isect1[1]);
 
   if(isect1[1] < isect2[0] || isect2[1] < isect1[0]) return false;
   return true;

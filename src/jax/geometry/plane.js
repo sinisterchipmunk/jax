@@ -17,9 +17,95 @@ Jax.Geometry.Plane = (function() {
     return (a[0]*x + a[1]*y + a[2]*z);
   }
 
-  return Jax.Class.create({
+  var Plane = Jax.Class.create({
+    toString: function() {
+      return "[Plane normal:"+this.normal+"; D:"+this.d+"]";
+    },
+    
     /**
-     * Jax.Geometry.Plane#intersectRay(origin, direction) -> vec3 | false
+     * Jax.Geometry.Plane#intersectTriangle(t[, line]) -> Boolean
+     * - t (Jax.Geometry.Triangle): a triangle
+     * - line (Jax.Geometry.Line): optional Line to store the line of intersection
+     *
+     * Tests the triangle for intersection with this plane. If an intersection is found,
+     * it may be stored in +line+. If +line+ is omitted, this data is ignored.
+     *
+     * Returns the result of the test: true for intersection, false otherwise.
+     **/
+    intersectTriangle: function(t, line) {
+      var ad = this.classify(t.a), bd = this.classify(t.b), cd = this.classify(t.c);
+      var sideAB = ad * bd, sideBC = bd * cd;
+      if (sideAB > 0.0 && sideBC > 0.0) return false; // all points on same side of plane
+      
+      // at this point we know there is an intersection. If +line+ is undefined, we can stop.
+      if (!line) return true;
+      
+      // find which point is on opposite side of plane, and which 2 lie on same side
+      var otherSide, sameSide1, sameSide2;
+      if (sideAB > 0) {
+        sameSide1 = t.a;
+        sameSide2 = t.b;
+        otherSide = t.c;
+      } else {
+        if (sideBC > 0) {
+          otherSide = t.a;
+          sameSide1 = t.b;
+          sameSide2 = t.c;
+        } else {
+          sameSide1 = t.a;
+          otherSide = t.b;
+          sameSide2 = t.c;
+        }
+      }
+      
+      var seg1 = bufs.tri_seg1 = bufs.tri_seg1 || new Jax.Geometry.Line();
+      var seg2 = bufs.tri_seg2 = bufs.tri_seg2 || new Jax.Geometry.Line();
+      seg1.set(otherSide, sameSide1);
+      seg2.set(otherSide, sameSide2);
+      
+      // the result is simply the line from the intersection point of seg1 to the isect of seg2
+      var p1 = bufs.tri_p1 = bufs.tri_p1 || vec3.create(),
+          p2 = bufs.tri_p2 = bufs.tri_p2 || vec3.create();
+      this.intersectLineSegment(seg1, p1);
+      this.intersectLineSegment(seg2, p2);
+      return line.set(p1, p2);
+    },
+    
+    /**
+     * Jax.Geometry.Plane#intersectLineSegment(line[, point]) -> Number
+     * - line (Jax.Geometry.Line): a Line to test against
+     * - point (vec3): an optional receiving vec3 to store the point of intersection in
+     *
+     * Returns Jax.Geometry.DISJOINT (which equals 0) if no intersection occurs,
+     * Jax.Geometry.COINCIDE if the line segment is contained on this plane,
+     * or Jax.Geometry.INTERSECT if the line segment intersects this plane.
+     *
+     * In the last case, if +point+ is given, the exact point of intersection will be
+     * stored. Otherwise, this data is ignored.
+     **/
+    intersectLineSegment: function(line, point) {
+      var u = vec3.subtract(line.b, line.a, (bufs.lineseg_u = bufs.lineseg_u || vec3.create()));
+      var w = vec3.subtract(line.a, this.point, (bufs.lineseg_w = bufs.lineseg_w || vec3.create()));
+      var D =  vec3.dot(this.normal, u);
+      var N = -vec3.dot(this.normal, w);
+      
+      if (Math.abs(D) < Math.EPSILON)             // segment is parallel to plane
+        if (N == 0) return Jax.Geometry.COINCIDE; // segment lies in plane
+        else return Jax.Geometry.DISJOINT;
+      
+      // they are not parallel
+      var sI = N / D;
+      if (sI < 0 || sI > 1)
+        return Jax.Geometry.DISJOINT;
+      
+      if (point)
+        vec3.add(line.a, vec3.scale(u, sI, point), point);
+      
+      return Jax.Geometry.INTERSECT;
+    },
+    
+    /**
+     * Jax.Geometry.Plane#intersectRay(origin, direction) -> Number | false
      * - origin (vec3): the point at which the ray begins
      * - direction (vec3): the direction the ray extends. This must be
      *                     a unit vector.
@@ -128,6 +214,18 @@ Jax.Geometry.Plane = (function() {
      **/
     initialize: function(points) {
       /**
+       * Jax.Geometry.Plane#point -> vec3
+       *
+       * A point in world space known to coincide with this plane.
+       *
+       * You can construct a duplicate of this plane with the following code:
+       *
+       *     var copy = new Plane(plane.point, plane.normal);
+       *
+       **/
+      this.point = vec3.create();
+      
+      /**
        * Jax.Geometry.Plane#normal -> vec3
        *
        * The normal pointing perpendicular to this plane, assuming the front face is produced
@@ -156,7 +254,8 @@ Jax.Geometry.Plane = (function() {
      * equivalent to vec3.dot(this.normal, O) + this.d;
      **/
     classify: function(O) {
-      return vec3.dot(this.normal, O) + this.d;
+      if (O.array) return vec3.dot(this.normal, O.array) + this.d;
+      else return vec3.dot(this.normal, O) + this.d;
     },
     
     /**
@@ -197,6 +296,7 @@ Jax.Geometry.Plane = (function() {
         }
       }
       
+      vec3.scale(this.normal, this.d, this.point);
       return this;
     },
     
@@ -223,15 +323,12 @@ Jax.Geometry.Plane = (function() {
      * Given a 3D point, returns the distance from this plane to the point. The point is expected
      * to lie in the same 3D space as this plane.
      **/
-    distance: function(point)
-    {
-      var x, y, z;
-      if (arguments.length == 3) { x = arguments[0]; y = arguments[1]; z = arguments[2]; }
-      else if (point.array) { x = point.array[0]; y = point.array[1]; z = point.array[2]; }
-      else { x = point[0]; y = point[1]; z = point[2]; }
-      // same as ax + by + cz + d
-      return this.d + innerProduct(this.normal, x, y, z);
-    },
+     // replaced with alias of #classify
+    // distance: function(point)
+    // {
+    //   // same as ax + by + cz + d
+    //   return this.classify(point);
+    // },
     
     /**
      * Jax.Geometry.Plane#whereis(point) -> Number
@@ -263,6 +360,10 @@ Jax.Geometry.Plane = (function() {
       return Jax.Geometry.Plane.INTERSECT;
     }
   });
+  
+  Plane.prototype.distance = Plane.prototype.classify;
+  
+  return Plane;
 })();
 
 Jax.Geometry.Plane.FRONT     = 1;
