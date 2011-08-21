@@ -218,16 +218,16 @@ Jax.World = (function() {
       var unlit = Jax.Util.normalizeOptions(options, {unlit:true});
       
       if (this.lighting.isEnabled() && (!unlit.material || (unlit.material.supportsLighting && unlit.material.supportsLighting()))) {
+        /* illumination pass */
+        this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
+        this.lighting.illuminate(this.context, options);
+
         /* ambient pass - unlit objects only because lit objects get ambient+diffuse+specular in one pass */
         for (i = 0; i < this.objects.length; i++)
           if (!this.objects[i].isLit()) {
             unlit.model_index = i;
             this.objects[i].render(this.context, unlit);
           }
-      
-        /* illumination pass */
-        this.context.current_pass = Jax.Scene.ILLUMINATION_PASS;
-        this.lighting.illuminate(this.context, options);
       } else {
         for (i = 0; i < this.objects.length; i++) {
           unlit.model_index = i;
