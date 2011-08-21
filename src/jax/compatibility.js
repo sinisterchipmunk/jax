@@ -8,7 +8,6 @@ if (typeof(document) == "undefined") {
   Jax.getGlobal().document = require("helpers/node_dom_emulator");
 }
 
-
 /**
  * Jax.Compatibility
  * Contains values used for cross-browser compatibility.

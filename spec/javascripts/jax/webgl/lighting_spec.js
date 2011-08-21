@@ -1,6 +1,27 @@
 describe("LightManager", function() {
   var mgr;
   
+  describe("when more than 1 light source is active", function() {
+    beforeEach(function() {
+      mgr = new Jax.Scene.LightManager();
+      mgr.add(new Jax.Scene.LightSource());
+      mgr.add(new Jax.Scene.LightSource());
+    });
+    
+    it("should not leave the blend mode set to GL_ONE, GL_ONE", function() {
+      var src, dst;
+      SPEC_CONTEXT.glBlendFunc = function(a, b) {
+        src = a;
+        dst = b;
+      };
+      mgr.illuminate(SPEC_CONTEXT);
+      // we care about how state looks *after* illumination; therefore, we
+      // check the final values of src and dst
+      expect(src).not.toEqual(GL_ONE);
+      expect(dst).not.toEqual(GL_ONE);
+    });
+  });
+  
   describe("when an error is raised during shadowmap generation", function() {
     var _real_console, light;
     
