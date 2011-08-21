@@ -1,6 +1,21 @@
 describe("Jax.Mesh", function() {
   var mesh;
   
+  it("points", function() {
+    var realDrawMode;
+    var mat = new Jax.Material();
+    mat.render = function(context, mesh, options) {
+      realDrawMode = options.draw_mode;
+    };
+    mesh = new Jax.Mesh({
+      init: function() { this.draw_mode = GL_POINTS; },
+      material: mat
+    });
+    mesh.rebuild();
+    mesh.render(SPEC_CONTEXT);
+    expect(realDrawMode).toEqual(GL_POINTS);
+  });
+  
   describe("triangles", function() {
     describe("GL_TRIANGLES vertices", function() {
       beforeEach(function() {

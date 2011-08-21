@@ -147,7 +147,7 @@ Jax.Mesh = (function() {
       for (var i in options)
         this[i] = options[i];
 
-      if (!this.draw_mode)
+      if (this.draw_mode == undefined)
         this.draw_mode = GL_TRIANGLES;
     },
     
@@ -248,7 +248,7 @@ Jax.Mesh = (function() {
       var result = Jax.Util.normalizeOptions(options, {
         material: this.material,
         default_material: this.default_material,
-        draw_mode: this.draw_mode || GL_TRIANGLES
+        draw_mode: this.draw_mode == undefined ? GL_TRIANGLES : this.draw_mode
       });
     
       if (!result.material) result.material = result.default_material;
