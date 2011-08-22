@@ -47,6 +47,40 @@ class Development < Jax::Application
 end
 
 
+desc "list all TODO items"
+task :todo do
+  (Dir['src/**/*'] + Dir['lib/**/*']).each do |fi|
+    if File.file?(fi) && fi != 'lib/jax/generators/app/templates/public/javascripts/jax.js'
+      system("grep -Hni 'todo' '#{fi}'")
+    end
+  end
+end
+
+desc "list all FIXME items"
+task :fixme do
+  (Dir['src/**/*'] + Dir['lib/**/*']).each do |fi|
+    if File.file?(fi) && fi != 'lib/jax/generators/app/templates/public/javascripts/jax.js'
+      system("grep -Hni 'fixme' '#{fi}'")
+    end
+  end
+end
+
+desc "list all HACK items"
+task :hacks do
+  (Dir['src/**/*'] + Dir['lib/**/*']).each do |fi|
+    if File.file?(fi) && fi != 'lib/jax/generators/app/templates/public/javascripts/jax.js'
+      system("grep -Hni 'hack' '#{fi}'")
+    end
+  end
+end
+
+desc "list all flagged items"
+task :flagged do
+  Rake::Task['todo'].invoke
+  Rake::Task['fixme'].invoke
+  Rake::Task['hacks'].invoke
+end
+
 desc "compile Jax"
 task :compile do
   # generate constants file
