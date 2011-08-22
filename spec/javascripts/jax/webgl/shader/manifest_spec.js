@@ -25,7 +25,8 @@ describe("Jax.Shader.Manifest", function() {
       });
     });
     
-    it("should not allow more than the maximum number of textures to be bound", function() {
+    // see Jax.Material for the reason this is disabled
+    xit("should not allow more than the maximum number of textures to be bound", function() {
       expect(function() {
         for (var j = 0; j < GL_MAX_ACTIVE_TEXTURES+1; j++) {
           manifest.texture('Texture'+j, tex0, SPEC_CONTEXT);

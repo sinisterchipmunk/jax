@@ -213,7 +213,6 @@ Jax.World = (function() {
       
       /* this.current_pass is used by the material */
 
-      this.context.current_pass = Jax.Scene.AMBIENT_PASS;
       this.context.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       var unlit = Jax.Util.normalizeOptions(options, {unlit:true});
       
@@ -223,12 +222,14 @@ Jax.World = (function() {
         this.lighting.illuminate(this.context, options);
 
         /* ambient pass - unlit objects only because lit objects get ambient+diffuse+specular in one pass */
+        this.context.current_pass = Jax.Scene.AMBIENT_PASS;
         for (i = 0; i < this.objects.length; i++)
           if (!this.objects[i].isLit()) {
             unlit.model_index = i;
             this.objects[i].render(this.context, unlit);
           }
       } else {
+        this.context.current_pass = Jax.Scene.AMBIENT_PASS;
         for (i = 0; i < this.objects.length; i++) {
           unlit.model_index = i;
           this.objects[i].render(this.context, unlit);
