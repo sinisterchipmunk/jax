@@ -1,3 +1,39 @@
+* 1.1.1 *
+
+* Mouse events are scaled in relation to the real canvas size, regardless of CSS styling.
+  This means you can always deal with mouse position in terms of the canvas +width+ and
+  +height+ attributes, without worrying about the actual pixel size on the client machine.
+
+* Resolved an issue which caused picking to fail due to using string values for shader
+  names instead of instances of Jax.Shader.
+
+* If Jax.Camera#fixedYawAxis is enabled, the Jax.Camera#setDirection method will now honor
+  that, and maintain the fixed yaw axis as expected.
+
+* Added Jax.Geometry.Line, which is used in intersection tests.
+
+* Significantly improved Jax.Geometry.Plane, and added 6 new intersection tests:
+  * Jax.Geometry.Line
+    * intersectLineSegment
+  * Jax.Geometry.Plane
+    * intersectRay
+    * intersectPlane
+    * intersectTriangle
+    * intersectLineSegment
+  * Jax.Geometry.Triangle
+    * intersectTriangle with an optional argument to capture the point of intersection
+
+* Further optimized Jax.Geometry.Triangle and friends
+
+* Jax now renders meshes consisting of GL_POINTS properly.
+
+* Light manager now reverts the blend mode back to alpha blending, instead of leaving it
+  set to additive blending.
+
+* Reordered render passes so that unlit objects are rendered _after_ lit objects.
+
+
+
 * 1.1.0 *
 
 * If a mesh #init method does not specify any vertex normals for the mesh, and
