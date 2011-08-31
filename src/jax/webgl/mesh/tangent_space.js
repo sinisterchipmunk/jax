@@ -1,5 +1,8 @@
-// private function used by Jax.Mesh to build tangent-space buffer
-function makeTangentBuffer(self) {
+// used by Jax.Mesh to build tangent-space buffer
+// function makeTangentBuffer(self) {
+Jax.Mesh.prototype.makeTangentBuffer = function() {
+  var self = this;
+  
   var normals = self.getNormalBuffer();
   var vertices = self.getVertexBuffer();
   var texcoords = self.getTextureCoordsBuffer();

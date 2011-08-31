@@ -1,4 +1,2 @@
-{
-  //= require "../../../vendor/ejs/src/ejs"
-  //= require "../../../vendor/ejs/src/view"
-};
+//= require "ejs/src/ejs"
+//= require "ejs/src/view"

@@ -1,6 +1,7 @@
 // (re)calculates vertex normals based on Jax.Mesh vertex data
 
-function calculateNormals(mesh) {
+Jax.Mesh.prototype.calculateNormals = function() {
+  var mesh = this;
   var triangles = mesh.getTriangles();
   var normals = {}, i;
   

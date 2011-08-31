@@ -1,4 +1,4 @@
-//= require "../../geometry"
+//= require "jax/geometry"
 
 /**
  * class Jax.Scene.Frustum

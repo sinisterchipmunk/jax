@@ -1,6 +1,6 @@
-//= require "delegator/attribute"
-//= require "delegator/uniform"
-//= require "manifest"
+//= require "jax/webgl/shader/delegator/attribute"
+//= require "jax/webgl/shader/delegator/uniform"
+//= require "jax/webgl/shader/manifest"
 
 Jax.Shader.Program = (function() {
   function buildShaderSources(self, context, material) {

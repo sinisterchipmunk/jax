@@ -1,3 +1,8 @@
+//= require_self
+//= require "jax/geometry/line"
+//= require "jax/geometry/plane"
+//= require "jax/geometry/triangle"
+
 /**
  * Jax.Geometry
  * Namespace containing geometric classes and functions
@@ -7,7 +12,3 @@ Jax.Geometry = {
   COINCIDE: 1,
   INTERSECT: 2,
 };
-
-//= require "geometry/line"
-//= require "geometry/plane"
-//= require "geometry/triangle"

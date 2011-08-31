@@ -1,4 +1,9 @@
-//= require "core"
+//= require "jax/core"
+//= require_self
+//= require "jax/webgl/mesh/tangent_space"
+//= require "jax/webgl/mesh/support"
+//= require "jax/webgl/mesh/normals"
+
 
 /**
  * class Jax.Mesh
@@ -31,9 +36,6 @@
  *     });
  **/
 Jax.Mesh = (function() {
-  //= require "mesh/tangent_space"
-  //= require "mesh/support"
-  //= require "mesh/normals"
   
   var BUFFERS = {
     /**
@@ -188,7 +190,7 @@ Jax.Mesh = (function() {
      **/
     getTriangles: function() {
       this.validate();
-      if (this.triangles.length == 0 && this.vertices.length != 0) buildTriangles(this);
+      if (this.triangles.length == 0 && this.vertices.length != 0) this.buildTriangles();
       return this.triangles;
     },
     
@@ -253,7 +255,7 @@ Jax.Mesh = (function() {
     
       if (!result.material) result.material = result.default_material;
 
-      result.material = findMaterial(result.material);
+      result.material = Jax.Util.findMaterial(result.material);
 
       return result;
     },
@@ -323,7 +325,7 @@ Jax.Mesh = (function() {
      * be pointing in the wrong direction).
      **/
     rebuildTangentBuffer: function() {
-      return makeTangentBuffer(this);
+      return this.makeTangentBuffer();
     },
     
     /**
@@ -353,7 +355,7 @@ Jax.Mesh = (function() {
      * possible by populating the normals directly within this mesh's +init+ method.
      **/
     recalculateNormals: function() {
-      calculateNormals(this);
+      this.calculateNormals();
     },
 
     /**
@@ -424,7 +426,7 @@ Jax.Mesh = (function() {
       this._textureCoords = null;
       this._normals = null;
       
-      calculateBounds(this, vertices);
+      this.calculateBounds(vertices);
 
       this.buffers.vertex_buffer  = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.vertexData, 3);
       this.buffers.color_buffer   = new Jax.DataBuffer(GL_ARRAY_BUFFER, this.colorData, 4);

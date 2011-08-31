@@ -4,7 +4,19 @@ a new global called GL_METHODS. This will later be used for method delegation
 within Jax.Context.
  */
 
-//= require "vendor/glMatrix"
+//= require "jax/vendor/glMatrix"
+//= require_self
+/*
+  all files in the webgl/ subdirectory will have access to a temporary GL context,
+  via `Jax.getGlobal()['GL']`, which will be unloaded after they have been loaded into memory.
+ */
+//= require "jax/webgl/shader_chain"
+//= require "jax/webgl/material"
+//= require "jax/webgl/mesh"
+//= require "jax/webgl/camera"
+//= require "jax/webgl/world"
+//= require "jax/webgl/texture"
+//= require "jax/webgl/cleanup"
 
 Jax.getGlobal()['WEBGL_CONTEXT_NAME'] = "experimental-webgl";
 Jax.getGlobal()['WEBGL_CONTEXT_OPTIONS'] = {stencil:true};
@@ -81,21 +93,17 @@ Jax.getGlobal()['GL_METHODS'] = {};
     Jax.getGlobal()['GL_MAX_ACTIVE_TEXTURES'] = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   }
 
-  /* import other webgl files */
-  /*
-    note that because of the positioning here, all files in the webgl/ subdirectory will have access to a
-    private, temporary 'gl' context which will be unloaded after they have been loaded into memory.
-   */
-  //= require "webgl/shader_chain"
-  //= require "webgl/material"
-  //= require "webgl/mesh"
-  //= require "webgl/camera"
-  //= require "webgl/world"
-  //= require "webgl/texture"
+  Jax.getGlobal()['GL'] = gl;
 
-  /* clean up after ourselves */
-  if (temporaryBody)
-    body.parentNode.removeChild(body);
-  else
-    body.removeChild(canvas);
+  Jax.getGlobal()['WEBGL_CLEANUP'] = function() {
+    /* clean up after ourselves */
+    if (temporaryBody)
+      body.parentNode.removeChild(body);
+    else
+      body.removeChild(canvas);
+      
+    // remove the temporary GL context that will no longer be used
+    delete Jax.getGlobal()['GL'];
+    delete Jax.getGlobal()['WEBGL_CLEANUP'];
+  };
 })();

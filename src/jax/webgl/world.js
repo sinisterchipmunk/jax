@@ -1,4 +1,4 @@
-//= require "scene"
+//= require "jax/webgl/scene"
 
 /**
  * class Jax.World

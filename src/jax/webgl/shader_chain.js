@@ -1,4 +1,4 @@
-//= require "shader"
+//= require "jax/webgl/shader"
 
 Jax.ShaderChain = (function() {
   function sanitizeName(name) {

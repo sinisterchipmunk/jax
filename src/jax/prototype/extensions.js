@@ -1,4 +1,4 @@
-//= require "class"
+//= require "jax/prototype/class"
 
 (function() {
   /*

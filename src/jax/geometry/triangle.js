@@ -1,3 +1,8 @@
+//= require_self
+
+/* faster than capturing intersection point when we don't care about it */
+//= require "jax/geometry/triangle/tri_tri_intersect_optimized"
+
 /**
  * class Jax.Geometry.Triangle
  *
@@ -5,13 +10,24 @@
  * of a triangle.
  **/
 Jax.Geometry.Triangle = (function() {
-  /* for capturing point of intersection */
-  //= require "triangle/slow_tri_tri_intersect.js"
-
-  /* faster than capturing intersection point when we don't care about it */
-  //= require "triangle/tri_tri_intersect_optimized.js"
-  
   var bufs = {};
+  
+  // Although slower than 'tri_tri_intersect', this implementation
+  // will find and store the exact point of intersection.
+
+  // t1, t2: a triangle
+  // dest: a vec3 to contain intersection point
+  // If the return value is false, the value of dest will be unknown.
+  function slow_tri_tri_intersect(t1, t2, dest)
+  {
+    var line1 = bufs.slowtri_line1 = bufs.slowtri_line1 || new Jax.Geometry.Line();
+    var line2 = bufs.slowtri_line2 = bufs.slowtri_line2 || new Jax.Geometry.Line();
+    if (t1.plane.intersectTriangle(t2, line1) && t2.plane.intersectTriangle(t1, line2)) {
+      line1.intersectLineSegment(line2, dest);
+      return true;
+    }
+    else return false;
+  }
   
   var Triangle = Jax.Class.create({
     /**
@@ -208,7 +224,7 @@ Jax.Geometry.Triangle = (function() {
      **/
     intersectTriangle: function(t, dest) {
       if (dest) return slow_tri_tri_intersect(this, t, dest);
-      else return tri_tri_intersect(this.a, this.b, this.c, t.a, t.b, t.c);
+      else return Jax.Geometry.Triangle.tri_tri_intersect(this.a, this.b, this.c, t.a, t.b, t.c);
     },
   
     /**

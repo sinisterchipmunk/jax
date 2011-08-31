@@ -8,6 +8,16 @@
  * Contains general-purpose utility and helper functions
  **/
 Jax.Util = {
+  findMaterial: function(name_or_instance) {
+    if (typeof(name_or_instance) == "string")
+      return Jax.Material.find(name_or_instance);
+    else if (name_or_instance.isKindOf && name_or_instance.isKindOf(Jax.Material))
+      return name_or_instance;
+
+    throw new Error("Material must be an instance of Jax.Material, or "+
+                    "a string representing a material in the Jax material registry");
+  },
+  
   /**
    * Jax.Util.decodePickingColor(red, green, blue, alpha) -> Number
    * 

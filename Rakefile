@@ -87,16 +87,18 @@ task :compile do
   erb = ERB.new(File.read(File.join(File.dirname(__FILE__), "src/constants.yml.erb")))
   File.open(File.join(File.dirname(__FILE__), "src/constants.yml"), "w") { |f| f.puts erb.result(binding) }
   
-  secretary = Sprockets::Secretary.new(
-          :root => File.dirname(__FILE__),
-          :asset_root => "public",
-          :load_path => ["src"],
-          :source_files => ["src/jax.js", "builtin/**/*.js"]
-  )
   jax_root = File.expand_path(File.dirname(__FILE__))
+  env = Sprockets::Environment.new jax_root
+  env.append_path "src"
+  env.append_path "vendor"
+  env.append_path "builtin/**/*.js"
+  env.append_path jax_root
+  env.logger.level = Logger::DEBUG
   rm_rf File.join(jax_root, "dist")
   mkdir_p File.join(jax_root, "dist")
-  secretary.concatenation.save_to File.join(jax_root, "dist/jax.js")
+  env['jax.js'].write_to(File.join jax_root, "dist/jax.js")
+  puts env['jax.js'].to_s.length
+  raise "compiled output includes require directives" if env['jax.js'].to_s =~ /\/\/\s*\=\s*require/
   
   mkdir_p File.join(jax_root, "tmp") unless File.directory?(File.join(jax_root, "tmp"))
 

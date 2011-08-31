@@ -1,5 +1,5 @@
-//= require "core/events"
-//= require "scene"
+//= require "jax/webgl/core/events"
+//= require "jax/webgl/scene"
 
 /**
  * class Jax.Camera

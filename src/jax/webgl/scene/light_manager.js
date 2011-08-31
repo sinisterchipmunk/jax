@@ -1,4 +1,4 @@
-//= require "light_source"
+//= require "jax/webgl/scene/light_source"
 
 Jax.Scene.LightManager = (function() {
   return Jax.Class.create({

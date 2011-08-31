@@ -12,12 +12,13 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
-  s.add_dependency 'rake',          '~> 0.9.2'
-  s.add_dependency 'bundler',       '~> 1.0.15'
-  s.add_dependency "thor",          '~> 0.14.6'
+  s.add_dependency 'railties', '~> 3.1.0.rc8'
+  # s.add_dependency 'rake',          '~> 0.9.2'
+  # s.add_dependency 'bundler',       '~> 1.0.15'
+  # s.add_dependency "thor",          '~> 0.14.6'
   s.add_dependency 'jasmine',       '~> 1.0.2.0'
-  s.add_dependency 'railties',      '~> 3.0.8'
-  s.add_dependency 'sprockets',     '~> 1.0.2'
+  # s.add_dependency 'railties',      '~> 3.0.8'
+  # s.add_dependency 'sprockets',     '~> 1.0.2'
   s.add_dependency 'rest-client',   '~> 1.6.3'
   s.add_dependency 'minitar',       '~> 0.5.3'
   

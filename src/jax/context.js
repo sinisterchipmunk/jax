@@ -1,5 +1,5 @@
-//= require "webgl"
-//= require "events"
+//= require "jax/webgl"
+//= require "jax/events"
 
 /**
  * class Jax.Context

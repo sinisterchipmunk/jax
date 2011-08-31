@@ -1,30 +1,7 @@
 // Support functions used by Jax.Mesh
 
-function setColorCoords(self, count, color, coords) {
-  var i, j;
-  var num_colors = color.length;
-  if (num_colors > 4) throw new Error("Color should have at most 4 components");
-  for (i = 0; i < count*4; i += 4)
-  {
-    for (j = 0; j < num_colors; j++)
-      coords[i+j] = color[j];
-    for (j = num_colors; j < 4; j++) {
-      coords[i+j] = 1;
-    }
-  }
-}
-
-function findMaterial(name_or_instance) {
-  if (typeof(name_or_instance) == "string")
-    return Jax.Material.find(name_or_instance);
-  else if (name_or_instance.isKindOf && name_or_instance.isKindOf(Jax.Material))
-    return name_or_instance;
-  
-  throw new Error("Material must be an instance of Jax.Material, or "+
-                  "a string representing a material in the Jax material registry");
-}
-
-function eachTriangle(mesh, callback) {
+Jax.Mesh.prototype.eachTriangle = function(callback) {
+  var mesh = this;
   var vertcount, a;
   
   var indices = mesh.getIndexBuffer(), vertices = mesh.vertices;
@@ -74,19 +51,21 @@ function eachTriangle(mesh, callback) {
     default:
       return;
   }
-}
+};
 
-function buildTriangles(mesh) {
+Jax.Mesh.prototype.buildTriangles = function() {
+  var mesh = this;
   mesh.triangles.clear();
   
-  eachTriangle(mesh, function(v1, v2, v3) {
+  mesh.eachTriangle(function(v1, v2, v3) {
     var tri = new Jax.Geometry.Triangle();
     tri.assign(v1, v2, v3);
     mesh.triangles.push(tri);
   });
-}
+};
 
-function calculateBounds(self, vertices) {
+Jax.Mesh.calculateBounds = function(vertices) {
+  var self = this;
   if (vertices.length == 0) {
     self.bounds.left = self.bounds.right = 0;
     self.bounds.top = self.bounds.bottom = 0;
@@ -122,4 +101,4 @@ function calculateBounds(self, vertices) {
   self.bounds.width = self.bounds.right - self.bounds.left;
   self.bounds.height= self.bounds.top   - self.bounds.bottom;
   self.bounds.depth = self.bounds.front - self.bounds.back;
-}
+};

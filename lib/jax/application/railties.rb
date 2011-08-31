@@ -10,11 +10,11 @@ class Jax::Application::Railties
   end
   
   def railties
-    @railties ||= Rails::Railtie.subclasses.map &:new
+    @railties ||= Rails::Railtie.subclasses.map(&:instance)
   end
   
   def engines
-    @engines ||= Jax::Engine.subclasses.map &:new
+    @engines ||= Jax::Engine.subclasses.map(&:instance)
   end
   
   def plugins

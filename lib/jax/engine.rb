@@ -1,7 +1,7 @@
 require 'pathname'
 
 class ::Jax::Engine < ::Rails::Railtie
-  autoload :Configurable,  "jax/engine/configurable"
+  # autoload :Configurable,  "jax/engine/configurable"
   autoload :Configuration, "jax/engine/configuration"
   
   class << self
@@ -26,6 +26,10 @@ class ::Jax::Engine < ::Rails::Railtie
       RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ?
         Pathname.new(root).expand_path : Pathname.new(root).realpath
     end
+  end
+  
+  def config
+    @config ||= Jax::Application::Configuration.new(self.class.find_root_with_flag("app", Dir.pwd))
   end
   
   initializer :detect_shaders do |app|

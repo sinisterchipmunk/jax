@@ -1,4 +1,4 @@
-//= require "core"
+//= require "jax/prototype/core"
 
 /**
  * Jax.Class

@@ -1,10 +1,10 @@
-//= require "vendor/ejs"
-//= require "vendor/glMatrix"
-//= require "prototype/class"
-//= require "core/helper"
-//= require "core/math"
-//= require "core/util"
-//= require "core/matrix_stack"
+//= require "jax/vendor/ejs"
+//= require "jax/vendor/glMatrix"
+//= require "jax/prototype/class"
+//= require "jax/core/helper"
+//= require "jax/core/math"
+//= require "jax/core/util"
+//= require "jax/core/matrix_stack"
 
 /**
  * Global#debugAssert(expr[, msg]) -> undefined
