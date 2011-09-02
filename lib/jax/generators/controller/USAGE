@@ -1,9 +1,0 @@
-Usage:
-  jax generate controller NAME [action1 action2 ... actionN]
-
-Generates a new controller, including its test file, helper file, and any
-views it may have.
-
-Optional arguments are action names. Usually, you'll want to at least specify
-'index', though this is not absolutely required.
-

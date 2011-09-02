@@ -1,4 +1,0 @@
-static: true
-indestructible: true
-mesh: "/res/courthouse.json"
-door: courthouse_door

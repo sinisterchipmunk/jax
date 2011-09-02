@@ -12,20 +12,26 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
-  s.add_dependency 'railties', '~> 3.1.0.rc8'
-  # s.add_dependency 'rake',          '~> 0.9.2'
-  # s.add_dependency 'bundler',       '~> 1.0.15'
-  # s.add_dependency "thor",          '~> 0.14.6'
-  s.add_dependency 'jasmine',       '~> 1.0.2.0'
-  # s.add_dependency 'railties',      '~> 3.0.8'
-  # s.add_dependency 'sprockets',     '~> 1.0.2'
-  s.add_dependency 'rest-client',   '~> 1.6.3'
-  s.add_dependency 'minitar',       '~> 0.5.3'
+  s.add_dependency 'railties',       '~> 3.1.0'
+  s.add_dependency 'jasmine',        '~> 1.0.2.0'
+  s.add_dependency 'rest-client',    '~> 1.6.3'
+  s.add_dependency 'minitar',        '~> 0.5.3'
   
-  s.add_development_dependency 'coderay',   '~> 0.9.7'
-  s.add_development_dependency 'fakeweb',   '~> 1.3.0'
+  # for the rails3 tests
+  s.add_development_dependency 'rspec',          '~> 2.6.0'
+  # see Gemfile
+  # s.add_development_dependency 'rspec-isolation','~> 0.1.1'
+  s.add_development_dependency 'rails',        '~> 3.1.0'
+  s.add_development_dependency 'coffee-rails', '~> 3.1.0'
+  s.add_development_dependency 'coderay',      '~> 0.9.7'
+  s.add_development_dependency 'sqlite3',      '~> 1.3.4'
+  s.add_development_dependency 'sass-rails',   '~> 3.1.0'
+  s.add_development_dependency 'uglifier',     '~> 1.0.2'
+  s.add_development_dependency 'jquery-rails', '~> 1.0.13'
+  
+  s.add_development_dependency 'fakeweb',      '~> 1.3.0'
   s.add_development_dependency 'ansi'
-  s.add_development_dependency 'turn'
+  s.add_development_dependency 'turn',         '~> 0.8.2'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'

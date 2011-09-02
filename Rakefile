@@ -37,15 +37,8 @@ rescue LoadError
   require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
 end
 
-load 'jasmine/tasks/jasmine.rake'
-require File.expand_path("lib/jax/monkeypatch/jasmine", File.dirname(__FILE__))
-
 require File.join(File.dirname(__FILE__), "lib/jax")
 JAX_ROOT = File.dirname(__FILE__)
-# put a dummy Application in place
-class Development < Jax::Application
-end
-
 
 desc "list all TODO items"
 task :todo do
@@ -79,53 +72,6 @@ task :flagged do
   Rake::Task['todo'].invoke
   Rake::Task['fixme'].invoke
   Rake::Task['hacks'].invoke
-end
-
-desc "compile Jax"
-task :compile do
-  # generate constants file
-  erb = ERB.new(File.read(File.join(File.dirname(__FILE__), "src/constants.yml.erb")))
-  File.open(File.join(File.dirname(__FILE__), "src/constants.yml"), "w") { |f| f.puts erb.result(binding) }
-  
-  jax_root = File.expand_path(File.dirname(__FILE__))
-  env = Sprockets::Environment.new jax_root
-  env.append_path "src"
-  env.append_path "vendor"
-  env.append_path "builtin/**/*.js"
-  env.append_path jax_root
-  env.logger.level = Logger::DEBUG
-  rm_rf File.join(jax_root, "dist")
-  mkdir_p File.join(jax_root, "dist")
-  env['jax.js'].write_to(File.join jax_root, "dist/jax.js")
-  puts env['jax.js'].to_s.length
-  raise "compiled output includes require directives" if env['jax.js'].to_s =~ /\/\/\s*\=\s*require/
-  
-  mkdir_p File.join(jax_root, "tmp") unless File.directory?(File.join(jax_root, "tmp"))
-
-  # generate the built-in shaders for testing against (these are not added to the real jax dist because they are
-  # regenerated in the user's app)
-  rm File.join(jax_root, "tmp/shaders.js") if File.file?(File.join(jax_root, "tmp/shaders.js"))
-  File.open(File.join(jax_root, "tmp/shaders.js"), "w") do |f|
-    Jax.application.shaders.each { |shader| shader.save_to f }
-  end
-
-  puts "generated #{File.join(jax_root, "dist/jax.js")}"
-  
-  # make sure the app generator copies the correct jax
-  cp File.join(jax_root, "dist/jax.js"),
-     File.join(jax_root, "lib/jax/generators/app/templates/public/javascripts/jax.js")
-  
-  puts "(project built)"
-end
-
-desc "compile and minify Jax into dist/jax.js and dist/jax-min.js"
-task :minify => :compile do
-  puts "(minifying...)"
-  if system("java", "-jar", File.join(File.dirname(__FILE__), "vendor/yuicompressor-2.4.2.jar"), "dist/jax.js", "-o", "dist/jax-min.js")
-    puts "(done. saved to: dist/jax-min.js)"
-  else
-    puts "(Error while minifying!)"
-  end
 end
 
 ### HACK to add redcloth support to pdoc without changing pdoc itself
@@ -266,46 +212,18 @@ namespace :guides do
   end
 end
 
-desc "Run javascript tests using node.js"
-task :node => :compile do
-  system("node", "spec/javascripts/node_helper.js")
-end
+# This task needs to be reworked around Sprockets 2 since :compile no longer exists.
+# desc "Run javascript tests using node.js"
+# task :node => :compile do
+#   system("node", "spec/javascripts/node_helper.js")
+# end
 
-FileUtils.rm_rf File.expand_path("spec/fixtures/tmp", File.dirname(__FILE__))
-require 'rake/testtask'
-desc "Run ruby tests using Test::Unit"
-# NOT WORKING due to isolation tests failing. Use test:isolated instead.
-Rake::TestTask.new("test_unit") do |t|
-  t.pattern = "{test,spec}/**/*_test.rb"
-  t.libs = ["./test", "./spec"].collect { |f| File.expand_path(f) }.select { |f| File.directory?(f) }
-#  t.verbose = true
-#  t.warning = true
-end
-
-namespace :test do
-  task :isolated do
-    dir = ENV["TEST_DIR"] || "**"
-    ruby = File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME'))
-    ENV['DO_NOT_ISOLATE'] = '1'
-    if ENV['TEST']
-      sh(ruby, '-Ispec', ENV['TEST'])
-    else
-      Dir["spec/#{dir}/*_test.rb"].each do |file|
-        next true if file.include?("fixtures")
-        sh(ruby, '-Ispec', File.expand_path(file, File.dirname(__FILE__)))
-      end
-    end
-  end
-end
-  
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
 
 # 'Guides' tasks & code borrowed from Railties.
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
-task :jasmine => :compile
-# task :build   => [:compile, :minify] # make sure to minify the JS code before going to release
-task :build => :compile
-
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
-task :default => ['test:isolated']#, :node]
+task :default => ['spec']#, :node]

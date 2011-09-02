@@ -1,0 +1,26 @@
+require 'action_controller/railtie'
+require 'sprockets/railtie'
+
+module Jax
+  module Rails
+    # Bootstraps a Rails 3 application for running the Jax dev server in
+    # a non-Rails environment. This class is not used in a Rails application.
+    class Application < ::Rails::Application
+      config.secret_token                      = "e10adc3949ba59abbe56e057f20f883e"
+      config.session_store :cookie_store, :key => "_jax_session"
+      config.active_support.deprecation        = :log
+      config.consider_all_requests_local       = true
+      config.action_controller.perform_caching = false
+      config.log_level                         = :debug
+      config.cache_classes                     = false
+      config.assets.enabled = true
+      config.assets.version = '1.0'
+
+  
+      # see config/routes.rb. Why can't I do this here?
+      # routes.draw do
+      #   mount Jax::Rails::Engine => "/"
+      # end
+    end
+  end
+end

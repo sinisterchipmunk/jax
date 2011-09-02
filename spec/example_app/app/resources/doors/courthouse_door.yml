@@ -1,5 +1,0 @@
-static: true
-indestructible: true
-mesh: "/res/door.json"
-destination:
-  controller: 'downtown'
