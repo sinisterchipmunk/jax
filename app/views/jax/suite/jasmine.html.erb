@@ -1,0 +1,49 @@
+<% content_for :head do %>
+  <%= javascript_include_tag 'jasmine' %>
+  <%= javascript_include_tag 'jax_jasmine_runner' %>
+  <%= stylesheet_link_tag 'jasmine' %>
+
+  <script type="text/javascript">
+    (function() {
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var trivialReporter = new jasmine.TrivialReporter();
+
+      jasmineEnv.addReporter(trivialReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return trivialReporter.specFilter(spec);
+      };
+
+      window.onload = function() {
+        jasmineEnv.execute();
+      };
+    })();
+  </script>
+  
+  <% @specs.each do |spec| %>
+    <%= javascript_include_tag url_for(:id => spec, :action => 'spec') %>
+  <% end %>
+<% end %>
+
+<div id="outer" class="jasmine_reporter">
+  <div class="banner">
+    <div class="logo">
+      <a href="http://pivotal.github.com/jasmine/" target="_blank">Jasmine</a>
+      <span class="version" id="jasmine-version"></span>
+    </div>
+    <div class="options">
+      Show
+      <input id="__jasmine_TrivialReporter_showPassed__" type="checkbox" />
+      <label for="__jasmine_TrivialReporter_showPassed__">passed</label>
+      <input id="__jasmine_TrivialReporter_showSkipped__" type="checkbox" />
+      <label for="__jasmine_TrivialReporter_showSkipped__">skipped</label>
+    </div>
+  </div>
+  <div id="runner" class="runner running">
+    <a class="run_spec" href="?">run all</a>
+    <span id="runnerMessageSpan">Running...</span>
+    <span class="finished-at" id="finishedAtSpan" />
+  </div>
+</div>

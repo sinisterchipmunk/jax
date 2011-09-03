@@ -10,6 +10,7 @@ module Jax
       def run(name, *args)
         case name
           when 'server'
+            require 'jax'
             require 'jax/rails/application'
             require 'jax/server'
 

@@ -1,4 +1,5 @@
 require 'rails'
+require 'jquery/rails'
 require 'jax/engine'
 
 module Jax

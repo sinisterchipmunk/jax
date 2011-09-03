@@ -1,5 +1,6 @@
 Jax::Engine.routes.draw do
   root :to => "suite#index"
+  match "/:action(/*id)", :controller => "suite"
 end
 
 if defined?(Jax::Rails::Application)

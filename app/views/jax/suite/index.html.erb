@@ -1,6 +1,21 @@
 <% content_for :head do %>
-  <%= javascript_include_tag 'jasmine' %>
   <%= stylesheet_link_tag 'jax/suite' %>
+  <%= stylesheet_link_tag 'jquery-ui-1.8.16.custom.css' %>
+  <%= javascript_include_tag :jquery %>
+  <%= javascript_include_tag 'jquery-ui-1.8.16.custom.min.js' %>
+  <%= javascript_include_tag 'tabs' %>
 <% end %>
 
-<h1>Jax Development Suite</h1>
+<div id="jax-banner">
+  <span class="title">Jax Development Suite</span>
+  <span class="version">v<%= Jax::VERSION %></span>
+</div>
+
+<div class="tabs" style="width:800px;">
+  <ul>
+    <li data-content="<%= url_for(:action => 'jasmine') %>" class="selected">Test Suite</li>
+    <li data-content="<%= url_for(:action => 'live'   ) %>">Run Application</li>
+  </ul>
+  
+  <iframe />
+</div>
