@@ -9,19 +9,20 @@ class Jax::SuiteController < ActionController::Base
   end
   
   def spec
-    # response.format = :js
-    render :file => File.join("spec", params[:id])
+    render :text => File.read(Rails.root.join("spec", params[:id]).to_s)
   end
   
   private
   def helpers
-    Dir[Rails.root.join("spec/javascripts/**/*{{s,S}pec,{t,T}est}.js").to_s].collect do |base|
-      base.sub(/^#{Regexp::escape Rails.root.join('spec').to_s}\/?/, '')
-    end
+    localized_glob("spec/javascripts/**/*{{s,S}pec,{t,T}est}.js")
   end
   
   def specs
-    Dir[Rails.root.join("spec/javascripts/**/*_helper.js").to_s].collect do |base|
+    localized_glob("spec/javascripts/**/*_helper.js")
+  end
+  
+  def localized_glob(glob)
+    Dir[Rails.root.join(glob).to_s].collect do |base|
       base.sub(/^#{Regexp::escape Rails.root.join('spec').to_s}\/?/, '')
     end
   end

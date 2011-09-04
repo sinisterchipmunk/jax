@@ -4,9 +4,9 @@ require 'spec_helper'
 # The app does nothing except mount Jax::Engine at "/".
 
 describe "Jax::Rails::Application" do
-  iso_it "should mount Jax dev suite at root" do
-    require 'jax/rails/application'
-    Jax::Rails::Application.initialize!
+  it "should mount Jax dev suite at root" do
+    # require 'jax/rails/application'
+    # Jax::Rails::Application.initialize!
 
     req = Rack::MockRequest.env_for("/")
     res = Jax::Rails::Application.call(req)

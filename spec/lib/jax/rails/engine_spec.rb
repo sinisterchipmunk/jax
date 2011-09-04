@@ -5,7 +5,7 @@ require 'spec_helper'
 # can be mounted into a generic Rails app and that it produces the Jax development suite.
 
 describe Jax::Engine do
-  iso_it "should mount Jax dev suite at root" do
+  xit "should mount Jax dev suite at root" do
     require 'action_controller/railtie'
 
     $app = Class.new(Rails::Application) do

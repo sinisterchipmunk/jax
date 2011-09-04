@@ -1,4 +1,4 @@
-//= require "functions/lights"
+//= require "shaders/functions/lights"
 
 shared uniform bool LIGHTING_ENABLED;
 

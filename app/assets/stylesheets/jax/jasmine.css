@@ -1,0 +1,8 @@
+/*= require "jasmine.css" */
+
+/* uses monospace and pre so that shader error traces are more readable */
+.resultMessage.fail {
+  font-family: monospace;
+  white-space: pre-line;
+  padding-top: 1em;
+}

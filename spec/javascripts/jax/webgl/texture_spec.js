@@ -1,5 +1,5 @@
 describe("Texture", function() {
-  var _img = "/images/rss.png";
+  var _img = "/textures/rss.png";
   var tex;
   
   /* _it calls spec only when texture is ready */
@@ -36,7 +36,7 @@ describe("Texture", function() {
   
   describe("NPOT", function() {
     beforeEach(function() {
-      tex = new Jax.Texture("/images/brickwall.jpg");
+      tex = new Jax.Texture("/textures/brickwall.jpg");
     });
     
     _it("should automatically use NPOT-compatible options", function() {

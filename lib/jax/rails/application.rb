@@ -15,8 +15,9 @@ module Jax
       config.cache_classes                     = false
       config.assets.enabled = true
       config.assets.version = '1.0'
+      config.assets.debug = true
+      config.assets.digest = false
 
-  
       # see config/routes.rb. Why can't I do this here?
       # routes.draw do
       #   mount Jax::Rails::Engine => "/"

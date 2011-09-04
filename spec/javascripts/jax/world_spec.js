@@ -10,8 +10,8 @@ describe("Jax.World", function() {
     var at, ofront, otopleft, otopright, obottomleft, obottomright, mesh;
     
     beforeEach(function() {
-      var width = document.getElementById('canvas-element').width,
-          height = document.getElementById('canvas-element').height;
+      var width = SPEC_CONTEXT.canvas.width,
+          height = SPEC_CONTEXT.canvas.height;
       at = { left: 0, right: width-1, top: height-1, bottom: 0,
              center_x: parseInt(width/2), center_y: parseInt(height/2) };
 
@@ -26,11 +26,11 @@ describe("Jax.World", function() {
       obottomright = world.addObject(new Jax.Model({position:[ 2.5,-2.5, -5],mesh:mesh}));
     });
     
-    glit("center",       function() { expect(world.pick(at.center_x, at.center_y)).toEqual(ofront); });
-    glit("top left",     function() { expect(world.pick(at.left, at.top)).toEqual(otopleft); });
-    glit("top right",    function() { expect(world.pick(at.right,at.top)).toEqual(otopright); });
-    glit("bottom left",  function() { expect(world.pick(at.left, at.bottom)).toEqual(obottomleft); });
-    glit("bottom right", function() { expect(world.pick(at.right,at.bottom)).toEqual(obottomright); });
+    it("center",       function() { expect(world.pick(at.center_x, at.center_y)).toEqual(ofront); });
+    it("top left",     function() { expect(world.pick(at.left, at.top)).toEqual(otopleft); });
+    it("top right",    function() { expect(world.pick(at.right,at.top)).toEqual(otopright); });
+    it("bottom left",  function() { expect(world.pick(at.left, at.bottom)).toEqual(obottomleft); });
+    it("bottom right", function() { expect(world.pick(at.right,at.bottom)).toEqual(obottomright); });
     /*
     it("region: everything", function() {
       var objects = world.pickRegion(at.left, at.top, at.right, at.bottom);

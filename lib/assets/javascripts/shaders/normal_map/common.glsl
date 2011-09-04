@@ -1,4 +1,4 @@
-//= require "functions/lights"
+//= require "shaders/functions/lights"
 
 uniform sampler2D NormalMap;
 
