@@ -18,10 +18,9 @@ module Jax
       config.assets.debug = true
       config.assets.digest = false
 
-      # see config/routes.rb. Why can't I do this here?
-      # routes.draw do
-      #   mount Jax::Rails::Engine => "/"
-      # end
+      routes do
+        mount Jax::Engine => "/"
+      end
     end
   end
 end

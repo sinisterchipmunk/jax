@@ -5,10 +5,10 @@ module Jax
     engine_name "jax"
     isolate_namespace Jax
     
-    # see config/routes.rb. Why can't I do this here?
-    # routes.draw do
-    #   root :to => "suite#index"
-    # end
+    routes do
+      root :to => "suite#index"
+      match "/:action(/*id)", :controller => "suite"
+    end
 
     config.after_initialize do |app|
       app.assets.register_mime_type "x-shader/x-webgl", 'glsl'
