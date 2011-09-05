@@ -1,3 +1,5 @@
+//= require "shaders/functions/lights"
+
 shared uniform mat4 mMatrix;
 
 uniform bool SHADOWMAP_ENABLED;
@@ -11,4 +13,3 @@ varying vec4 vShadowCoord;
 varying vec4 vDP0, vDP1;
 //varying float vDPz, vDPDepth;
 
-//= require "shaders/functions/lights"

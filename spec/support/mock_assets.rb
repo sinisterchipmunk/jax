@@ -41,6 +41,8 @@ module MockAssets
   end
   
   def asset(path)
-    assets.find_asset(path).body
+    asset = assets.find_asset(path)
+    raise "asset not found: #{path} in #{@asset_dir}" unless asset
+    asset.body
   end
 end
