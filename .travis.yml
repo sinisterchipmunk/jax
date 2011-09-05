@@ -5,6 +5,12 @@
 rvm:
   - 1.8.7
   - 1.9.2
+  - 1.9.3
+  - ree
+  - jruby
+  - ruby-head
+  - rbx-2.0
+
   
 # Define how to run the tests (defaults to `bundle exec rake` or `rake` depending on whether you have a `Gemfile`)
 # script: "bundle exec rake rspec node"
