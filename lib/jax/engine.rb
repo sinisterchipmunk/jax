@@ -11,7 +11,7 @@ module Jax
     # end
 
     config.after_initialize do |app|
-      app.assets.register_mime_type "x-shader/x-webgl", :glsl
+      app.assets.register_mime_type "x-shader/x-webgl", 'glsl'
 
       app.assets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
       app.assets.register_preprocessor   'application/javascript', Jax::ShaderProcessor
