@@ -86,5 +86,8 @@ will minify JS as needed and should theoretically include Jax files automagicall
 
 Jax shader preprocessors should be moved Ruby-side, using Sprockets 2 and Tilt.
 
+-- Partially implemented. Shader preprocessors do operate using Sprockets, but the previous JavaScript code
+   is also still in place.
+
 ##
 

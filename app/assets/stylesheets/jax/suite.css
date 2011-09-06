@@ -1,3 +1,6 @@
+/*= require "jax/tabs" */
+/*= require "jax/runtime" */
+
 div#jax-banner {
   margin-bottom: 2em;
 }
@@ -11,61 +14,7 @@ div#jax-banner span.version {
   font-size: 8pt;
 }
 
-div.tabs ul {
-  margin: 0;
-  padding: 0;
-}
-
-div.tabs li {
-  background-color: #fff;
-  
-  padding-top: 0.5em;
-  padding-bottom: 0;
-  padding-left: 1em;
-  padding-right: 1em;
-  height: 22px;
-  position: relative;
-  top: 8px;
-  
-  margin-right: 0px;
-  margin-bottom: 0;
-  display: block;
-  float: left;
-  font-size: 12pt;
-  border-bottom: 0px solid #000;
-  cursor: pointer;
-
-  border: 1px solid #000;
-  border-left: 0px solid #000;
-  border-top-left-radius: 0.5em;
-  border-top-right-radius: 0.5em;
-  border-bottom: 0px solid #000;
-}
-
-div.tabs li:first-child {
-  border-left: 1px solid #000;
-}
-
-div.tabs .preceding-selected {
-  border-right: 0px solid #000;
-}
-
-div.tabs .selected {
-  height: 30px;
-  top: 1px;
-  border-left: 1px solid #000;
-  border-top-left-radius: 0.5em;
-  border-right: 1px solid #000;
-  border-top-right-radius: 0.5em;
-  font-weight: 800;
-  cursor: default;
-}
-
-div.tabs iframe {
-  clear: both;
-  display: block;
-  margin: 0;
-  width: 800px;
-  height: 490px;
-  border: 1px solid #000;
+div.code {
+  white-space: pre;
+  font-family: monospace;
 }

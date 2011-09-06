@@ -1,0 +1,40 @@
+<% content_for :head do %>
+  <%= javascript_include_tag :jquery %>
+  <%= javascript_include_tag 'runtime' %>
+  <%= stylesheet_link_tag 'jax/suite' %>
+<% end %>
+
+<div class="help">
+  <a href="#" onclick="toggleCustomizationHelp();return false;">customize</a><br/>
+  <a href="#" onclick="window.location.reload(true);return false;">reload</a>
+</div>
+
+<div id="how-to-customize">
+  <p>
+  This page is used by Jax in the development suite's "Run Application" tab. You can customize it
+  by adding the following code to <strong>config/initializers/jax.rb</strong>:
+  </p>
+
+  <div class="code">
+  Jax::SuiteController.webgl_start = "/path/to/start.html"
+
+  # Alternatively, you can use a routing hash like so:
+  #
+  #   Jax::SuiteController.webgl_start = {
+  #     :controller => "webgl",
+  #     :action => "index"
+  #   }
+  #
+  # You can also use a proc to defer the decision until runtime:
+  #
+  #   Jax::SuiteController.webgl_start = proc do
+  #     { :controller => "webgl", :action => "profile", :id => params[:id] }
+  #   end
+  #
+  </div>
+</div>
+
+<canvas id="webgl" width="640" height="470">
+  Sorry, your browser doesn't support the &lt;canvas/&gt; tag. Please come back with a newer
+  browser.
+</canvas>

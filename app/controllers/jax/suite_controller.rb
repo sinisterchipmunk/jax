@@ -1,6 +1,11 @@
 class Jax::SuiteController < ActionController::Base
   layout :layout
-
+  helper_method :webgl_start
+  
+  def webgl_start
+    Jax.config.webgl_start
+  end
+  
   def index
   end
   

@@ -9,4 +9,15 @@ module Jax
   autoload :Commands, "jax/commands"
   autoload :ShaderProcessor, "jax/shader_processor"
   autoload :Shader, "jax/shader"
+  autoload :Configuration, "jax/configuration"
+  
+  module_function
+  
+  def config
+    @config || reset_config!
+  end
+  
+  def reset_config!
+    @config = Jax::Configuration.new
+  end
 end

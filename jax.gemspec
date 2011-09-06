@@ -21,21 +21,22 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec',          '~> 2.6.0'
   # see Gemfile
   # s.add_development_dependency 'rspec-isolation','~> 0.1.1'
-  s.add_development_dependency 'rails',        '~> 3.1.0'
-  s.add_development_dependency 'coffee-rails', '~> 3.1.0'
-  s.add_development_dependency 'coderay',      '~> 0.9.7'
-  s.add_development_dependency 'sqlite3',      '~> 1.3.4'
-  s.add_development_dependency 'sass-rails',   '~> 3.1.0'
-  s.add_development_dependency 'uglifier',     '~> 1.0.2'
-  s.add_development_dependency 'jquery-rails', '~> 1.0.13'
+  s.add_development_dependency 'rails',          '~> 3.1.0'
+  s.add_development_dependency 'coffee-rails',   '~> 3.1.0'
+  s.add_development_dependency 'coderay',        '~> 0.9.7'
+  s.add_development_dependency 'sqlite3',        '~> 1.3.4'
+  s.add_development_dependency 'sass-rails',     '~> 3.1.0'
+  s.add_development_dependency 'uglifier',       '~> 1.0.2'
+  s.add_development_dependency 'jquery-rails',   '~> 1.0.13'
   
-  s.add_development_dependency 'fakeweb',      '~> 1.3.0'
+  s.add_development_dependency 'fakeweb',        '~> 1.3.0'
   s.add_development_dependency 'ansi'
-  s.add_development_dependency 'turn',         '~> 0.8.2'
+  s.add_development_dependency 'turn',           '~> 0.8.2'
+  s.add_development_dependency 'cucumber-rails', '~> 1.0.2'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'
-  s.add_development_dependency 'w3c_validators', '~> 1.1.1'
+  s.add_development_dependency 'w3c_validators', '~> 1.2'
 
   # required by pdoc
   s.add_development_dependency 'treetop',   '~> 1.4.9'

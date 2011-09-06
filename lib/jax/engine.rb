@@ -9,7 +9,7 @@ module Jax
       root :to => "suite#index"
       match "/:action(/*id)", :controller => "suite"
     end
-
+    
     config.after_initialize do |app|
       app.assets.register_mime_type "x-shader/x-webgl", 'glsl'
 

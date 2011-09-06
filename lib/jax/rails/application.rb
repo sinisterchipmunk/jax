@@ -19,7 +19,7 @@ module Jax
       config.assets.digest = false
 
       routes do
-        mount Jax::Engine => "/"
+        mount Jax::Engine => "/", :as => "jax"
       end
     end
   end

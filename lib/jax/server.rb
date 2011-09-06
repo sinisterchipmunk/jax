@@ -15,8 +15,8 @@ module Jax
   #   end
   #
   # The above example will mount the Jax development suite in development and
-  # test modes, but not in production mode. Usually, you won't want to expose Jax
-  # to a production environment, but of course this is up to you.
+  # test modes, but not in production mode. Usually, you won't want to expose
+  # Jax::Engine to a production environment, but of course this is up to you.
   #
   # Note that you only need to mount Jax::Engine if you want to use the development
   # suite. You get the Jax assets (e.g. the Jax JavaScript API) for free when you
