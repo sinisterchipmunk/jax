@@ -4,4 +4,4 @@ source "http://rubygems.org"
 gemspec
 
 # TODO move to gemspec development dependencies when the necessary commits are released in new version
-gem 'rspec-isolation', :git => "http://github.com/sinisterchipmunk/rspec-isolation", :branch => "support-rspec-2-6"
+# gem 'rspec-isolation', :git => "http://github.com/sinisterchipmunk/rspec-isolation", :branch => "support-rspec-2-6"

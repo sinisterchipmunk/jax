@@ -10,19 +10,20 @@ rescue LoadError
   puts " *** You don't seem to have Bundler installed. ***"
   puts "     Please run the following command:"
   puts
-  puts "       gem install bundler --version=1.0.15"
+  puts "       gem install bundler"
   exit
-end
-
-DEPENDENCIES = %w(jasmine sprockets treetop bluecloth)
-DEPENDENCIES.each do |dep|
-  begin
-    require dep
-  rescue LoadError
+rescue Bundler::GemNotFound
+  if ENV['NO_MORE_ATTEMPTS']
+    raise
+  else
+    ENV['NO_MORE_ATTEMPTS'] = '1'
     system("bundle", "install")
     exec("bundle", "exec", "rake", *ARGV)
   end
 end
+
+require 'cucumber/rake/task'
+Cucumber::Rake::Task.new(:cucumber)
 
 # pdoc is a different beast because the released gem seems to be quite dated,
 # and is incompatible with Ruby 1.9.2. We'll grab the latest from git, instead.
@@ -142,7 +143,8 @@ namespace :doc do
       end
     end
     
-    exit if errors
+    exit 1 if errors
+    puts "\e[32mdocumentation looks good\e[0m"
   end
   
   desc "build the Jax JavaScript documentation"
@@ -226,4 +228,4 @@ desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
-task :default => ['spec']#, :node]
+task :default => ['spec', 'cucumber', 'doc:check']
