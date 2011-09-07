@@ -18,6 +18,11 @@ module Jax
       app.assets.register_preprocessor   'x-shader/x-webgl',       Jax::Shader
     end
     
+    config.generators do |g|
+#      g.scaffold_controller 'jax:scaffold_controller'
+     g.resource_controller 'jax:controller'
+    end
+    
     config.to_prepare do
       ::Rails.application.assets.each_file do |path|
         @already_warned = true
