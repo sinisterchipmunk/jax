@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'jax'
 require 'jax/rails/application'
+
 Jax::Rails::Application.config.cache_classes = true
 Jax::Rails::Application.initialize!
 

@@ -16,7 +16,7 @@ describe "jax:controller" do
     end
 
     it "should generate coffee spec" do
-      subject.should generate("app/assets/specs/jax/controllers/welcome_controller_spec.js.coffee")
+      subject.should generate("spec/javascripts/jax/controllers/welcome_controller_spec.js.coffee")
     end
     
     it "should not generate JS file" do
@@ -24,7 +24,7 @@ describe "jax:controller" do
     end
     
     it "should not generate JS spec" do
-      subject.should_not generate("app/assets/specs/jax/controllers/welcome_controller_spec.js")
+      subject.should_not generate("spec/javascripts/jax/controllers/welcome_controller_spec.js")
     end
   end
   
@@ -34,7 +34,7 @@ describe "jax:controller" do
     end
 
     it "should not generate coffee spec" do
-      subject.should_not generate("app/assets/specs/jax/controllers/welcome_controller_spec.js.coffee")
+      subject.should_not generate("spec/javascripts/jax/controllers/welcome_controller_spec.js.coffee")
     end
     
     it "should generate JS file" do
@@ -42,7 +42,7 @@ describe "jax:controller" do
     end
     
     it "should generate JS spec" do
-      subject.should generate("app/assets/specs/jax/controllers/welcome_controller_spec.js")
+      subject.should generate("spec/javascripts/jax/controllers/welcome_controller_spec.js")
     end
   end
 

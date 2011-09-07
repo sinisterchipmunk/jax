@@ -42,7 +42,7 @@ module Jax
       
       def create_spec_file
         coffee_template_with_fallback "spec.js",
-          File.join('app/assets/specs/jax/controllers', "#{file_name}_controller_spec.js")
+          File.join('spec/javascripts/jax/controllers', "#{file_name}_controller_spec.js")
       end
       
       protected

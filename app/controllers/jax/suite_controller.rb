@@ -10,25 +10,29 @@ class Jax::SuiteController < ActionController::Base
   end
   
   def jasmine
+    # order helpers before specs
     @specs = helpers + specs
   end
   
   def spec
-    render :text => File.read(Rails.root.join("spec", params[:id]).to_s)
+    render :text => Jax.config.specs[params[:id]].to_s
   end
   
   private
   def helpers
-    localized_glob("spec/javascripts/**/*{{s,S}pec,{t,T}est}.js")
+    collect_spec_files_matching /_helper\.js$/
   end
   
   def specs
-    localized_glob("spec/javascripts/**/*_helper.js")
+    collect_spec_files_matching /([sS]pec|[tT]est).js$/
   end
   
-  def localized_glob(glob)
-    Dir[Rails.root.join(glob).to_s].collect do |base|
-      base.sub(/^#{Regexp::escape Rails.root.join('spec').to_s}\/?/, '')
+  def collect_spec_files_matching(pattern)
+    [].tap do |files|
+      Jax.config.specs.each_file do |file|
+        file = Jax.config.specs.attributes_for(file).logical_path
+        files << file if file =~ pattern
+      end
     end
   end
   
