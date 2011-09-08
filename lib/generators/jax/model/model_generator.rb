@@ -3,7 +3,7 @@ require 'rails/generators/rails/model/model_generator'
 
 module Jax
   module Generators
-    class ModelGenerator < Jax::Generators::NamedBase
+    class ModelGenerator < Jax::Generators::RailsBase
       argument :attributes, :type => :array, :default => [], :banner => "field:type field:type"
       rails_equivalent { (orm = ::Rails::Generators.options[:rails][:orm]) && "#{orm}:model" }
       

@@ -3,7 +3,7 @@ require 'rails/generators/rails/controller/controller_generator'
 
 module Jax
   module Generators
-    class ControllerGenerator < Jax::Generators::NamedBase
+    class ControllerGenerator < Jax::Generators::RailsBase
       argument :actions, :type => :array, :default => [], :banner => "action action"
       rails_equivalent { "controller" }
       
