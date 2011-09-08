@@ -1,5 +1,4 @@
 require File.expand_path("../all", File.dirname(__FILE__))
-require 'rails/generators/rails/model/model_generator'
 
 module Jax
   module Generators
