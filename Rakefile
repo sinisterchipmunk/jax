@@ -1,7 +1,3 @@
-# used to flag auto-compile. Just makes my life easier.
-$JAX_DEVELOPMENT = true
-$JAX_RAKE = true
-
 begin
   require 'bundler'
   Bundler::GemHelper.install_tasks

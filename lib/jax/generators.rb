@@ -34,10 +34,8 @@ module Jax
           if script_rails = in_rails_app?
             if ARGV.length > 1
               ruby script_rails, ARGV.shift, "jax:#{ARGV.shift}", *ARGV
-            elsif ARGV.length > 0
-              ruby script_rails, "generate", "jax:#{ARGV.shift}", *ARGV
             else
-              ruby script_rails, "generate", "jax"
+              ruby script_rails, *ARGV
             end
           elsif script_jax = in_jax_app?
             ruby script_jax, *ARGV

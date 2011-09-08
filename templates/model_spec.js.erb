@@ -1,0 +1,18 @@
+describe("<%=class_name%>", function() {
+  describe("defaults", function() {
+    var model;
+
+    beforeEach(function() { model = new <%=class_name%>(); });
+    
+    <%- attributes.each do |attr| -%>
+    it("should have a '<%=attr.name%>' attribute", function() {
+      expect(model.<%=attr.name%>).toEqual(<%=attr.default.to_json%>);
+    });
+    
+    <%- end -%>
+  });
+  
+  it("should instantiate without errors", function() {
+    expect(function() { new <%=class_name%>(); }).not.toThrow();
+  });
+});
