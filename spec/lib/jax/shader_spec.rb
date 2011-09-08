@@ -24,7 +24,7 @@
 require 'spec_helper'
 
 describe Jax::Shader do
-  include MockAssets
+  # include MockAssets
   
   context "exports" do
     context "with implicit value" do
