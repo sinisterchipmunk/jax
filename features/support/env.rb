@@ -3,6 +3,10 @@ require 'jax'
 require 'jax/rails/application'
 
 Jax::Rails::Application.config.cache_classes = true
+
+# IMPORTANT: it is necessary to set this _prior_ to app initialization in order to pick up asset dirs
+::Rails.application.config.root = File.expand_path("../../tmp/rails-cukes", File.dirname(__FILE__))
+
 Jax::Rails::Application.initialize!
 
 require 'cucumber/rails/action_controller'

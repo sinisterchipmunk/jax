@@ -9,6 +9,7 @@ module Jax
   autoload :Commands, "jax/commands"
   autoload :ShaderProcessor, "jax/shader_processor"
   autoload :Shader, "jax/shader"
+  autoload :ResourceFile, "jax/resource_file"
   autoload :Configuration, "jax/configuration"
   
   module_function
