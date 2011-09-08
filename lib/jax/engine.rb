@@ -11,7 +11,7 @@ module Jax
     end
     
     config.after_initialize do |app|
-      app.config.assets.paths << File.join(app.root, "app/assets/jax/")
+      app.config.assets.paths.unshift File.join(app.root, "app/assets/jax/")
       
       app.assets.register_engine '.resource', Jax::ResourceFile
       
