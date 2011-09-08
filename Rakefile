@@ -13,7 +13,8 @@ rescue LoadError
   puts "       gem install bundler"
   exit
 rescue Bundler::GemNotFound
-  if ENV['NO_MORE_ATTEMPTS']
+  # this runs recursively forever under jruby, so special case failure for that.
+  if ENV['NO_MORE_ATTEMPTS'] || RUBY_PLATFORM == "java"
     raise
   else
     ENV['NO_MORE_ATTEMPTS'] = '1'
