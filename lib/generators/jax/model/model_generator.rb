@@ -15,6 +15,10 @@ module Jax
         coffee_template_with_fallback "model_spec.js",
           File.join('spec/javascripts/jax/models', "#{file_name}_spec.js")
       end
+      
+      def create_resource_file
+        template 'model_defaults.resource.erb', File.join("app/assets/jax/resources", file_name.pluralize, "default.resource")
+      end
     end
   end
 end

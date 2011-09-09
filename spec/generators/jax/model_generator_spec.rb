@@ -20,6 +20,13 @@ describe "jax:model" do
     it "should not generate JS spec" do
       subject.should_not generate("spec/javascripts/jax/models/post_spec.js")
     end
+    
+    it "should generate resource file" do
+      subject.should generate("app/assets/jax/resources/posts/default.resource") { |f|
+        f.should =~ /subject:/
+        f.should =~ /body:/
+      }
+    end
   end
   
   with_args 'post', 'subject:string', 'body:text', '-j' do
@@ -41,11 +48,25 @@ describe "jax:model" do
         fi.should =~ /expect\(model.body\)/
       }
     end
+
+    it "should generate resource file" do
+      subject.should generate("app/assets/jax/resources/posts/default.resource") { |f|
+        f.should =~ /subject:/
+        f.should =~ /body:/
+      }
+    end
   end
   
   with_args 'post', 'subject:string', 'body:text', '--rails' do
     it "should generate rails model" do
       subject.should generate('app/models/post.rb')
+    end
+
+    it "should generate resource file" do
+      subject.should generate("app/assets/jax/resources/posts/default.resource") { |f|
+        f.should =~ /subject:/
+        f.should =~ /body:/
+      }
     end
   end
 end
