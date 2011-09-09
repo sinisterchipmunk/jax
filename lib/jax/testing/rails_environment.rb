@@ -22,10 +22,9 @@ module Jax
       # up the fixture for the next test run.
       def setup_rails_environment
         root = ::Rails.root.to_s
-
+        
         create_empty_directory root
         create_directory 'app/assets' # required for Rails to pick up assets paths
-        # Dir.chdir root
         create_file "config/routes.rb" do |f|
           f.puts "Rails.application.routes.draw do\nend"
         end
