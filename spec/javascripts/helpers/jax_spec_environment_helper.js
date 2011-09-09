@@ -37,5 +37,7 @@ function setupJaxSpecContext() {
   })
 }
 
-if (typeof(global) != 'undefined')
+if (typeof(global) != 'undefined') {
+  global.setupJaxTestEnvironment = setupJaxTestEnvironment();
   global.setupJaxSpecContext = setupJaxSpecContext;
+}

@@ -4,22 +4,9 @@
   <%= stylesheet_link_tag 'jax/jasmine' %>
 
   <script type="text/javascript">
-    (function() {
-      var jasmineEnv = jasmine.getEnv();
-      jasmineEnv.updateInterval = 1000;
-
-      var trivialReporter = new jasmine.TrivialReporter();
-
-      jasmineEnv.addReporter(trivialReporter);
-
-      jasmineEnv.specFilter = function(spec) {
-        return trivialReporter.specFilter(spec);
-      };
-
-      window.onload = function() {
-        jasmineEnv.execute();
-      };
-    })();
+    window.onload = function() {
+      setupJaxTestEnvironment();
+    };
   </script>
   
   <% @specs.each do |spec| %>
