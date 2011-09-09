@@ -3,7 +3,26 @@ describe("Jax.RouteSet", function() {
   var controller_class = Jax.Controller.create({index: function() { }});
   Jax.views.push("generic/index", function() { });
   
-  beforeEach(function() { map = new Jax.RouteSet(); });
+  beforeEach(function() { map = Jax.routes; map.clear(); });
+  
+  describe("when a controller name is given during controller definition", function() {
+    beforeEach(function() {
+      controller_class = Jax.Controller.create("welcome", {index: function() { }});
+    });
+    
+    it("should map routes automatically", function() {
+      var route = map.recognizeRoute("welcome");
+      expect(route.controller).toEqual(controller_class);
+      expect(route.action).toEqual("index");
+    });
+    
+    it("should automatically map actions added after controller is defined", function() {
+      controller_class.prototype.other = function() { };
+      var route = map.recognizeRoute("welcome/other");
+      expect(route.controller).toEqual(controller_class);
+      expect(route.action).toEqual("other");
+    });
+  });
   
   describe("route descriptor", function() {
     var descriptor;
@@ -31,37 +50,10 @@ describe("Jax.RouteSet", function() {
   describe("with a map", function() {
     beforeEach(function() { map.map("generic/index", controller_class, "index"); });
     it("should recognize the route without /index", function() {
-      var route = map.recognize_route("generic");
+      var route = map.recognizeRoute("generic");
       
       expect(route.controller).toEqual(controller_class);
       expect(route.action).toEqual("index");
-    });
-  });
-  
-  describe("with a root", function() {
-    beforeEach(function() { map.root(controller_class, "index"); });
-    
-    it("should recognize the root route", function() {
-      var route = map.recognize_route("/");
-      
-      expect(route.controller).toEqual(controller_class);
-      expect(route.action).toEqual("index");
-    });
-    
-    it("should dispatch to the root controller", function() {
-      spyOn(controller_class, 'invoke').andCallThrough();
-      map.dispatch("/");
-      expect(controller_class.invoke).toHaveBeenCalledWith("index", undefined);
-    });
-    
-    it("should return the controller instance", function() {
-      expect(map.dispatch("/")).toBeKindOf(controller_class);
-    });
-  });
-  
-  describe("with no root", function() {
-    it("should throw an error recognizing the root route", function() {
-      expect(function() { map.recognize_route("/") }).toThrow(new Error("Route not recognized: '/'"));
     });
   });
 });

@@ -38,7 +38,7 @@ describe("Jax.Controller", function() {
     });
     
     it("should map the route automatically", function() {
-      expect(function() { Jax.routes.recognize_route("welcome/index") }).not.toThrow();
+      expect(function() { Jax.routes.recognizeRoute("welcome/index") }).not.toThrow();
     });
   });
 
