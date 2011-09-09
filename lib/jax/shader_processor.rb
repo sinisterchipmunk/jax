@@ -2,6 +2,21 @@ require 'sprockets'
 
 module Jax
   class ShaderProcessor < Sprockets::DirectiveProcessor
+    def evaluate(context, locals, &block)
+      # this is necessary because we don't *want* to handle shaders here,
+      # we want to handle them in Jax::Shader instead.
+      begin
+        path = context.resolve(context.logical_path).to_s
+        if path =~ /\.glsl$/
+          data
+        else
+          super
+        end
+      rescue Sprockets::FileNotFound # not sure why this can happen
+        super
+      end
+    end
+    
     def process_require_all_shaders_directive
       # depend on any base 'shaders' directories that may exist
       # this should pick up any new shaders as they are added to app
@@ -17,7 +32,8 @@ module Jax
       context.environment.each_file do |path|
         # skip all.js and skip manifest.yml
         next if path == self.file || path =~ /\.yml$/
-        logical_path = context.environment.attributes_for(path).logical_path
+        attrs = context.environment.attributes_for(path)
+        logical_path = attrs.logical_path
         if logical_path[/^shaders\//]
           # skip if logical path has already been processed
           next if files.include?(logical_path)

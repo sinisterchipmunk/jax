@@ -25,6 +25,7 @@ require 'jax/testing/rails_environment'
 RSpec.configure do |c|
   c.include Jax::Testing::RailsEnvironment
   c.before(:each) do
+    FileUtils.rm_rf File.expand_path("../tmp/cache", File.dirname(__FILE__))
     setup_rails_environment
   end
 end

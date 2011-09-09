@@ -14,11 +14,12 @@ module Jax
       app.config.assets.paths.unshift File.join(app.root, "app/assets/jax")
 
       app.assets.register_engine '.resource', Jax::ResourceFile
+      app.assets.register_engine '.glsl',     Jax::Shader
       
-      app.assets.register_mime_type      "x-shader/x-webgl", 'glsl'
+      # app.assets.register_mime_type      "x-shader/x-webgl", 'glsl'
       app.assets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
       app.assets.register_preprocessor   'application/javascript', Jax::ShaderProcessor
-      app.assets.register_preprocessor   'x-shader/x-webgl',       Jax::Shader
+      # app.assets.register_preprocessor   'x-shader/x-webgl',       Jax::Shader
     end
     
     config.to_prepare do

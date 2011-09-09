@@ -2,6 +2,10 @@ require 'sprockets'
 
 module Jax
   class Shader < Sprockets::DirectiveProcessor
+    def self.default_mime_type
+      "application/javascript"
+    end
+
     def exports
       @exports ||= {}
     end
