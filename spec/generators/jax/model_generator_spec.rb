@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "jax:model" do
   with_args 'post', 'subject:string', 'body:text' do
     it "should generate coffee file" do
-      subject.should generate("app/assets/javascripts/jax/models/post.js.coffee")
+      subject.should generate("app/assets/jax/models/post.js.coffee")
     end
     
     it "should generate coffee spec" do
@@ -14,7 +14,7 @@ describe "jax:model" do
     end
 
     it "should not generate JS file" do
-      subject.should_not generate("app/assets/javascripts/jax/models/post.js")
+      subject.should_not generate("app/assets/jax/models/post.js")
     end
     
     it "should not generate JS spec" do
@@ -31,7 +31,7 @@ describe "jax:model" do
   
   with_args 'post', 'subject:string', 'body:text', '-j' do
     it "should not generate coffee file" do
-      subject.should_not generate("app/assets/javascripts/jax/models/post.js.coffee")
+      subject.should_not generate("app/assets/jax/models/post.js.coffee")
     end
     
     it "should not generate coffee spec" do
@@ -39,7 +39,7 @@ describe "jax:model" do
     end
 
     it "should generate JS file" do
-      subject.should generate("app/assets/javascripts/jax/models/post.js")
+      subject.should generate("app/assets/jax/models/post.js")
     end
     
     it "should generate JS spec" do

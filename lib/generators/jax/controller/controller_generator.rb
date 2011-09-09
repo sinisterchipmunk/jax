@@ -8,7 +8,7 @@ module Jax
       
       def create_controller_file
         coffee_template_with_fallback "controller.js",
-          File.join('app/assets/javascripts/jax/controllers', "#{file_name}_controller.js")
+          File.join('app/assets/jax/controllers', "#{file_name}_controller.js")
       end
       
       def create_spec_file

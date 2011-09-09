@@ -8,7 +8,7 @@ module Jax
       
       def create_model_file
         coffee_template_with_fallback "model.js",
-          File.join('app/assets/javascripts/jax/models', "#{file_name}.js")
+          File.join('app/assets/jax/models', "#{file_name}.js")
       end
       
       def create_spec_file
