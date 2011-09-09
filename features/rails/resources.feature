@@ -17,7 +17,15 @@ Feature: Resources
       Person.addResources({"jennifer":{"name":"Jennifer"}});
       """
 
-  Scenario: Dynamic file resource expansion
-    Given file "app/assets/jax/resources/people/jennifer.resource" contains "name: Jennifer"
-    When I visit "/"
-    Then I should see a "script" element with attribute "src" starting with "/assets/resources/people/jennifer"
+  Scenario: All resources
+    Given file "app/assets/jax/resources/people/default.resource" contains "name: Colin"
+      And file "app/assets/jax/resources/people/jennifer.resource" contains "name: Jennifer"
+    When I visit "/assets/jax/application.js"
+    Then I should see:
+      """
+      "name":"Colin"
+      """
+    And I should see:
+      """
+      "name":"Jennifer"
+      """

@@ -7,7 +7,7 @@ module Jax
   autoload :VERSION, "jax/version"
   autoload :Generators, "generators/jax/all"
   autoload :Commands, "jax/commands"
-  autoload :ShaderProcessor, "jax/shader_processor"
+  autoload :DirectiveProcessor, "jax/directive_processor"
   autoload :Shader, "jax/shader"
   autoload :ResourceFile, "jax/resource_file"
   autoload :Configuration, "jax/configuration"
