@@ -146,6 +146,10 @@ Then /^(?:|I )should see an? "([^"]*)" element with attribute "([^"]*)" equal to
   page.should have_xpath("//#{element_name}[@#{attribute_name}='#{attribute_value}']")
 end
 
+Then /^(?:|I )should see an? "([^"]*)" element with attribute "([^"]*)" starting with "([^"]*)"$/ do |element_name, attribute_name, attribute_value|
+  page.should have_xpath("//#{element_name}[starts-with(@#{attribute_name},'#{attribute_value}')]")
+end
+
 Then /^the "([^"]*)" field(?: within (.*))? should contain "([^"]*)"$/ do |field, parent, value|
   with_scope(parent) do
     field = find_field(field)

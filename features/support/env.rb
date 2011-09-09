@@ -2,7 +2,9 @@ require 'bundler/setup'
 require 'jax'
 require 'jax/rails/application'
 
-Jax::Rails::Application.config.cache_classes = true
+# this will cause warnings but is necessary to ensure the #to_prepare blocks fire on each request.
+# note that since we are not (currently) using ActiveRecord, the warning can be ignored.
+Jax::Rails::Application.config.cache_classes = false
 
 # IMPORTANT: it is necessary to set this _prior_ to app initialization in order to pick up asset dirs
 ::Rails.application.config.root = File.expand_path("../../tmp/rails-cukes", File.dirname(__FILE__))

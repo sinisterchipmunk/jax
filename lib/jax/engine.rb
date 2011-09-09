@@ -11,8 +11,8 @@ module Jax
     end
     
     config.after_initialize do |app|
-      app.config.assets.paths.unshift File.join(app.root, "app/assets/jax/")
-      
+      app.config.assets.paths.unshift File.join(app.root, "app/assets/jax")
+
       app.assets.register_engine '.resource', Jax::ResourceFile
       
       app.assets.register_mime_type      "x-shader/x-webgl", 'glsl'
@@ -20,7 +20,11 @@ module Jax
       app.assets.register_preprocessor   'application/javascript', Jax::ShaderProcessor
       app.assets.register_preprocessor   'x-shader/x-webgl',       Jax::Shader
     end
-        
+    
+    config.to_prepare do
+      ActionController::Base.helper Jax::HelperMethods
+    end
+    
     config.to_prepare do
       ::Rails.application.assets.each_file do |path|
         if path =~ /javascripts\/shaders\/.*\.ejs$/

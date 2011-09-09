@@ -11,6 +11,7 @@ module Jax
   autoload :Shader, "jax/shader"
   autoload :ResourceFile, "jax/resource_file"
   autoload :Configuration, "jax/configuration"
+  autoload :HelperMethods, "jax/helper_methods"
   
   module_function
   
