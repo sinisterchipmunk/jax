@@ -10,6 +10,10 @@ module Jax
       match "/:action(/*id)", :controller => "suite"
     end
     
+    config.before_configuration do
+      config.action_view.javascript_expansions[:jax] ||= [ 'jax', 'jax/application' ]
+    end
+    
     config.after_initialize do |app|
       app.config.assets.paths.unshift File.join(app.root, "app/assets/jax")
 
@@ -19,7 +23,7 @@ module Jax
       app.assets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
       app.assets.register_preprocessor   'application/javascript', Jax::DirectiveProcessor
     end
-    
+        
     config.to_prepare do
       ActionController::Base.helper Jax::HelperMethods
     end

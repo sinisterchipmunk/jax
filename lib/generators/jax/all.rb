@@ -5,6 +5,7 @@ module Jax
 end
 
 require 'rails/generators'
+require File.expand_path("base/coffee_generator", File.dirname(__FILE__))
 require File.expand_path("base/named_base", File.dirname(__FILE__))
 require File.expand_path("base/rails_base", File.dirname(__FILE__))
 

@@ -19,12 +19,22 @@ describe "jax:controller" do
       subject.should generate("spec/javascripts/jax/controllers/welcome_controller_spec.js.coffee")
     end
     
+    it "should generate coffee view" do
+      subject.should generate("app/assets/jax/views/welcome/index.js.coffee")
+      subject.should generate("app/assets/jax/views/welcome/other.js.coffee")
+    end
+    
     it "should not generate JS file" do
       subject.should_not generate("app/assets/jax/controllers/welcome_controller.js")
     end
     
     it "should not generate JS spec" do
       subject.should_not generate("spec/javascripts/jax/controllers/welcome_controller_spec.js")
+    end
+
+    it "should not generate JS view" do
+      subject.should_not generate("app/assets/jax/views/welcome/index.js")
+      subject.should_not generate("app/assets/jax/views/welcome/other.js")
     end
   end
   
@@ -37,12 +47,22 @@ describe "jax:controller" do
       subject.should_not generate("spec/javascripts/jax/controllers/welcome_controller_spec.js.coffee")
     end
     
+    it "should not generate coffee view" do
+      subject.should_not generate("app/assets/jax/views/welcome/index.js.coffee")
+      subject.should_not generate("app/assets/jax/views/welcome/other.js.coffee")
+    end
+    
     it "should generate JS file" do
       subject.should generate("app/assets/jax/controllers/welcome_controller.js")
     end
     
     it "should generate JS spec" do
       subject.should generate("spec/javascripts/jax/controllers/welcome_controller_spec.js")
+    end
+
+    it "should generate JS view" do
+      subject.should generate("app/assets/jax/views/welcome/index.js")
+      subject.should generate("app/assets/jax/views/welcome/other.js")
     end
   end
 
@@ -56,7 +76,7 @@ describe "jax:controller" do
     end
   end
   
-  with_arguments 'welcome', 'index', 'other', '-js' do
+  with_arguments 'welcome', 'index', 'other', '-j' do
     it_should_behave_like 'generator without coffee'
   end
 

@@ -15,6 +15,17 @@ module Jax
         coffee_template_with_fallback "controller_spec.js",
           File.join('spec/javascripts/jax/controllers', "#{file_name}_controller_spec.js")
       end
+      
+      def create_view_file
+        for action in actions
+          @action_name = action
+          coffee_template_with_fallback "view.js",
+            File.join('app/assets/jax/views', file_name, "#{action}.js")
+        end
+      end
+      
+      private
+      attr_reader :action_name
     end
   end
 end
