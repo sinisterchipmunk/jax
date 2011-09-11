@@ -22,38 +22,28 @@ describe("Jax.RouteSet", function() {
       expect(route.controller).toEqual(controller_class);
       expect(route.action).toEqual("other");
     });
-  });
-  
-  describe("route descriptor", function() {
-    var descriptor;
-    
-    it("from descriptor", function() {
-      descriptor = map.getRouteDescriptor({controller:controller_class, id: 1});
-      expect(descriptor.controller).toEqual(controller_class);
-      expect(descriptor.action).toEqual("index");
-      expect(descriptor.id).toEqual(1);
-    });
-    
-    it("from controller (klass)", function() {
-      descriptor = map.getRouteDescriptor(controller_class);
-      expect(descriptor.controller).toEqual(controller_class);
-      expect(descriptor.action).toEqual("index");
-    });
-    
-    it("from controller (klass) and action name (string)", function() {
-      descriptor = map.getRouteDescriptor(controller_class, "action_name");
-      expect(descriptor.controller).toEqual(controller_class);
-      expect(descriptor.action).toEqual("action_name");
+
+    it("should return the controller name in an array", function() {
+      var arr = map.getControllerNames();
+      expect(arr.length).toEqual(1);
+      expect(arr[0]).toEqual("welcome");
     });
   });
   
   describe("with a map", function() {
     beforeEach(function() { map.map("generic/index", controller_class, "index"); });
+    
     it("should recognize the route without /index", function() {
       var route = map.recognizeRoute("generic");
       
       expect(route.controller).toEqual(controller_class);
       expect(route.action).toEqual("index");
+    });
+    
+    it("should return the controller name in an array", function() {
+      var arr = map.getControllerNames();
+      expect(arr.length).toEqual(1);
+      expect(arr[0]).toEqual("generic");
     });
   });
 });

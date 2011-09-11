@@ -1,12 +1,21 @@
 <% content_for :head do %>
   <%= javascript_include_tag :jquery %>
-  <%= javascript_include_tag 'runtime' %>
+  <%= javascript_include_tag 'jax/runtime' %>
+  <%= javascript_include_tag 'jax/controller-select' %>
   <%= stylesheet_link_tag 'jax/suite' %>
+  <%= stylesheet_link_tag 'jax/controller-select' %>
 <% end %>
 
 <div class="help">
   <a href="#" onclick="toggleCustomizationHelp();return false;">customize</a><br/>
   <a href="#" onclick="window.location.reload(true);return false;">reload tab</a>
+
+  <select id="controller-select" size="15">
+    <!--
+    this list is populated by JS. It contains a selection of controllers for the user to test.
+    When an item is selected, it fires Jax.Controller#redirectTo(item).
+    -->
+  </select>
 </div>
 
 <div id="how-to-customize">

@@ -29,11 +29,15 @@ function makeResizableIframe() {
     resize: function(event, ui) {
       var offsetx = $(event.target).width() - startx;
       var offsety = $(event.target).height()- starty;
+      var width = $(iframe).width() + offsetx;
+      var height = $(iframe).height() + offsety;
 
-      iframe.style.width  = ($(iframe).width() + offsetx).toString()+"px";
-      iframe.style.height = ($(iframe).height() + offsety).toString()+"px";
+      iframe.style.width  = width.toString()+"px";
+      iframe.style.height = height.toString()+"px";
       div.style.width = iframe.style.width;
       div.style.height = iframe.style.height;
+      iframe.loadingDiv.style.width  = iframe.style.width;
+      iframe.loadingDiv.style.height = iframe.style.height;
 
       startx = $(event.target).width();
       starty = $(event.target).height();
@@ -87,6 +91,13 @@ function setTabContent() {
     $(".tabs iframe")[0].src = content_url;
 }
 
+function showLoadingDiv() {
+  var iframe = $(".tabs iframe")[0];
+  
+  // show the loading div and fill the iframe
+  iframe.loadingDiv.style.visibility = "visible";
+}
+
 $(document).ready(function() {
   makeResizableIframe();
   makeLoadingDiv();
@@ -112,9 +123,7 @@ $(document).ready(function() {
     prev = prev[prev.length-1];
     if (prev) $(prev).addClass("preceding-selected");
     
-    // show the loading div and fill the iframe
-    $(".tabs iframe")[0].loadingDiv.style.visibility = "visible";
-    
+    showLoadingDiv();
     setTabContent();
   });
 });
