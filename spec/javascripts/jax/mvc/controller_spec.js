@@ -2,6 +2,12 @@ describe("Jax.Controller", function() {
   var klass;
   var instance;
   
+  it("should map a default view", function() {
+    Jax.views.remove("welcome/index");
+    Jax.Controller.create("welcome", {});
+    expect(Jax.views.find("welcome/index")).not.toBeUndefined();
+  });
+  
   describe("with an update method", function() {
     var context;
     
