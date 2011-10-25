@@ -4,11 +4,14 @@ require 'spec_helper'
 # The app does nothing except mount Jax::Engine at "/".
 
 describe "Jax::Rails::Application" do
-  # TODO this stopped working! how best to test?
+  def app
+    Jax::Rails::Application
+  end
+  
   it "should mount Jax dev suite at root" do
-    req = Rack::MockRequest.env_for("/")
-    res = Jax::Rails::Application.call(req)
-    body = res.last.body #inject("") { |body,chunk| body + chunk }
-    # (body =~ /Jax Development Suite/).should be_true
+    get '/'
+    follow_redirect! if last_response.redirect?
+    last_response.should be_ok
+    last_response.body.should match(/Jax Development Suite/)
   end
 end
