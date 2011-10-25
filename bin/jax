@@ -2,6 +2,11 @@
 require "rubygems"
 require "thor"
 require "thor/group"
-require "jax/generators"
 
-Jax::Generators.invoke!
+begin
+  require "jax"
+  Jax::Commands.invoke!
+rescue LoadError
+  puts "Couldn't find Jax!"
+  puts "Try running `gem install jax` first."
+end

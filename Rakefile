@@ -211,11 +211,99 @@ namespace :guides do
   end
 end
 
-# This task needs to be reworked around Sprockets 2 since :compile no longer exists.
-# desc "Run javascript tests using node.js"
-# task :node => :compile do
-#   system("node", "spec/javascripts/node_helper.js")
-# end
+desc "Compile jax to tmp/jax.js"
+task :compile do
+  require 'jax'
+  require 'jax/rails/application'
+  Jax::Rails::Application.initialize!
+  ::Rails.application.assets['jax/application.js'].write_to("tmp/jax.js")
+end
+
+desc "Start the Jax dev server"
+task :server do
+  require 'jax'
+  Jax::Commands.run 'server'
+end
+
+desc "Run javascript tests using node.js"
+task :node do
+  unless ENV['SKIP_COMPILE']
+    Rake::Task['compile'].invoke
+  end
+  
+  unless system("node_modules/jasmine-node/bin/jasmine-node", "spec/javascripts")
+    raise "node specs failed"
+  end
+end
+
+desc "Run test suite using selenium under Travis-CI"
+task :travis do
+  ENV['DISPLAY'] = ':99.0'
+  Rake::Task['jasmine'].invoke
+end
+
+desc "Run jasmine specs in browser"
+task :jasmine do
+  begin
+    server = nil
+    result = {}
+    th = Thread.new do
+      require 'jax'
+      server = Jax::Commands.run 'server', '--quiet'
+    end
+  
+    require 'selenium-webdriver'
+    driver = Selenium::WebDriver.for :firefox
+    driver.navigate.to "http://localhost:3000/jasmine"
+  
+    execjs = proc do |js|
+      puts "eval js: #{js}" if ENV['DEBUG']
+      result = driver.execute_script js
+      puts "     =>  #{result.inspect}" if ENV['DEBUG']
+      result
+    end
+
+    until execjs.call("return jsApiReporter && jsApiReporter.finished") == true
+      sleep 0.1
+    end
+  
+    result = execjs.call(<<-end_code)
+    var result = jsApiReporter.results();
+    var failures = new Array();
+    var results = { };
+    for (var i in result) {
+      for (var j = 0; j < result[i].messages.length; j++) {
+        var msg = result[i].messages[j];
+        msg.toString = msg.toString();
+        msg.passed = msg.passed();
+        if (!msg.passed)
+          failures.push(msg);
+      }
+      results[result[i].result] = results[result[i].result] || 0;
+      results[result[i].result]++;
+    }
+    return { results: results, failure_messages: failures };
+    end_code
+  ensure
+    driver.quit
+    server.stop if server
+  end
+  
+  passed = result["results"]["passed"].to_i
+  failed = result["results"]["failed"].to_i
+  total = passed + failed
+  puts "#{total} jasmine specs: #{passed} passed, #{failed} failed"
+  unless (failure_messages = result["failure_messages"]).empty?
+    failure_messages.each do |message|
+      puts message["message"]
+      puts
+      puts message["trace"]["stack"].split(/\n/).collect { |line|
+        line['@'] ? line.sub(/^.*\@/, '') : line }.reject { |line|
+        line['/jasmine.js?'] }.join("\n")
+    end
+    raise "jasmine specs failed"
+  end
+end
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
@@ -225,4 +313,4 @@ desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
-task :default => ['spec', 'cucumber', 'doc:check']
+task :default => ['spec', 'cucumber', 'travis', 'doc:check']

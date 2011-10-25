@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'uglifier',       '~> 1.0.2'
   s.add_development_dependency 'jquery-rails',   '~> 1.0.13'
   s.add_development_dependency 'genspec',        '~> 0.2.0'
+  s.add_development_dependency 'selenium-webdriver', '~> 2.9.1'
   
   s.add_development_dependency 'fakeweb',        '~> 1.3.0'
   s.add_development_dependency 'ansi'

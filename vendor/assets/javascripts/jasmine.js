@@ -735,12 +735,17 @@ jasmine.Env.prototype.version = function () {
  * @returns string containing jasmine version build info, if set.
  */
 jasmine.Env.prototype.versionString = function() {
-  if (jasmine.version_) {
-    var version = this.version();
-    return version.major + "." + version.minor + "." + version.build + " revision " + version.revision;
-  } else {
+  if (!jasmine.version_) {
     return "version unknown";
   }
+
+  var version = this.version();
+  var versionString = version.major + "." + version.minor + "." + version.build;
+  if (version.release_candidate) {
+    versionString += ".rc" + version.release_candidate;
+  }
+  versionString += " revision " + version.revision;
+  return versionString;
 };
 
 /**
@@ -2463,10 +2468,9 @@ jasmine.getGlobal().clearInterval = function(timeoutKey) {
   }
 };
 
-
 jasmine.version_= {
   "major": 1,
   "minor": 1,
   "build": 0,
-  "revision": 1307335480
+  "revision": 1315677058
 };

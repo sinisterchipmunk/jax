@@ -16,8 +16,8 @@ rvm:
 # script: "bundle exec rake rspec node"
 
 # Define tasks to be completed before and after tests run. Will allow folding of content on frontend
-# before_script:
-#   - command_1
+before_script:
+  - sh -e /etc/init.d/xvfb start
 #   - command_2
 
 # after_script:

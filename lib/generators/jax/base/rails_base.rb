@@ -2,7 +2,7 @@ module Jax
   module Generators
     class RailsBase < Jax::Generators::NamedBase
       no_tasks do
-        class_inheritable_accessor :rails_equivalent_block
+        class_attribute :rails_equivalent_block
       end
       
       def self.rails_equivalent(&block)

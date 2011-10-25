@@ -6,18 +6,6 @@
   <%= stylesheet_link_tag 'jax/controller-select' %>
 <% end %>
 
-<div class="help">
-  <a href="#" onclick="toggleCustomizationHelp();return false;">customize</a><br/>
-  <a href="#" onclick="window.location.reload(true);return false;">reload tab</a>
-
-  <select id="controller-select" size="15">
-    <!--
-    this list is populated by JS. It contains a selection of controllers for the user to test.
-    When an item is selected, it fires Jax.Controller#redirectTo(item).
-    -->
-  </select>
-</div>
-
 <div id="how-to-customize">
   <p>
   This is the default page loaded when Jax doesn't know where to find your real WebGL application.
@@ -42,6 +30,18 @@
   #   end
   #
   </div>
+</div>
+
+<div class="help">
+  <a href="#" onclick="toggleCustomizationHelp();return false;">customize</a><br/>
+  <a href="#" onclick="window.location.reload(true);return false;">reload tab</a>
+
+  <select id="controller-select" size="15">
+    <!--
+    this list is populated by JS. It contains a selection of controllers for the user to test.
+    When an item is selected, it fires Jax.Controller#redirectTo(item).
+    -->
+  </select>
 </div>
 
 <canvas id="webgl" width="640" height="470">

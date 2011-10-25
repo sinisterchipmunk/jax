@@ -3,11 +3,30 @@
   <head>
     <title>Jax Development Suite</title>
     <%= javascript_include_tag 'jax/application' %>
+    <%= javascript_include_tag :jquery %>
+    <%= javascript_include_tag 'jax/suite' %>
+    <%= stylesheet_link_tag 'jax/suite' %>
 
     <%= yield :head %>
   </head>
   
   <body>
-    <%= yield %>
+    <div id="jax-banner">
+      <span class="title">Jax Development Suite</span>
+      <span class="version">v<%= Jax::VERSION %></span>
+    </div>
+
+    <div id="content">
+      <div id="nav">
+        <ul>
+          <li data-content="<%= url_for(:action => 'jasmine') %>">Test Suite</li>
+          <li data-content="<%= url_for(:action => 'run_webgl') %>">Run Application</li>
+          <li data-content="<%= url_for(:action => 'shader_editor') %>">Materials</li>
+          <li data-content="http://guides.jaxgl.com">Guides &amp; Docs</li>
+        </ul>
+      </div>
+
+      <%= yield %>
+    </div>
   </body>
 </html>

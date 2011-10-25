@@ -1,0 +1,24 @@
+#material-list {
+  float: left;
+}
+
+#material-list div {
+  padding: 5px;
+  background-color:#eee;
+  user-select: none;
+  cursor: move;
+}
+
+#material-list div:nth-child(even) {
+  background-color: #ddd;
+}
+
+#preview {
+  width: 400px;
+  height: 400px;
+  border: 1px solid #000;
+}
+
+#preview-div {
+  
+}

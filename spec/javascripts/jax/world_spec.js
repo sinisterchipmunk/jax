@@ -2,6 +2,14 @@ describe("Jax.World", function() {
   var world;
   
   beforeEach(function() {
+    s = this.suite;
+    d = s.description;
+    while (s) {
+      s = s.parentSuite;
+      if (s) d = s.description + " " + d;
+    }
+    console.log(d);
+    
     SPEC_CONTEXT.prepare();
     world = SPEC_CONTEXT.world;
   });

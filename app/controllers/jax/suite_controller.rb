@@ -2,11 +2,8 @@ class Jax::SuiteController < ActionController::Base
   layout :layout
   helper_method :webgl_start
   
-  def webgl_start
-    Jax.config.webgl_start
-  end
-  
   def index
+    redirect_to :action => :run_webgl
   end
   
   def jasmine
@@ -19,6 +16,10 @@ class Jax::SuiteController < ActionController::Base
   end
   
   private
+  def webgl_start
+    Jax.config.webgl_start
+  end
+  
   def helpers
     collect_spec_files_matching /_helper\.js$/
   end

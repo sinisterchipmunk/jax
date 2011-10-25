@@ -3,8 +3,9 @@ canvas {
 }
 
 div.help {
-  float: right;
-  text-align: right;
+  float: left;
+  text-align: left;
+  width: 150px;
 }
 
 div#how-to-customize {
