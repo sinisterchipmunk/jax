@@ -255,6 +255,8 @@ task :jasmine do
     require 'selenium-webdriver'
     driver = Selenium::WebDriver.for :firefox
     driver.navigate.to "http://localhost:3000/jasmine"
+    
+    puts driver.title if ENV["DEBUG"]
   
     execjs = proc do |js|
       puts "eval js: #{js}" if ENV['DEBUG']
@@ -263,7 +265,7 @@ task :jasmine do
       result
     end
 
-    until execjs.call("return typeof(jsApiReporter) != 'undefined' && jsApiReporter.finished") == true
+    until execjs.call("return jsApiReporter && jsApiReporter.finished") == true
       sleep 0.1
     end
   
