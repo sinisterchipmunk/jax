@@ -22,9 +22,16 @@ Jax::Rails::Application.initialize!
 
 require 'jax/testing/rails_environment'
 
+# Bypass rescue_action stuff in rails. This borrowed from rspec-rails.
+class ActionController::Base
+  def rescue_with_handler(exception)
+    raise exception
+  end
+end
+
 RSpec.configure do |c|
   c.include Jax::Testing::RailsEnvironment
-  c.include include Rack::Test::Methods
+  c.include Rack::Test::Methods
   
   c.before(:each) do
     FileUtils.rm_rf File.expand_path("../tmp/cache", File.dirname(__FILE__))

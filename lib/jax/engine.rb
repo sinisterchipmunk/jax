@@ -32,6 +32,7 @@ module Jax
     
     config.to_prepare do
       ::Rails.application.assets.each_file do |path|
+        path = path.to_s
         if path =~ /javascripts\/shaders\/.*\.ejs$/
           raise "Deprecated shader #{path}.\nTry renaming it to #{path.sub(/\.ejs$/, '.glsl')}."
         elsif path =~ /resources\/.*\.yml$/

@@ -34,6 +34,7 @@ module Jax
       # context.environment.each_logical_path do |path|
       context.environment.each_file do |path|
         # skip all.js and skip manifest.yml
+        path = path.to_s
         next if path == self.file || path =~ /\.yml$/
         attrs = context.environment.attributes_for(path)
         logical_path = attrs.logical_path
