@@ -263,7 +263,7 @@ task :jasmine do
       result
     end
 
-    until execjs.call("return jsApiReporter && jsApiReporter.finished") == true
+    until execjs.call("return typeof(jsApiReporter) != 'undefined' && jsApiReporter.finished") == true
       sleep 0.1
     end
   
