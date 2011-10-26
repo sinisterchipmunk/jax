@@ -25,7 +25,7 @@ before_script:
 #   - command_2
 
 # Specify an ENV variable to run before: 'bundle install' and 'rake' (or your defined 'script')
-# env: "RAILS_ENV='test' "
+env: "DEBUG=1 "
 
 # Specify the recipients for email notification
 # notifications:
