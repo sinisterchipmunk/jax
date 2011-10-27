@@ -257,6 +257,10 @@ task :jasmine do
     driver.navigate.to "http://localhost:3000/jasmine"
     
     puts driver.title if ENV["DEBUG"]
+    if driver.title =~ /Exception/ # Rails exception occurred
+      puts driver.text
+      raise "Rails error occurred requesting jasmine specs"
+    end
   
     execjs = proc do |js|
       puts "eval js: #{js}" if ENV['DEBUG']
