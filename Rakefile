@@ -258,7 +258,7 @@ task :jasmine do
     
     puts driver.title if ENV["DEBUG"]
     if driver.title =~ /Exception/ # Rails exception occurred
-      puts driver.text
+      puts driver.page_source
       raise "Rails error occurred requesting jasmine specs"
     end
   
