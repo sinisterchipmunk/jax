@@ -222,7 +222,10 @@ end
 desc "Start the Jax dev server"
 task :server do
   require 'jax'
-  Jax::Commands.run 'server'
+  require 'jax/rails/application'
+  Jax::Rails::Application.initialize!
+  server = Jax::Server.new
+  server.start
 end
 
 desc "Run javascript tests using node.js"
@@ -249,7 +252,10 @@ task :jasmine do
     result = {}
     th = Thread.new do
       require 'jax'
-      server = Jax::Commands.run 'server', '--quiet'
+      require 'jax/rails/application'
+      Jax::Rails::Application.initialize!
+      server = Jax::Server.new("--quiet")
+      server.start
     end
   
     require 'selenium-webdriver'
@@ -292,7 +298,7 @@ task :jasmine do
     end_code
   ensure
     driver.quit
-    server.stop if server
+    # server.stop if server
   end
   
   passed = result["results"]["passed"].to_i

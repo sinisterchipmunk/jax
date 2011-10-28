@@ -2,6 +2,9 @@ require 'spec_helper'
 
 base_dir = File.expand_path '../..', File.dirname(__FILE__)
 
+class AppFailure < RuntimeError
+end
+
 describe 'bin/jax' do
   before :each do
     FileUtils.rm_rf File.join(base_dir, "tmp/jax-bin")
@@ -16,8 +19,14 @@ describe 'bin/jax' do
     if $?.success?
       result
     else
-      raise result
+      raise AppFailure, result
     end
+  end
+  
+  def subject_with_rescue
+    @subject ||= subject
+  rescue AppFailure => err
+    @subject = err.message
   end
   
   describe "in a rails application" do
@@ -36,13 +45,13 @@ describe 'bin/jax' do
     
     shared_examples_for 'rails app' do
       it "should give usage" do
-        subject.should =~ /Usage:/
+        subject_with_rescue.should =~ /Usage:/
       end
       
       it "should invoke `rails g jax` generator" do
         @args.push "generate"
-        subject.should =~ /You can invoke the following Jax generators:/
-        subject.should =~ /rails generate jax:controller/
+        subject_with_rescue.should =~ /You can invoke the following Jax generators:/
+        subject_with_rescue.should =~ /rails generate jax:controller/
       end
     end
     
@@ -59,19 +68,19 @@ describe 'bin/jax' do
   
   describe "in a jax application" do
     before(:each) do
-      FileUtils.mkdir_p "script"
-      FileUtils.touch "script/jax"
+      Jax::Generators::ApplicationGenerator.start ["test_app", "--skip-bundle"], :shell => GenSpec::Shell.new
+      FileUtils.chdir "test_app"
     end
     
     shared_examples_for 'jax app' do
       it "should give usage" do
-        subject.should =~ /Usage:/
+        subject_with_rescue.should =~ /Usage:/
       end
       
       it "should invoke `jax g` generator" do
         @args.push "generate"
-        subject.should =~ /You can invoke the following Jax generators:/
-        subject.should =~ /jax generate controller/
+        subject_with_rescue.should =~ /You can invoke the following Jax generators:/
+        subject_with_rescue.should =~ /jax generate controller/
       end
     end
     
@@ -87,8 +96,19 @@ describe 'bin/jax' do
   end
   
   describe 'not in any application' do
+    describe "creating a new jax app" do
+      before :each do
+        @args << 'new' << 'testapp' << '--skip-bundle'
+      end
+      
+      it "should create a new jax application" do
+        subject.should_not =~ /Not in a Jax or Rails application\./
+        subject.should =~ /create(\e\[0m|)\s*testapp/
+      end
+    end
+    
     it "should output a friendly help message" do
-      subject.should =~ /Not in a Jax or Rails application\./
+      subject_with_rescue.should =~ /Not in a Jax or Rails application\./
     end
   end
 end

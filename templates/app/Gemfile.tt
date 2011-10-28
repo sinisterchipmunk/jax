@@ -1,0 +1,8 @@
+source :gemcutter
+
+gem 'jax', '<%= Jax::Version::STRING %>'
+
+# Jax will generate files using CoffeeScript by default.
+# If you want to work in pure JavaScript, simply remove
+# this line:
+gem 'coffee-script'

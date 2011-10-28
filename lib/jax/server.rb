@@ -73,8 +73,8 @@ module Jax
     
     def middleware
       middlewares = []
-      middlewares << [Rails::Rack::LogTailer, log_path] unless options[:daemonize] || options[:quiet]
-      middlewares << [Rails::Rack::Debugger]  if options[:debugger]
+      middlewares << [::Rails::Rack::LogTailer, log_path] unless options[:daemonize] || options[:quiet]
+      middlewares << [::Rails::Rack::Debugger]  if options[:debugger]
       middlewares << [::Rack::ContentLength]
       Hash.new(middlewares)
     end

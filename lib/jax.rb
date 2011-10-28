@@ -12,6 +12,7 @@ module Jax
   autoload :ResourceFile, "jax/resource_file"
   autoload :Configuration, "jax/configuration"
   autoload :HelperMethods, "jax/helper_methods"
+  autoload :Server, "jax/server"
   
   module_function
   

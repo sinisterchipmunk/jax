@@ -4,8 +4,8 @@ require "thor"
 require "thor/group"
 
 begin
-  require "jax"
-  Jax::Commands.invoke!
+  require "jax/script_loader"
+  Jax::ScriptLoader.invoke!
 rescue LoadError
   puts "Couldn't find Jax!"
   puts "Try running `gem install jax` first."

@@ -10,7 +10,9 @@
   </script>
   
   <% @specs.each do |spec| %>
-    <%= javascript_include_tag url_for(:id => spec, :action => 'spec') %>
+    <%# javascript_include_tag insists on looking for this in assets! %>
+    <%#= javascript_include_tag url_for(:id => spec, :action => 'spec') %>
+    <script src="<%= url_for(:id => spec, :action => 'spec') %>" type="text/javascript"></script>
   <% end %>
 <% end %>
 

@@ -12,7 +12,8 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
 
-  s.add_dependency 'railties',       '~> 3.1.0'
+  s.add_dependency 'rails',          '~> 3.1.0'
+  s.add_dependency 'jquery-rails',   '~> 1.0.13'
   s.add_dependency 'jasmine',        '~> 1.0.2.0'
   s.add_dependency 'rest-client',    '~> 1.6.3'
   s.add_dependency 'minitar',        '~> 0.5.3'
@@ -21,13 +22,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec',          '~> 2.6.0'
   # see Gemfile
   # s.add_development_dependency 'rspec-isolation','~> 0.1.1'
-  s.add_development_dependency 'rails',          '~> 3.1.0'
   s.add_development_dependency 'coffee-rails',   '~> 3.1.0'
   s.add_development_dependency 'coderay',        '~> 0.9.7'
   s.add_development_dependency 'sqlite3',        '~> 1.3.4'
   s.add_development_dependency 'sass-rails',     '~> 3.1.0'
   s.add_development_dependency 'uglifier',       '~> 1.0.2'
-  s.add_development_dependency 'jquery-rails',   '~> 1.0.13'
   s.add_development_dependency 'genspec',        '~> 0.2.0'
   s.add_development_dependency 'selenium-webdriver', '~> 2.9.1'
   

@@ -1,85 +1,46 @@
+# Required by script/jax in a Jax (non-Rails) project.
+require 'jax'
+
 module Jax
   module Commands
     class << self
-      COMMANDS = [ 'server', 'generate' ]
-      
-      def invoke!
-        @rails_or_jax = recursively_find_path("script/rails") || recursively_find_path("script/jax")
-        if @rails_or_jax
-          return run *ARGV
-        end
-
-        friendly_help_message
-      end
-
-      def command?(name)
-        COMMANDS.include?(name)
-      end
-      
-      def friendly_help_message
-        puts "Not in a Jax or Rails application."
-        puts "Try `jax new [app-name]` or `rails new [app-name]` instead."
-      end
-      
-      def run(name = nil, *args)
-        case name
-          when 'server'
-            require 'jax'
-            require 'jax/rails/application'
-            require 'jax/server'
-
-            Jax::Rails::Application.initialize!
-            app = Jax::Server.new(*args)
-            app.start
+      def invoke!(*args)
+        case command = args.shift
           when 'g', 'generate'
-            if @rails_or_jax =~ /\/rails$/
-              if args.length > 0
-                ruby @rails_or_jax, "generate", "jax:#{args.shift}", *args
-              else
-                ruby @rails_or_jax, "generate", "jax"
-              end
-            else
-              require 'active_support/core_ext'
-              require 'rails/generators'
-              def (Rails::Generators::Base).banner
-                "jax generate #{namespace.sub(/^jax:/,'')} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]".gsub(/\s+/, ' ')
-              end
-              if args.length > 0
-                Rails::Generators.invoke "jax:#{args.shift}", args
-              else
-                Rails::Generators.invoke "jax", args
-              end
+            require 'active_support/core_ext'
+            require 'rails/generators'
+            def (Rails::Generators::Base).banner
+             "jax generate #{namespace.sub(/^jax:/,'')} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]".gsub(/\s+/, ' ')
             end
-          when NilClass
+
+            Rails::Generators.invoke args.shift, args
+          when 'server'
+            Jax::Server.new(*args).tap do |server|
+              require APP_PATH
+              Dir.chdir(::Rails.application.root)
+              server.start
+            end
+          when NilClass # no args given
             usage
           else
-            raise "Unrecognized command: #{name.inspect}"
+            raise ArgumentError, "Command not recognized: #{command.inspect}"
         end
       end
       
       def usage
-        puts "Usage:\n"
-        puts "  jax server"
-        puts "  jax generate GENERATOR_NAME"
+        puts "Usage:"
+        puts "  jax server        - start development server"
+        puts "  jax generate      - list all available generators"
+        puts "  jax generate NAME - invoke a generator"
         puts
       end
-      
-      def recursively_find_path(relative_path, path = File.expand_path("."))
-        full_path = File.join(path, relative_path)
-        if File.file?(full_path)
-          full_path
-        else
-          new_path = File.dirname(path)
-          return false if new_path == path # root
-          recursively_find_path relative_path, new_path
-        end
-      end
-
-      def ruby(*args)
-        ruby = File.join(*RbConfig::CONFIG.values_at("bindir", "ruby_install_name")) + RbConfig::CONFIG["EXEEXT"]
-        exec [ ruby, *args ].join(" ")
-      end
-
     end
   end
 end
+
+begin
+  Jax::Commands.invoke! *ARGV
+rescue ArgumentError => err
+  puts err.message
+end
+
