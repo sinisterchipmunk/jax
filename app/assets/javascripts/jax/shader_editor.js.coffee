@@ -36,6 +36,7 @@ setup_preview = ->
 
 $(document).ready ->
   for material_name in Jax.Material.all()
+    alert material_name
     $("#material-list").append material(material_name)
     
   setup_preview()

@@ -10,7 +10,7 @@ describe "'<%=file_name%>' shader", ->
       expect(-> mesh.render(SPEC_CONTEXT)).not.toThrow()
   
   describe "as a layer", ->
-    beforeEach -> mesh.material = new Jax.Material(layers: [{type: "<%=class_name%>"}])
+    beforeEach -> mesh.material = new Jax.Material layers: [ type: "<%=class_name%>" ]
     
     it "should render without error", ->
       expect(-> mesh.render(SPEC_CONTEXT)).not.toThrow()

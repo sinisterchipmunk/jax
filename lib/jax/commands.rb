@@ -7,13 +7,16 @@ module Jax
       def invoke!(*args)
         case command = args.shift
           when 'g', 'generate'
-            require 'active_support/core_ext'
+            require APP_PATH
             require 'rails/generators'
-            def (Rails::Generators::Base).banner
+            Dir.chdir(::Rails.application.root)
+            
+            def (::Rails::Generators::Base).banner
              "jax generate #{namespace.sub(/^jax:/,'')} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]".gsub(/\s+/, ' ')
             end
 
-            Rails::Generators.invoke args.shift, args
+            ::Rails.application.initialize!
+            ::Rails::Generators.invoke args.shift, args
           when 'server'
             Jax::Server.new(*args).tap do |server|
               require APP_PATH

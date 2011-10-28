@@ -12,10 +12,6 @@ module Jax
 
       def self.included(base)
         base.class_eval do
-          def self.source_root
-            @source_root ||= File.expand_path("../../../../templates", File.dirname(__FILE__))
-          end
-
           class_option :without_coffeescript, :type => :boolean, :aliases => "-j", :default => false,
                        :desc => "Indicates whether to generate pure JavaScript instead of CoffeeScript"
         end
