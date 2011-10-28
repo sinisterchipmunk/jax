@@ -46,7 +46,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "jax"
 
   # Don't include stuff used to build & document jax, the dist file is already built.
-  useless_files = `git ls-files -- public/* guides/* vendor/* src/* dist/* spec/example_app/* spec/*.js`.split("\n")
+  useless_files = `git ls-files -- public/* guides/*`.split("\n")
   
   s.files         = `git ls-files`.split("\n") - useless_files
 #                    `git ls-files -- spec/example_app/* public/images/*`.split("\n")
