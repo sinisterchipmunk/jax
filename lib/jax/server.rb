@@ -4,7 +4,7 @@ module Jax
   # The server is just a bare-bones Rails application built into the Jax gem.
   # It mounts Jax::Engine at the root path.
   #
-  # The server can be run from any non-Rails Jax application by simply executing
+  # The server can be run from any Jax application by simply executing
   # the `jax server` command.
   #
   # Note: in a Rails app, you should simply mount Jax::Engine directly in your
@@ -22,7 +22,8 @@ module Jax
   # suite. You get the Jax assets (e.g. the Jax JavaScript API) for free when you
   # add Jax to your Gemfile.
   #
-  # TODO make `jax server` runnable from Rails apps.
+  # Executing `jax server` in a Rails application is equivalent to executing
+  # `rails server`.
   #
   class Server < ::Rails::Server
     class Options

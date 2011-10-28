@@ -3,16 +3,16 @@ require 'jquery/rails'
 require 'jax/engine'
 
 module Jax
-  autoload :Version, "jax/version"
-  autoload :VERSION, "jax/version"
-  autoload :Generators, "generators/jax/all"
-  autoload :Commands, "jax/commands"
+  autoload :Commands,           "jax/commands"
+  autoload :Configuration,      "jax/configuration"
   autoload :DirectiveProcessor, "jax/directive_processor"
-  autoload :Shader, "jax/shader"
-  autoload :ResourceFile, "jax/resource_file"
-  autoload :Configuration, "jax/configuration"
-  autoload :HelperMethods, "jax/helper_methods"
-  autoload :Server, "jax/server"
+  autoload :Generators,         "generators/jax/all"
+  autoload :HelperMethods,      "jax/helper_methods"
+  autoload :ResourceFile,       "jax/resource_file"
+  autoload :Server,             "jax/server"
+  autoload :Shader,             "jax/shader"
+  autoload :Version,            "jax/version"
+  autoload :VERSION,            "jax/version"
   
   module_function
   
