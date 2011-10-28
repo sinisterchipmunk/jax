@@ -6,8 +6,16 @@ module Jax
     class ApplicationGenerator < Jax::Generators::NamedBase
       class_option :skip_bundle, :type => :boolean, :default => false, :desc => "Don't run bundle install"
       
-      def create_application
+      def generate_application
         directory "app", file_name
+      end
+      
+      def create_jax_application_controller
+        coffee_template_with_fallback "application_controller.js", 'app/assets/jax/controllers/application_controller.js'
+      end
+
+      def create_jax_application_helper
+        coffee_template_with_fallback "application_helper.js", 'app/assets/jax/helpers/application_helper.js'
       end
       
       def run_bundle

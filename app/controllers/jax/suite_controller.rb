@@ -21,18 +21,20 @@ class Jax::SuiteController < ActionController::Base
   end
   
   def helpers
-    collect_spec_files_matching /_helper\.js$/
+    collect_spec_files_matching /_helper\./
   end
   
   def specs
-    collect_spec_files_matching /([sS]pec|[tT]est).js$/
+    collect_spec_files_matching /([sS]pec|[tT]est)\./
   end
   
   def collect_spec_files_matching(pattern)
     [].tap do |files|
       Jax.config.specs.each_file do |file|
         file = Jax.config.specs.attributes_for(file).logical_path
-        files << file if file =~ pattern
+        if file =~ pattern
+          files << file
+        end
       end
     end
   end

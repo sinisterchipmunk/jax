@@ -15,13 +15,11 @@ DESC
       end
       
       def create_jax_application_controller
-        coffee_template_with_fallback "application_controller.js",
-          File.join('app/assets/jax/controllers/application_controller.js')
+        coffee_template_with_fallback "application_controller.js", 'app/assets/jax/controllers/application_controller.js'
       end
 
       def create_jax_application_helper
-        coffee_template_with_fallback "application_helper.js",
-          File.join('app/assets/jax/helpers/application_helper.js')
+        coffee_template_with_fallback "application_helper.js", 'app/assets/jax/helpers/application_helper.js'
       end
     end
   end

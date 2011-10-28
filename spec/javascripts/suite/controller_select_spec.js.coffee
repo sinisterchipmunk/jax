@@ -7,9 +7,8 @@ describe "The select box in the dev suite runtime", ->
   beforeEach ->
     Jax.routes.clear()
     Jax.views.push 'welcome/index', -> 1
-    Jax.routes.map "Welcome", Jax.Controller.create "Welcome",
-      index: -> 1
-    select = document.createElement("select")
+    Jax.Controller.create "Welcome", index: -> 1
+    select = document.createElement "select"
     _controller_select_fill select
   
   it "should contain the 'Welcome' controller", ->
