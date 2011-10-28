@@ -15,4 +15,4 @@ rvm:
 # before_script:
 #   - sh -e /etc/init.d/xvfb start
 
-# env: "SKIP_WEBGL=1 "
+env: "SKIP_WEBGL=1 "
