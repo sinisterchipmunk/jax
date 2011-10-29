@@ -1,8 +1,8 @@
-describe("<%=class_name%>Helper", function() {
+describe("<%= camelized_helper_name %>", function() {
   var helper;
   
   beforeEach(function() {
-    var klass = Jax.Class.create({ helpers: [ <%=class_name%>Helper ] });
+    var klass = Jax.Class.create({ helpers: [ <%= camelized_helper_name %> ] });
     helper = new klass();
   });
 
