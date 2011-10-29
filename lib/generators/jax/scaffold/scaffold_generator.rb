@@ -7,19 +7,19 @@ module Jax
       rails_equivalent { 'scaffold' }
       
       def invoke_model_generator
-        ::Rails::Generators.invoke "jax:model", [name, *attributes, *option_args],
+        ::Rails::Generators.invoke "jax:model", [name] + attributes + option_args,
                                    :destination_root => destination_root,
                                    :shell => shell
       end
       
       def invoke_controller_generator
-        ::Rails::Generators.invoke "jax:controller", [name, *option_args],
+        ::Rails::Generators.invoke "jax:controller", [name] + option_args,
                                    :destination_root => destination_root,
                                    :shell => shell
       end
       
       def invoke_material_generator
-        ::Rails::Generators.invoke "jax:material", [name, *option_args],
+        ::Rails::Generators.invoke "jax:material", [name] + option_args,
                                    :destination_root => destination_root,
                                    :shell => shell
       end
