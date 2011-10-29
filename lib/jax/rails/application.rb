@@ -17,6 +17,14 @@ module Jax
       config.assets.version = '1.0'
       config.assets.debug = true
       config.assets.digest = false
+      
+      # this excludes geometry/triangle/inliner.rb and all jax/**/manifest.yml files
+      original = config.assets.precompile[0]
+      config.assets.precompile[0] = Proc.new do |path|
+        original.call(path) and
+        path !~ /(jax|shaders)[\\\/].*manifest\.yml/ and
+        path !~ /geometry[\\\/]triangle[\\\/]inliner\.rb$/
+      end
 
       routes do
         mount Jax::Engine => "/", :as => "jax"
