@@ -6,9 +6,8 @@ module Jax
   module ScriptLoader
     class << self
       def invoke!
-        @rails_or_jax = recursively_find_path("script/rails") || recursively_find_path("script/jax")
-        if @rails_or_jax
-          if ARGV[0] && ARGV[0][/^(g|generate)$/]
+        if rails_or_jax = recursively_find_path("script/rails") || recursively_find_path("script/jax")
+          if ARGV[0] && ARGV[0][/^(g|generate|destroy)$/]
             if ARGV.length > 1
               ARGV[1] = "jax:#{ARGV[1]}"
             else
@@ -16,7 +15,7 @@ module Jax
             end
           end
           
-          ruby @rails_or_jax, *ARGV
+          ruby rails_or_jax, *ARGV
         end
 
         if ARGV.shift == 'new'

@@ -55,6 +55,13 @@ describe 'bin/jax' do
       end
     end
     
+    it "should revoke generators with destroy" do
+      @args.push "destroy", "controller", "welcome"
+      subject.should     match(/remove/)
+      subject.should_not match(/app\/views\/jax\/welcome/)
+      subject.should     match(/app\/assets\/jax\/controllers\/welcome_controller.js.coffee/)
+    end
+    
     it_should_behave_like 'rails app'
     
     describe "subdirectory" do
@@ -82,6 +89,13 @@ describe 'bin/jax' do
         subject_with_rescue.should =~ /You can invoke the following Jax generators:/
         subject_with_rescue.should =~ /jax generate controller/
       end
+    end
+      
+    it "should revoke generators with destroy" do
+      @args.push "destroy", "controller", "welcome"
+      subject.should     match(/remove/)
+      subject.should_not match(/app\/views\/jax\/welcome/)
+      subject.should     match(/app\/assets\/jax\/controllers\/welcome_controller.js.coffee/)
     end
     
     it_should_behave_like 'jax app'

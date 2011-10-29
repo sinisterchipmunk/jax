@@ -4,19 +4,37 @@ require 'jax'
 module Jax
   module Commands
     class << self
+      def setup_generator_invocation
+        require APP_PATH
+        require 'rails/generators'
+        Dir.chdir(::Rails.application.root)
+        
+        def (::Rails::Generators::Base).banner
+         "jax generate #{namespace.sub(/^jax:/,'')} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]".gsub(/\s+/, ' ')
+        end
+
+        ::Rails.application.initialize!
+      end
+      
+      def invoke_jax_generator(name, args, options = {})
+        ::Rails::Generators.invoke name, args, options
+      end
+      
       def invoke!(*args)
         case command = args.shift
+          when 'package'
+            puts "The `jax package` command has been deprecated."
+            puts
+            puts "Please run this command instead:"
+            puts
+            puts "    rake assets:precompile"
+            puts
           when 'g', 'generate'
-            require APP_PATH
-            require 'rails/generators'
-            Dir.chdir(::Rails.application.root)
-            
-            def (::Rails::Generators::Base).banner
-             "jax generate #{namespace.sub(/^jax:/,'')} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]".gsub(/\s+/, ' ')
-            end
-
-            ::Rails.application.initialize!
-            ::Rails::Generators.invoke args.shift, args
+            setup_generator_invocation
+            invoke_jax_generator args.shift, args
+          when 'destroy'
+            setup_generator_invocation
+            invoke_jax_generator args.shift, args, :behavior => :revoke
           when 'server'
             Jax::Server.new(*args).tap do |server|
               require APP_PATH
@@ -31,6 +49,8 @@ module Jax
       end
       
       def usage
+        puts "Jax version #{Jax::Version::STRING}"
+        puts
         puts "Usage:"
         puts "  jax server        - start development server"
         puts "  jax generate      - list all available generators"
