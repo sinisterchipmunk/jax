@@ -18,11 +18,11 @@ module Jax
       config.assets.debug = true
       config.assets.digest = false
       
-      # this excludes geometry/triangle/inliner.rb and all jax/**/manifest.yml files
+      # this excludes geometry/triangle/inliner.rb and all {jax,shaders}/**/manifest.yml files
       original = config.assets.precompile[0]
       config.assets.precompile[0] = Proc.new do |path|
-        original.call(path) and
-        path !~ /(jax|shaders)[\\\/].*manifest\.yml/ and
+        original.call(path)                                  and
+        path !~ /(jax|shaders)[\\\/].*manifest\.yml/         and
         path !~ /geometry[\\\/]triangle[\\\/]inliner\.rb$/
       end
 

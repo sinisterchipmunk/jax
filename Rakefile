@@ -153,7 +153,7 @@ namespace :doc do
     @hide_links_to_api_docs = true
     header = ERB.new(File.read(File.expand_path("guides/partials/_top_nav.html.erb", File.dirname(__FILE__)))).result(binding)
     PDoc.run({
-      :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/glmatrix/glMatrix.js'] +
+      :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/glMatrix.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
                         Dir['lib/assets/javascripts/jax/**/*.js']),
       :destination  => "doc",

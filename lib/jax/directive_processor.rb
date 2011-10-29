@@ -17,17 +17,19 @@ module Jax
       end
     end
     
+    def depend_on_all_files_in(path)
+      context.depend_on path
+      Dir.glob(File.join path, "**/*") do |full_path|
+        context.depend_on full_path
+      end
+    end
+    
     def process_require_everything_matching_directive(subpath)
       # depend on any base subpath directories that may exist
       # this should pick up any new shaders as they are added to app
       context.environment.paths.each do |base_path|
         path = File.join base_path, subpath
-        if File.directory? path
-          context.depend_on path
-        elsif File.directory?(base_path) && base_path =~ /\/jax\/?$/
-          # depend on app/assets/jax, lib/assets/jax, etc.
-          context.depend_on base_path
-        end
+        depend_on_all_files_in path if File.directory? path
       end
       
       files = []
