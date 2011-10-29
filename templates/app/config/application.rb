@@ -12,4 +12,5 @@ require 'jax/rails/application'
 
 class Jax::Rails::Application < ::Rails::Application
   config.root = File.expand_path("..", File.dirname(__FILE__))
+  config.assets.cache_store = [:file_store, File.expand_path("../tmp/cache/assets", File.dirname(__FILE__))]
 end
