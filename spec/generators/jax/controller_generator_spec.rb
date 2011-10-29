@@ -68,6 +68,14 @@ describe "jax:controller" do
 
   # ===
 
+  with_arguments 'welcome' do
+    it "should generate a default index action" do
+      subject.should generate("app/assets/jax/controllers/welcome_controller.js.coffee") { |c|
+        c.should match(/\s+index:/)
+      }
+    end
+  end
+
   with_arguments 'welcome', 'index', 'other' do
     it_should_behave_like "generator with coffee"
     

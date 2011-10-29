@@ -4,7 +4,13 @@ module Jax
   module Generators
     class ControllerGenerator < Jax::Generators::RailsBase
       argument :actions, :type => :array, :default => [], :banner => "action action"
+      class_option :without_index, :type => :boolean, :default => false,
+                   :desc => "skip the default 'index' action unless explicitly specified"
       rails_equivalent { "controller" }
+      
+      def add_index_action
+        actions.unshift 'index' unless actions.include?('index') or options[:without_index]
+      end
       
       def create_controller_file
         coffee_template_with_fallback "controller.js",
