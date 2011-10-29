@@ -19,7 +19,9 @@ module Jax
       end
       
       def prepend_lighting_shader
-        @shaders.unshift 'lighting' unless options[:skip_lighting] or shader_selected?('lighting')
+        unless options[:skip_lighting] or shader_selected?('lighting') or File.file?(relative_path)
+          @shaders.unshift 'lighting'
+        end
       end
       
       def create_resource_file
