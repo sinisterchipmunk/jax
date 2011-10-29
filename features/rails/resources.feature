@@ -29,3 +29,17 @@ Feature: Resources
       """
       "name":"Jennifer"
       """
+
+  Scenario: Add resource after first request
+    Given file "app/assets/jax/resources/people/default.resource" contains "name: Colin"
+    When I visit "/assets/jax/application.js"
+    Then I should see:
+      """
+      "name":"Colin"
+      """
+    When file "app/assets/jax/resources/people/jennifer.resource" contains "name: Jennifer"
+      And I visit "/assets/jax/application.js"
+    Then I should see:
+      """
+      "name":"Jennifer"
+      """
