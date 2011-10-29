@@ -1,7 +1,7 @@
 describe("<%=class_name%>", function() {
-  describe("defaults", function() {
-    var model;
+  var model;
 
+  describe("defaults", function() {
     beforeEach(function() { model = new <%=class_name%>(); });
     
     <%- attributes.each do |attr| -%>
