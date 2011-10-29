@@ -153,9 +153,9 @@ namespace :doc do
     @hide_links_to_api_docs = true
     header = ERB.new(File.read(File.expand_path("guides/partials/_top_nav.html.erb", File.dirname(__FILE__)))).result(binding)
     PDoc.run({
-      :source_files => (['src/jax.js', 'vendor/glmatrix/glMatrix.js'] +
+      :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/glmatrix/glMatrix.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
-                        Dir['src/jax/**/*.js']),
+                        Dir['lib/assets/javascripts/jax/**/*.js']),
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
@@ -325,4 +325,4 @@ desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
-task :default => ['spec', 'cucumber', 'travis', 'doc:check']
+task :default => ['spec', 'cucumber', 'travis', 'guides']
