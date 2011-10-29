@@ -4,6 +4,7 @@ module Jax
   module Generators
     class InstallGenerator < ::Rails::Generators::Base
       include Jax::Generators::CoffeeGenerator
+      extend  Jax::Generators::SourceRoot
 
       desc <<DESC
 Description:

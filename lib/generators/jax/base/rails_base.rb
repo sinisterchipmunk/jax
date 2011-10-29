@@ -10,7 +10,7 @@ module Jax
       end
       
       class_option :rails, :type => :boolean, :aliases => '-r', :default => false,
-                   :desc => "If true, the Rails model generator will be invoked also."
+                   :desc => "If true, the equivalent Rails generator will be invoked also."
     
       def initialize(args = [], options = {}, config = {})
         super
