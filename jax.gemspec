@@ -32,7 +32,6 @@ Gem::Specification.new do |s|
   
   s.add_development_dependency 'fakeweb',        '~> 1.3.0'
   s.add_development_dependency 'ansi'
-  s.add_development_dependency 'turn',           '~> 0.8.2'
   s.add_development_dependency 'cucumber-rails', '~> 1.0.2'
     
   # required by guides
