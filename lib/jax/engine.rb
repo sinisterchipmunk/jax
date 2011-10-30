@@ -14,14 +14,14 @@ module Jax
       config.action_view.javascript_expansions[:jax] ||= [ 'jax', 'jax/application' ]
     end
     
-    config.after_initialize do |app|
+    initializer 'jax.engine' do |app|
       app.config.assets.paths.unshift File.join(app.root, "app/assets/jax")
       app.config.assets.paths.unshift File.join(app.root, "lib/assets/jax")
       app.config.assets.paths.unshift File.join(app.root, "vendor/assets/jax")
 
       app.assets.register_engine '.resource', Jax::ResourceFile
       app.assets.register_engine '.glsl',     Jax::Shader
-      
+
       app.assets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
       app.assets.register_preprocessor   'application/javascript', Jax::DirectiveProcessor
     end
