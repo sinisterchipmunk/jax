@@ -1,185 +1,83 @@
-class Jax::Shader
-  # attr_reader :common, :fragment, :vertex
-  attr_accessor :name, :path, :exports, :manifest
-  
-  def initialize(path, name = File.basename(path))
-    @exports = {}
-    @name = name
-    @path = path
+require 'sprockets'
+
+module Jax
+  class Shader < Sprockets::DirectiveProcessor
+    def self.default_mime_type
+      "application/javascript"
+    end
+
+    def exports
+      @exports ||= {}
+    end
     
-    detect_sources
-  end
-  
-  def common
-    detect_sources # force reloads the latest sources
-    @common
-  end
-  
-  def fragment
-    detect_sources # force reloads the latest sources
-    @fragment
-  end
-  
-  def vertex
-    detect_sources # force reloads the latest sources
-    @vertex
-  end
-  
-  def description
-    manifest && manifest['description']
-  end
-  
-  def to_s
-    "Jax.shaders['#{name}'] = new Jax.Shader(#{js_options.gsub(/<%/, '<%')});"
-  end
-  
-  def default_options
-    manifest && manifest['options'] || {}
-  end
-  
-  def save_to(file_or_filename)
-    if file_or_filename.kind_of?(String)
-      File.open(filename, "w") { |f| f.puts to_s }
-    else file_or_filename.puts to_s
+    def process_require_directive(path)
+      super
+
+      # FIXME this is kind of a hacky solution to get function bodies included.
+      # Should shaders be rewritten entirely, including the JS APIs?
+      shader_name, shader_type = shader_type_and_name_for_path(path)
+        
+      str = "<%= Jax.import_shader_code(#{shader_name.inspect}, #{shader_type.inspect}) %>\n"
+      body.insert 0, str unless body[str]
     end
-  end
-  
-  class << self
-    def from(path)
-      raise ArgumentError, "Expected path to be a directory" unless File.directory? path
-      new(path)
-    end
-  end
-  
-  def common=(str)
-    @common = preprocess(str).inspect
-  end
-  
-  def fragment=(str)
-    @fragment = preprocess(str).inspect
-  end
-  
-  def vertex=(str)
-    @vertex = preprocess(str).inspect
-  end
-  
-  def preprocess(str)
-    include_dependencies str
-    intercept_export_directives str
-#    intercept_import_directives str
-#    prepend_export_definitions str
     
-    str
-  end
-  
-  private
-  def detect_sources
-    detect_ejs
-    detect_manifest
-  end
-  
-  def detect_manifest
-    if File.file?(file = File.join(path, "manifest.yml"))
-      yml = YAML::load(File.read(file))
-      @manifest = yml || {}
-    end
-  end
-  
-  def detect_ejs
-    %w(common fragment vertex).each do |name|
-      if File.file?(file = File.join(path, "#{name}.ejs"))
-        send("#{name}=", File.read(file))
-      end
-    end
-  end
-  
-  def intercept_import_directives(str)
-    str.gsub! /import\s*\(\s*([^\s]*)\s*\)/ do
-      export_name($~[1])
-    end
-  end
-  
-  def prepend_export_definitions(str)
-    exports.each do |name, export|
-      str.insert 0, "#{export[:type]} #{name};\n"
-    end
-  end
-  
-  def intercept_export_directives(str)
-    intercept_export_directives_with_assignment(str)
-    intercept_export_directives_without_assignment(str)
-  end
-  
-  def intercept_export_directives_without_assignment(str)
-    str.gsub! /export\s*\(\s*([^\s]*),\s*([^\s]*)\s*\);?/ do |match|
-      export $~[1], $~[2]
-      match # we'll do the rest on the JS side
-    end
-  end
-  
-  def intercept_export_directives_with_assignment(str)
-    str.gsub! /export\s*\(\s*([^\s]*),\s*([^\s]*),\s*([^\s]*)\s*\);?/ do |match|
-      export $~[1], $~[2], $~[3]
-      match # we'll do the rest on the JS side
-    end
-  end
-  
-  def export(type, name, value = name)
-    exports[name] ||= { :type => type, :value => value }
-    "#{exported_name(name)} = #{value};"
-  end
-  
-  def include_dependencies(str)
-    # look for Sprockets-style require directives
-    str.gsub! /\/\/=\s*require\s*['"]([^'"]*)['"]/m do |sub|
-      filename = $~[1]
-      found = false
-      paths = Jax.shader_load_paths
-      result = nil
-      for path in paths
-        if File.file?(real = File.join(path, "#{filename}.ejs"))
-          found = true
-          macro_name = "dependency_#{filename}".underscore.gsub(/[^a-zA-Z0-9_]/, '_')
-          result = <<-end_code
-          #ifndef #{macro_name}
-          #define #{macro_name}
+    def evaluate(context, locals, &block)
+      body = super
+      body = process_exports(body)
       
-          #{File.read(real)}
-          #endif
-          end_code
-          break
+      shader_name, shader_type = shader_type_and_name_for_path
+      
+      result = "Jax.shader_data(#{shader_name.inspect})[#{shader_type.inspect}] = #{body.inspect};\n"
+      unless exports.empty?
+        exports_var = "Jax.shader_data(#{shader_name.inspect})[\"exports\"]"
+        exports_str   = "#{exports_var} = #{exports_var} || {};\n"
+        exports.each do |name, type|
+          exports_str+= "#{exports_var}[#{name.inspect}] = #{type.inspect};\n"
         end
+        result.insert 0, exports_str
       end
-      
-      raise "Required file '#{filename}.ejs' not found in load paths #{paths.inspect} for shader '#{name}'!" if !found
       result
     end
-  end
-  
-  def exported_name(name)
-    "_#{self.name}_#{name}"
-  end
-  
-  def export_keys_as_js
-    "{" + exports.collect { |key,value| export_descriptor(key, value) }.join(",") + "}"
-  end
-  
-  def export_descriptor(name, info)
-    "#{name.to_s.inspect}:#{info[:type].to_s.inspect}"
-  end
-  
-  def js_options
-    result = "{"
-    %w(common fragment vertex).each do |segment|
-      data = send segment
-      if data
-        result += "  #{segment}:#{data},\n"
+    
+    def process_exports(body, rx = nil)
+      if rx
+        body.scan(rx).uniq.each do |export|
+          # scan gets us mostly there, but we still need the arguments.
+          export =~ rx
+          type  = $~[1]
+          name  = $~[2]
+          value = $~[3]
+          exports[name] = type
+          # we may use type later, when we start actively generating the export code.
+          # Currently, that's done in JS.
+        end
+        body
+      else
+        process_exports_without_assignment(process_exports_with_assignment(body))
       end
     end
-    result += "exports: #{export_keys_as_js},\n"
-    result += "name: #{name.inspect}"
-    result += "}"
     
-    result
+    def process_exports_without_assignment(body)
+      process_exports body, /export\s*\(\s*([^\s]*),\s*([^\s]*)\s*\);?/
+    end
+    
+    def process_exports_with_assignment(body)
+      process_exports body, /export\s*\(\s*([^\s]*),\s*([^\s]*),\s*([^\)]*)\);?/
+    end
+    
+    def shader_type_and_name_for_path(path = nil)
+      if path.nil?
+        logical_path = context.logical_path
+      else
+        logical_path = context.environment.attributes_for(context.resolve path).logical_path
+      end
+      shader_name = File.basename(File.dirname(logical_path))
+      shader_type = File.basename(logical_path)
+      if (shader_type =~ /\.[^\.]+$/)
+        shader_type = $`
+      end
+      
+      [shader_name, shader_type]
+    end
   end
 end

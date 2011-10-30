@@ -1,3 +1,5 @@
+var jsApiReporter;
+
 function setupJaxTestEnvironment() {
   var jasmineEnv = jasmine.getEnv();
 
@@ -25,7 +27,8 @@ function setupJaxSpecContext() {
   canvas.setAttribute("width", 600);
   canvas.setAttribute("height", 400);
   canvas.setAttribute("id", "spec-canvas");
-  canvas.style.display = "none";
+  if (canvas.style)
+    canvas.style.display = "none";
   document.body.appendChild(canvas);
   
   beforeEach(function() {
@@ -37,5 +40,7 @@ function setupJaxSpecContext() {
   })
 }
 
-if (typeof(global) != 'undefined')
+if (typeof(global) != 'undefined') {
+  global.setupJaxTestEnvironment = setupJaxTestEnvironment;
   global.setupJaxSpecContext = setupJaxSpecContext;
+}

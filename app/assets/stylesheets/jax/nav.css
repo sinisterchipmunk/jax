@@ -1,0 +1,35 @@
+#nav {
+  display: block;
+}
+
+#nav ul {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 1em;
+}
+
+#nav li {
+  padding-top: 0.5em;
+  padding-bottom: 0.25em;
+  padding-left: 1em;
+  padding-right: 1em;
+  position: relative;
+  
+  margin-right: 0px;
+  margin-bottom: 0;
+  display: inline;
+  font-size: 12pt;
+  
+  border: 1px outset #000;
+  background-color: #66d;
+  color: #fff;
+}
+
+#nav li:hover {
+  background-color: #99f;
+}
+
+#nav li.selected {
+  background-color: #eef;
+  color: #000;
+}

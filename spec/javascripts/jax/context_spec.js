@@ -1,6 +1,31 @@
 describe("Jax.Context", function() {
   var context, canvas;
   
+  describe("root", function() {
+    beforeEach(function() {
+      Jax.routes.clear();
+      Jax.Controller.create("welcome", {index: function() { }});
+      Jax.views.push('welcome/index', function() { });
+      
+      canvas = document.createElement('canvas');
+      canvas.setAttribute("id", "c");
+      canvas.setAttribute("width", "100");
+      canvas.setAttribute("height", "100");
+      canvas.style.display = "none";
+      document.body.appendChild(canvas);
+    });
+    
+    afterEach(function() {
+      if (context) context.dispose();
+      document.body.removeChild(canvas);
+    });
+
+    it("should redirect to the root when given", function() {
+      context = new Jax.Context(canvas, {root: "welcome/index"});
+      expect(context.current_controller.getControllerName()).toEqual("welcome");
+    });
+  });
+  
   describe("errors", function() {
     beforeEach(function() {
       Jax.routes.clear();
@@ -25,14 +50,13 @@ describe("Jax.Context", function() {
 
         Jax.views.push('one/index', function() { });
         var one = Jax.Controller.create("one", {index:function() {throw new Error("my bad")}});
-        Jax.routes.root(one, "index");
       });
       
       afterEach(function() { Jax.routes.clear(); });
       
       it("should not redirect", function() {
         var href = document.location.pathname;
-        try { context = new Jax.Context(canvas, {alertErrors: false}); } catch(e) { }
+        try { context = new Jax.Context(canvas, {alertErrors: false, root: "one"}); } catch(e) { }
         expect(document.location.pathname).toEqual(href);
       });
     });
@@ -59,7 +83,6 @@ describe("Jax.Context", function() {
       it("should let ApplicationController process the error", function() {
         canvas.getContext = function() { return null; };
         context = new Jax.Context(canvas);
-        // expect(_error).not.toBeUndefined();
       });
     });
   });
@@ -201,7 +224,7 @@ describe("Jax.Context", function() {
         context.redirectTo("invalid");
         throw new Error("No error raised!");
       } catch(e) {
-        expect(e.toString()).toEqual("Error: Route not recognized: 'invalid'");
+        expect(e.toString()).toMatch("Route not recognized: 'invalid'");
       }
       // no reason to make this assertion here... and i'm not convinced
       // it matters, so long as rendering and updating stop; this is an
@@ -220,13 +243,13 @@ describe("Jax.Context", function() {
     
     beforeEach(function() {
       Jax.routes.clear();
-      Jax.routes.root(Jax.Controller.create("welcome", {index: function() { action_called++; }}), "index");
+      Jax.Controller.create("welcome", {index: function() { action_called++; }});
       Jax.views.push("welcome/index", function() {
         this.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         this.world.render();
         view_called++;
       });
-      context = new Jax.Context(SPEC_CONTEXT.canvas);
+      context = new Jax.Context(SPEC_CONTEXT.canvas, {root:"welcome"});
     });
     afterEach(function() { context.dispose(); });
   

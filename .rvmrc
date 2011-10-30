@@ -1,7 +1,6 @@
-rvm use --create --install 1.9.2@webgl 2>&1
+rvm use --create --install 1.9.2@jax-rails31 2>&1
 
-# Bundle is available, non-custom config.
-if command -v bundle >/dev/null && ! [ -e .bundle ] ; then
+if ! [ -e .bundle ] ; then
   bundle install
   mkdir .bundle
 fi

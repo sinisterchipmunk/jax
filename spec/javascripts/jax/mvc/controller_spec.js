@@ -2,6 +2,12 @@ describe("Jax.Controller", function() {
   var klass;
   var instance;
   
+  it("should map a default view", function() {
+    Jax.views.remove("welcome/index");
+    Jax.Controller.create("welcome", {});
+    expect(Jax.views.find("welcome/index")).not.toBeUndefined();
+  });
+  
   describe("with an update method", function() {
     var context;
     
@@ -38,7 +44,7 @@ describe("Jax.Controller", function() {
     });
     
     it("should map the route automatically", function() {
-      expect(function() { Jax.routes.recognize_route("welcome/index") }).not.toThrow();
+      expect(function() { Jax.routes.recognizeRoute("welcome/index") }).not.toThrow();
     });
   });
 

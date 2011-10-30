@@ -1,0 +1,23 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag 'jax/suite' %>
+  <%= stylesheet_link_tag 'jax/jquery-ui-1.8.16.custom.css' %>
+  <%= javascript_include_tag :jquery %>
+  <%= javascript_include_tag 'jax/jquery-ui-1.8.16.custom.min.js' %>
+  <%= javascript_include_tag 'jax/tabs' %>
+<% end %>
+
+<div id="jax-banner">
+  <span class="title">Jax Development Suite</span>
+  <span class="version">v<%= Jax::VERSION %></span>
+</div>
+
+<div class="tabs" style="width:800px;">
+  <ul>
+    <li data-content="<%= url_for(:action => 'jasmine') %>" class="selected">Test Suite</li>
+    <li data-content="<%= url_for(:action => 'run_webgl') %>">Run Application</li>
+    <li data-content="<%= url_for(:action => 'shader_editor') %>">Shader Editor</li>
+    <li data-content="http://guides.jaxgl.com">Guides &amp; Docs</li>
+  </ul>
+  
+  <iframe />
+</div>

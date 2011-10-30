@@ -1,0 +1,50 @@
+<% content_for :head do %>
+  <%= javascript_include_tag :jquery %>
+  <%= javascript_include_tag 'jax/runtime' %>
+  <%= javascript_include_tag 'jax/controller-select' %>
+  <%= stylesheet_link_tag 'jax/suite' %>
+  <%= stylesheet_link_tag 'jax/controller-select' %>
+<% end %>
+
+<div id="how-to-customize">
+  <p>
+  This is the default page loaded when Jax doesn't know where to find your real WebGL application.
+  You can continue using this page to test your JavaScript, or you can customize it
+  by adding the following code to <strong>config/initializers/jax.rb</strong>:
+  </p>
+
+  <div class="code">
+  Jax.config.webgl_start = "/path/to/start.html"
+
+  # Alternatively, you can use a routing hash like so:
+  #
+  #   Jax.config.webgl_start = {
+  #     :controller => "webgl",
+  #     :action => "index"
+  #   }
+  #
+  # You can also use a proc to defer the decision until runtime:
+  #
+  #   Jax.config.webgl_start = proc do
+  #     { :controller => "webgl", :action => "profile", :id => params[:id] }
+  #   end
+  #
+  </div>
+</div>
+
+<div class="help">
+  <a href="#" onclick="toggleCustomizationHelp();return false;">customize</a><br/>
+  <a href="#" onclick="window.location.reload(true);return false;">reload tab</a>
+
+  <select id="controller-select" size="15">
+    <!--
+    this list is populated by JS. It contains a selection of controllers for the user to test.
+    When an item is selected, it fires Jax.Controller#redirectTo(item).
+    -->
+  </select>
+</div>
+
+<canvas id="webgl" width="640" height="470">
+  Sorry, your browser doesn't support the &lt;canvas/&gt; tag. Please come back with a newer
+  browser.
+</canvas>

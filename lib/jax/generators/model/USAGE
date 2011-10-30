@@ -1,5 +1,0 @@
-Usage:
-  jax generate model NAME
-
-Generates a new model, a test file, and a default resource file for it.
-

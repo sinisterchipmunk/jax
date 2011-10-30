@@ -1,0 +1,14 @@
+canvas {
+  border: 1px inset #000;
+}
+
+div.help {
+  float: left;
+  text-align: left;
+  width: 150px;
+}
+
+div#how-to-customize {
+  text-align: left;
+  display: none;
+}

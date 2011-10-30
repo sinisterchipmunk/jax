@@ -1,4 +1,0 @@
-Usage:
-  jax generate plugin NAME
-
-Generates a new plugin with the specified name.

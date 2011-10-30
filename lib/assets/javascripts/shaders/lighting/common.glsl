@@ -1,0 +1,5 @@
+//= require "shaders/functions/lights"
+
+shared uniform bool LIGHTING_ENABLED;
+
+shared varying vec3 vLightDir;

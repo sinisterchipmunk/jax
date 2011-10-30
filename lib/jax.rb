@@ -1,46 +1,26 @@
-require "active_support/core_ext"
-require "rails/railtie"
-require File.expand_path("jax/core_ext/kernel", File.dirname(__FILE__))
-
-# Don't raise an error when we extend Jax::Engine or Jax::Application
-Rails::Railtie::ABSTRACT_RAILTIES << "Jax::Engine" << "Jax::Application"
-
-JAX_FRAMEWORK_ROOT = File.expand_path('.', File.dirname(__FILE__)) unless defined?(JAX_FRAMEWORK_ROOT)
+require 'rails'
+require 'jquery/rails'
+require 'jax/engine'
 
 module Jax
-  autoload :Engine,           "jax/engine"
-  autoload :Generators,       "jax/generators/commands"
-  autoload :VERSION,          "jax/version"
-  autoload :Version,          "jax/version"
-  autoload :Application,      "jax/application"
-  autoload :Packager,         "jax/packager"
-  autoload :ResourceCompiler, "jax/resource_compiler"
-  autoload :Routes,           "jax/routes"
-  autoload :Shader,           "jax/shader"
-  autoload :Plugin,           "jax/plugin"
+  autoload :Commands,           "jax/commands"
+  autoload :Configuration,      "jax/configuration"
+  autoload :DirectiveProcessor, "jax/directive_processor"
+  autoload :Generators,         "generators/jax/all"
+  autoload :HelperMethods,      "jax/helper_methods"
+  autoload :ResourceFile,       "jax/resource_file"
+  autoload :Server,             "jax/server"
+  autoload :Shader,             "jax/shader"
+  autoload :Version,            "jax/version"
+  autoload :VERSION,            "jax/version"
   
-  class << self
-    def application
-      @application ||= nil
-    end
-    
-    def application=(application)
-      @application = application
-    end
-    
-    def root
-      application && application.root
-    end
-    
-    def framework_root
-      JAX_FRAMEWORK_ROOT
-    end
-    
-    delegate :shader_load_paths, :javascript_load_paths, :plugin_repository_url, :default_plugin_repository_url,
-             :plugin_repository_url=, :to => :application
+  module_function
+  
+  def config
+    @config || reset_config!
   end
-end
-
-if defined?(APP_PATH) && Jax.application.nil?
-  require APP_PATH
+  
+  def reset_config!
+    @config = Jax::Configuration.new
+  end
 end

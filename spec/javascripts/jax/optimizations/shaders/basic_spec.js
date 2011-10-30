@@ -1,6 +1,6 @@
 describe("Opt: Basic shader", function() {
   var model;
-  var _tex = "/images/rss.png", _norm = "/images/normal_map.jpg";
+  var _tex = "/textures/rss.png", _norm = "/textures/normal_map.jpg";
   
   beforeEach(function() {
     model = new Jax.Model({mesh: new Jax.Mesh.Quad()});

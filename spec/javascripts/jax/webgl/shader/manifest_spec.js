@@ -1,6 +1,6 @@
 describe("Jax.Shader.Manifest", function() {
   var manifest;
-  var img = "/images/rss.png";
+  var img = "/textures/rss.png";
   
   beforeEach(function() {
     manifest = new Jax.Shader.Manifest();

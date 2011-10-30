@@ -1,0 +1,16 @@
+describe "'<%=file_name%>' shader", ->
+  material = mesh = null
+  
+  beforeEach -> mesh = new Jax.Mesh.Quad()
+  
+  describe "stand-alone", ->
+    beforeEach -> mesh.material = new Jax.Material.<%=class_name%>()
+    
+    it "should render without error", ->
+      expect(-> mesh.render(SPEC_CONTEXT)).not.toThrow()
+  
+  describe "as a layer", ->
+    beforeEach -> mesh.material = new Jax.Material layers: [ type: "<%=class_name%>" ]
+    
+    it "should render without error", ->
+      expect(-> mesh.render(SPEC_CONTEXT)).not.toThrow()

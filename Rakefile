@@ -1,7 +1,3 @@
-# used to flag auto-compile. Just makes my life easier.
-$JAX_DEVELOPMENT = true
-$JAX_RAKE = true
-
 begin
   require 'bundler'
   Bundler::GemHelper.install_tasks
@@ -10,19 +6,21 @@ rescue LoadError
   puts " *** You don't seem to have Bundler installed. ***"
   puts "     Please run the following command:"
   puts
-  puts "       gem install bundler --version=1.0.15"
+  puts "       gem install bundler"
   exit
-end
-
-DEPENDENCIES = %w(jasmine sprockets treetop bluecloth)
-DEPENDENCIES.each do |dep|
-  begin
-    require dep
-  rescue LoadError
+rescue Bundler::GemNotFound
+  # this runs recursively forever under jruby, so special case failure for that.
+  if ENV['NO_MORE_ATTEMPTS'] || RUBY_PLATFORM == "java"
+    raise
+  else
+    ENV['NO_MORE_ATTEMPTS'] = '1'
     system("bundle", "install")
     exec("bundle", "exec", "rake", *ARGV)
   end
 end
+
+require 'cucumber/rake/task'
+Cucumber::Rake::Task.new(:cucumber)
 
 # pdoc is a different beast because the released gem seems to be quite dated,
 # and is incompatible with Ruby 1.9.2. We'll grab the latest from git, instead.
@@ -37,15 +35,8 @@ rescue LoadError
   require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
 end
 
-load 'jasmine/tasks/jasmine.rake'
-require File.expand_path("lib/jax/monkeypatch/jasmine", File.dirname(__FILE__))
-
 require File.join(File.dirname(__FILE__), "lib/jax")
 JAX_ROOT = File.dirname(__FILE__)
-# put a dummy Application in place
-class Development < Jax::Application
-end
-
 
 desc "list all TODO items"
 task :todo do
@@ -79,51 +70,6 @@ task :flagged do
   Rake::Task['todo'].invoke
   Rake::Task['fixme'].invoke
   Rake::Task['hacks'].invoke
-end
-
-desc "compile Jax"
-task :compile do
-  # generate constants file
-  erb = ERB.new(File.read(File.join(File.dirname(__FILE__), "src/constants.yml.erb")))
-  File.open(File.join(File.dirname(__FILE__), "src/constants.yml"), "w") { |f| f.puts erb.result(binding) }
-  
-  secretary = Sprockets::Secretary.new(
-          :root => File.dirname(__FILE__),
-          :asset_root => "public",
-          :load_path => ["src"],
-          :source_files => ["src/jax.js", "builtin/**/*.js"]
-  )
-  jax_root = File.expand_path(File.dirname(__FILE__))
-  rm_rf File.join(jax_root, "dist")
-  mkdir_p File.join(jax_root, "dist")
-  secretary.concatenation.save_to File.join(jax_root, "dist/jax.js")
-  
-  mkdir_p File.join(jax_root, "tmp") unless File.directory?(File.join(jax_root, "tmp"))
-
-  # generate the built-in shaders for testing against (these are not added to the real jax dist because they are
-  # regenerated in the user's app)
-  rm File.join(jax_root, "tmp/shaders.js") if File.file?(File.join(jax_root, "tmp/shaders.js"))
-  File.open(File.join(jax_root, "tmp/shaders.js"), "w") do |f|
-    Jax.application.shaders.each { |shader| shader.save_to f }
-  end
-
-  puts "generated #{File.join(jax_root, "dist/jax.js")}"
-  
-  # make sure the app generator copies the correct jax
-  cp File.join(jax_root, "dist/jax.js"),
-     File.join(jax_root, "lib/jax/generators/app/templates/public/javascripts/jax.js")
-  
-  puts "(project built)"
-end
-
-desc "compile and minify Jax into dist/jax.js and dist/jax-min.js"
-task :minify => :compile do
-  puts "(minifying...)"
-  if system("java", "-jar", File.join(File.dirname(__FILE__), "vendor/yuicompressor-2.4.2.jar"), "dist/jax.js", "-o", "dist/jax-min.js")
-    puts "(done. saved to: dist/jax-min.js)"
-  else
-    puts "(Error while minifying!)"
-  end
 end
 
 ### HACK to add redcloth support to pdoc without changing pdoc itself
@@ -194,7 +140,8 @@ namespace :doc do
       end
     end
     
-    exit if errors
+    exit 1 if errors
+    puts "\e[32mdocumentation looks good\e[0m"
   end
   
   desc "build the Jax JavaScript documentation"
@@ -206,9 +153,9 @@ namespace :doc do
     @hide_links_to_api_docs = true
     header = ERB.new(File.read(File.expand_path("guides/partials/_top_nav.html.erb", File.dirname(__FILE__)))).result(binding)
     PDoc.run({
-      :source_files => (['src/jax.js', 'vendor/glmatrix/glMatrix.js'] +
+      :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/glMatrix.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
-                        Dir['src/jax/**/*.js']),
+                        Dir['lib/assets/javascripts/jax/**/*.js']),
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
@@ -264,46 +211,118 @@ namespace :guides do
   end
 end
 
+desc "Compile jax to tmp/jax.js"
+task :compile do
+  require 'jax'
+  require 'jax/rails/application'
+  Jax::Rails::Application.initialize!
+  ::Rails.application.assets['jax/application.js'].write_to("tmp/jax.js")
+end
+
+desc "Start the Jax dev server"
+task :server do
+  require 'jax'
+  require 'jax/rails/application'
+  Jax::Rails::Application.initialize!
+  server = Jax::Server.new
+  server.start
+end
+
 desc "Run javascript tests using node.js"
-task :node => :compile do
-  system("node", "spec/javascripts/node_helper.js")
-end
-
-FileUtils.rm_rf File.expand_path("spec/fixtures/tmp", File.dirname(__FILE__))
-require 'rake/testtask'
-desc "Run ruby tests using Test::Unit"
-# NOT WORKING due to isolation tests failing. Use test:isolated instead.
-Rake::TestTask.new("test_unit") do |t|
-  t.pattern = "{test,spec}/**/*_test.rb"
-  t.libs = ["./test", "./spec"].collect { |f| File.expand_path(f) }.select { |f| File.directory?(f) }
-#  t.verbose = true
-#  t.warning = true
-end
-
-namespace :test do
-  task :isolated do
-    dir = ENV["TEST_DIR"] || "**"
-    ruby = File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME'))
-    ENV['DO_NOT_ISOLATE'] = '1'
-    if ENV['TEST']
-      sh(ruby, '-Ispec', ENV['TEST'])
-    else
-      Dir["spec/#{dir}/*_test.rb"].each do |file|
-        next true if file.include?("fixtures")
-        sh(ruby, '-Ispec', File.expand_path(file, File.dirname(__FILE__)))
-      end
-    end
+task :node do
+  unless ENV['SKIP_COMPILE']
+    Rake::Task['compile'].invoke
+  end
+  
+  unless system("node_modules/jasmine-node/bin/jasmine-node", "spec/javascripts")
+    raise "node specs failed"
   end
 end
+
+desc "Run test suite using selenium under Travis-CI"
+task :travis do
+  ENV['DISPLAY'] = ':99.0'
+  Rake::Task['jasmine'].invoke unless ENV["SKIP_WEBGL"]
+end
+
+desc "Run jasmine specs in browser"
+task :jasmine do
+  begin
+    server = nil
+    result = {}
+    th = Thread.new do
+      require 'jax'
+      require 'jax/rails/application'
+      Jax::Rails::Application.initialize!
+      server = Jax::Server.new("--quiet")
+      server.start
+    end
   
+    require 'selenium-webdriver'
+    driver = Selenium::WebDriver.for :firefox
+    driver.navigate.to "http://localhost:3000/jasmine"
+    
+    puts driver.title if ENV["DEBUG"]
+    if driver.title =~ /Exception/ # Rails exception occurred
+      puts driver.page_source
+      raise "Rails error occurred requesting jasmine specs"
+    end
+  
+    execjs = proc do |js|
+      puts "eval js: #{js}" if ENV['DEBUG']
+      result = driver.execute_script js
+      puts "     =>  #{result.inspect}" if ENV['DEBUG']
+      result
+    end
+
+    until execjs.call("return jsApiReporter && jsApiReporter.finished") == true
+      sleep 0.1
+    end
+  
+    result = execjs.call(<<-end_code)
+    var result = jsApiReporter.results();
+    var failures = new Array();
+    var results = { };
+    for (var i in result) {
+      for (var j = 0; j < result[i].messages.length; j++) {
+        var msg = result[i].messages[j];
+        msg.toString = msg.toString();
+        msg.passed = msg.passed();
+        if (!msg.passed)
+          failures.push(msg);
+      }
+      results[result[i].result] = results[result[i].result] || 0;
+      results[result[i].result]++;
+    }
+    return { results: results, failure_messages: failures };
+    end_code
+  ensure
+    driver.quit
+    # server.stop if server
+  end
+  
+  passed = result["results"]["passed"].to_i
+  failed = result["results"]["failed"].to_i
+  total = passed + failed
+  puts "#{total} jasmine specs: #{passed} passed, #{failed} failed"
+  unless (failure_messages = result["failure_messages"]).empty?
+    failure_messages.each do |message|
+      puts message["message"]
+      puts
+      puts message["trace"]["stack"].split(/\n/).collect { |line|
+        line['@'] ? line.sub(/^.*\@/, '') : line }.reject { |line|
+        line['/jasmine.js?'] }.join("\n")
+    end
+    raise "jasmine specs failed"
+  end
+end
+
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
 
 # 'Guides' tasks & code borrowed from Railties.
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
-task :jasmine => :compile
-# task :build   => [:compile, :minify] # make sure to minify the JS code before going to release
-task :build => :compile
-
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
-task :default => ['test:isolated']#, :node]
+task :default => ['spec', 'cucumber', 'travis', 'guides']

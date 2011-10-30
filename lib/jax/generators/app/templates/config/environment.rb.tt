@@ -1,5 +1,0 @@
-# Load the Jax application
-require File.expand_path('application', File.dirname(__FILE__))
-
-# Initialize the Jax application
-<%= class_name %>.initialize!

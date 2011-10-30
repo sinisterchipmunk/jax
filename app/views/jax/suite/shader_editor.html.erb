@@ -1,0 +1,29 @@
+<% content_for :head do %>
+  <%= javascript_include_tag :jquery %>
+  <%#= javascript_include_tag 'edit_area/edit_area_full' %>
+  <%#= javascript_include_tag 'jax/edit_area' %>
+  <%= javascript_include_tag 'jax/shader_editor' %>
+  <%= stylesheet_link_tag "jax/shader_editor"%>
+<% end %>
+
+<!-- <div style="display:inline;">
+  <textarea id="example_1" style="height: 400px; width: 75%;" name="test_1">
+  </textarea>
+</div> -->
+
+<div id="material-list">
+  <!-- holds a list of materials, to be clicked on for editing/previewing -->
+</div>
+
+<div id="preview-div">
+  <select id="mesh">
+    <option value="Jax.Mesh.Cube">Jax.Mesh.Cube</option>
+    <option value="Jax.Mesh.Plane">Jax.Mesh.Plane</option>
+    <option value="Jax.Mesh.Quad">Jax.Mesh.Quad</option>
+    <option value="Jax.Mesh.Sphere" selected="selected">Jax.Mesh.Sphere</option>
+    <option value="Jax.Mesh.Teapot">Jax.Mesh.Teapot</option>
+    <option value="Jax.Mesh.Torus">Jax.Mesh.Torus</option>
+  </select><br/>
+
+  <canvas id="preview" width="300" height="300"></canvas>
+</div>

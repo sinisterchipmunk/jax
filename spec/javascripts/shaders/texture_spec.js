@@ -13,8 +13,8 @@ describe("Material segment 'texture'", function() {
       "shininess":30,
       "layers":[
         {"type":"Lighting"},
-        {"type":"Texture","path":"/images/rock.png","flip_y":false,"scale_x":1.0,"scale_y":1.0,"generate_mipmap":true,"min_filter":"GL_NEAREST","mag_filter":"GL_NEAREST","mipmap_hint":"GL_DONT_CARE","format":"GL_RGBA","data_type":"GL_UNSIGNED_BYTE","wrap_s":"GL_REPEAT","wrap_t":"GL_REPEAT","premultiply_alpha":false,"colorspace_conversion":true},
-        {"type":"NormalMap","path":"/images/rockNormal.png","flip_y":false,"scale_x":1.0,"scale_y":1.0,"generate_mipmap":true,"min_filter":"GL_NEAREST","mag_filter":"GL_NEAREST","mipmap_hint":"GL_DONT_CARE","format":"GL_RGBA","data_type":"GL_UNSIGNED_BYTE","wrap_s":"GL_REPEAT","wrap_t":"GL_REPEAT","premultiply_alpha":false,"colorspace_conversion":true}
+        {"type":"Texture","path":"/textures/rock.png","flip_y":false,"scale_x":1.0,"scale_y":1.0,"generate_mipmap":true,"min_filter":"GL_NEAREST","mag_filter":"GL_NEAREST","mipmap_hint":"GL_DONT_CARE","format":"GL_RGBA","data_type":"GL_UNSIGNED_BYTE","wrap_s":"GL_REPEAT","wrap_t":"GL_REPEAT","premultiply_alpha":false,"colorspace_conversion":true},
+        {"type":"NormalMap","path":"/textures/rockNormal.png","flip_y":false,"scale_x":1.0,"scale_y":1.0,"generate_mipmap":true,"min_filter":"GL_NEAREST","mag_filter":"GL_NEAREST","mipmap_hint":"GL_DONT_CARE","format":"GL_RGBA","data_type":"GL_UNSIGNED_BYTE","wrap_s":"GL_REPEAT","wrap_t":"GL_REPEAT","premultiply_alpha":false,"colorspace_conversion":true}
       ]
     });
     matr.layers[1].texture.image.width = matr.layers[1].texture.image.height = 256;
@@ -29,7 +29,7 @@ describe("Material segment 'texture'", function() {
   });
   
   it("should compile successfully", function() {
-    matr.addLayer(new Jax.Material.Texture(new Jax.Texture("/images/rss.png")));
+    matr.addLayer(new Jax.Material.Texture(new Jax.Texture("/textures/rss.png")));
     
     new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
     expect(matr.prepareShader).toHaveBeenCalled();

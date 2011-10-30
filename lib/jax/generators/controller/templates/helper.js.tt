@@ -1,3 +1,0 @@
-var <%=class_name%>Helper = Jax.Helper.create({
-
-});

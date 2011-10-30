@@ -1,0 +1,31 @@
+/*= require "jax/tabs" */
+/*= require "jax/runtime" */
+/*= require "jax/nav" */
+
+div#jax-banner {
+  margin-bottom: 2em;
+}
+
+div#jax-banner span.title {
+  color: red;
+  font-size: 22pt;
+}
+
+div#jax-banner span.version {
+  font-size: 8pt;
+}
+
+div.code {
+  white-space: pre;
+  font-family: monospace;
+}
+
+div.spacer {
+  clear: both;
+}
+
+div#content {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}

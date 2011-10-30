@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+# When you run the `jax` command line tool, it actually invokes this file
+# behind the scenes. It's equivalent to just executing this file directly.
+
+APP_PATH = File.expand_path('../../config/application',  __FILE__)
+require File.expand_path('../../config/boot',  __FILE__)
+require 'jax/commands'

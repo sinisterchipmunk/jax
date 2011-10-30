@@ -1,0 +1,12 @@
+describe("<%= camelized_helper_name %>", function() {
+  var helper;
+  
+  beforeEach(function() {
+    var klass = Jax.Class.create({ helpers: [ <%= camelized_helper_name %> ] });
+    helper = new klass();
+  });
+
+  // it("should sum 1+1", function() {
+  //   expect(helper.sum(1, 1)).toEqual(2);
+  // });
+});
