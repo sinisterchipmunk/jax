@@ -20,8 +20,6 @@ The guide also assumes you have the following software installed:
 * The "Ruby":http://ruby-lang.org language.
 * The "RubyGems":http://rubyforge.org/frs/?group_id=126 packaging system.
 
-NOTE: If you're a Ruby on Rails developer, you may want to take a look at the "Jax on Rails":jax_on_rails.html guide instead. It covers using Jax within a Rails project, while this guide focuses more on Jax as a stand-alone development studio.
-
 h3. What is Jax?
 
 Jax is a development framework for JavaScript-driven WebGL applications. It is designed to make WebGL application development easier by making assumptions about what every WebGL application must be capable of. For instance, every WebGL application must manage one or more WebGL Contexts. Jax completely automates this task.
@@ -60,6 +58,24 @@ Here's a screenshot of the finished dungeon scene:
 
 !images/getting_started/dungeon-complete.png(The Dungeon)!
 
+h4. Jax on Rails
+
+Setting up Jax within a Ruby on Rails application is slightly different from creating a new stand-alone Jax application. If you are using Ruby on Rails, please read this section! Otherwise, feel free to skip ahead to "Installing Jax":#installing-jax.
+
+Within your Rails +Gemfile+, add the following line:
+
+<ruby>
+gem "jax", "~> 2.0.0"
+</ruby>
+
+Then, run the following commands:
+
+<shell>
+# bundle install
+# rails generate jax:install
+</shell>
+
+At this point, Jax is ready to use! The remaining sections here detail how to set up a new stand-alone Jax application, so you can skip ahead to "Jax Lives!":#jax-lives.
 
 h4. Installing Jax
 
