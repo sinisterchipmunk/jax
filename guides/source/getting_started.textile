@@ -168,11 +168,11 @@ Make sure you're in the _Run Application_ area and refresh the page. You should 
 In order to add some color, you need to edit your +app/assets/jax/controllers/teapot_controller.js.coffee+ file. Inside of the +index+ function, where there is currently a comment that says, "Action body here", add the following CoffeeScript code:
 
 <js>
-  teapot = new Jax.Model
-    position: [0, 0, -5]
-    mesh: new Jax.Mesh.Teapot
-    
-  @world.addObject teapot
+teapot = new Jax.Model
+  position: [0, 0, -5]
+  mesh: new Jax.Mesh.Teapot
+  
+@world.addObject teapot
 </js>
 
 By default, Jax positions the camera at the origin at (0, 0, 0), looking along the negative Z axis. (This is in line with OpenGL and, more importantly, WebGL standards.)
@@ -584,14 +584,14 @@ For instance, if the user presses the "forward" key, but then simultaneously pre
 In your +app/assets/jax/controllers/teapot_controller.js.coffee+ file, add the private tracking variable to the top of the file. The first few lines of the controller should now look like this:
 
 <js>
-  movement = 
-    forward: 0
-    backward: 0
-    left: 0
-    right: 0
+movement = 
+  forward: 0
+  backward: 0
+  left: 0
+  right: 0
 
-  Jax.Controller.create "Teapot", ApplicationController,
-    # the rest of the controller code
+Jax.Controller.create "Teapot", ApplicationController,
+  # the rest of the controller code
 </js>
 
 With this variable in place, create two more actions for handling +key_pressed+ and +key_released+ events:
