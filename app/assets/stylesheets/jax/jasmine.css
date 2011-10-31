@@ -6,3 +6,11 @@
   white-space: pre-line;
   padding-top: 1em;
 }
+
+.jasmine_reporter {
+  margin-top: 1em;
+}
+
+.jasmine_reporter .banner {
+  border: 1px solid #bbb;
+}

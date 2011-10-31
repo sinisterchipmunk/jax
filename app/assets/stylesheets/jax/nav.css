@@ -1,5 +1,11 @@
 #nav {
   display: block;
+  background-color: #ccc;
+  border: 1px solid #999;
+  height: 1em;
+  padding: 0;
+  padding-left: 1in;
+  padding-right: 1in;
 }
 
 #nav ul {
@@ -18,15 +24,15 @@
   margin-right: 0px;
   margin-bottom: 0;
   display: inline;
-  font-size: 12pt;
+  font-size: 11pt;
   
-  border: 1px outset #000;
-  background-color: #66d;
+  border: 1px solid #999;
+  background-color: #ddd;
   color: #fff;
 }
 
 #nav li:hover {
-  background-color: #99f;
+  background-color: #eee;
 }
 
 #nav li.selected {

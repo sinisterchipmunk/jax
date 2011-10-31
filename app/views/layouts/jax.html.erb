@@ -4,7 +4,6 @@
     <title>Jax Development Suite</title>
     <%= javascript_include_tag 'jax/application' %>
     <%= javascript_include_tag :jquery %>
-    <%= javascript_include_tag 'jax/suite' %>
     <%= stylesheet_link_tag 'jax/suite' %>
 
     <%= yield :head %>
@@ -16,16 +15,25 @@
       <span class="version">v<%= Jax::VERSION %></span>
     </div>
 
-    <div id="content">
-      <div id="nav">
-        <ul>
-          <li data-content="<%= url_for(:action => 'jasmine') %>">Test Suite</li>
-          <li data-content="<%= url_for(:action => 'run_webgl') %>">Run Application</li>
-          <li data-content="<%= url_for(:action => 'shader_editor') %>">Materials</li>
-          <li data-content="http://guides.jaxgl.com">Guides &amp; Docs</li>
-        </ul>
+    <div id="nav">
+      <ul>
+        <li><%= link_to "Test Suite", :action => 'jasmine' %></li>
+        <li><%= link_to "Run Application", :action => "run_webgl" %></li>
+        <li><%= link_to "Materials", :action => "shader_editor" %></li>
+        <li><%= link_to "Guides & Docs", 'http://guides.jaxgl.com' %></li>
+      </ul>
+    </div>
+    
+    <% if !(content = yield(:below_nav).strip.html_safe).blank? %>
+      <div id="below-nav-row">
+        <div id="below-nav">
+          <div id="drop-arrow"></div>
+          <%= content %>
+        </div>
       </div>
+    <% end %>
 
+    <div id="content">
       <%= yield %>
     </div>
   </body>
