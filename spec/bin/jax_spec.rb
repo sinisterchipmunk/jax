@@ -35,7 +35,13 @@ describe 'bin/jax' do
       FileUtils.mkdir_p "config"
       File.open "config/application.rb", "w" do |f|
         f.puts "require 'rails/all'"
-        f.puts "class TmpApp < Rails::Application; end"
+        f.puts "class TmpApp < Rails::Application"
+        f.puts "  config.active_support.deprecation = :log"
+        f.puts "end"
+      end
+      File.open "config/environment.rb", "w" do |f|
+        f.puts "require File.expand_path('application', File.dirname(__FILE__))"
+        f.puts "::Rails.application.initialize!"
       end
       File.open "script/rails", "w" do |f|
         f.puts "APP_PATH = File.expand_path('../../config/application',  __FILE__)"
@@ -55,6 +61,11 @@ describe 'bin/jax' do
       end
     end
     
+    it "should invoke plugin manager" do
+      @args.push "plugin"
+      subject.should =~ /jax plugin install/
+    end
+      
     it "should revoke generators with destroy" do
       @args.push "destroy", "controller", "welcome"
       subject.should     match(/remove/)
@@ -90,6 +101,11 @@ describe 'bin/jax' do
         subject_with_rescue.should =~ /jax generate controller/
       end
     end
+    
+    it "should invoke plugin manager" do
+      @args.push "plugin"
+      subject.should =~ /jax plugin install/
+    end
       
     it "should revoke generators with destroy" do
       @args.push "destroy", "controller", "welcome"
@@ -121,6 +137,11 @@ describe 'bin/jax' do
       end
     end
     
+    it "should not invoke plugin manager" do
+      @args.push "plugin"
+      subject_with_rescue.should_not =~ /jax plugin install/
+    end
+      
     it "should output a friendly help message" do
       subject_with_rescue.should =~ /Not in a Jax or Rails application\./
     end
