@@ -297,7 +297,7 @@ task :jasmine do
     return { results: results, failure_messages: failures };
     end_code
   ensure
-    driver.quit
+    driver.quit if driver and driver.respond_to?(:quit)
     # server.stop if server
   end
   

@@ -9,7 +9,7 @@ module Jax::Plugin
       end
     end
 
-    def initialize(plugin_name)
+    def initialize(plugin_name = "")
       super()
       self[:name] = plugin_name
       defaults
