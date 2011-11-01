@@ -14,7 +14,7 @@ describe("Jax.Material", function() {
         "shininess":128,
         "layers":[
           {"type":"Texture","path":"/textures/rock.png","flip_y":false,"scale":1},
-          {"type":"NormalMap","path":"/textures/rockNormal.png","flip_y":false,"scale":1},
+          {"type":"NormalMap","path":"/textures/rock_normal.png","flip_y":false,"scale":1},
           {"type":"ShadowMap"},
           {"type":"Fog","algorithm":"EXP2","start":10.0,"end":100.0,"density":0.0015,
             color:{"red":1.0,"green":1.0,"blue":1.0,"alpha":1.0}}
