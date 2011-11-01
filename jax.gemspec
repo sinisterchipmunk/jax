@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'jquery-rails',   '~> 1.0.13'
   s.add_dependency 'jasmine',        '~> 1.0.2.0'
   s.add_dependency 'rest-client',    '~> 1.6.3'
-  s.add_dependency 'minitar',        '~> 0.5.3'
   
   # for the rails3 tests
   s.add_development_dependency 'rspec',          '~> 2.6.0'

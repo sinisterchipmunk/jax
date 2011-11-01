@@ -10,8 +10,7 @@ describe Jax::PluginManager do
   end
 
   def generate(*args)
-    Jax::PluginManager.start args, :shell => shell,
-                                                        :destination_root => ::Rails.application.root
+    Jax::PluginManager.start args, :shell => shell, :destination_root => ::Rails.application.root
     shell.output.string.tap { shell.new }
   end
   

@@ -1,6 +1,7 @@
 require File.expand_path("../../generators/jax/all", File.dirname(__FILE__))
 require 'rest_client'
-require 'archive/tar/minitar'
+require 'rubygems'
+require 'rubygems/package'
 
 module Jax
   class PluginManager < Thor
@@ -139,22 +140,16 @@ module Jax
     def publish_plugin(manifest)
       credentials = Jax::Plugin::Credentials.new(:shell => shell)
       api_key = credentials.api_key
-      tmp = ::Rails.application.paths.tmp.to_a.first
-      
-      file = File.join(tmp, "#{manifest.name}-#{manifest.version}.tgz")
-      FileUtils.mkdir_p File.dirname(file) unless File.directory?(File.dirname(file))
-      tar = Zlib::GzipWriter.new(File.open(file, "wb"))
-      Dir.chdir ::Rails.application.root.join("vendor/plugins", manifest.name).to_s do
-        Archive::Tar::Minitar.pack(".", tar) # closes tar
-      end
-      
+      plugin_filename = "#{manifest.name}-#{manifest.version}.tgz"
+      targz = tar(::Rails.application.root.join("vendor/plugins", manifest.name).to_s, plugin_filename)
+
       plugin = {
         :single_access_token => api_key,
         :plugin => {
           :name => manifest.name,
           :description => manifest.description,
           :version => manifest.version,
-          :stream => File.new(file, "r")
+          :stream => targz
         }
       }
       
@@ -163,7 +158,7 @@ module Jax
         if res && res[:hash] && !res[:hash][:error].blank?
           say_status :error, res[:hash][:error], :red
         else
-          say_status :done, "Plugin #{File.basename(file)} published", :green
+          say_status :done, "Plugin #{plugin_filename} published", :green
         end
       rescue RestClient::RequestFailed
         res = Hash.from_xml($!.http_body)
@@ -228,8 +223,52 @@ module Jax
     end
     
     def untar(tarfile, destination)
-      tgz = Zlib::GzipReader.new(File.open(tarfile, "rb"))
-      Archive::Tar::Minitar.unpack(tgz, destination.to_s) # closes tgz
+      Zlib::GzipReader.open tarfile do |z|
+        Gem::Package::TarReader.new z do |tar|
+          tar.each do |tarfile|
+            destination_file = File.join destination, tarfile.full_name
+            
+            if tarfile.directory?
+              FileUtils.mkdir_p destination_file
+            else
+              destination_directory = File.dirname(destination_file)
+              FileUtils.mkdir_p destination_directory unless File.directory?(destination_directory)
+              File.open destination_file, "w" do |f|
+                f.print tarfile.read
+              end
+            end
+          end
+        end
+      end
+    end
+    
+    def tar(path, filename)
+      tarfile = StringIO.new("")
+      Gem::Package::TarWriter.new(tarfile) do |tar|
+        Dir[File.join(path, "**/*")].each do |file|
+          mode = File.stat(file).mode
+          
+          if File.directory?(file)
+            tar.mkdir file, mode
+          else
+            tar.add_file file, mode do |f|
+              f.write File.read(file)
+            end
+          end
+        end
+      end
+      
+      gz = StringIO.new("")
+      z = Zlib::GzipWriter.new(gz)
+      z.write tarfile.string
+      gz.rewind
+      
+      # this is probably bad practice (?) but it seems so silly
+      # to create a whole class for just this accessor.
+      class << gz; attr_accessor :path; end
+      gz.path = filename
+      
+      gz
     end
 
     def download_tgz(name, version, destdir)
