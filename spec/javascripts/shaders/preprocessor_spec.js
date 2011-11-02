@@ -29,9 +29,8 @@ describe("Preprocessor", function() {
     var TestMaterial = Jax.Class.create(Jax.Material, {
       initialize: function($super) { $super({shader: "test"}); },
 
-      setUniforms: function($super, context, mesh, options, uniforms) {
-        $super(context, mesh, options, uniforms);
-        uniforms.set('imvMatrix', context.getInverseModelViewMatrix());
+      setVariables: function(context, mesh, options, vars) {
+        vars.set('imvMatrix', context.getInverseModelViewMatrix());
       }
     });
 
