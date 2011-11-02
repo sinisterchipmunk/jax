@@ -1,3 +1,4 @@
+features/rerun.txt
 *.gem
 .bundle
 Gemfile.lock

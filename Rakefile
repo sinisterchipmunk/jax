@@ -20,7 +20,18 @@ rescue Bundler::GemNotFound
 end
 
 require 'cucumber/rake/task'
-Cucumber::Rake::Task.new(:cucumber)
+Cucumber::Rake::Task.new(:cucumber) do |t|
+  t.cucumber_opts = ["-f", "pretty", "-f", "rerun", "-o", "features/rerun.txt", "-t", "~@wip"]
+  unless ENV['FEATURE']
+    if !ENV['ALL'] &&
+      File.file?(rerun = File.expand_path("features/rerun.txt", File.dirname(__FILE__))) &&
+      (rerun = File.read(rerun).strip).length > 0
+      t.cucumber_opts << rerun.split(/\s/)
+    else
+      t.cucumber_opts << "features"
+    end
+  end
+end
 
 # pdoc is a different beast because the released gem seems to be quite dated,
 # and is incompatible with Ruby 1.9.2. We'll grab the latest from git, instead.
@@ -223,8 +234,11 @@ desc "Start the Jax dev server"
 task :server do
   require 'jax'
   require 'jax/rails/application'
+  # moved public into spec to a) emphasize that it's for testing and b) avoid
+  # conflicting with normal 'public' dirs in current or future Rails versions.
+  Jax::Rails::Application.config.paths['public'] = "spec/fixtures/public"
   Jax::Rails::Application.initialize!
-  server = Jax::Server.new
+  server = Jax::Server.new *(ENV['quiet'] ? ["--quiet"] : [])
   server.start
 end
 
@@ -251,11 +265,8 @@ task :jasmine do
     server = nil
     result = {}
     th = Thread.new do
-      require 'jax'
-      require 'jax/rails/application'
-      Jax::Rails::Application.initialize!
-      server = Jax::Server.new("--quiet")
-      server.start
+      ENV['quiet'] = '1'
+      Rake::Task['server'].execute
     end
   
     require 'selenium-webdriver'
@@ -304,7 +315,9 @@ task :jasmine do
   passed = result["results"]["passed"].to_i
   failed = result["results"]["failed"].to_i
   total = passed + failed
-  puts "#{total} jasmine specs: #{passed} passed, #{failed} failed"
+  green, red = "\e[32m", "\e[31m"
+  color = failed > 0 ? red : green
+  puts "#{color}#{total} jasmine specs: #{passed} passed, #{failed} failed\e[0m"
   unless (failure_messages = result["failure_messages"]).empty?
     failure_messages.each do |message|
       puts message["message"]
