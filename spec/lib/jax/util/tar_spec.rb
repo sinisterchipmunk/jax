@@ -7,8 +7,8 @@ describe Jax::Util::Tar do
     src = File.expand_path("../../../../tmp/jax-tar", File.dirname(__FILE__))
     dest = File.expand_path("../../../../tmp/jax-tar/dst", File.dirname(__FILE__))
     
-    FileUtils.rm_rf src
-    FileUtils.rm_rf dest
+    FileUtils.rm_rf src  if File.exist?(src)
+    FileUtils.rm_rf dest if File.exist?(dest)
     
     Dir.mkdir src unless File.directory?(src)
     Dir.chdir src do
@@ -17,12 +17,9 @@ describe Jax::Util::Tar do
       end
     end
     
-    tarfile = tar src, "jax-tar.tgz"
-
-    tarfilename = File.expand_path("../../../../tmp/jax-tar.tgz", File.dirname(__FILE__))
-    File.open(tarfilename, "wb") { |f| f.print tarfile.string }
+    tarfile = tar src
+    untar tarfile, dest
     
-    untar tarfilename, dest
     File.should exist(File.join(dest, "root-file"))
     File.read(File.join(dest, "root-file")).should == "CONTENT"
   end

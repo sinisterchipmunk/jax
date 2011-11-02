@@ -1,7 +1,5 @@
 require File.expand_path("../../generators/jax/all", File.dirname(__FILE__))
 require 'rest_client'
-require 'rubygems'
-require 'rubygems/package'
 
 module Jax
   class PluginManager < Thor
@@ -142,7 +140,13 @@ module Jax
       credentials = Jax::Plugin::Credentials.new(:shell => shell)
       api_key = credentials.api_key
       plugin_filename = "#{manifest.name}-#{manifest.version}.tgz"
-      targz = tar(::Rails.application.root.join("vendor/plugins", manifest.name).to_s, plugin_filename)
+      targz = gzip(tar ::Rails.application.root.join("vendor/plugins", manifest.name).to_s)
+      
+      # This is probably bad practice, but it just
+      # seems so silly to create a whole new subclass
+      # just for one accessor
+      class << targz; attr_accessor :path; end
+      targz.path = plugin_filename
 
       plugin = {
         :single_access_token => api_key,
@@ -182,11 +186,9 @@ module Jax
       plugin_dir = ::Rails.application.root.join("vendor/plugins/#{name}")
       overwrite plugin_dir
 
-      Dir.mktmpdir do |tmp|
-        tarfile = download_tgz(name, version, tmp)
-        untar tarfile, plugin_dir
-        run_install_script plugin_dir
-      end
+      tarfile = download_tgz(name, version)
+      untar ungzip(tarfile), plugin_dir
+      run_install_script plugin_dir
       
       save_manifest plugin_dir, details unless File.exist?(File.join(plugin_dir, "manifest.yml"))
       
@@ -223,12 +225,10 @@ module Jax
       run_script plugin_dir, "install.rb"
     end
     
-    def download_tgz(name, version, destdir)
+    def download_tgz(name, version)
       filename = "#{name}-#{version}.tgz"
       tgz = rest_resource("plugins/#{name}.tgz").get(:params => { :version => version })
-      tarfile = File.join destdir, filename
-      File.open(tarfile, "wb") { |f| f.print tgz }
-      tarfile
+      StringIO.new tgz
     end
     
     class << self
