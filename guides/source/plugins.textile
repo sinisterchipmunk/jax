@@ -27,6 +27,7 @@ Before getting started, it's important that we establish exactly what a plugin r
 
 Plugins have exactly the same directory structure as the Jax application itself, and can be used to extend either the Ruby or the Javascript portion of Jax -- or both. Because writing a plugin is essentially similar to writing a standard Jax application, it's very easy to transition to them.
 
+NOTE: This guide assumes you're using Jax's own plugin system exclusively, but the system is also compatible with Rails-style plugins. If you try to push a Rails-style plugin, Jax will generate the appropriate manifest files and then walk you through publishing it to the Jax system; and RubyGems need only be added to the project's Gemfile to be used within a Jax project.
 
 h4. The Command Line Interface
 
@@ -120,15 +121,13 @@ Publishing a plugin is brain-dead simple. First, generate the plugin by invoking
   $ jax generate plugin [name-of-plugin]
 
   create  vendor/plugins/name-of-plugin
-  create  vendor/plugins/name-of-plugin/app/controllers
-  create  vendor/plugins/name-of-plugin/app/helpers
-  create  vendor/plugins/name-of-plugin/app/models
-  create  vendor/plugins/name-of-plugin/app/resources
-  create  vendor/plugins/name-of-plugin/app/views
-  create  vendor/plugins/name-of-plugin/config/routes.rb
+  create  vendor/plugins/name-of-plugin/app/assets/jax/controllers
+  create  vendor/plugins/name-of-plugin/app/assets/jax/helpers
+  create  vendor/plugins/name-of-plugin/app/assets/jax/models
+  create  vendor/plugins/name-of-plugin/app/assets/jax/resources
+  create  vendor/plugins/name-of-plugin/app/assets/jax/views
   create  vendor/plugins/name-of-plugin/init.rb
   create  vendor/plugins/name-of-plugin/install.rb
-  create  vendor/plugins/name-of-plugin/public
   create  vendor/plugins/name-of-plugin/spec
   create  vendor/plugins/name-of-plugin/uninstall.rb
   create  vendor/plugins/name-of-plugin/manifest.yml
@@ -154,16 +153,9 @@ For the most part, a plugin is structured identically to a standalone Jax applic
 NOTE: The only file absolutely required in order to publish a plugin is the +manifest.yml+ file; all others can be safely deleted if your plugin does not make use of them.
 
 
-h4. The Jax Generators
-
-While not necessarily worthy of its own chapter, it's worth drawing attention to the fact that all Jax generators will work from a plugin root. For instance, you can generate a new model from within a plugin and rest assured that the generator will place the model into the _plugin_ root, and not the _application_ root.
-
-IMPORTANT: Code generation in Jax is entirely context-sensitive, based on the directory from which you invoked the generator. Invoking the generator from directory other than a plugin directory (or its subdirectories) will place the generated code into the application itself.
-
-
 h4. Getting Ready for Release
 
-When you're satisfied that your plugin is working properly, it's time to release it into the wild! Before the "Jax Plugin Repository":http://plugins.jaxgl.com will accept the plugin, you'll first have to edit the +manifest.yml+ file.
+When you're satisfied that your plugin is working properly, it's time to release it into the wild! But before the "Jax Plugin Repository":http://plugins.jaxgl.com will accept the plugin, you'll first have to edit the +manifest.yml+ file.
 
 h5. The Manifest
 
@@ -171,19 +163,7 @@ A manifest is a document which describes the contents of a particular package. J
 
 * *name*: the name of the plugin. You can modify this if you named the plugin incorrectly when running the plugin generator, but _only_ if you've never actually *published* the plugin.
 * *description*: the description of the plugin. You can change this from one release to the next, as long as the version number changes with it.
-* *version*: a numeric version number. Increase this whenever you're ready to release a new version of the plugin.
-
-h5. Versioning
-
-When a plugin is generated, its version number defaults to "0.0.1". This is generally a good release number to start at because it lets people know that your plugin has seen little or no real-world use.
-
-NOTE: Software versioning is not so much a set of rules as it is a set of very loose guidelines; version numbers can have very different meanings from one project to another, even in the same organization. Therefore, it's important to develop a consensus on what each version number means. Jax borrows its versioning system from the Ruby community, where by convention the numbers have come to have the following meanings:
-
-* +<u>1</u>.0.0+ -- The first number is the "major" version number, and only changes when the software has undergone significant changes. A change in the major version number implies that the software may not be compatible with other major versions of the same software.
-* +1.<u>0</u>.0+ -- The second number is the "minor" version number. This changes when significant bugs are resolved and/or noteworthy features are introduced. Compatibility is generally expected from one minor number to another.
-* +1.0.<u>0</u>+ -- The third number is the "tiny" or "patch" version number. It represents only small bugfixes and no new features. Compatibility with previous versions is expected.
-* +1.0.0.<u>1</u>+ -- The fourth number, if present, signifies a pre-release, such as a beta or release candidate. Stability is not guaranteed. Four-digit releases may have bugs that still need to be resolved, and are never intended for production use. They are usually supplied so that the software can gain some in-field testing prior to its official release. Sometimes text instead of a number is used in this position, such as "beta2" or "rc3". The prerelease version number is usually omitted for stable releases.
-
+* *version*: a numeric version number. Increase this whenever you're ready to release a new version of the plugin. No two releases of a plugin can have the same version number.
 
 h4. Releasing a Plugin
 
