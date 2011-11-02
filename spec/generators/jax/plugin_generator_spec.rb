@@ -7,7 +7,6 @@ describe 'jax:plugin' do
     vendor/plugins/cloud/app/assets/jax/helpers
     vendor/plugins/cloud/app/assets/jax/views
     vendor/plugins/cloud/app/assets/jax/resources
-    vendor/plugins/cloud/public
     vendor/plugins/cloud/spec
     vendor/plugins/cloud/manifest.yml
     vendor/plugins/cloud/init.rb
