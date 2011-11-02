@@ -145,11 +145,11 @@ h4. The Development Environment
 
 Open a browser and point it to the development suite, "http://localhost:3000":http://localhost:3000, and you will see a set of buttons labeled: _Test Suite_, _Run Application_, _Materials_, and _Guides &amp; Docs_. By default, you will start in the _Run Application_ section.
 
+!images/getting_started/ui-materials.png(Materials)!
+
 Let's take a moment to look at the various areas available:
 
 * _Test Suite_ -- this area will run your unit tests using the _Jasmine_ test framework. Unit tests in Jax are meant to automatically validate the logical portion of your code. For instance, if the player is hit by a projectile, you will probably want to write a test to verify that the player actually takes damage. After writing the test, reload this area to see it pass or fail. If it fails, add the business logic to make the test pass. Then repeat. This paradigm is called _test-driven development_ and Jax has been designed around it from the start. You can learn more about testing with Jasmine by "visiting its home on GitHub":https://github.com/pivotal/jasmine-gem.
-
-!images/getting_started/clean_passing_jasmine_suite.png(The Default Jasmine Suite)!
 
 * _Run Application_ -- you'll frequently want to visit this area to see your application in action. This section runs your code "in the wild", allowing you to actually run your app and perhaps seek out edge cases. By default, the _Run Application_ section consists of a list of controller names, and a canvas within which the controller will be executed. There are some customizations you can apply here, but more on those later.
 
