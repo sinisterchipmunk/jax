@@ -1,6 +1,22 @@
 require 'spec_helper'
 
 describe 'jax:material' do
+  context "with an existing material manifest" do
+    before :each do
+      FileUtils.mkdir_p ::Rails.application.root.join("app/assets/jax/shaders/brick").to_s
+      File.open ::Rails.application.root.join("app/assets/jax/shaders/brick/manifest.yml").to_s, "w" do |f|
+        f.puts({ :description => "shader description" }.to_yaml)
+      end
+    end
+    
+    it "should list the shader and its description in output" do
+      shell = ::GenSpec::Shell.new
+      ::Rails::Generators.invoke("jax:material", [], :shell => shell)
+      shell.stderr.string.should match(/brick/)
+      shell.stderr.string.should match(/shader description/)
+    end
+  end
+  
   with_args "brick" do
     it "should generate brick material" do
       subject.should generate("app/assets/jax/resources/materials/brick.resource")

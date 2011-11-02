@@ -1,0 +1,25 @@
+Generates a new material. If no arguments other than NAME are given, then the
+material will support only lighting and color. More advanced capabilities like
+texturing, normal mapping, shadow map support, and so forth must be specified
+directly. There is no hard limit to the number of shaders you can use for a
+material, but keep in mind that the actual supported complexity of the
+material depends heavily on the end user's graphics card. In addition to the
+obvious performance implications of using complicated materials, some shaders
+may flat-out not compile if, for instance, the length of the source code
+exceeds the capabilities of the graphics processor.
+
+Shaders supported by your application:
+
+<% all_shaders.each do |shader|
+%>  - <%=shader[:name].ljust(20)%> : <%=shader[:description].strip.gsub(/\n/, "\n"+" "*25)%>
+<% end %>
+
+You can specify a shader more than once. For instance, you can create a
+material that uses three textures and two normal maps:
+
+  jax generate material NAME texture texture texture normal_map normal_map
+
+You can also pass the --append option to update an existing material rather
+than generate an all-new one:
+
+  jax generate material NAME --append texture

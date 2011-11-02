@@ -7,6 +7,32 @@ module Jax
                    :desc => "if it already exists, append shaders to the end of this material"
       class_option :skip_lighting, :default => false, :type => :boolean,
                    :desc => "do not add the 'Lighting' shader to this material"
+                   
+      def self.desc(description = nil)
+        # TODO This can be removed under future versions of Rails, which use ERB for Usage out of the box.
+        # TODO it would help if one could configure the location of USAGE
+        return super if description
+        usage = source_root && File.expand_path("USAGE", File.dirname(__FILE__))
+
+        @desc ||= if usage && File.exist?(usage)
+          ERB.new(File.read(usage)).result(binding)
+        else
+          super
+        end
+      end
+      
+      def self.all_shaders
+        shaders = []
+        ::Rails.application.assets.each_logical_path do |path|
+          if path =~ /shaders\/(.*)\/manifest.yml/
+            info = (YAML.load(StringIO.new ::Rails.application.assets[path].to_s) || {}).with_indifferent_access
+            info[:name] ||= $1
+            info[:description] ||= ""
+            shaders << info
+          end
+        end
+        shaders.sort { |a,b| a['name'] <=> b['name'] }
+      end
       
       def initialize(args = [], options = [], config = {})
         if args.length > 1
