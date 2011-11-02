@@ -14,6 +14,7 @@ module Jax
   autoload :Version,            "jax/version"
   autoload :VERSION,            "jax/version"
   autoload :PluginManager,      "jax/commands/plugin_manager"
+  autoload :Util,               "jax/util"
   
   module_function
   
