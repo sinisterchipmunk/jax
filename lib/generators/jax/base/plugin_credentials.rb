@@ -75,6 +75,13 @@ module Jax::Plugin
     rescue RestClient::RequestFailed
       raise Hash.from_xml($!.http_body)['hash']['error']
     end
+    
+    def save_api_key
+      key = login[:author][:single_access_token]
+      yml = { :api_key => key }
+      File.open(config_file, "w") { |f| f.print yml.to_yaml }
+      key
+    end
   
     def find_api_key
       if File.file?(config_file)
@@ -82,12 +89,10 @@ module Jax::Plugin
         if yml[:api_key]
           yml[:api_key]
         else
-          key = login[:author][:single_access_token]
-          yml[:api_key] = key
-          File.open(config_file, "w") { |f| f.print yml.to_yaml }
-          key
+          save_api_key
         end
-      else login[:author][:single_access_token]
+      else
+        save_api_key
       end
     end
   end

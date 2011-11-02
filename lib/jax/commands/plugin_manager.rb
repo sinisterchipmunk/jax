@@ -79,7 +79,7 @@ module Jax
               "account, you will be prompted to create one. The name of the plugin "   \
               "must be unique."
     def push
-      if ENV['JAX_CWD'] && ENV['JAX_CWD'] =~ /^#{Regexp::escape ::Rails.application.root.join("vendor/plugins").to_s}\/?([^\/]+)(\/|$)/
+      if destination_root =~ /^#{Regexp::escape ::Rails.application.root.join("vendor/plugins").to_s}\/?([^\/]+)(\/|$)/
         plugin_name = $1
         plugin_dir = ::Rails.application.root.join("vendor/plugins", plugin_name)
         manifest = plugin_dir.join("manifest.yml").to_s

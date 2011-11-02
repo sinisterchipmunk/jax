@@ -15,9 +15,19 @@ describe Jax::Plugin::Credentials do
     subject.api_key.should == "WXTzIXC2ODdbLAyvVL9p"
   end
   
-  it "with missing config file and valid existing credentials" do
-    shell.input.stub!(:gets).and_return 'sinisterchipmunk@gmail.com', 'password'
-    subject.api_key.should == "WXTzIXC2ODdbLAyvVL9p"
+  context "with missing config file and valid existing credentials" do
+    before :each do
+      shell.input.stub!(:gets).and_return 'sinisterchipmunk@gmail.com', 'password'
+    end
+    
+    it "should return api key" do
+      subject.api_key.should == "WXTzIXC2ODdbLAyvVL9p"
+    end
+    
+    it "should create config file" do
+      subject.api_key
+      File.should exist(local "./.jax")
+    end
   end
   
   it "with missing config file and invalid credentials for an existing account" do

@@ -14,15 +14,14 @@ describe Jax::PluginManager do
   end
 
   def generate(*args)
-    Jax::PluginManager.start args, :shell => shell,
-                                                        :destination_root => destination_root
+    Jax::PluginManager.start args, :shell => shell, :destination_root => destination_root
     shell.output.string.tap { shell.new }
   end
   
   def generate_plugin(name)
     Jax::Generators::PluginGenerator.start([name], :shell => shell, :destination_root => ::Rails.application.root)
     shell.new
-    ENV['JAX_CWD'] = @destination_root = ::Rails.application.root.join('vendor/plugins', name).to_s
+    @destination_root = ::Rails.application.root.join('vendor/plugins', name).to_s
     Jax::Plugin::Manifest.new(name)
   end
   
@@ -56,7 +55,7 @@ describe Jax::PluginManager do
 
   it "push plugin outside plugin dir" do
     generate_plugin 'cloud'
-    ENV['JAX_CWD'] = local "."
+    @destination_root = local(".")
     result = generate "push"
     result.should =~ /aborted/i
   end
