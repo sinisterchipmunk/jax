@@ -9,20 +9,18 @@ Jax.Material.<%=class_name%> = Jax.Class.create(Jax.Material, {
     $super(options);
   },
   
-  setUniforms: function($super, context, mesh, options, uniforms) {
-    $super(context, mesh, options, uniforms);
-
-    uniforms.set('mvMatrix', context.getModelViewMatrix());
-    uniforms.set('nMatrix', context.getNormalMatrix());
-    uniforms.set('pMatrix', context.getProjectionMatrix());
-
-    // uniforms.texture('Texture', this.texture, context);
-  },
-
-  setAttributes: function($super, context, mesh, options, attributes) {
-    attributes.set('VERTEX_POSITION',  mesh.getVertexBuffer());
-    attributes.set('VERTEX_COLOR',     mesh.getColorBuffer());
-    attributes.set('VERTEX_NORMAL',    mesh.getNormalBuffer());
-    attributes.set('VERTEX_TEXCOORDS', mesh.getTextureCoordsBuffer());
+  setAttributes: function(context, mesh, options, vars) {
+    vars.set({
+      mvMatrix: context.getModelViewMatrix(),
+      nMatrix:  context.getNormalMatrix(),
+      pMatrix:  context.getProjectionmatrix(),
+      
+      VERTEX_POSITION:  mesh.getVertexBuffer(),
+      VERTEX_COLOR:     mesh.getColorBuffer(),
+      VERTEX_NORMAL:    mesh.getNormalBuffer(),
+      VERTEX_TEXCOORDS: mesh.getTextureCoordsBuffer()
+    });
+      
+    // vars.texture('Texture', this.texture, context);
   }
 });
