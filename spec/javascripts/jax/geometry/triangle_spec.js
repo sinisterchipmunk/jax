@@ -27,7 +27,7 @@ describe("Jax.Geometry.Triangle", function() {
         });
       });
     
-      describe("with triangle and capture point", function() {
+      describe("with triangle and capture line", function() {
         var line;
         beforeEach(function() { line = new Jax.Geometry.Line(); });
         
@@ -48,6 +48,38 @@ describe("Jax.Geometry.Triangle", function() {
           var tri2 = new Jax.Geometry.Triangle([0,3.95,-1],[-1,3.95,2],[1,3.95,2]);
 
           expect(tri.intersectTriangle(tri2, line)).toBeFalsy();
+        });
+      });
+    
+      describe("with triangle and capture vec3", function() {
+        var point;
+        beforeEach(function() { point = vec3.create(); });
+        
+        // more complete tritri tests found in tritri_spec.js
+        it("no intersect", function() {
+          var tri2 = new Jax.Geometry.Triangle([0,0.5,2],[-1,0.5,2],[0,1.5,2]);
+          expect(tri.intersectTriangle(tri2, point)).toBeFalsy();
+        });
+
+        it("intersect", function() {
+          var tri2 = new Jax.Geometry.Triangle([0,0.95,-1],[-1,0.95,2],[1,0.95,2]);
+          expect(tri.intersectTriangle(tri2, point)).toBeTruthy();
+          expect(Math.abs(point[0]) + Math.abs(point[1]) + Math.abs(point[2])).toBeGreaterThan(Math.EPSILON);
+        });
+        
+        it("identical, positioned above", function() {
+          tri = new Jax.Geometry.Triangle([0,0.95,-1],[-1,0.95,2],[1,0.95,2]);
+          var tri2 = new Jax.Geometry.Triangle([0,3.95,-1],[-1,3.95,2],[1,3.95,2]);
+
+          expect(tri.intersectTriangle(tri2, point)).toBeFalsy();
+        });
+        
+        it("identical, same position", function() {
+          tri  = new Jax.Geometry.Triangle([-0.7006292939186096,0.5,0.5090369582176208], [-0.7911535501480103,0.5,0.3522442579269409], [-0.7390738129615784,0.5877852439880371,0.32905685901641846]);
+          tri2 = new Jax.Geometry.Triangle([-0.7006292939186096,0.5,0.5090369582176208], [-0.7911535501480103,0.5,0.3522442579269409], [-0.7390738129615784,0.5877852439880371,0.32905685901641846]);
+          
+          expect(tri.intersectTriangle(tri2, point)).toBeTruthy();
+          expect(Math.abs(point[0])+Math.abs(point[1])+Math.abs(point[2])).toBeGreaterThan(Math.EPSILON);
         });
       });
     
