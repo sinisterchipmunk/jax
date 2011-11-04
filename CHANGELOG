@@ -1,3 +1,15 @@
+* 2.0.1 *
+
+* Implemented missing `Jax.Geometry.Line#contains` method.
+
+* Fixed line intersection test, when `vec3` is used as a receiver for point of intersection.
+
+* Built-in resources have been moved to their respective `.resource` files. Same with
+  shaders. This should make overriding them work more reliably, and remove redundant
+  requests for built-in shaders and resources.
+
+
+
 * 2.0.0 *
 
 * Integrates cleanly with Ruby on Rails applications. Add `jax` to the bundle, then run:
