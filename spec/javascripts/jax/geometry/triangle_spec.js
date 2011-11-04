@@ -25,6 +25,15 @@ describe("Jax.Geometry.Triangle", function() {
 
           expect(tri.intersectTriangle(tri2)).toBeFalsy();
         });
+        
+        it("should not raise errors", function() {
+          // TypeError: Object [Line a:[Float32Array: -0.44343942403793335,0.4999999701976776,-0.4434394836425781], b:[Float32Array: 0.5037173628807068,-0.5,0.28691262006759644]] has no method 'contains' with
+          var dist = vec3.create();
+          var tri1 = new Jax.Geometry.Triangle([0.5,0.5,0.5000000596046448], [-0.5,0.4999999701976776,-0.5000000596046448], [0.5,0.4999999701976776,-0.5000000596046448]);
+          var tri2 = new Jax.Geometry.Triangle([0.5037173628807068,0.5,0.28691262006759644], [0.5037173628807068,-0.5,0.28691262006759644], [0.8630872964859009,0.5,-0.6462825536727905]);
+          
+          expect(function() { tri1.intersectTriangle(tri2, dist); }).not.toThrow();
+        });
       });
     
       describe("with triangle and capture line", function() {
