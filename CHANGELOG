@@ -1,3 +1,9 @@
+* 2.0.2 *
+
+* Fixed the shader generator, which was generating deprecated (and not working) code.
+
+
+
 * 2.0.1 *
 
 * Implemented missing `Jax.Geometry.Line#contains` method.
