@@ -166,7 +166,7 @@ namespace :doc do
     PDoc.run({
       :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/glMatrix.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
-                        Dir['lib/assets/javascripts/jax/**/*.js']),
+                        Dir['lib/assets/javascripts/jax/**/*.{js,js.erb}']),
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
