@@ -1,7 +1,17 @@
+* 2.0.4 *
+
+* Jax was not differentiating between development mode and production mode, resulting
+  in production apps that took performance hits incurred by logging debug information.
+
+* `Jax.VERSION` now works properly, by embedding the rubygem version as intended
+
+
+
 * 2.0.3 *
 
 * Resolved a 1280 GL_INVALID_OPERATION error for most Jax applications running under Safari.
   See https://github.com/sinisterchipmunk/jax/issues/31
+
 
 
 * 2.0.2 *
