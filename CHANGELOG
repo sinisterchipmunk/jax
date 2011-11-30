@@ -1,3 +1,9 @@
+* 2.0.3 *
+
+* Resolved a 1280 GL_INVALID_OPERATION error for most Jax applications running under Safari.
+  See https://github.com/sinisterchipmunk/jax/issues/31
+
+
 * 2.0.2 *
 
 * Fixed the shader generator, which was generating deprecated (and not working) code.
