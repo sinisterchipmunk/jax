@@ -59,6 +59,10 @@ var Jax = {
   click_speed: 0.2,
 };
 
+<% if Rails.env == "production" %>
+  Jax.environment = Jax.PRODUCTION;
+<% end %>
+
 // note: the default_shader is used immediately after Jax.Material has been defined. So, most
 // likely the end user won't be able to customize it with the expected result. Materials created
 // *after* the default shader has been changed are fine, but materials already existing
