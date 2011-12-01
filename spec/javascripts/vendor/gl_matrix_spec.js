@@ -27,6 +27,14 @@ describe("glMatrix", function() {
     it("should have right vector 'forward'", function() {
       expect(camera.getRightVector()).toEqualVector([0,0,-1]);
     });
+    
+    it("should produce expected quat", function() {
+      expect(camera.rotation).toEqualVector([0,0.707106,0,0.707106]);
+    });
+    
+    it("should produce expected mat4", function() {
+      expect(camera.getTransformationMatrix()).toEqualVector([0,0,-1,0,0,1,0,0,1,0,0,0,0,0,0,1]);
+    });
   });
   
   describe("pitching 90 deg", function() {
@@ -43,6 +51,14 @@ describe("glMatrix", function() {
     it("should have right vector 'right'", function() {
       expect(camera.getRightVector()).toEqualVector([1,0,0]);
     });
+    
+    it("should produce expected quat", function() {
+      expect(camera.rotation).toEqualVector([0.707106,0,0,0.707106]);
+    });
+    
+    it("should produce expected mat4", function() {
+      expect(camera.getTransformationMatrix()).toEqualVector([1,0,0,0,0,0,1,0,0,-1,0,0,0,0,0,1]);
+    });
   });
 
   describe("rolling 90 deg", function() {
@@ -58,6 +74,14 @@ describe("glMatrix", function() {
     
     it("should have right vector 'down'", function() {
       expect(camera.getRightVector()).toEqualVector([0,-1,0]);
+    });
+    
+    it("should produce expected quat", function() {
+      expect(camera.rotation).toEqualVector([0,0,-0.707106,0.707106]);
+    });
+    
+    it("should produce expected mat4", function() {
+      expect(camera.getTransformationMatrix()).toEqualVector([0,-1,0,0,1,0,0,0,0,0,1,0,0,0,0,1]);
     });
   });
 });
