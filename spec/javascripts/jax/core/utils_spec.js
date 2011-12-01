@@ -177,6 +177,15 @@ describe("Jax.Util", function() {
   
   describe("normalizeOptions", function() {
     var normalized;
+    
+    describe("with a false value that defaults to true", function() {
+      beforeEach(function() { normalized = Jax.Util.normalizeOptions({enabled:false}, {enabled:true}); });
+      
+      it("should not have a truthy value", function() {
+        expect(normalized.enabled).toBeFalsy();
+      });
+    });
+    
     describe("with a missing default array", function() {
       var arr = [1,2,3];
       beforeEach(function() { normalized = Jax.Util.normalizeOptions(null, {def:arr}); });
