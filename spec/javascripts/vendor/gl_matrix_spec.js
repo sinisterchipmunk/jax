@@ -6,6 +6,9 @@ describe("glMatrix", function() {
   var camera;
   beforeEach(function() {
     camera = new Jax.Camera();
+    
+    // perform a translation so we can test it hasn't been broken
+    camera.move(10);
 
     // sanity checks
     expect(camera.getViewVector()).toEqualVector([0,0,-1]);
@@ -33,7 +36,7 @@ describe("glMatrix", function() {
     });
     
     it("should produce expected mat4", function() {
-      expect(camera.getTransformationMatrix()).toEqualVector([0,0,-1,0,0,1,0,0,1,0,0,0,0,0,0,1]);
+      expect(camera.getTransformationMatrix()).toEqualVector([0,0,-1,0,0,1,0,0,1,0,0,0,0,0,-10,1]);
     });
   });
   
@@ -57,7 +60,7 @@ describe("glMatrix", function() {
     });
     
     it("should produce expected mat4", function() {
-      expect(camera.getTransformationMatrix()).toEqualVector([1,0,0,0,0,0,1,0,0,-1,0,0,0,0,0,1]);
+      expect(camera.getTransformationMatrix()).toEqualVector([1,0,0,0,0,0,1,0,0,-1,0,0,0,0,-10,1]);
     });
   });
 
@@ -81,7 +84,7 @@ describe("glMatrix", function() {
     });
     
     it("should produce expected mat4", function() {
-      expect(camera.getTransformationMatrix()).toEqualVector([0,-1,0,0,1,0,0,0,0,0,1,0,0,0,0,1]);
+      expect(camera.getTransformationMatrix()).toEqualVector([0,-1,0,0,1,0,0,0,0,0,1,0,0,0,-10,1]);
     });
   });
 });
