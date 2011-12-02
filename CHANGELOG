@@ -1,3 +1,21 @@
+* 2.0.5 *
+
+* Setting `shadowcaster` to `false` for a light source now has the expected result: it
+  disables all shadow mapping for that light, resulting in a significant performance boost.
+  
+* Updated gl-matrix to the latest version (v1.1), and updated Jax to take advantage of
+  it, resulting in a moderate performance boost.
+  
+* Light sources no longer generate shadow maps for, nor cast shadows upon, objects that
+  are beyond their range. This is based on the light's intensity (its ambient,
+  specular and diffuse color components), and its attenuation coefficients.
+  
+* Fixed `Jax.Camera#unproject` -- it had some stupid errors that kept it from working
+  at all. This method had also somehow crept into Jax without any tests; it is now
+  appropriately tested, of course.
+
+
+
 * 2.0.4 *
 
 * Jax was not differentiating between development mode and production mode, resulting
