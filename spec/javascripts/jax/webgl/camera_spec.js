@@ -3,6 +3,31 @@ describe("Camera", function() {
   
   beforeEach(function() { camera = new Jax.Camera(); });
   
+  it("should unproject properly", function() {
+    camera.perspective({width:800,height:500,near:0.1,far:200});
+    
+    camera.setPosition([38.375, 75, 44.25]);
+    // camera.setUpVector([0, 0.196116, -0.980580]);
+    // camera.setRightVector([1,0,0]);
+    camera.setViewVector([0, -0.980580, -0.196116]);
+    
+    // sanity checks
+    expect(camera.getPosition()).toEqualVector([38.375, 75, 44.25]);
+    expect(camera.getUpVector()).toEqualVector([0, 0.196116, -0.980580]);
+    expect(camera.getRightVector()).toEqualVector([1,0,0]);
+    expect(camera.getViewVector()).toEqualVector([0, -0.980580, -0.196116]);
+    
+    
+    var nearest = [ 38.308727, 74.893821, 44.271007 ];
+    var farthest = [-94.170333, -137.355712, 86.261283];
+    
+    // all that for this:
+    expect(camera.unproject(0, 0, 0)).toEqualVector(nearest);
+    expect(camera.unproject(0, 0, 1)).toEqualVector(farthest);
+    expect(camera.unproject(0, 0)[0]).toEqualVector(nearest);
+    expect(camera.unproject(0, 0)[1]).toEqualVector(farthest);
+  });
+  
   it("movement with rotations", function() {
     camera.move(10);
     camera.yaw(Math.PI/2);
