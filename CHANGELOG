@@ -1,3 +1,10 @@
+* 2.0.6 (Not Released) *
+
+* Resolved issue #30: `Jax.Framebuffer#getTexture(context, index)` now returns texture
+  with index 0 if index was not given.
+  
+
+
 * 2.0.5 *
 
 * Setting `shadowcaster` to `false` for a light source now has the expected result: it
