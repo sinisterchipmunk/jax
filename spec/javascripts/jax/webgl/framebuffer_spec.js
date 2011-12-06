@@ -1,6 +1,13 @@
 describe("Framebuffer", function() {
   var buf;
   
+  it("should return the first texture if index not given (issue #30)", function() {
+    // https://github.com/sinisterchipmunk/jax/issues/30
+    buf = new Jax.Framebuffer();
+    expect(buf.getTexture(SPEC_CONTEXT)).toBeTruthy();
+    expect(buf.getTexture(SPEC_CONTEXT)).toBe(buf.getTexture(SPEC_CONTEXT, 0));
+  });
+  
   describe("with no attachments", function() {
     beforeEach(function() { buf = new Jax.Framebuffer(); });
     
