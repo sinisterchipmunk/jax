@@ -11,3 +11,7 @@ end
 Then /^the response should contain:$/ do |text|
   (!!page.body.to_s[text]).should be_true
 end
+
+Then /^"([^"]*)" should come before "([^"]*)"$/ do |first, second|
+  page.body.to_s.index(first).should be_less_than(page.body.to_s.index(second))
+end

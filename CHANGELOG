@@ -2,6 +2,13 @@
 
 * Resolved issue #30: `Jax.Framebuffer#getTexture(context, index)` now returns texture
   with index 0 if index was not given.
+
+* Resolved issue #43: Plugin models appear after app models in load order.
+
+* Minor improvements to `Jax.Framebuffer`
+
+* `Jax.Texture` data type can now be specified, for example, in apps which make use of
+  the OES_texture_float extension
   
 
 

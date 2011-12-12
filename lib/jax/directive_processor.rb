@@ -25,6 +25,8 @@ module Jax
     end
     
     def process_require_everything_matching_directive(subpath)
+      # TODO this method is very dirty. Make it prettier.
+      
       # depend on any base subpath directories that may exist
       # this should pick up any new shaders as they are added to app
       context.environment.paths.each do |base_path|
@@ -33,7 +35,6 @@ module Jax
       end
       
       files = []
-      # context.environment.each_logical_path do |path|
       context.environment.each_file do |path|
         # skip all.js and skip manifest.yml
         path = path.to_s
@@ -42,11 +43,19 @@ module Jax
         logical_path = attrs.logical_path
         if logical_path[/^#{Regexp::escape subpath}/]
           # skip if logical path has already been processed
-          next if files.include?(logical_path)
-          files << logical_path
-          path = context.resolve(logical_path).to_s
-          process_require_directive path
+          ary = [ path, logical_path ]
+          files << ary unless files.include?(ary)
         end
+      end
+      
+      # order files so they appear in order: plugin files, then app files.
+      plugins_path = 'vendor/plugins'
+      numerize = proc { |a| a[plugins_path] ? 0 : 1 }
+      files.sort! { |a, b| numerize.call(a[0]) <=> numerize.call(b[0]) }
+
+      # require files, now that they are in order
+      files.each do |(path, logical_path)|
+        process_require_directive path
       end
     end
   end
