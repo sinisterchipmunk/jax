@@ -24,6 +24,7 @@ describe 'jax:scaffold' do
   
   with_args "dungeon" do
     it "should generate dungeon model" do
+      subject.should generate("app/assets/jax/models/dungeon.js.coffee")
       subject.should generate("spec/javascripts/jax/models/dungeon_spec.js.coffee")
     end
 
