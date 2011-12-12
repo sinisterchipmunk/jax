@@ -14,6 +14,16 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should return objects added to world", function() {
+    var obj = new (Jax.Model.create({one:1}))();
+    expect(world.addObject(obj)).toBe(obj);
+  });
+  
+  it("should return light sources added to world", function() {
+    var lite = new Jax.Scene.LightSource();
+    expect(world.addLightSource(lite)).toBe(lite);
+  });
+  
   describe("picking", function() {
     var at, ofront, otopleft, otopright, obottomleft, obottomright, mesh;
     

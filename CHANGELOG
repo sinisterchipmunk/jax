@@ -12,6 +12,9 @@
   
 * Resolved issue #38: `Jax.RouteSet` now underscores CamelCase routes.
 
+* `Jax.World#addLightSource()` now returns the light source that was added, just like
+  `Jax.World#addObject()` returns the object that was added.
+
 
 
 * 2.0.5 *
