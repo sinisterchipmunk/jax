@@ -5,6 +5,17 @@ describe("Jax.RouteSet", function() {
   
   beforeEach(function() { map = Jax.routes; map.clear(); });
   
+  describe("when a CamelCase controller name is given", function() {
+    beforeEach(function() {
+      controller_class = Jax.Controller.create("TestBreaker", {index: function() { }});
+    });
+    
+    it("should recognize underscored route names", function() {
+      var route = map.recognizeRoute("test_breaker");
+      expect(route.controller).toEqual(controller_class);
+    });
+  });
+  
   describe("when a controller name is given during controller definition", function() {
     beforeEach(function() {
       controller_class = Jax.Controller.create("welcome", {index: function() { }});

@@ -1,4 +1,15 @@
 describe("Jax.Util", function() {
+  describe("underscore", function() {
+    it("should work", function() {
+      expect(Jax.Util.underscore("Product")).toEqual("product");
+      expect(Jax.Util.underscore("SpecialGuest")).toEqual("special_guest");
+      expect(Jax.Util.underscore("ApplicationController")).toEqual("application_controller");
+      expect(Jax.Util.underscore("Area51Controller")).toEqual("area51_controller");
+      expect(Jax.Util.underscore("HTMLTidy")).toEqual('html_tidy');
+      expect(Jax.Util.underscore('HTMLTidyGenerator')).toEqual('html_tidy_generator');
+    });
+  });
+  
   describe("vectorize", function() {
     var data;
     

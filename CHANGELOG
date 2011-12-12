@@ -10,6 +10,8 @@
 * `Jax.Texture` data type can now be specified, for example, in apps which make use of
   the OES_texture_float extension
   
+* Resolved issue #38: `Jax.RouteSet` now underscores CamelCase routes.
+
 
 
 * 2.0.5 *
