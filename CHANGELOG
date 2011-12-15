@@ -14,6 +14,8 @@
 
 * `Jax.World#addLightSource()` now returns the light source that was added, just like
   `Jax.World#addObject()` returns the object that was added.
+  
+* Resolved issue #46: Render errors when shadows are disabled, but shadowmapping is not
 
 
 
