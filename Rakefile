@@ -177,7 +177,7 @@ namespace :doc do
         "https://github.com/sinisterchipmunk/jax/tree/master/#{obj.file}#L#{obj.line_number}"
       },
       :pretty_urls => false,
-      :bust_cache  => false,
+      :bust_cache  => true,
       :name => 'Jax WebGL Framework',
       :short_name => 'Jax',
       :home_url => 'http://jaxgl.com',
