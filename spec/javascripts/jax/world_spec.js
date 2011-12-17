@@ -44,64 +44,81 @@ describe("Jax.World", function() {
       obottomright = world.addObject(new Jax.Model({position:[ 2.5,-2.5, -5],mesh:mesh}));
     });
     
-    it("center",       function() { expect(world.pick(at.center_x, at.center_y)).toEqual(ofront); });
-    it("top left",     function() { expect(world.pick(at.left, at.top)).toEqual(otopleft); });
-    it("top right",    function() { expect(world.pick(at.right,at.top)).toEqual(otopright); });
-    it("bottom left",  function() { expect(world.pick(at.left, at.bottom)).toEqual(obottomleft); });
-    it("bottom right", function() { expect(world.pick(at.right,at.bottom)).toEqual(obottomright); });
-    /*
+    it("center",       function() { expect(world.pick(at.center_x, at.center_y) === ofront).toBeTruthy(); });
+    it("top left",     function() { expect(world.pick(at.left, at.top)          === otopleft).toBeTruthy(); });
+    it("top right",    function() { expect(world.pick(at.right,at.top)          === otopright).toBeTruthy(); });
+    it("bottom left",  function() { expect(world.pick(at.left, at.bottom)       === obottomleft).toBeTruthy(); });
+    it("bottom right", function() { expect(world.pick(at.right,at.bottom)       === obottomright).toBeTruthy(); });
+    
     it("region: everything", function() {
       var objects = world.pickRegion(at.left, at.top, at.right, at.bottom);
-      expect(objects).toContain(ofront);
-      expect(objects).toContain(otopleft);
-      expect(objects).toContain(otopright);
-      expect(objects).toContain(obottomleft);
-      expect(objects).toContain(obottomright);
+      expect(objects.indexOf(ofront)).not.toEqual(-1);
+      expect(objects.indexOf(otopleft)).not.toEqual(-1);
+      expect(objects.indexOf(otopright)).not.toEqual(-1);
+      expect(objects.indexOf(obottomleft)).not.toEqual(-1);
+      expect(objects.indexOf(obottomright)).not.toEqual(-1);
     });
     
     it("region: top-left quadrant", function() {
       var objects = world.pickRegion(at.left, at.top, at.center_x, at.center_y);
-      expect(objects).toContain(ofront);
-      expect(objects).toContain(otopleft);
-      expect(objects).not.toContain(otopright);
-      expect(objects).not.toContain(obottomleft);
-      expect(objects).not.toContain(obottomright);
+      expect(objects.indexOf(ofront)).not.toEqual(-1);
+      expect(objects.indexOf(otopleft)).not.toEqual(-1);
+      expect(objects.indexOf(otopright)).toEqual(-1);
+      expect(objects.indexOf(obottomleft)).toEqual(-1);
+      expect(objects.indexOf(obottomright)).toEqual(-1);
     });
-
+    
     it("region: top-right quadrant", function() {
       var objects = world.pickRegion(at.right, at.top, at.center_x, at.center_y);
-      expect(objects).toContain(ofront);
-      expect(objects).not.toContain(otopleft);
-      expect(objects).toContain(otopright);
-      expect(objects).not.toContain(obottomleft);
-      expect(objects).not.toContain(obottomright);
+      expect(objects.indexOf(ofront)).not.toEqual(-1);
+      expect(objects.indexOf(otopleft)).toEqual(-1);
+      expect(objects.indexOf(otopright)).not.toEqual(-1);
+      expect(objects.indexOf(obottomleft)).toEqual(-1);
+      expect(objects.indexOf(obottomright)).toEqual(-1);
     });
-
+    
     it("region: bottom-left quadrant", function() {
       var objects = world.pickRegion(at.left, at.bottom, at.center_x, at.center_y);
-      expect(objects).toContain(ofront);
-      expect(objects).not.toContain(otopleft);
-      expect(objects).not.toContain(otopright);
-      expect(objects).toContain(obottomleft);
-      expect(objects).not.toContain(obottomright);
+      expect(objects.indexOf(ofront)).not.toEqual(-1);
+      expect(objects.indexOf(otopleft)).toEqual(-1);
+      expect(objects.indexOf(otopright)).toEqual(-1);
+      expect(objects.indexOf(obottomleft)).not.toEqual(-1);
+      expect(objects.indexOf(obottomright)).toEqual(-1);
     });
     
     it("region: bottom-right quadrant", function() {
       var objects = world.pickRegion(at.right, at.bottom, at.center_x, at.center_y);
-      expect(objects).toContain(ofront);
-      expect(objects).not.toContain(otopleft);
-      expect(objects).not.toContain(otopright);
-      expect(objects).not.toContain(obottomleft);
-      expect(objects).toContain(obottomright);
+      expect(objects.indexOf(ofront)).not.toEqual(-1);
+      expect(objects.indexOf(otopleft)).toEqual(-1);
+      expect(objects.indexOf(otopright)).toEqual(-1);
+      expect(objects.indexOf(obottomleft)).toEqual(-1);
+      expect(objects.indexOf(obottomright)).not.toEqual(-1);
     });
-    */
+    
+    it("should be able to pick objects not explicitly added to the world", function() {
+      var onested = new Jax.Model({position: [0.0, 0.0, -5], mesh: mesh});
+      ofront.render = function(context, options) { onested.render(context, options); };
+      expect(world.pick(at.center_x, at.center_y) === onested).toBeTruthy();
+    });
+
+    it("should be able to regionally pick objects not explicitly added to the world", function() {
+      var onested = new Jax.Model({position: [0.0, 0.0, -5], mesh: mesh});
+      ofront.render = function(context, options) { onested.render(context, options); };
+      expect(world.pickRegion(at.center_x-1, at.center_y-1, at.center_x+1, at.center_y+1)[0] === onested).toBeTruthy();
+    });
   });
   
   describe("with an object", function() {
-    beforeEach(function() { world.addObject(new Jax.Model()); });
+    var model;
+    beforeEach(function() { world.addObject(model = new Jax.Model()); });
     
-    it("should remove the object", function() {
-      world.removeObject(world.getObject(0));
+    it("should remove objects by reference", function() {
+      world.removeObject(model);
+      expect(world.countObjects()).toEqual(0);
+    });
+
+    it("should remove objects by ID", function() {
+      world.removeObject(model.__unique_id);
       expect(world.countObjects()).toEqual(0);
     });
   });
