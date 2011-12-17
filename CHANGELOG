@@ -1,4 +1,4 @@
-* 2.0.6 (Not Released) *
+* 2.0.6 *
 
 * Resolved issue #30: `Jax.Framebuffer#getTexture(context, index)` now returns texture
   with index 0 if index was not given.
