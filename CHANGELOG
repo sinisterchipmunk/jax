@@ -17,6 +17,9 @@
   
 * Resolved issue #46: Render errors when shadows are disabled, but shadowmapping is not
 
+* Resolved issue #47: Removing an object from the scene causes infinite recursion in light
+  manager
+
 
 
 * 2.0.5 *
