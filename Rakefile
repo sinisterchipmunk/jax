@@ -339,3 +339,4 @@ task :guides => 'guides:generate'
 
 # disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine instead.
 task :default => ['spec', 'cucumber', 'travis', 'guides']
+task :release => 'guides:publish'
