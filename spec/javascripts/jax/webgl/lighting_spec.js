@@ -78,7 +78,24 @@ describe("LightManager", function() {
   });
   
   describe("by default", function() {
+    var model;
     beforeEach(function() { mgr = new Jax.Scene.LightManager(); });
+    
+    describe("after adding an object", function() {
+      beforeEach(function() { mgr.addObject(model = new Jax.Model({shadow_caster:true})); });
+      
+      it("should be in the shadowcasters list", function() {
+        expect(mgr.getShadowCasters().length).toEqual(1);
+      });
+      
+      describe("removing the object", function() {
+        beforeEach(function() { mgr.removeObject(model); });
+        
+        it("should be gone", function() {
+          expect(mgr.getShadowCasters().length).toEqual(0);
+        });
+      });
+    });
   
     it("should not be enabled", function() {
       expect(mgr.isEnabled()).toBeFalsy();
