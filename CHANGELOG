@@ -1,6 +1,8 @@
-* 2.0.7 (Not Released) *
+* 2.0.7 *
 
 * Resolved issue #48: Unable to reliably pick any object not explicitly added to World
+
+* Resolved issue #54: Default views can't be overridden
 
 
 
