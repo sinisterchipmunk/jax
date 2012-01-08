@@ -3,7 +3,10 @@ describe("Jax.RouteSet", function() {
   var controller_class = Jax.Controller.create({index: function() { }});
   Jax.views.push("generic/index", function() { });
   
-  beforeEach(function() { map = Jax.routes; map.clear(); });
+  beforeEach(function() {
+    map = Jax.routes;
+    map.clear();
+  });
   
   describe("when a CamelCase controller name is given", function() {
     beforeEach(function() {

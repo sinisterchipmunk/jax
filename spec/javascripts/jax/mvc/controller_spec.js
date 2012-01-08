@@ -8,6 +8,28 @@ describe("Jax.Controller", function() {
     expect(Jax.views.find("welcome/index")).not.toBeUndefined();
   });
   
+  describe("with a view defined", function() {
+    var view;
+    beforeEach(function() {
+      view = function() { };
+      Jax.views.push("FooBars/index", view);
+    });
+    
+    it("should indicate the view exists", function() {
+      expect(Jax.views.exists("foo_bars/index")).toBeTruthy();
+    });
+    
+    it("should indicate CamelCased variants of the view exist", function() {
+      expect(Jax.views.exists("Foo_bars/index")).toBeTruthy();
+      expect(Jax.views.exists("FooBars/index")).toBeTruthy();
+    });
+    
+    it("should override the default view", function() {
+      Jax.Controller.create("FooBars", {});
+      expect(Jax.views.find("foo_bars/index").view_func).toBe(view);
+    });
+  });
+  
   describe("with an update method", function() {
     var context;
     
