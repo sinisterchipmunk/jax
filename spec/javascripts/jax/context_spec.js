@@ -279,6 +279,7 @@ describe("Jax.Context", function() {
         // silence error. this prevents console.log() and alert() from firing.
         error.silence = true;
         fired = true;
+        if (error.phase != 'update') alert(error);
         expect(error.phase).toEqual('update');
       });
       

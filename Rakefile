@@ -109,7 +109,7 @@ namespace :doc do
     
     errors = false
 
-    Dir[File.expand_path("src/**/*.js", File.dirname(__FILE__))].each do |fi|
+    Dir[File.expand_path("src/**/*.js*", File.dirname(__FILE__))].each do |fi|
       next unless File.file?(fi)
       lfi = fi.sub(/^#{Regexp::escape File.expand_path("src/", File.dirname(__FILE__))}\/?/, '')
       candidates.each do |candidate|
@@ -166,7 +166,7 @@ namespace :doc do
     PDoc.run({
       :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/gl-matrix-pdoc.js'] +
 #                        Dir['vendor/ejs/src/**/*.js'] +
-                        Dir['lib/assets/javascripts/jax/**/*.{js,js.erb}']),
+                        Dir['lib/assets/javascripts/{jax,doc}/**/*.{js,js.erb,js.coffee,js.coffee.erb}']),
       :destination  => "doc",
 #      :index_page   => 'src/README.markdown',
       :syntax_highlighter => 'coderay',
