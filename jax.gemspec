@@ -16,22 +16,22 @@ Gem::Specification.new do |s|
     seamlessly with Ruby on Rails to build dynamic WebGL applications.
   }
 
-  s.add_dependency 'rails',          '~> 3.1.0'
-  s.add_dependency 'jquery-rails',   '~> 1.0.13'
-  s.add_dependency 'jasmine',        '~> 1.0.2.0'
-  s.add_dependency 'rest-client',    '~> 1.6.3'
+  s.add_dependency 'rails',          '~> 3.1'
+  s.add_dependency 'jquery-rails',   '~> 1.0'
+  s.add_dependency 'jasmine',        '~> 1.0'
+  s.add_dependency 'rest-client',    '~> 1.6'
   
   s.add_development_dependency 'rspec',          '~> 2.6.0'
-  s.add_development_dependency 'coffee-rails',   '~> 3.1.0'
-  s.add_development_dependency 'coderay',        '~> 0.9.7'
-  s.add_development_dependency 'sqlite3',        '~> 1.3.4'
-  s.add_development_dependency 'sass-rails',     '~> 3.1.0'
-  s.add_development_dependency 'uglifier',       '~> 1.0.2'
-  s.add_development_dependency 'genspec',        '~> 0.2.3'
-  s.add_development_dependency 'selenium-webdriver', '~> 2.9.1'
-  s.add_development_dependency 'fakeweb',        '~> 1.3.0'
+  s.add_development_dependency 'coffee-rails',   '~> 3.1'
+  s.add_development_dependency 'coderay',        '~> 0.9'
+  s.add_development_dependency 'sqlite3',        '~> 1'
+  s.add_development_dependency 'sass-rails',     '~> 3.1'
+  s.add_development_dependency 'uglifier',       '~> 1.0'
+  s.add_development_dependency 'genspec',        '~> 0.2'
+  s.add_development_dependency 'selenium-webdriver', '~> 2'
+  s.add_development_dependency 'fakeweb',        '~> 1.3'
   s.add_development_dependency 'ansi'
-  s.add_development_dependency 'cucumber-rails', '~> 1.0.2'
+  s.add_development_dependency 'cucumber-rails', '~> 1.0'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'
