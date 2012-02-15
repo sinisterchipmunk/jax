@@ -1,4 +1,9 @@
-require 'rails/engine'
+require 'rails'
+
+# this appears to be necessary for rbx, jruby, ruby1.8 -- but it may be a bug in rails
+# so possibly could be removed in later versions.
+# Symptom: undefined method `singleton_class' for Jax:Module
+require 'active_support/core_ext'
 
 module Jax
   class Engine < ::Rails::Engine
