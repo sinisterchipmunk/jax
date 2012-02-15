@@ -8,15 +8,6 @@ rescue LoadError
   puts
   puts "       gem install bundler"
   exit
-rescue Bundler::GemNotFound
-  # this runs recursively forever under jruby, so special case failure for that.
-  if ENV['NO_MORE_ATTEMPTS'] || RUBY_PLATFORM == "java"
-    raise
-  else
-    ENV['NO_MORE_ATTEMPTS'] = '1'
-    system("bundle", "install")
-    exec("bundle", "exec", "rake", *ARGV)
-  end
 end
 
 require 'cucumber/rake/task'
