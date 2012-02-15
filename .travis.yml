@@ -9,7 +9,7 @@ rvm:
   - ree
 #  - jruby
   - ruby-head
-  - rbx-2.0
+  - rbx
 
   
 # before_script:
