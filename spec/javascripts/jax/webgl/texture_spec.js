@@ -78,7 +78,11 @@ describe("Texture", function() {
     });
 
     describe("with 6 POT textures", function() {
-      beforeEach(function() { tex = new Jax.Texture([_img,_img,_img,_img,_img,_img], {target:GL_TEXTURE_CUBE_MAP}); });
+      beforeEach(function() { tex = new Jax.Texture([_img,_img,_img,_img,_img,_img]); });
+      
+      it("should set default target appropriately", function() {
+        expect(tex.options.target).toEqual(GL_TEXTURE_CUBE_MAP);
+      });
       
       _it("should bind successfully", function() {
         expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
