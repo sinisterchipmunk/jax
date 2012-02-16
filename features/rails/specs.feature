@@ -22,3 +22,12 @@ Feature: Rails Specs
     Given file "spec/javascripts/script_spec.js.coffee" contains "2"
     When I visit "/jasmine"
     Then I should see a "script" element with attribute "src" equal to "/spec/script_spec.js"
+
+  @allow-rescue
+  Scenario: CS spec failing to compile
+    Given file "spec/javascripts/script_spec.js.coffee" contains "this is invalid!"
+    When I visit "/spec/script_spec.js"
+    Then I should see "Error"
+    
+    When I visit "/spec/script_spec.js"
+    Then I should not see "has already been required"
