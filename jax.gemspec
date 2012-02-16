@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'jasmine',        '~> 1.0'
   s.add_dependency 'rest-client',    '~> 1.6'
   
-  s.add_development_dependency 'rspec',          '~> 2.6.0'
+  s.add_development_dependency 'rspec',          '~> 2.6'
   s.add_development_dependency 'coffee-rails',   '~> 3.1'
   s.add_development_dependency 'coderay',        '~> 0.9'
   s.add_development_dependency 'sqlite3',        '~> 1'

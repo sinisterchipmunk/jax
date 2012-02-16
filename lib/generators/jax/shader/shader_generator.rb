@@ -4,6 +4,10 @@ require 'rails/generators/rails/model/model_generator'
 module Jax
   module Generators
     class ShaderGenerator < Jax::Generators::NamedBase
+      def create_shader_path
+        empty_directory File.join("app/assets/jax/shaders", file_name)
+      end
+      
       def create_common_shader_file
         template "shader_common.glsl.erb",
           File.join('app/assets/jax/shaders', file_name, "common.glsl")

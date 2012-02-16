@@ -2,6 +2,19 @@ require 'spec_helper'
 
 describe 'jax:shader' do
   with_args "clouds" do
+    describe "when destroyed" do
+      with_generator_options :behavior => :revoke do
+        within_source_root do
+          FileUtils.mkdir_p "app/assets/jax/shaders/clouds"
+          FileUtils.touch "app/assets/jax/shaders/clouds/manifest.js"
+        end
+        
+        it "should delete shader directory" do
+          subject.should delete("app/assets/jax/shaders/clouds")
+        end
+      end
+    end
+
     it "should generate manifest file" do
       subject.should generate("app/assets/jax/shaders/clouds/manifest.yml")
     end

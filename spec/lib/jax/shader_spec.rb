@@ -9,6 +9,28 @@ require 'spec_helper'
 describe Jax::Shader do
   # include MockAssets
   
+  context "directory but shader files missing" do
+    before do
+      create_directory 'app/assets/jax/shaders/my_shader'
+      create_shader 'another_shader', :fragment => '1'
+      create_asset 'all_shaders.js', '//= require_everything_matching "shaders"'
+    end
+    
+    it "should not produce a shader at all" do
+      proc { asset('shaders/my_shader/fragment.glsl') }.should raise_error(/asset not found/)
+      proc { asset('shaders/my_shader/vertex.glsl') }.should raise_error(/asset not found/)
+      proc { asset('shaders/my_shader/manifest.js') }.should raise_error(/asset not found/)
+    end
+    
+    it "should not build the shader at all" do
+      appjs = asset('all_shaders.js')
+      
+      appjs.should =~ /another_shader/ # sanity check
+      appjs.should_not =~ /my_shader/
+      appjs.should_not =~ /MyShader/
+    end
+  end
+  
   context "exports" do
     context "with implicit value" do
       before :each do

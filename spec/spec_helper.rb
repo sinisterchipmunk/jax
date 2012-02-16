@@ -14,7 +14,7 @@ Dir[File.expand_path("support/**/*.rb", File.dirname(__FILE__))].each { |fi| req
 require 'jax/rails/application'
 Jax::Rails::Application.config.assets.digest = false
 # IMPORTANT: it is necessary to set this _prior_ to app initialization in order to pick up asset dirs
-::Rails.application.config.root = File.expand_path("../../tmp/rails-specs", File.dirname(__FILE__))
+::Rails.application.config.root = File.expand_path("../tmp/rails-specs", File.dirname(__FILE__))
 Jax::Rails::Application.initialize!
 
 # see support/test_model_generator.rb
@@ -54,11 +54,12 @@ FakeWeb.register_uri(:post, "http://plugins.jaxgl.com/plugins", :response => fix
 
 RSpec.configure do |c|
   c.include Jax::Testing::RailsEnvironment
-  c.include Rack::Test::Methods
+  c.include Rack::Test::Methods, :example_group => { :file_path => Regexp.compile(/jax[\\\/]rails/) }
   c.include FixturesHelper
   
   c.before(:each) do
     FileUtils.rm_rf File.expand_path("../tmp/cache", File.dirname(__FILE__))
+    FileUtils.rm_rf Rails.root.join('tmp/cache')
     setup_rails_environment
   end
 end

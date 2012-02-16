@@ -70,7 +70,7 @@ module Jax
       def asset(path)
         asset = assets.find_asset(path)
         raise "asset not found: #{path} in #{@asset_dir}" unless asset
-        asset.body
+        asset.to_s
       end
 
       def append_to_file(file, content = nil, &block)
