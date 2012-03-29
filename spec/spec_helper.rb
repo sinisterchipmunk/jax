@@ -4,8 +4,6 @@ require 'jax'
 require 'rspec'
 require 'tmpdir'
 
-# require 'rspec/isolation'
-
 require 'genspec'
 # workaround for testing due to a permissions bug in jruby
 GenSpec.root = File.expand_path('../tmp/genspecs', File.dirname(__FILE__))
