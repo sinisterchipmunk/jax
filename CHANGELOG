@@ -5,6 +5,12 @@
 
 
 
+* 2.0.8 *
+
+* Resolved issue #55: bin/jax should not fail within spaced paths
+
+
+
 * 2.0.7 *
 
 * Resolved issue #48: Unable to reliably pick any object not explicitly added to World
