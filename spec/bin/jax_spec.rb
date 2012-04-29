@@ -84,6 +84,19 @@ describe 'bin/jax' do
     end
   end
   
+  describe "in a spaced jax app" do
+    let(:shell) { GenSpec::Shell.new }
+    
+    before do
+      Jax::Generators::ApplicationGenerator.start ["spaced app", "--skip-bundle"], :shell => shell
+      FileUtils.chdir "spaced app"
+    end
+    
+    it "should not fail to generate" do
+      proc { subject }.should_not raise_error
+    end
+  end
+  
   describe "in a jax application" do
     before(:each) do
       Jax::Generators::ApplicationGenerator.start ["test_app", "--skip-bundle"], :shell => GenSpec::Shell.new

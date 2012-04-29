@@ -61,7 +61,7 @@ module Jax
 
       def ruby(*args)
         ruby = File.join(*RbConfig::CONFIG.values_at("bindir", "ruby_install_name")) + RbConfig::CONFIG["EXEEXT"]
-        exec [ ruby, *args ].join(" ")
+        exec *[ ruby, *args ]
       end
     end
   end
