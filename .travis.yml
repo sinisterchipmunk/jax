@@ -19,3 +19,15 @@ rvm:
 #   - sh -e /etc/init.d/xvfb start
 
 env: "SKIP_WEBGL=1 "
+
+# JRuby and RBX are not yet officially supported,
+# until failing dependencies work properly or are
+# no longer depended upon.
+matrix:
+  allow_failures:
+    - rvm: jruby-18mode
+    - rvm: jruby-19mode
+    - rvm: jruby-head
+    - rvm: rbx-18mode
+    - rvm: rbx-19mode
+
