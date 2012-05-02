@@ -32,14 +32,12 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'fakeweb',        '~> 1.3'
   s.add_development_dependency 'ansi'
   s.add_development_dependency 'cucumber-rails', '~> 1'
+  
+  s.add_development_dependency 'rocco'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'
   s.add_development_dependency 'w3c_validators', '~> 1.2'
-
-  # required by pdoc
-  s.add_development_dependency 'treetop',   '~> 1.4.9'
-  s.add_development_dependency 'bluecloth', '~> 2.0.11'
 
   s.rubyforge_project = "jax"
 

@@ -24,17 +24,28 @@ Cucumber::Rake::Task.new(:cucumber) do |t|
   end
 end
 
-# pdoc is a different beast because the released gem seems to be quite dated,
-# and is incompatible with Ruby 1.9.2. We'll grab the latest from git, instead.
-begin
-  require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
-rescue LoadError
-  puts "You don't seem to have pdoc. Fetching..."
-  if !system("git", "submodule", "init") || !system("git", "submodule", "update")
-    puts "Couldn't fetch pdoc. Make sure you have git installed."
-    exit
+require 'rocco/tasks'
+# HACK to prevent rocco documenting Sprockets directives
+class Rocco
+  alias_method :_parse, :parse
+  def parse(data)
+    lines = data.split("\n")
+    lines.reject! { |line| line =~ /#{Regexp::escape generate_comment_chars[:single]}=/ }
+    _parse lines.join("\n")
   end
-  require File.join(File.dirname(__FILE__), 'vendor/pdoc/lib/pdoc')
+end
+
+desc "Build API documentation"
+Rocco::Task.new :doc, 'doc/', 'lib/**/*.{js,coffee,rb,erb,glsl}', {
+  :language => 'js',
+  :stylesheet => File.expand_path('templates/rocco.css', File.dirname(__FILE__)),
+  :template_file => File.expand_path("templates/rocco_layout.mustache.html", File.dirname(__FILE__))
+}
+
+desc "Clobber and rebuild API docs"
+task :redoc do
+  FileUtils.rm_rf File.expand_path("doc", File.dirname(__FILE__))
+  Rake::Task['doc'].invoke
 end
 
 require File.join(File.dirname(__FILE__), "lib/jax")
@@ -74,125 +85,14 @@ task :flagged do
   Rake::Task['hacks'].invoke
 end
 
-### HACK to add redcloth support to pdoc without changing pdoc itself
-class PDoc::Generators::Html::Website < PDoc::Generators::AbstractGenerator
-  alias _set_markdown_parser set_markdown_parser
-  
-  def set_markdown_parser(parser = nil)
-    if parser && parser.to_sym == :redcloth
-      require 'redcloth'
-      self.class.markdown_parser = RedCloth
-    else
-      _set_markdown_parser(parser)
-    end
-  end
-end
-
-namespace :doc do
-  desc "check for common pdoc typos"
-  task :check do
-    candidates = [
-      /\/\*\*(.*?)\*\*\//m,
-      /\s*\*.*?\)\s+:/,                #  * - object (Jax.Model) : description
-      /\s*\*\s*\-.*?\)\s*\-/,          #  * - object (Jax.Model) - description
-      /\s*\*\s*\-[^\n]*?\n\s*\*\*\//m, #  * - object (Jax.Model): description\n  **/
-    ]
-    
-    errors = false
-
-    Dir[File.expand_path("src/**/*.js*", File.dirname(__FILE__))].each do |fi|
-      next unless File.file?(fi)
-      lfi = fi.sub(/^#{Regexp::escape File.expand_path("src/", File.dirname(__FILE__))}\/?/, '')
-      candidates.each do |candidate|
-        if candidate.multiline?
-          content = File.read(fi)
-          offset = 0
-          lineno = 1
-          while m = candidate.match(content[offset...content.length])
-            offset += m.offset(0)[1]
-            lineno += $`.lines.to_a.length
-
-            if candidate == candidates.first
-              full = $~[0]
-              # special case -- we're looking for parameters followed by an empty line. If it's missing,
-              # pdoc will not correctly parse the params.
-              inner = $~[1]
-              
-              if inner =~ /^\s*\*\s*\-.*/m
-                lineno += $`.lines.to_a.length
-                inner = $~[0]
-                if inner !~ /\*\s*(\*|$)/m
-                  errors = true
-                  puts "#{lfi}:#{lineno} >\n#{full}"
-                end
-              end
-            else
-              errors = true
-              puts "#{lfi}:#{lineno} >\n#{$~[0]}"
-            end
-          end
-        else
-          File.read(fi).lines.each_with_index do |line,no|
-            if line =~ candidate
-              errors = true
-              puts "#{lfi}:#{no+1} > #{$~[0]}"
-            end
-          end
-        end
-      end
-    end
-    
-    exit 1 if errors
-    puts "\e[32mdocumentation looks good\e[0m"
-  end
-  
-  desc "build the Jax JavaScript documentation"
-  task :js => 'doc:check' do
-    require 'erb'
-    FileUtils.rm_rf 'doc'
-    
-    @link_to_guides = true
-    @hide_links_to_api_docs = true
-    header = ERB.new(File.read(File.expand_path("guides/partials/_top_nav.html.erb", File.dirname(__FILE__)))).result(binding)
-    PDoc.run({
-      :source_files => (['lib/assets/javascripts/jax.js', 'vendor/assets/javascripts/gl-matrix-pdoc.js'] +
-#                        Dir['vendor/ejs/src/**/*.js'] +
-                        Dir['lib/assets/javascripts/{jax,doc}/**/*.{js,js.erb,js.coffee,js.coffee.erb}']),
-      :destination  => "doc",
-#      :index_page   => 'src/README.markdown',
-      :syntax_highlighter => 'coderay',
-      :markdown_parser => :redcloth,
-      # :markdown_parser    => :bluecloth,
-      :src_code_text => "View source on GitHub &rarr;",
-      :src_code_href => proc { |obj|
-        "https://github.com/sinisterchipmunk/jax/tree/master/#{obj.file}#L#{obj.line_number}"
-      },
-      :pretty_urls => false,
-      :bust_cache  => true,
-      :name => 'Jax WebGL Framework',
-      :short_name => 'Jax',
-      :home_url => 'http://jaxgl.com',
-      :version => Jax::VERSION,
-      :templates => "vendor/pdoc_template/html",
-      :header => header,
-      :index_header => header,
-#      :index_header => "",
-#      :footer => '',
-#      :assets => 'doc_assets'
-    })
-
-    Dir['src/**/.*.pdoc.yaml'].each { |f| FileUtils.rm f }
-  end
-end
-
 namespace :guides do
-  # gen doc:js first because we're going to include a direct link to the JS API dox
+  # gen docs first because we're going to include a direct link to the JS API
   task :generate do
     rm_rf "guides/output"
     if !ENV["SKIP_API"]
-      Rake::Task['doc:js'].invoke
-      mkdir_p "guides/output/api"
-      cp_r "doc", "guides/output/api/js"
+      Rake::Task['doc'].invoke
+      mkdir_p "guides/output"
+      cp_r "doc/lib", "guides/output/lib"
     end
     ENV["WARN_BROKEN_LINKS"] = "1" # authors can't disable this
     ruby "guides/jax_guides.rb"
