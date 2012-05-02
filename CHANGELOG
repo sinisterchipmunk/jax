@@ -1,3 +1,9 @@
+* 2.0.9 *
+
+* Resolved issue #59: Jax.Mesh.Cube should update its data when any of its faces change
+
+
+
 * 2.0.8 *
 
 * Resolved issue #55: bin/jax should not fail within spaced paths
