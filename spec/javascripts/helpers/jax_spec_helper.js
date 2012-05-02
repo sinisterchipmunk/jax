@@ -63,10 +63,19 @@ beforeEach(function() {
   }
 
   this.addMatchers({
-    toBePlaying: function(expectedSong) {
-      var player = this.actual;
-      return player.currentlyPlayingSong === expectedSong
-          && player.isPlaying;
+    toIncludeSubset: function(subset) {
+      for (var i = 0; i < this.actual.length; i++) {
+        if (i+subset.length >= this.actual.length) return false;
+        
+        var found = true;
+        for (var j = 0; j < subset.length; j++) {
+          if (this.actual[i+j] != subset[j])
+            found = false;
+        }
+        if (found) return true;
+      }
+      
+      return false;
     },
     
     toBeKindOf: function(expectedKlass) {
