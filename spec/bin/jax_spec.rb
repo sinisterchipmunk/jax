@@ -33,6 +33,9 @@ describe 'bin/jax' do
     before :each do
       FileUtils.mkdir_p "script"
       FileUtils.mkdir_p "config"
+      File.open "config/routes.rb", "w" do |f|
+      end
+      
       File.open "config/application.rb", "w" do |f|
         f.puts "require 'rails/all'"
         f.puts "class TmpApp < Rails::Application"
@@ -50,6 +53,11 @@ describe 'bin/jax' do
     end
     
     shared_examples_for 'rails app' do
+      it "should invoke installer" do
+        @args.push "install"
+        subject.should =~ /mount Jax::Engine/
+      end
+      
       it "should give usage" do
         subject_with_rescue.should =~ /Usage:/
       end

@@ -1,4 +1,5 @@
 require 'rails/generators'
+require 'generators/jax/all'
 
 module Jax
   module Generators

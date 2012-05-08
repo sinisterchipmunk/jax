@@ -9,11 +9,17 @@ module Jax
         @rails_or_jax = recursively_find_path("script/rails") || recursively_find_path("script/jax")
         
         if @rails_or_jax
-          if ARGV[0] && ARGV[0][/^(g|generate|destroy)$/]
-            if ARGV.length > 1
-              ARGV[1] = "jax:#{ARGV[1]}"
-            else
-              ARGV[1] = "jax"
+          if ARGV[0]
+            if ARGV[0][/^(g|generate|destroy)$/i]
+              if ARGV.length > 1
+                ARGV[1] = "jax:#{ARGV[1]}"
+              else
+                ARGV[1] = "jax"
+              end
+            elsif ARGV[0][/^install$/i]
+              # Special case: convert `jax install` into `rails generate jax:install`
+              ARGV[0] = 'generate'
+              ARGV[1] = 'jax:install'
             end
           end
           
