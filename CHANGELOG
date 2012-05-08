@@ -7,6 +7,9 @@
 
 * Resolved #42: Deprecated WebGL wrapper methods, since they're no longer helpful
 
+* Previous versions of Jax used a temporary WebGL context during initialization; this
+  has now been removed in favor of lazily loading the relevant data.
+  
 
 
 * 2.0.8 *
