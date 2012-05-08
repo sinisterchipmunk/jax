@@ -69,7 +69,7 @@ class Jax.Noise
   
   prepare: (context) ->
     @grad.bind context, ->
-      context.glTexImage2D GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, grad_buf
+      context.gl.texImage2D GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, grad_buf
       
   constructor: (context = null) ->
     # Jax.Noise#grad -> Jax.Texture

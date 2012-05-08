@@ -245,7 +245,7 @@ describe("Jax.Context", function() {
       Jax.routes.clear();
       Jax.Controller.create("welcome", {index: function() { action_called++; }});
       Jax.views.push("welcome/index", function() {
-        this.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        this.gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         this.world.render();
         view_called++;
       });
@@ -279,7 +279,9 @@ describe("Jax.Context", function() {
         // silence error. this prevents console.log() and alert() from firing.
         error.silence = true;
         fired = true;
-        if (error.phase != 'update') alert(error);
+        
+        // if it's not an 'update' then we need to know what it actually is, for debugging
+        if (error.phase != 'update') expect(function() { throw error; }).not.toThrow();
         expect(error.phase).toEqual('update');
       });
       

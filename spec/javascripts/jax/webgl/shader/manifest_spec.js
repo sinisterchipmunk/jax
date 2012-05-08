@@ -14,7 +14,7 @@ describe("Jax.Shader.Manifest", function() {
       tex1 = new Jax.Texture(img);
       waitsFor(function() {
         if (tex0.loaded && tex1.loaded) {
-          spyOn(SPEC_CONTEXT, 'glActiveTexture');
+          spyOn(SPEC_CONTEXT.gl, 'activeTexture');
           spyOn(tex0, 'bind');
           spyOn(tex1, 'bind');
           manifest.texture('Texture0', tex0, SPEC_CONTEXT);
@@ -41,8 +41,8 @@ describe("Jax.Shader.Manifest", function() {
     });
     
     it("should activate the textures", function() {
-      expect(SPEC_CONTEXT.glActiveTexture).toHaveBeenCalledWith(GL_TEXTURE0);
-      expect(SPEC_CONTEXT.glActiveTexture).toHaveBeenCalledWith(GL_TEXTURE1);
+      expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE0);
+      expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE1);
     });
     
     it("should bind the textures", function() {

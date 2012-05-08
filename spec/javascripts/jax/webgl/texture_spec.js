@@ -60,12 +60,12 @@ describe("Texture", function() {
     describe("with no image", function() {
       beforeEach(function() {
         tex = new Jax.Texture(null, {target:GL_TEXTURE_CUBE_MAP,width:128,height:128});
-        spyOn(SPEC_CONTEXT, 'glBindTexture').andCallThrough();
+        spyOn(SPEC_CONTEXT.gl, 'bindTexture').andCallThrough();
       });
       
       it("should bind successfully", function() {
         expect(function(){tex.bind(SPEC_CONTEXT);}).not.toThrow();
-        expect(SPEC_CONTEXT.glBindTexture).toHaveBeenCalled();
+        expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalled();
       });
     });
     
@@ -93,12 +93,12 @@ describe("Texture", function() {
   describe("with no image", function() {
     beforeEach(function() {
       tex = new Jax.Texture(null, {target:GL_TEXTURE_2D,width:128,height:128});
-      spyOn(SPEC_CONTEXT, 'glBindTexture').andCallThrough();
+      spyOn(SPEC_CONTEXT.gl, 'bindTexture').andCallThrough();
     });
       
     it("should bind successfully", function() {
       expect(function(){tex.bind(SPEC_CONTEXT);}).not.toThrow();
-      expect(SPEC_CONTEXT.glBindTexture).toHaveBeenCalled();
+      expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalled();
     });
   });
     
@@ -126,12 +126,12 @@ describe("Texture", function() {
     describe("when bound without block with level", function() {
       beforeEach(function() {
         waitsFor(function() { return tex.ready(); }, 1000);
-        spyOn(SPEC_CONTEXT, 'glActiveTexture').andCallThrough();
+        spyOn(SPEC_CONTEXT.gl, 'activeTexture').andCallThrough();
       });
       
       it("should use texture 1", function() {
         tex.bind(SPEC_CONTEXT, 1);
-        expect(SPEC_CONTEXT.glActiveTexture).toHaveBeenCalledWith(GL_TEXTURE1);
+        expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE1);
       });
     });
     

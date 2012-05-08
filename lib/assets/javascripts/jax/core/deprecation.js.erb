@@ -1,0 +1,211 @@
+Jax.deprecate = function(owner, old_func, new_func, message) {
+  if (!owner) throw new Error("Can't deprecate '"+old_func+"' without an owner");
+  var _proto = owner.prototype || owner;
+
+  _proto[old_func] = function() {
+    if (new_func && this[new_func]) {
+      message = message || "`"+owner.name+"."+old_func+"` has been deprecated. Please use `"+owner.name+"."+new_func+"` instead.";
+      console.log(message);
+      return this[new_func].apply(this, arguments);
+    } else {
+      message = message || "`"+owner.name+"."+old_func+"` has been deprecated. Please see the documentation.";
+      throw new Error(message);
+    }
+  };
+};
+
+<%# Don't provide deprecation notices in production mode, to reduce bulk. %>
+<% unless Rails.env.production? %>
+
+/** deprecated
+ * vec3.distance(a, b[, dest]) -> vec3
+ *
+ * Deprecated. Please use `vec3.dist(a, b[, dest])` instead.
+ **/
+Jax.deprecate(vec3, 'distance', 'dist');
+
+/** deprecated
+ * Jax.RouteSet#root(controller, actionName) -> undefined
+ * - controller (Jax.Controller): the controller that will be routed to
+ * - actionName (String): the name of the action to be invoked by this route
+ * 
+ * Note that the controller is expected to be a subclass of Jax.Controller.
+ * 
+ * Example:
+ * 
+ *     Jax.routes.root(WelcomeController, "index");
+ * 
+ **/
+Jax.deprecate(Jax.RouteSet, 'root', null, 
+  "Jax.RouteSet#root is deprecated. Instead, please use\n" +
+  "  `new Jax.Context(canvas, {root:'controller/action'})`\n"+
+  "or redirect explicitly with \n"+
+  "  `context.redirectTo('controller/action')`"
+);
+
+/** deprecated
+ * Jax.Camera#orient(viewVector, upVector[, positionVector]) -> Jax.Camera
+ * - viewVector (vec3): the new direction that the camera will be pointing
+ * - upVector (vec3): the new "up" direction perpendicular to the view
+ * - positionVector (vec3): optionally, a new position for the camera
+ * Jax.Camera#orient(vx, vy, vz, ux, uy, uz[, px, py, pz]) -> Jax.Camera
+ * 
+ * Reorients this camera to be looking in the specified direction.
+ * Optionally, repositions this camera.
+ *
+ * **Deprecated.** Please use Jax.Camera#setDirection instead.
+ **/
+Jax.deprecate(Jax.Camera, 'orient', 'reorient');
+
+/** deprecated
+ * Jax.Framebuffer#getTextureBuffer(context, index) -> Jax.Texture
+ *
+ * This method is deprecated. See Jax.Framebuffer#getTexture instead.
+ **/
+Jax.deprecate(Jax.Framebuffer, 'getTextureBuffer', 'getTexture');
+
+/** deprecated
+ * Jax.Framebuffer#getTextureBufferHandle(context, index) -> WebGLTexture
+ *
+ * This method is deprecated. See Jax.Framebuffer#getTextureHandle instead.
+ **/
+Jax.deprecate(Jax.Framebuffer, 'getTextureBufferHandle', 'getTextureHandle');
+
+Jax.deprecate(Jax.Context, 'glClearColor');
+Jax.deprecate(Jax.Context, 'glGetContextAttributes');
+Jax.deprecate(Jax.Context, 'glIsContextLost');
+Jax.deprecate(Jax.Context, 'glGetSupportedExtensions');
+Jax.deprecate(Jax.Context, 'glGetExtension');
+Jax.deprecate(Jax.Context, 'glActiveTexture');
+Jax.deprecate(Jax.Context, 'glAttachShader');
+Jax.deprecate(Jax.Context, 'glBindAttribLocation');
+Jax.deprecate(Jax.Context, 'glBindBuffer');
+Jax.deprecate(Jax.Context, 'glBindFramebuffer');
+Jax.deprecate(Jax.Context, 'glBindRenderbuffer');
+Jax.deprecate(Jax.Context, 'glBindTexture');
+Jax.deprecate(Jax.Context, 'glBlendColor');
+Jax.deprecate(Jax.Context, 'glBlendEquation');
+Jax.deprecate(Jax.Context, 'glBlendEquationSeparate');
+Jax.deprecate(Jax.Context, 'glBlendFunc');
+Jax.deprecate(Jax.Context, 'glBlendFuncSeparate');
+Jax.deprecate(Jax.Context, 'glBufferData');
+Jax.deprecate(Jax.Context, 'glBufferSubData');
+Jax.deprecate(Jax.Context, 'glCheckFramebufferStatus');
+Jax.deprecate(Jax.Context, 'glClear');
+Jax.deprecate(Jax.Context, 'glClearColor');
+Jax.deprecate(Jax.Context, 'glClearDepth');
+Jax.deprecate(Jax.Context, 'glClearStencil');
+Jax.deprecate(Jax.Context, 'glColorMask');
+Jax.deprecate(Jax.Context, 'glCompileShader');
+Jax.deprecate(Jax.Context, 'glCompressedTexImage2D');
+Jax.deprecate(Jax.Context, 'glCompressedTexSubImage2D');
+Jax.deprecate(Jax.Context, 'glCopyTexImage2D');
+Jax.deprecate(Jax.Context, 'glCopyTexSubImage2D');
+Jax.deprecate(Jax.Context, 'glCreateBuffer');
+Jax.deprecate(Jax.Context, 'glCreateFramebuffer');
+Jax.deprecate(Jax.Context, 'glCreateProgram');
+Jax.deprecate(Jax.Context, 'glCreateRenderbuffer');
+Jax.deprecate(Jax.Context, 'glCreateShader');
+Jax.deprecate(Jax.Context, 'glCreateTexture');
+Jax.deprecate(Jax.Context, 'glCullFace');
+Jax.deprecate(Jax.Context, 'glDeleteBuffer');
+Jax.deprecate(Jax.Context, 'glDeleteFramebuffer');
+Jax.deprecate(Jax.Context, 'glDeleteProgram');
+Jax.deprecate(Jax.Context, 'glDeleteRenderbuffer');
+Jax.deprecate(Jax.Context, 'glDeleteShader');
+Jax.deprecate(Jax.Context, 'glDeleteTexture');
+Jax.deprecate(Jax.Context, 'glDepthFunc');
+Jax.deprecate(Jax.Context, 'glDepthMask');
+Jax.deprecate(Jax.Context, 'glDetachShader');
+Jax.deprecate(Jax.Context, 'glDisable');
+Jax.deprecate(Jax.Context, 'glDisableVertexAttribArray');
+Jax.deprecate(Jax.Context, 'glDrawArrays');
+Jax.deprecate(Jax.Context, 'glDrawElements');
+Jax.deprecate(Jax.Context, 'glEnable');
+Jax.deprecate(Jax.Context, 'glEnableVertexAttribArray');
+Jax.deprecate(Jax.Context, 'glFinish');
+Jax.deprecate(Jax.Context, 'glFlush');
+Jax.deprecate(Jax.Context, 'glFramebufferRenderbuffer');
+Jax.deprecate(Jax.Context, 'glFramebufferTexture2D');
+Jax.deprecate(Jax.Context, 'glFrontFace');
+Jax.deprecate(Jax.Context, 'glGenerateMipmap');
+Jax.deprecate(Jax.Context, 'glGetActiveAttrib');
+Jax.deprecate(Jax.Context, 'glGetActiveUniform');
+Jax.deprecate(Jax.Context, 'glGetAttachedShaders');
+Jax.deprecate(Jax.Context, 'glGetAttribLocation');
+Jax.deprecate(Jax.Context, 'glGetBufferParameter');
+Jax.deprecate(Jax.Context, 'glGetParameter');
+Jax.deprecate(Jax.Context, 'glGetError');
+Jax.deprecate(Jax.Context, 'glGetFramebufferAttachmentParameter');
+Jax.deprecate(Jax.Context, 'glGetProgramParameter');
+Jax.deprecate(Jax.Context, 'glGetProgramInfoLog');
+Jax.deprecate(Jax.Context, 'glGetRenderbufferParameter');
+Jax.deprecate(Jax.Context, 'glGetShaderParameter');
+Jax.deprecate(Jax.Context, 'glGetShaderPrecisionFormat');
+Jax.deprecate(Jax.Context, 'glGetShaderInfoLog');
+Jax.deprecate(Jax.Context, 'glGetShaderSource');
+Jax.deprecate(Jax.Context, 'glGetTexParameter');
+Jax.deprecate(Jax.Context, 'glGetUniform');
+Jax.deprecate(Jax.Context, 'glGetUniformLocation');
+Jax.deprecate(Jax.Context, 'glGetVertexAttrib');
+Jax.deprecate(Jax.Context, 'glGetVertexAttribOffset');
+Jax.deprecate(Jax.Context, 'glHint');
+Jax.deprecate(Jax.Context, 'glIsBuffer');
+Jax.deprecate(Jax.Context, 'glIsEnabled');
+Jax.deprecate(Jax.Context, 'glIsFramebuffer');
+Jax.deprecate(Jax.Context, 'glIsProgram');
+Jax.deprecate(Jax.Context, 'glIsRenderbuffer');
+Jax.deprecate(Jax.Context, 'glIsShader');
+Jax.deprecate(Jax.Context, 'glIsTexture');
+Jax.deprecate(Jax.Context, 'glLineWidth');
+Jax.deprecate(Jax.Context, 'glLinkProgram');
+Jax.deprecate(Jax.Context, 'glPixelStorei');
+Jax.deprecate(Jax.Context, 'glPolygonOffset');
+Jax.deprecate(Jax.Context, 'glReadPixels');
+Jax.deprecate(Jax.Context, 'glRenderbufferStorage');
+Jax.deprecate(Jax.Context, 'glSampleCoverage');
+Jax.deprecate(Jax.Context, 'glScissor');
+Jax.deprecate(Jax.Context, 'glShaderSource');
+Jax.deprecate(Jax.Context, 'glStencilFunc');
+Jax.deprecate(Jax.Context, 'glStencilFuncSeparate');
+Jax.deprecate(Jax.Context, 'glStencilMask');
+Jax.deprecate(Jax.Context, 'glStencilMaskSeparate');
+Jax.deprecate(Jax.Context, 'glStencilOp');
+Jax.deprecate(Jax.Context, 'glStencilOpSeparate');
+Jax.deprecate(Jax.Context, 'glTexImage2D');
+Jax.deprecate(Jax.Context, 'glTexParameterf');
+Jax.deprecate(Jax.Context, 'glTexParameteri');
+Jax.deprecate(Jax.Context, 'glTexSubImage2D');
+Jax.deprecate(Jax.Context, 'glUniform1f');
+Jax.deprecate(Jax.Context, 'glUniform1fv');
+Jax.deprecate(Jax.Context, 'glUniform1i');
+Jax.deprecate(Jax.Context, 'glUniform1iv');
+Jax.deprecate(Jax.Context, 'glUniform2f');
+Jax.deprecate(Jax.Context, 'glUniform2fv');
+Jax.deprecate(Jax.Context, 'glUniform2i');
+Jax.deprecate(Jax.Context, 'glUniform2iv');
+Jax.deprecate(Jax.Context, 'glUniform3f');
+Jax.deprecate(Jax.Context, 'glUniform3fv');
+Jax.deprecate(Jax.Context, 'glUniform3i');
+Jax.deprecate(Jax.Context, 'glUniform3iv');
+Jax.deprecate(Jax.Context, 'glUniform4f');
+Jax.deprecate(Jax.Context, 'glUniform4fv');
+Jax.deprecate(Jax.Context, 'glUniform4i');
+Jax.deprecate(Jax.Context, 'glUniform4iv');
+Jax.deprecate(Jax.Context, 'glUniformMatrix2fv');
+Jax.deprecate(Jax.Context, 'glUniformMatrix3fv');
+Jax.deprecate(Jax.Context, 'glUniformMatrix4fv');
+Jax.deprecate(Jax.Context, 'glUseProgram');
+Jax.deprecate(Jax.Context, 'glValidateProgram');
+Jax.deprecate(Jax.Context, 'glVertexAttrib1f');
+Jax.deprecate(Jax.Context, 'glVertexAttrib1fv');
+Jax.deprecate(Jax.Context, 'glVertexAttrib2f');
+Jax.deprecate(Jax.Context, 'glVertexAttrib2fv');
+Jax.deprecate(Jax.Context, 'glVertexAttrib3f');
+Jax.deprecate(Jax.Context, 'glVertexAttrib3fv');
+Jax.deprecate(Jax.Context, 'glVertexAttrib4f');
+Jax.deprecate(Jax.Context, 'glVertexAttrib4fv');
+Jax.deprecate(Jax.Context, 'glVertexAttribPointer');
+Jax.deprecate(Jax.Context, 'glViewport');
+
+<% end %>
