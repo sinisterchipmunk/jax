@@ -9,6 +9,10 @@
 
 * Previous versions of Jax used a temporary WebGL context during initialization; this
   has now been removed in favor of lazily loading the relevant data.
+
+* Removed Jax.render_speed and corrected some small render bugs
+
+* Fixed framerate calculation
   
 
 
