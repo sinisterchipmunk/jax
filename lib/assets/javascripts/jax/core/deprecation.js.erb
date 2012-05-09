@@ -71,6 +71,26 @@ Jax.deprecate(Jax.Framebuffer, 'getTextureBuffer', 'getTexture');
  **/
 Jax.deprecate(Jax.Framebuffer, 'getTextureBufferHandle', 'getTextureHandle');
 
+/** deprecated
+ * Jax.Context#afterRender(func) -> Jax.Context
+ * 
+ * Registers the specified function to be called immediately after every render pass.
+ * Returns this context.
+ *
+ * When the function is called, its +this+ object is set to the context itself.
+ **/
+Jax.deprecate(Jax.Context, "afterRender");
+
+/** deprecated
+ * Jax.Context#afterUpdate(func) -> Jax.Context
+ *
+ * Registers the specified function to be called immediately after every update pass.
+ * Returns this context.
+ *
+ * When the function is called, its +this+ object is set to the context itself.
+ **/
+Jax.deprecate(Jax.Context, "afterUpdate");
+
 Jax.deprecate(Jax.Context, 'glClearColor');
 Jax.deprecate(Jax.Context, 'glGetContextAttributes');
 Jax.deprecate(Jax.Context, 'glIsContextLost');
