@@ -218,7 +218,7 @@ describe("Jax.Util", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({p:{"x":20,"y":40,"z":60}}, {p:[1,2,3]}); });
       it("should merge both into a gen object", function() {
         expect(Object.isArray(normalized.p)).toBeFalsy();
-
+  
         expect(normalized.p.x).toEqual(20);
         expect(normalized.p.y).toEqual(40);
         expect(normalized.p.z).toEqual(60);

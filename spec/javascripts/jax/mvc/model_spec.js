@@ -35,7 +35,7 @@ describe("Jax.Model", function() {
   describe("without any custom methods", function() {
     beforeEach(function() {
       model = Jax.Model.create({
-        initialize: function($super, data) { $super(Jax.Util.normalizeOptions(data, {mesh:new Jax.Mesh.Quad()})); }
+        initialize: function($super, data) { $super(Jax.Util.merge(data, Jax.Util.merge({mesh:new Jax.Mesh.Quad()}, {}))); }
       });
     });
     
