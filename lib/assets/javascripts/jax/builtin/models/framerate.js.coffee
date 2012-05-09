@@ -144,10 +144,11 @@ class Jax.Framerate extends Jax.Model
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
       
     @glTex.refresh context
-    context.matrix_stack.push()
-    mat4.ortho 0, context.canvas.width, context.canvas.height, 0, 0, 1, context.getProjectionMatrix()
-    mat4.identity context.getViewMatrix()
-    context.multModelMatrix @camera.getTransformationMatrix()
+    stack = context.matrix_stack
+    stack.push()
+    mat4.ortho 0, context.canvas.width, context.canvas.height, 0, 0, 1, stack.getProjectionMatrix()
+    mat4.identity stack.getViewMatrix()
+    stack.multModelMatrix @camera.getTransformationMatrix()
     @mesh.render context
-    context.matrix_stack.pop()
+    stack.pop()
     

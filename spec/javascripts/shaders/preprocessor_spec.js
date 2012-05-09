@@ -30,7 +30,7 @@ describe("Preprocessor", function() {
       initialize: function($super) { $super({shader: "test"}); },
 
       setVariables: function(context, mesh, options, vars) {
-        vars.set('imvMatrix', context.getInverseModelViewMatrix());
+        vars.set('imvMatrix', context.matrix_stack.getInverseModelViewMatrix());
       }
     });
 
