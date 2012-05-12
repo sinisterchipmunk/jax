@@ -65,8 +65,6 @@ beforeEach(function() {
   this.addMatchers({
     toIncludeSubset: function(subset) {
       for (var i = 0; i < this.actual.length; i++) {
-        if (i+subset.length >= this.actual.length) return false;
-        
         var found = true;
         for (var j = 0; j < subset.length; j++) {
           if (this.actual[i+j] != subset[j])
@@ -79,8 +77,11 @@ beforeEach(function() {
     },
     
     toBeKindOf: function(expectedKlass) {
-      var instance = this.actual;
-      return instance.isKindOf(expectedKlass);
+      throw new Error("#toBeKindOf() is deprecated; please use #toBeInstanceOf() instead.");
+    },
+    
+    toBeInstanceOf: function(expectedKlass) {
+      return this.actual instanceof expectedKlass;
     },
     
     toBeTrue: function() {

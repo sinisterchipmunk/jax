@@ -249,7 +249,7 @@ describe("Jax.Util", function() {
       
       it("should be an instance of that klass", function() {
         expect(normalized.k.klass).not.toBeUndefined();
-        expect(normalized.k).toBeKindOf(normalized.k.klass);
+        expect(normalized.k).toBeInstanceOf(normalized.k.klass);
       });
     });
     

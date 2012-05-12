@@ -7,7 +7,7 @@ describe("Jax.ViewManager", function() {
     beforeEach(function() { views.push("controller/action", function() { }); });
     
     it("should return the registered view", function() {
-      expect(views.get("controller/action")).toBeKindOf(Jax.View);
+      expect(views.get("controller/action")).toBeInstanceOf(Jax.View);
     });
     
     it("should throw an error when requesting a missing view", function() {
