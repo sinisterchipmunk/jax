@@ -6,7 +6,7 @@ describe("Tangent space", function() {
   
   describe("with a triangle strip", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh({
+      mesh = new Jax.Mesh.Base({
         init: function(verts, colors, textureCoords, normals) {
           var width = 1, height = 1;
       
@@ -38,12 +38,15 @@ describe("Tangent space", function() {
     describe("converted into a triangle fan", function() {
       beforeEach(function() {
         mesh.getTangentBuffer(); // to generate the buffer
-        mesh.getVertexBuffer().js        = [0,0,0,   -1,1,0,  -1,-1,0,  1,-1,0,    1,1,0 ];
-        mesh.getTextureCoordsBuffer().js = [0.5,0.5,    0,1    ,  0,0,     1,0,      1,1];
-        mesh.getNormalBuffer().js        = [0,0,1,    0,0,1,    0,0,1,     0,0,1,  0,0,1];
-        mesh.getVertexBuffer().refresh();
-        mesh.getTextureCoordsBuffer().refresh();
-        mesh.getNormalBuffer().refresh();
+        var _init = mesh.init;
+        mesh.init = function(v, c, t, n, i) {
+          _init(v, c, t, n);
+          v.push(0, 0, 0);
+          t.push(0.5, 0.5);
+          n.push(0, 0, 1);
+          i.push(4, 0, 1, 3, 2);
+        };
+        mesh.rebuild();
         mesh.draw_mode = GL_TRIANGLE_FAN;
       });
 
@@ -55,7 +58,7 @@ describe("Tangent space", function() {
   
   describe("with a triangle fan", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh({
+      mesh = new Jax.Mesh.Base({
         init: function(verts, colors, textureCoords, normals) {
           var width = 1, height = 1;
       
@@ -96,38 +99,30 @@ describe("Tangent space", function() {
   describe("with triangles", function() {
     beforeEach(function() {
       mesh = new Jax.Mesh({
-        init: function(verts, colors, textureCoords, normals) {
+        init: function(verts, colors, textureCoords, normals, indices) {
           var width = 1, height = 1;
       
           verts.push(-width,  height, 0); // 0
-          verts.push(-width, -height, 0); // 1
-          verts.push( width,  height, 0); // 2
-          
-          verts.push( width,  height, 0); // 4
-          verts.push(-width, -height, 0); // 3
+          verts.push(-width, -height, 0); // 1, 4
+          verts.push( width,  height, 0); // 2, 3
           verts.push( width, -height, 0); // 5
 
           colors.push(1,1,1,1);
           colors.push(1,1,1,1);
           colors.push(1,1,1,1);
           colors.push(1,1,1,1);
-          colors.push(1,1,1,1);
-          colors.push(1,1,1,1);
           
           textureCoords.push(0, 1); // 0
-          textureCoords.push(0, 0); // 1
-          textureCoords.push(1, 1); // 2
-
-          textureCoords.push(1, 1); // 4
-          textureCoords.push(0, 0); // 3
+          textureCoords.push(0, 0); // 1, 4
+          textureCoords.push(1, 1); // 2, 3
           textureCoords.push(1, 0); // 5
       
           normals.push(0,0,1);
           normals.push(0,0,1);
           normals.push(0,0,1);
           normals.push(0,0,1);
-          normals.push(0,0,1);
-          normals.push(0,0,1);
+          
+          indices.push(0, 1, 2, 2, 1, 3);
         },
         
         draw_mode: GL_TRIANGLES
@@ -135,7 +130,7 @@ describe("Tangent space", function() {
     });
     
     it("should calculate tangents appropriately", function() {
-      expect(mesh.getTangentBuffer().js).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
+      expect(mesh.getTangentBuffer().js).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
     });
   });
 

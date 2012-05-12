@@ -1,8 +1,9 @@
 describe("Core Materials", function() {
-  var matr;
+  var matr, model;
   
   beforeEach(function() {
     matr = new Jax.Material();
+    model = new Jax.Model();
   });
   
   var mats = Jax.Material.all();
@@ -17,7 +18,7 @@ describe("Core Materials", function() {
 
       it("should compile successfully", function() {
         spyOn(matr, 'prepareShader').andCallThrough();
-        new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
+        new Jax.Mesh.Base({material:matr}).render(SPEC_CONTEXT, model);
         expect(matr.prepareShader).toHaveBeenCalled();
       });
       
@@ -31,7 +32,7 @@ describe("Core Materials", function() {
           if (mats[j] != "basic" && mats[j] != "default")
             m.addLayer(Jax.Material.find(mats[j]));
         
-        new Jax.Mesh({material:m}).render(SPEC_CONTEXT);
+        new Jax.Mesh({material:m}).render(SPEC_CONTEXT, model);
       });
     });
   }

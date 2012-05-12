@@ -14,6 +14,19 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should render objects added to the world", function() {
+    var mat = new Jax.Material();
+    rendered_ids = [];
+    mat.render = function(context, mesh, model) { rendered_ids.push(model.__unique_id); };
+    var o1 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [-2, 0, -5]});
+    var o2 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [2, 0, -5]});
+    var o1id = o1.__unique_id, o2id = o2.__unique_id;
+    world.addObject(o1);
+    world.addObject(o2);
+    world.render(mat);
+    expect(rendered_ids).toEqual([o1id, o2id]);
+  });
+  
   it("should return objects added to world", function() {
     var obj = new (Jax.Model.create({one:1}))();
     expect(world.addObject(obj)).toBe(obj);
@@ -142,7 +155,7 @@ describe("Jax.World", function() {
     });
     
     it("should find the light source automatically", function() {
-      expect(world.lighting.getLight(0)).toBeKindOf(Jax.Scene.LightSource);
+      expect(world.lighting.getLight(0)).toBeInstanceOf(Jax.Scene.LightSource);
     });
   });
 

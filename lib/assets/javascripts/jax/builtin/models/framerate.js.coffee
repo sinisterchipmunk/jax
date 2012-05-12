@@ -54,7 +54,7 @@ class Jax.Framerate extends Jax.Model
     @canvas.height = @height
     @ctx = @canvas.getContext '2d'
     @ctx.font      = @font or= "10pt Arial"
-
+    
     @fps_points = []
     @ups_points = []
     @current = -1
@@ -85,7 +85,7 @@ class Jax.Framerate extends Jax.Model
       height: @height
       material: new Jax.Material.Texture @glTex
     
-  render: (context, options) ->
+  render: (context, material) ->
     @fps = context.getFramesPerSecond()
     @ups = context.getUpdatesPerSecond()
     fps_pcnt = @fps / @max_fps
@@ -149,6 +149,6 @@ class Jax.Framerate extends Jax.Model
     mat4.ortho 0, context.canvas.width, context.canvas.height, 0, 0, 1, stack.getProjectionMatrix()
     mat4.identity stack.getViewMatrix()
     stack.multModelMatrix @camera.getTransformationMatrix()
-    @mesh.render context
+    @mesh.render context, this, material
     stack.pop()
     
