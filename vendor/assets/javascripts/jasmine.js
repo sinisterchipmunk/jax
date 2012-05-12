@@ -126,7 +126,7 @@ jasmine.getEnv = function() {
  * @returns {Boolean}
  */
 jasmine.isArray_ = function(value) {
-  return jasmine.isA_("Array", value);
+  return jasmine.isA_("Array", value) || jasmine.isA_("Float32Array", value);
 };
 
 /**
