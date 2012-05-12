@@ -9,25 +9,20 @@ describe("Prototype extensions:", function() {
     });
 
     it("should be a kind of itself", function() {
-      expect(new klass()).toBeKindOf(klass);
+      expect(new klass()).toBeInstanceOf(klass);
     });
     
     it("should not be a kind of its subclass", function() {
-      expect(new klass()).not.toBeKindOf(subklass);
+      expect(new klass()).not.toBeInstanceOf(subklass);
     });
     
     describe("Subclass", function() {
       it("should be a kind of itself", function() {
-        expect(new subklass()).toBeKindOf(subklass);
+        expect(new subklass()).toBeInstanceOf(subklass);
       });
 
-      it("should be a kind of its superclass", function() {
-        expect(new subklass()).toBeKindOf(subklass.superclass);
-      });
-      
-      /* theoretically the same as above, but... */
       it("should be a kind of klass", function() {
-        expect(new subklass()).toBeKindOf(klass);
+        expect(new subklass()).toBeInstanceOf(klass);
       });
     });
   });

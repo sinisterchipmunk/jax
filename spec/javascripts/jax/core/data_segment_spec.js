@@ -91,6 +91,6 @@ describe("Jax.DataSegment", function() {
   it("#subarray", function() {
     seg.set([1,2,3]);
     expect(seg.subarray(1,3).array).toEqualVector([2, 3]);
-    expect(seg.subarray(1,3)).toBeKindOf(Jax.DataSegment);
+    expect(seg.subarray(1,3)).toBeInstanceOf(Jax.DataSegment);
   });
 });

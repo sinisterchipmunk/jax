@@ -76,7 +76,7 @@ describe("Jax.Material", function() {
   describe("with a normal map", function() {
     beforeEach(function() { material = new Jax.Material({texture:{path:_img,type:Jax.NORMAL_MAP}}); });
     it("should use Jax.Material.NormalMap", function() {
-      expect(material.layers[0]).toBeKindOf(Jax.Material.NormalMap);
+      expect(material.layers[0]).toBeInstanceOf(Jax.Material.NormalMap);
     });
   });
   

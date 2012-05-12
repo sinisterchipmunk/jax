@@ -152,7 +152,7 @@ describe("Jax.World", function() {
     });
     
     it("should find the light source automatically", function() {
-      expect(world.lighting.getLight(0)).toBeKindOf(Jax.Scene.LightSource);
+      expect(world.lighting.getLight(0)).toBeInstanceOf(Jax.Scene.LightSource);
     });
   });
 
