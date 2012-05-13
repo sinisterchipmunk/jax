@@ -50,6 +50,16 @@ describe("Jax.World", function() {
     it("bottom left",  function() { expect(world.pick(at.left, at.bottom)       === obottomleft).toBeTruthy(); });
     it("bottom right", function() { expect(world.pick(at.right,at.bottom)       === obottomright).toBeTruthy(); });
     
+    it("object blocked by another larger object", function() {
+      front = world.addObject(new Jax.Model({position: [0.0, 0.0, -0.01], mesh: new Jax.Mesh.Quad(size: 10)}));
+      expect(world.pick(at.center_x, at.center_y)).toBe(front);
+    });
+    
+    it("object blocking another larger object", function() {
+      rear = world.addObject(new Jax.Model({position: [0.0, 0.0, -7], mesh: new Jax.Mesh.Quad(size: 10)}));
+      expect(world.pick(at.center_x, at.center_y)).toBe(rear);
+    });
+    
     it("region: everything", function() {
       var objects = world.pickRegion(at.left, at.top, at.right, at.bottom);
       expect(objects.indexOf(ofront)).not.toEqual(-1);
