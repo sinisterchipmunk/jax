@@ -19,11 +19,11 @@ parseHexColor = (hex) ->
       hex = hex.toLowerCase()
       [r, g, b, a] = [hex2dec(hex[0..1]), hex2dec(hex[2..3]),
                       hex2dec(hex[4..5]), hex2dec(hex[6..7])]
-      new Jax.Color r / 255, g / 255, b / 255, a / 255
+      new Jax.Color r, g, b, a
     else throw new Error "Hex color ##{hex} is invalid: must be 3, 4, 6, or 8 characters"
     
 class Jax.Color
-  constructor: (@_red = 1, @_green = 1, @_blue = 1, @_alpha = 1) ->
+  constructor: (@_red = 255, @_green = 255, @_blue = 255, @_alpha = 255) ->
     @_vec = vec4.create(arguments)
     [@_vec...] = [@_red, @_green, @_blue, @_alpha]
     

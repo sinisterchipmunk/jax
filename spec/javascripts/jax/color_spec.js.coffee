@@ -3,7 +3,7 @@ describe "Jax.Color", ->
   beforeEach -> color = new Jax.Color
   
   it "should default to opaque white", ->
-    expect(color.toVec4()).toEqualVector [1, 1, 1, 1]
+    expect(color.toVec4()).toEqualVector [255, 255, 255, 255]
     
   it "shuld parse another color", ->
     color.red = 0
@@ -16,58 +16,58 @@ describe "Jax.Color", ->
     beforeEach -> color = Jax.Color.parse "#123"
     
     it "should set red properly", ->
-      expect(color.red).toEqual 17 / 255
+      expect(color.red).toEqual 17
     
     it "should set green properly", ->
-      expect(color.green).toEqual 34 / 255
+      expect(color.green).toEqual 34
       
     it "should set blue properly", ->
-      expect(color.blue).toEqual 51 / 255
+      expect(color.blue).toEqual 51
       
     it "should set opaque", ->
-      expect(color.alpha).toEqual 1
+      expect(color.alpha).toEqual 255
       
     describe "with alpha", ->
       beforeEach -> color = Jax.Color.parse "#1234"
 
       it "should set red properly", ->
-        expect(color.red).toEqual 17 / 255
+        expect(color.red).toEqual 17
 
       it "should set green properly", ->
-        expect(color.green).toEqual 34 / 255
+        expect(color.green).toEqual 34
 
       it "should set blue properly", ->
-        expect(color.blue).toEqual 51 / 255
+        expect(color.blue).toEqual 51
 
       it "should set alpha properly", ->
-        expect(color.alpha).toEqual 68 / 255
+        expect(color.alpha).toEqual 68
 
   describe "assigned in 16-bit hex", ->
     beforeEach -> color = Jax.Color.parse "#a1b2c3"
     
     it "should set red properly", ->
-      expect(color.red).toEqual 161 / 255
+      expect(color.red).toEqual 161
     
     it "should set green properly", ->
-      expect(color.green).toEqual 178 / 255
+      expect(color.green).toEqual 178
       
     it "should set blue properly", ->
-      expect(color.blue).toEqual 195 / 255
+      expect(color.blue).toEqual 195
       
     it "should set alpha properly", ->
-      expect(color.alpha).toEqual 1
+      expect(color.alpha).toEqual 255
   
     describe "with alpha", ->
       beforeEach -> color = Jax.Color.parse "#a1b2c3d4"
 
       it "should set red properly", ->
-        expect(color.red).toEqual 161 / 255
+        expect(color.red).toEqual 161
 
       it "should set green properly", ->
-        expect(color.green).toEqual 178 / 255
+        expect(color.green).toEqual 178
 
       it "should set blue properly", ->
-        expect(color.blue).toEqual 195 / 255
+        expect(color.blue).toEqual 195
 
       it "should set alpha properly", ->
-        expect(color.alpha).toEqual 212 / 255
+        expect(color.alpha).toEqual 212
