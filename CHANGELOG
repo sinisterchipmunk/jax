@@ -1,3 +1,10 @@
+* 2.0.10 *
+
+* Resolved an issue with picking where depth testing has failed. Picking would
+  previously return the wrong object.
+  
+
+
 * 2.0.9 *
 
 * Resolved issue #59: Jax.Mesh.Cube should update its data when any of its faces change
