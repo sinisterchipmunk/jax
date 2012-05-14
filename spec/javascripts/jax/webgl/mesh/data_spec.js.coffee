@@ -5,6 +5,12 @@ describe "Jax.Mesh.Data", ->
     beforeEach ->
       data = new Jax.Mesh.Data [1, 2, 3]
       
+    describe "after setting color to red", ->
+      beforeEach -> data.color = [255, 0, 0, 255]
+      
+      it "should change color buffer to red", ->
+        expect(data.colorBuffer).toEqualVector [255, 0, 0, 255]
+      
     it "should store vertex data", ->
       expect(data.vertexBuffer).toEqualVector [1, 2, 3]
     
@@ -35,4 +41,5 @@ describe "Jax.Mesh.Data", ->
       data.color = "#11223344"
     
     it "should blend colors together", ->
-      expect(data.colorBuffer).toEqualVector [13, 22, 30, 39]
+      expect(data.colorBuffer).toEqualVector [1, 1, 2, 3]
+      # expect(data.colorBuffer).toEqualVector [13, 22, 30, 39]

@@ -22,7 +22,7 @@ class Jax.Mesh.Data
   constructor: (vertices = [], colors = [], textures = [], normals = [], indices = []) ->
     throw new Error "Vertex data length must be given in multiples of 3" if vertices % 3
     # build up indices if none were given
-    @allocateBuffers vertices.length, indices.length
+    @allocateBuffers vertices.length, indices.length || vertices.length / 3
     (indices.push i for i in [0...@length]) if indices.length == 0
     @vertices = new Array @length
     @assignVertexData vertices, colors, textures, normals
@@ -38,10 +38,15 @@ class Jax.Mesh.Data
     set: (color) ->
       @_color = Jax.Color.parse color
       for i in [0...@colorBuffer.length] by 4
-        @colorBuffer[i  ] = (@originalColors[i  ] + @_color.red)   * 0.5
-        @colorBuffer[i+1] = (@originalColors[i+1] + @_color.green) * 0.5
-        @colorBuffer[i+2] = (@originalColors[i+2] + @_color.blue)  * 0.5
-        @colorBuffer[i+3] = (@originalColors[i+3] + @_color.alpha) * 0.5
+        @colorBuffer[i  ] = Math.round (@originalColors[i  ] * @_color.red)   / 255
+        @colorBuffer[i+1] = Math.round (@originalColors[i+1] * @_color.green) / 255
+        @colorBuffer[i+2] = Math.round (@originalColors[i+2] * @_color.blue)  / 255
+        @colorBuffer[i+3] = Math.round (@originalColors[i+3] * @_color.alpha) / 255
+        # this might technically be more correct...
+        # @colorBuffer[i  ] = (@originalColors[i  ] + @_color.red)   * 0.5
+        # @colorBuffer[i+1] = (@originalColors[i+1] + @_color.green) * 0.5
+        # @colorBuffer[i+2] = (@originalColors[i+2] + @_color.blue)  * 0.5
+        # @colorBuffer[i+3] = (@originalColors[i+3] + @_color.alpha) * 0.5
     
   allocateBuffers: (numVertices, numIndices) ->
     @length = numVertices / 3

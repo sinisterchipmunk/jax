@@ -16,18 +16,18 @@ describe "Jax.Mesh.Cube", ->
   
   it "should default all colors to white", ->
     for vertex in cube.vertices
-      expect(vertex.color).toEqualVector [1, 1, 1, 1]
+      expect(vertex.color).toEqualVector [255, 255, 255, 255]
   
   it "should allow altering of face color prior to build", ->
     cube.left.color = "#ff0000ff"
     colors = cube.getColorBuffer().js;
-    expect(colors).toIncludeSubset([1, 0, 0, 1]);
+    expect(colors).toIncludeSubset([255, 0, 0, 255]);
     
   it "should allow altering of face color after build", ->
     cube.getColorBuffer();
     cube.left.color = "#ff0000ff"
     colors = cube.getColorBuffer().js;
-    expect(colors).toIncludeSubset([1, 0, 0, 1]);
+    expect(colors).toIncludeSubset([255, 0, 0, 255]);
     
   describe "when a side has been changed", ->
     it "should update its vertices", ->

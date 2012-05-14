@@ -40,6 +40,7 @@ class Mesh
     get: -> @_color
     set: (color) ->
       @invalidate()
+      @_color = color
       @_data.color = @_color
       @fireEvent 'color_changed'
 
@@ -139,6 +140,7 @@ class Mesh
     [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
     @init vertices, colors, textures, normals, indices
     @_data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
+    @_data.color = @_color
     
   getColorBuffer:         -> @validate() unless @_valid; @_data.colors_buf
   getVertexBuffer:        -> @validate() unless @_valid; @_data.vertices_buf

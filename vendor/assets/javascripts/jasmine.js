@@ -1689,6 +1689,13 @@ jasmine.StringPrettyPrinter.prototype.emitArray = function(array) {
 };
 
 jasmine.StringPrettyPrinter.prototype.emitObject = function(obj) {
+  if (obj instanceof Jax.Model) {
+    this.append("[Jax model with ID ");
+    jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.__unique_id);
+    this.append("]");
+    return;
+  }
+  
   var self = this;
   this.append('{ ');
   var first = true;
