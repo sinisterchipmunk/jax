@@ -1,5 +1,4 @@
 #= require 'jax/core/coffee_patterns'
-#= require 'jax/webgl/core/chunked_array'
 #= require 'jax/color'
 #= require "jax/webgl/core/events"
 #= require 'jax/webgl/core/buffer'
