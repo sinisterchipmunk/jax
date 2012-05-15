@@ -11,7 +11,8 @@ Jax.Controller.create "benchmark",
       return $(_log);
     )()
     
-    @instantiation()
+    @benchmark_complete()
+    # @instantiation()
     
   instantiation: ->
     self = this
@@ -61,17 +62,17 @@ Jax.Controller.create "benchmark",
     
     
   benchmark_complete: ->
-    max = 2
+    max = 5
     k = 0
-    # 
+    
     for i in [0..max]
       for j in [0..max]
-          # for k in [0..max]
+        for k in [0..max]
           @world.addObject new Jax.Model
             position: [i - 2.5, j - 2.5, -k - 5]
             mesh: new Jax.Mesh.Sphere
               radius: 0.25
               color: [i / max, j / max, k / max, 1]
-    # 
+    
     # @world.addObject new Jax.Model position: [0, 0, -5], mesh: new Jax.Mesh.Sphere
-    @world.addObject new Jax.Framerate ema: no
+    # @world.addObject new Jax.Framerate ema: no

@@ -5,7 +5,7 @@ alphaHex = "0123456789abcdef"
 hex2dec = (hex) ->
   n_ = alphaHex.indexOf hex[0...1]
   _n = alphaHex.indexOf hex[1...2]
-  n_ * 16 + _n
+  (n_ * 16 + _n) / 255
 
 parseHexColor = (hex) ->
   switch hex.length
@@ -23,7 +23,7 @@ parseHexColor = (hex) ->
     else throw new Error "Hex color ##{hex} is invalid: must be 3, 4, 6, or 8 characters"
     
 class Jax.Color
-  constructor: (@_red = 255, @_green = 255, @_blue = 255, @_alpha = 255) ->
+  constructor: (@_red = 1, @_green = 1, @_blue = 1, @_alpha = 1) ->
     @_vec = vec4.create(arguments)
     [@_vec...] = [@_red, @_green, @_blue, @_alpha]
     

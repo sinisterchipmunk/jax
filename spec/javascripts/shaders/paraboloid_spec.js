@@ -17,9 +17,9 @@ describe("Material segment 'paraboloid'", function() {
     
     var old_render = mesh.render;
 
-    mesh.render = function(context, options) {
-      if (options && options.direction && options.direction ==  1) front = true;
-      if (options && options.direction && options.direction == -1) back = true;
+    mesh.render = function(context, model, material) {
+      if (model && model.direction ===  1) front = true;
+      if (model && model.direction === -1) back  = true;
       old_render.apply(this, arguments);
     };
     

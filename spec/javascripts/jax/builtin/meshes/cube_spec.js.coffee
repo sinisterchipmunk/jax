@@ -9,25 +9,28 @@ describe "Jax.Mesh.Cube", ->
   it "should rebuild without issue", ->
     for i in [0..10]
       cube.rebuild()
-      expect(cube.vertices.length).toBeGreaterThan(0)
+      expect(cube.data.vertexBuffer.length).toBeGreaterThan(0)
       
   it "should build successfully", ->
     cube.init verts, colors, texes, norms
   
   it "should default all colors to white", ->
-    for vertex in cube.vertices
-      expect(vertex.color).toEqualVector [255, 255, 255, 255]
+    for ofs in [0...cube.data.colorBuffer.length] by 4
+      expect(cube.data.colorBuffer[ofs]).toEqual 1
+      expect(cube.data.colorBuffer[ofs+1]).toEqual 1
+      expect(cube.data.colorBuffer[ofs+2]).toEqual 1
+      expect(cube.data.colorBuffer[ofs+3]).toEqual 1
   
   it "should allow altering of face color prior to build", ->
     cube.left.color = "#ff0000ff"
-    colors = cube.getColorBuffer().js;
-    expect(colors).toIncludeSubset([255, 0, 0, 255]);
+    colors = cube.data.colorBuffer;
+    expect(colors).toIncludeSubset([1, 0, 0, 1]);
     
   it "should allow altering of face color after build", ->
     cube.getColorBuffer();
     cube.left.color = "#ff0000ff"
-    colors = cube.getColorBuffer().js;
-    expect(colors).toIncludeSubset([255, 0, 0, 255]);
+    colors = cube.data.colorBuffer;
+    expect(colors).toIncludeSubset([1, 0, 0, 1]);
     
   describe "when a side has been changed", ->
     it "should update its vertices", ->

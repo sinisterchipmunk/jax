@@ -12,7 +12,7 @@
 class Mesh
   constructor: (options) ->
     @_valid = false
-    @_data = new Jax.Mesh.Data
+    @data = new Jax.Mesh.Data
     @_bounds = new Jax.Mesh.Bounds
     @_color = new Jax.Color
     @_initialized = false
@@ -21,6 +21,7 @@ class Mesh
       @init = options.init if options.init
       @draw_mode = options.draw_mode if options.draw_mode
       @material = options.material || Jax.default_material
+      @color = options.color if options.color
     else
       @material = Jax.default_material
   
@@ -41,18 +42,18 @@ class Mesh
     set: (color) ->
       @invalidate()
       @_color = color
-      @_data.color = @_color
+      @data.color = @_color
       @fireEvent 'color_changed'
 
   @define 'vertices'
     get: ->
       @validate() unless @_valid
-      @_data.vertices
+      @data.vertices
 
   @define 'indices'
     get: ->
       @validate() unless @_valid
-      @_data.indexBuffer
+      @data.indexBuffer
 
   @define 'bounds'
     get: ->
@@ -82,15 +83,20 @@ class Mesh
   invalidate: ->
     @_valid = false
     
+  recalcPosition = vec3.create()
   recalculateBounds: ->
     [left, right, top, bottom, front, back] = [@_bounds.left, @_bounds.right, @_bounds.top,
                                                @_bounds.bottom, @_bounds.front, @_bounds.back]
     center = @_bounds.center
-    length = @_data.vertexBuffer.length
+    length = @data.vertexBuffer.length
+    position = recalcPosition
     for i in [0...length] by 3
-      index = i / 3
-      vertex = @_data.vertices[index]
-      position = vertex.position
+      position[0] = @data.vertexBuffer[i]
+      position[1] = @data.vertexBuffer[i+1]
+      position[2] = @data.vertexBuffer[i+2]
+      # index = i / 3
+      # vertex = @data.vertices[index]
+      # position = vertex.position
       if i == 0
         vec3.set position, left
         vec3.set position, right
@@ -126,11 +132,18 @@ class Mesh
     @rebuild() unless @_initialized
     @_material or= Jax.Material.find "default"
     @recalculateBounds()
-    @_data.colors_buf   = new Jax.ColorBuffer         @_data.colorBuffer
-    @_data.vertices_buf = new Jax.VertexBuffer        @_data.vertexBuffer
-    @_data.indices_buf  = new Jax.ElementArrayBuffer  @_data.indexBuffer
-    @_data.normals_buf  = new Jax.NormalBuffer        @_data.normalBuffer
-    @_data.textures_buf = new Jax.TextureCoordsBuffer @_data.textureCoordsBuffer
+    if @data.colors_buf
+      @data.colors_buf.refresh()
+      @data.vertices_buf.refresh()
+      @data.normals_buf.refresh()
+      @data.textures_buf.refresh()
+      @data.indices_buf.refresh()
+    else
+      @data.colors_buf   = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array,   GL_STATIC_DRAW, @data.colorBuffer, 4
+      @data.vertices_buf = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.vertexBuffer, 3
+      @data.normals_buf  = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.normalBuffer, 3
+      @data.textures_buf = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.textureCoordsBuffer, 2
+      @data.indices_buf  = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @data.indexFormat, GL_STATIC_DRAW, @data.indexBuffer, 1
     @_valid = true
     
   ## functions to be (probably) deprecated
@@ -139,14 +152,14 @@ class Mesh
     @invalidate()
     [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
     @init vertices, colors, textures, normals, indices
-    @_data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
-    @_data.color = @_color
+    @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
+    @data.color = @_color
     
-  getColorBuffer:         -> @validate() unless @_valid; @_data.colors_buf
-  getVertexBuffer:        -> @validate() unless @_valid; @_data.vertices_buf
-  getIndexBuffer:         -> @validate() unless @_valid; @_data.indices_buf
-  getNormalBuffer:        -> @validate() unless @_valid; @_data.normals_buf
-  getTextureCoordsBuffer: -> @validate() unless @_valid; @_data.textures_buf
+  getColorBuffer:         -> @validate() unless @_valid; @data.colors_buf
+  getVertexBuffer:        -> @validate() unless @_valid; @data.vertices_buf
+  getIndexBuffer:         -> @validate() unless @_valid; @data.indices_buf
+  getNormalBuffer:        -> @validate() unless @_valid; @data.normals_buf
+  getTextureCoordsBuffer: -> @validate() unless @_valid; @data.textures_buf
   getTangentBuffer: ->
     @validate() unless @_valid
     @rebuildTangentBuffer() unless @tangent_buffer

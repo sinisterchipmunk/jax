@@ -9,3 +9,13 @@ describe "Jax.Mesh.Quad", ->
     for i in [0..100]
       quad.rebuild()
     
+  it "should allocate data for 4 vertices", ->
+    expect(quad.data.vertexBuffer.length).toEqual 12
+    expect(quad.data.normalBuffer.length).toEqual 12
+    expect(quad.data.colorBuffer.length).toEqual 16
+    expect(quad.data.textureCoordsBuffer.length).toEqual 8
+    expect(quad.data.indexBuffer.length).toEqual 4
+
+  it "should render successfully", ->
+    quad.render SPEC_CONTEXT
+    
