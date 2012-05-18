@@ -76,6 +76,10 @@ beforeEach(function() {
       return false;
     },
     
+    toBeBlank: function() {
+      return this.actual.toString().length == 0
+    },
+    
     toBeKindOf: function(expectedKlass) {
       throw new Error("#toBeKindOf() is deprecated; please use #toBeInstanceOf() instead.");
     },
