@@ -44,13 +44,8 @@ class Jax.Shader2.Parser
     if match = rx.exec source
       depth = 0
       pos = source.indexOf(match[WHOLE_MATCH]) + match[WHOLE_MATCH].length
-      body = ""
-      # to find end of function body, we have to step a character at a time.
-      for pos in [pos...source.length]
-        if source[pos] == '{' then depth++
-        else if source[pos] == '}' then depth--
-        if depth == -1 then break
-        body += source[pos]
+      body = Jax.Util.scan source, '}', '{', '}', pos
+      pos += body.length
       funcs.add
         shared: !!match[SHARED]
         type: match[RETURN_TYPE]
@@ -76,7 +71,7 @@ class Jax.Shader2.Parser
     @uniforms   = new Jax.Shader2.Collection 'uniform'
     @attributes = new Jax.Shader2.Collection 'attribute'
     @varyings   = new Jax.Shader2.Collection 'varying'
-    @functions  = new Jax.Shader2.Collection
+    @functions  = new Jax.Shader2.FunctionCollection
     source = parsePrecision @precision, source
     source = parseInputs @uniforms, source
     source = parseInputs @attributes, source

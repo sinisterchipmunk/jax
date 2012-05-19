@@ -2,15 +2,46 @@ describe "Jax.Shader2", ->
   shader = null
   beforeEach -> shader = new Jax.Shader2
   
+  ###
+
+  void main0(void) {
+    export(vec4, color, vColor * diffuse);
+  }
+
+  void main1(void) {
+    vec4 color = import(color, vec4(1));
+  }
+
+  ==
+
+  vec4 EXPORT_color;
+
+  void main0(void) {
+    #define HAVE_EXPORT_color 1
+    EXPORT_color = vColor * diffuse;
+  }
+
+  void main1(void) {
+    vec4 color =
+      #ifdef HAVE_EXPORT_COLOR
+        EXPORT_color
+      #else
+        vec4(1)
+      #endif
+    ;
+  }
+
+  ###
+  
   describe "exports with no imports", ->
-    beforeEach -> shader.append 'export(vec4, POSITION, vec4(1, 1, 1, 1));'
+    beforeEach -> shader.append 'void main(void) { export(vec4, POSITION, vec4(1, 1, 1, 1)); }'
     
-    it "should produce no code", ->
+    it "should produce only the export expression, not the export itself", ->
       expect(shader.toString()).not.toMatch /POSITION/
-      expect(shader.toString()).not.toMatch /vec4/
+      expect(shader.toString()).toMatch /vec4\(1, 1, 1, 1\);/
       
   describe "imports with no exports", ->
-    beforeEach -> shader.append 'import(POSITION, vec4(1, 1, 1, 1));'
+    beforeEach -> shader.append 'void main(void) { import(POSITION, vec4(1, 1, 1, 1)); }'
     
     it "should not use the export", ->
       expect(shader.toString()).not.toMatch /POSITION/
@@ -19,19 +50,19 @@ describe "Jax.Shader2", ->
       expect(shader.toString()).toMatch /vec4/
       
   describe "exports and imports", ->
-    beforeEach -> shader.append 'export(vec4, POSITION, vec4(1, 1, 1, 1));a = import(POSITION, 1.0);'
+    beforeEach -> shader.append 'void main(void) {export(vec4, POSITION, vec4(1, 1, 1, 1));a = import(POSITION, 1.0);}'
     
     it "should create the export", ->
-      expect(shader.toString()).toMatch /vec4 POSITION;/
+      expect(shader.toString()).toMatch /vec4 EXPORT_POSITION;/
+      
+    it "should #define the export", ->
+      expect(shader.toString()).toMatch /\#define HAVE_EXPORT_POSITION 1/
       
     it "should assign the export", ->
-      expect(shader.toString()).toMatch /POSITION = vec4\(1, 1, 1, 1\);/
+      expect(shader.toString()).toMatch /EXPORT_POSITION = vec4\(1, 1, 1, 1\)/
     
-    it "should not use the import default", ->
-      expect(shader.toString()).not.toMatch /1\.0/
-      
-    it "should use the import variable", ->
-      expect(shader.toString()).toMatch /a = POSITION;/
+    it "should import by checking the #define", ->
+      expect(shader.toString()).toMatch /a = \n\s*\#ifdef HAVE_EXPORT_POSITION\n\s*EXPORT_POSITION\n\s*\#else\n\s*1.0\n\s*\#endif\n\s*;/
   
   describe "after appending source", ->
     map = null

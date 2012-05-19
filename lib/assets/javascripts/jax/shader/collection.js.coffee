@@ -32,4 +32,3 @@ class Jax.Shader2.Collection
     for descriptor in other.all
       result[descriptor.name] = @add(descriptor).mangledName
     result
-    
