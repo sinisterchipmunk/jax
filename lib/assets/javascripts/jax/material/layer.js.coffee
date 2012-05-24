@@ -7,11 +7,11 @@ class Jax.Material.Layer
   
   constructor: (options, material) ->
     if options.shader and (data = Jax.shader_data options.shader)?.fragment || data?.vertex
-      fmap = material.fragment.append shaderSource data, 'fragment'
-      vmap = material.vertex.append   shaderSource data, 'vertex'
+      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
+      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else if (data = this.__proto__.constructor.shaderSource) isnt undefined
-      fmap = material.fragment.append shaderSource data, 'fragment'
-      vmap = material.vertex.append   shaderSource data, 'vertex'
+      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
+      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else
       fmap = vmap = {}
     @variableMap = new Jax.Material.ShaderVariableMap fmap, vmap, material.assigns

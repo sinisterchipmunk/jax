@@ -17,7 +17,20 @@ describe "Jax.Material", ->
       options = array: []
       expect(new Jax.Material(options).array).not.toBe options.array
       
-      
+    describe "adding a layer with only vertex code", ->
+      beforeEach ->
+        class Jax.Material.TestLayer extends Jax.Material.Layer
+          @shaderSource: vertex: "// vertex"
+        matr.addLayer type: "TestLayer"
+      afterEach -> delete Jax.Material.TestLayer
+        
+      it "should not add undefined code to the vertex shader", ->
+        expect(matr.vertex.toString()).not.toMatch /undefined/
+        
+      it "should not add undefined code to the fragment shader", ->
+        expect(matr.fragment.toString()).not.toMatch /undefined/
+        
+              
     describe "adding a layer", ->
       beforeEach ->
         class Jax.Material.TestLayer extends Jax.Material.Layer
