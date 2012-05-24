@@ -3,12 +3,10 @@ describe("Material segment 'paraboloid'", function() {
   
   beforeEach(function() {
     matr = new Jax.Material.Paraboloid();
-    spyOn(matr, 'prepareShader').andCallThrough();
   });
   
-  it("should compile successfully", function() {
+  it("should render successfully", function() {
     new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
-    expect(matr.prepareShader).toHaveBeenCalled();
   });
 
   it("should be rendered in both directions", function() {
