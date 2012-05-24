@@ -1,2 +1,3 @@
 layers:
-  - type: Lighting
+  - type: Position
+  - type: VertexColor
