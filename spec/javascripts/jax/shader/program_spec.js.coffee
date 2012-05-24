@@ -3,6 +3,38 @@ describe "Jax.Shader2.Program", ->
   beforeEach ->
     program = new Jax.Shader2.Program
   
+  it "should bind textures and auto increment texture index", ->
+    tex1 = new Jax.Texture(path: "/textures/rock.png")
+    tex2 = new Jax.Texture(path: "/textures/rock.png")
+    
+    waitsFor ->
+      if tex1.loaded and tex2.loaded
+        program.fragment.append """
+          shared uniform sampler2D Tex1, Tex2;
+          void main(void) { gl_FragColor = texture2D(Tex1, vec2(1)) * texture2D(Tex2, vec2(1)); }
+        """
+
+        spyOn(SPEC_CONTEXT.gl, 'activeTexture').andCallThrough()
+        spyOn(SPEC_CONTEXT.gl, 'bindTexture').andCallThrough()
+        spyOn(SPEC_CONTEXT.gl, 'uniform1i').andCallThrough()
+
+        program.bind SPEC_CONTEXT
+        variables = program.discoverVariables SPEC_CONTEXT
+        program.set SPEC_CONTEXT,
+          Tex1: tex1
+          Tex2: tex2
+          
+        expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE0)
+        expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalledWith(GL_TEXTURE_2D, tex1.getHandle(SPEC_CONTEXT))
+        expect(SPEC_CONTEXT.gl.uniform1i).toHaveBeenCalledWith(variables['Tex1'].location, 0)
+
+        expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE1)
+        expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalledWith(GL_TEXTURE_2D, tex2.getHandle(SPEC_CONTEXT))
+        expect(SPEC_CONTEXT.gl.uniform1i).toHaveBeenCalledWith(variables['Tex2'].location, 1)
+
+        return true
+      false
+
   describe "given multiple appended copies of the same shared variable", ->
     beforeEach ->
       program.vertex.append "shared attribute vec4 POSITION;"

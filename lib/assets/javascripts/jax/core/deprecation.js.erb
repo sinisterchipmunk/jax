@@ -21,6 +21,8 @@ Jax.deprecate = function(owner, old_func, new_func, message) {
 <%# Don't provide deprecation notices in production mode, to reduce bulk. %>
 <% unless Rails.env.production? %>
 
+Jax.deprecate(Jax.Material.ShaderVariableMap, 'texture', 'set');
+
 Jax.deprecate(Jax.Context, 'loadModelMatrix', 'matrix_stack.loadModelMatrix');
 Jax.deprecate(Jax.Context, 'loadViewMatrix', 'matrix_stack.loadViewMatrix');
 Jax.deprecate(Jax.Context, 'loadProjectionMatrix', 'matrix_stack.loadProjectionMatrix');
