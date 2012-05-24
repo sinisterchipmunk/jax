@@ -83,7 +83,7 @@ class Jax.Framerate extends Jax.Model
     @mesh = new Jax.Mesh.Quad
       width: @width
       height: @height
-      material: new Jax.Material.Texture @glTex
+      material: new Jax.Material(layers: [ { type: 'Basic' }, { type: 'Texture', instance: @glTex } ])
     
   render: (context, material) ->
     @fps = context.getFramesPerSecond()

@@ -12,6 +12,10 @@ describe "Jax.Material.ShaderVariableMap", ->
   it "should not raise an error if assigning to a variable's real name", ->
     expect(-> map.set _a: 1).not.toThrow()
     
+  it "should allow setting with two arguments", ->
+    map.set 'a', 1
+    expect(map.assigns._a).toEqual 1
+    
   # describe "binding to webgl", ->
   #   beforeEach ->
   #     spyOn(SPEC_CONTEXT.gl, 'getUniformLocation').andReturn -1

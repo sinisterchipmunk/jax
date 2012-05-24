@@ -197,7 +197,15 @@ class Jax.Shader2.Program
     @discoverVariables context unless @discovered context.id
     variables = @_variables[context.id]
     gl = context.gl
+    textureIndex = 0
     for name, value of assigns
+      # special case for textures
+      if value instanceof Jax.Texture
+        gl.activeTexture GL_TEXTURE0 + textureIndex
+        value.refresh context unless value.isValid context
+        gl.bindTexture value.options.target, value.getHandle context
+        value = textureIndex++
+      
       variable = variables[name]
       # throw new Error "No active variable named #{name}" unless variable
       if variable
