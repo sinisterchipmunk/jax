@@ -21,16 +21,15 @@ describe "Jax.Mesh2", ->
       mesh.init = (v) -> v.push 0, 1, 2, 3, 4, 5
       mesh.rebuild()
       mesh.rebuild()
-      expect(mesh.vertices[0].position).toEqualVector [0, 1, 2]
-      expect(mesh.vertices[1].position).toEqualVector [3, 4, 5]
+      expect(mesh.data.vertexBuffer).toEqualVector [0, 1, 2, 3, 4, 5]
     
     it "should not share data across instances", ->
       m1 = new Jax.Mesh.Base init: (vertices) -> vertices.push 0, 1, 2
       m2 = new Jax.Mesh.Base init: (vertices) -> vertices.push 3, 4, 5
-      expect(m1.vertices[0].position).not.toEqualVector m2.vertices[0].position
+      expect(m1.data.vertexBuffer).not.toEqualVector m2.data.vertexBuffer
     
     it "should assign material from options", ->
-      expect(new Jax.Mesh.Base({material: "picking"}).material).toEqual 'picking'
+      expect(new Jax.Mesh.Base({material: "picking"}).material.name).toEqual 'picking'
     
     it "should fire event listeners when color is changed", ->
       listener = fire: (type) -> expect(type).toEqual 'color_changed'
@@ -42,12 +41,12 @@ describe "Jax.Mesh2", ->
     it "should build vertices from an init method supplied during construction", ->
       mesh = new Jax.Mesh.Base init: (verts) ->
         verts.push 1, 2, 3, 4, 5, 6
-      expect(mesh.vertices.length).toEqual 2
+      expect(mesh.getVertexBuffer().js.length).toEqual 6
       
     it "should build vertices from an init method supplied by a subclass", ->
       class Klass extends Jax.Mesh.Base
         init: (verts) -> verts.push 1, 2, 3, 4, 5, 6
-      expect(new Klass().vertices.length).toEqual 2
+      expect(new Klass().getVertexBuffer().js.length).toEqual 6
     
     xit "should parse vertex colors from string values", ->
       mesh.add_vertex position: [0, 0, 0], color: "#aabbcc"
@@ -102,7 +101,7 @@ describe "Jax.Mesh2", ->
       
       it "should blend colors", ->
         mesh.color = [1, 2, 3, 4]
-        expect(mesh.vertices[0].blended_color).toEqualVector [1, 2, 3, 4]
+        expect(mesh.data.colorBuffer).toEqualVector [1, 2, 3, 4]
     
       it "should not have 0-value width", ->
         expect(mesh.bounds.width).not.toEqual 0

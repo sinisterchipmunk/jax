@@ -2,8 +2,8 @@ describe("Texture", function() {
   var _img = "/textures/rss.png";
   var tex;
   
-  /* _it calls spec only when texture is ready */
-  var _it = function(desc, testFunc) { 
+  /* after_loading_it calls spec only when texture is ready */
+  var after_loading_it = function(desc, testFunc) { 
     return jasmine.getEnv().it(desc, function() { 
       waitsFor(function() { if (tex.ready()) { testFunc(); return true; } return false; }, 1000); 
     }); 
@@ -39,7 +39,7 @@ describe("Texture", function() {
       tex = new Jax.Texture("/textures/brickwall.jpg");
     });
     
-    _it("should automatically use NPOT-compatible options", function() {
+    after_loading_it("should automatically use NPOT-compatible options", function() {
       expect(tex.options.mag_filter).toEqual(GL_LINEAR);
       expect(tex.options.min_filter).toEqual(GL_LINEAR);
       expect(tex.options.wrap_s).toEqual(GL_CLAMP_TO_EDGE);
@@ -47,12 +47,10 @@ describe("Texture", function() {
       expect(tex.options.generate_mipmap).toBeFalsy();
     });
     
-    _it("should render successfully", function() {
-      var matr = new Jax.Material.Texture(tex);
+    after_loading_it("should render successfully", function() {
+      var matr = new Jax.Material({layers: [{type: 'Texture', instance: tex}]});
       var m = new Jax.Model({mesh: new Jax.Mesh.Quad({material: matr})});
-//      var context = new Jax.Context('canvas-element');
       m.render(SPEC_CONTEXT);
-      // context.dispose();
     });
   });
   
@@ -72,7 +70,7 @@ describe("Texture", function() {
     describe("with a single POT texture", function() {
       beforeEach(function() { tex = new Jax.Texture(_img, {target:GL_TEXTURE_CUBE_MAP}); });
       
-      _it("should bind successfully", function() {
+      after_loading_it("should bind successfully", function() {
         expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
       });
     });
@@ -84,7 +82,7 @@ describe("Texture", function() {
         expect(tex.options.target).toEqual(GL_TEXTURE_CUBE_MAP);
       });
       
-      _it("should bind successfully", function() {
+      after_loading_it("should bind successfully", function() {
         expect(function() { tex.bind(SPEC_CONTEXT); }).not.toThrow();
       });
     });
@@ -106,7 +104,7 @@ describe("Texture", function() {
     beforeEach(function() { tex = new Jax.Texture(_img); });
     
     describe("when bound with block", function() {
-      _it("should increment textureLevel", function() {
+      after_loading_it("should increment textureLevel", function() {
         tex.bind(SPEC_CONTEXT, function(textureLevel0) {
           expect(textureLevel0).toEqual(0);
           expect(this).toEqual(tex);
@@ -147,7 +145,7 @@ describe("Texture", function() {
       });
     });
     
-    _it("should initialize", function() {
+    after_loading_it("should initialize", function() {
       expect(tex.ready()).toBeTruthy();
     });
   });
@@ -156,7 +154,7 @@ describe("Texture", function() {
     var loaded;
     beforeEach(function() { loaded = false;tex = new Jax.Texture(_img, {onload:function(){loaded=true;}}); });
     
-    _it("should call #onload", function() {
+    after_loading_it("should call #onload", function() {
       expect(loaded).toBeTruthy();
     });
   });

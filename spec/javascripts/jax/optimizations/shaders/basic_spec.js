@@ -1,4 +1,11 @@
 describe("Opt: Basic shader", function() {
+  /*
+  FIXME update conditional tangent calculation spec
+  These specs used to describe when exactly tangents should be calculated,
+  but materials no longer work like this. The specs here are disabled because
+  they don't apply, but the file is still here so that the specs can be translated
+  over to the new form.
+  */
   var model;
   var _tex = "/textures/rss.png", _norm = "/textures/normal_map.jpg";
   
@@ -8,7 +15,7 @@ describe("Opt: Basic shader", function() {
   });
   
   describe("without textures", function() {
-    it("should not build tangent space", function() {
+    xit("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
@@ -20,7 +27,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({texture: _tex});
     });
     
-    it("should not build tangent space", function() {
+    xit("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
@@ -32,7 +39,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({texture: {path:_norm, type:Jax.NORMAL_MAP}});
     });
     
-    it("should build tangent space", function() {
+    xit("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();
@@ -44,7 +51,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({textures: [_tex, _tex]});
     });
     
-    it("should not build tangent space", function() {
+    xit("should not build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).not.toHaveBeenCalled();
@@ -56,7 +63,7 @@ describe("Opt: Basic shader", function() {
       model.mesh.material = new Jax.Material({textures: [_tex, {path:_norm,type:Jax.NORMAL_MAP}]});
     });
     
-    it("should build tangent space", function() {
+    xit("should build tangent space", function() {
       spyOn(model.mesh, 'getTangentBuffer').andCallThrough();
       SPEC_CONTEXT.world.render();
       expect(model.mesh.getTangentBuffer).toHaveBeenCalled();

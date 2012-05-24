@@ -40,6 +40,8 @@ void main() {
   diffuse *= vec4(_diffuse.rgb * LIGHT_DIFFUSE.a, 1.0);
   specular *= vec4(_specular.rgb * LIGHT_SPECULAR.a, 1.0);
 
+  gl_FragColor = ambient + diffuse + specular;
+
   export(vec4, AMBIENT, ambient);
   export(vec4, DIFFUSE, diffuse);
   export(vec4, SPECULAR, specular);

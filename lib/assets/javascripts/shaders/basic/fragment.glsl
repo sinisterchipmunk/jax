@@ -6,6 +6,8 @@ void main() {
   ambient = materialAmbient * vBaseColor;
   diffuse = materialDiffuse * vBaseColor;
   specular = materialSpecular * vBaseColor;
+  
+  gl_FragColor = ambient + diffuse + specular;
 
   export(vec4, AMBIENT, ambient);
   export(vec4, DIFFUSE, diffuse);

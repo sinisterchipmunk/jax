@@ -27,7 +27,7 @@ class Mesh
   @define 'material'
     get: ->
       @validate() unless @_invalid
-      @_material.name
+      @_material
     set: (material) ->
       return @_material = null unless material
       if material instanceof Jax.Material
