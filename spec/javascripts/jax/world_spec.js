@@ -8,7 +8,6 @@ describe("Jax.World", function() {
       s = s.parentSuite;
       if (s) d = s.description + " " + d;
     }
-    console.log(d);
     
     SPEC_CONTEXT.prepare();
     world = SPEC_CONTEXT.world;

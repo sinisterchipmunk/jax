@@ -10,6 +10,19 @@ describe "Jax.Shader2.Program", ->
       
     it "should compile", ->
       expect(-> program.compile SPEC_CONTEXT).not.toThrow()
+      
+  describe "with no source code", ->
+    # this is because the shader is crashing the GPU on my machine,
+    # and I suspect an empty main() is leaving gl_Position / gl_FragColor
+    # as undefined. (Is that possible?)
+    
+    beforeEach -> program.compile SPEC_CONTEXT
+    
+    it "should set an arbitrary vertex position", ->
+      expect(program.vertex.toString()).toMatch /gl_Position = vec4\(1\.0, 1\.0, 1\.0, 1\.0\);/
+
+    it "should set an arbitrary fragment color", ->
+      expect(program.fragment.toString()).toMatch /gl_FragColor = vec4\(1\.0, 1\.0, 1\.0, 1\.0\);/
 
   describe "with a valid vertex and fragment pair", ->
     beforeEach ->
@@ -31,7 +44,7 @@ describe "Jax.Shader2.Program", ->
       beforeEach -> program.bind SPEC_CONTEXT
       
       it "should discover attributes", ->
-        expect(program.discoverAttribute(SPEC_CONTEXT, 'position').type).toEqual GL_FLOAT_VEC4
+        expect(program.discoverVariables(SPEC_CONTEXT).position.type).toEqual GL_FLOAT_VEC4
       # it "should detect uniform variable types", ->
       #   expect(program.variables[SPEC_CONTEXT.id].mvMatrix.type).toEqual 'mat4'
       #     

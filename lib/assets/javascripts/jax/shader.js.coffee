@@ -81,7 +81,7 @@ class Jax.Shader2
     merge result, @functions.merge  parser.functions
     @global += "\n\n" if @global
     @global += parser.global
-    @main.push result.main if result.main
+    @main.push "#{result.main}();" if result.main
     result
   
   toLines: ->
@@ -101,7 +101,7 @@ class Jax.Shader2
       lines.push ""
       lines.push "void main(void) {"
       for main in @main
-        lines.push "  #{main}();"
+        lines.push "  #{main}"
       lines.push "}"
     lines
     

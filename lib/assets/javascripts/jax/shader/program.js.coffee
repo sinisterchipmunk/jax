@@ -30,14 +30,22 @@ class Jax.Shader2.Program
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
       backtrace = buildBacktrace gl, glShader, jaxShader.toLines()
       throw new Jax.Shader2.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
-    
+      
+  ensureDefaultWriters = (vertex, fragment) ->
+    if vertex.main.length == 0
+      vertex.main.push "gl_Position = vec4(1.0, 1.0, 1.0, 1.0);"
+    if fragment.main.length == 0
+      fragment.main.push "gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);"
+
   constructor: (@name = "generic") ->
+    @_discovered = {}
     @_isCompiled = {}
     @_glShaders = {}
+    @_variables = {}
     @shaders = []
     @vertex = new Jax.Shader2 "#{@name}-v"
     @fragment = new Jax.Shader2 "#{@name}-f"
-    @variables = {}
+    ensureDefaultWriters @vertex, @fragment
     
   glShader: (context, type) ->
     unless _gl = @_glShaders[context.id]
@@ -58,7 +66,8 @@ class Jax.Shader2.Program
     gl.linkProgram glShader.program
     unless gl.getProgramParameter glShader.program, GL_LINK_STATUS
       throw new Error "Could not initialize shader!\n\n"+ gl.getProgramInfoLog glShader.program
-    @variables[context.id] = {}
+    @_variables[context.id] = {}
+    @_discovered[context.id] = false
     @_isCompiled[context.id] = true
     
   isCompiled: (context) ->
@@ -81,25 +90,23 @@ class Jax.Shader2.Program
       qualifier: "uniform"
 
   ###
-  discoverUniform: (context, name) ->
+  discoverUniforms: (context, name) ->
     @compile context unless @isCompiled context
-    @discoveredUniforms or= {}
-    unless @discoveredUniforms[context.id]
-      @discoveredUniforms[context.id] = {}
-      gl = context.gl
-      program = @glShader(context).program
-      max = gl.getProgramParameter program, GL_ACTIVE_UNIFORMS
-      for index in [0...max]
-        info = gl.getActiveUniform program, index
-        location = gl.getUniformLocation program, info.name
-        @discoveredUniforms[context.id][info.name] =
-          location: location
-          qualifier: "uniform"
-          name: info.name
-          type: info.type
-          size: info.size
-    @discoveredUniforms[context.id][name] or null
-
+    variables = @_variables[context.id] or= {}
+    gl = context.gl
+    program = @glShader(context).program
+    max = gl.getProgramParameter program, GL_ACTIVE_UNIFORMS
+    for index in [0...max]
+      info = gl.getActiveUniform program, index
+      location = gl.getUniformLocation program, info.name
+      variables[info.name] =
+        location: location
+        qualifier: "uniform"
+        name: info.name
+        type: info.type
+        size: info.size
+    variables
+    
   ###
   Returns all possible information about the named attribute.
   
@@ -115,39 +122,45 @@ class Jax.Shader2.Program
                instance of Jax.Program
       
   ###
-  discoverAttribute: (context, name) ->
+  discoverAttributes: (context, name) ->
     @compile context unless @isCompiled context
     gl = context.gl
-    program = @_glShaders[context.id].program
-    # location = gl.getAttribLocation program, name
-    # return null if location is -1
-
-    @discoveredAttributes or= {}
-    unless @discoveredAttributes[context.id]
-      @discoveredAttributes[context.id] = {}
-      gl = context.gl
-      program = @glShader(context).program
-      max = gl.getProgramParameter program, GL_ACTIVE_ATTRIBUTES
-      for index in [0...max]
-        info = gl.getActiveAttrib program, index
-        location = gl.getAttribLocation program, info.name
-        @discoveredAttributes[context.id][info.name] =
-          location: location
-          qualifier: "attribute"
-          enabled: false
-          name: info.name
-          type: info.type
-          size: info.size
-    @discoveredAttributes[context.id][name] or null
+    program = @glShader(context).program
+    variables = @_variables[context.id] or= {}
+    max = gl.getProgramParameter program, GL_ACTIVE_ATTRIBUTES
+    for index in [0...max]
+      info = gl.getActiveAttrib program, index
+      location = gl.getAttribLocation program, info.name
+      variables[info.name] =
+        location: location
+        qualifier: "attribute"
+        enabled: false
+        name: info.name
+        type: info.type
+        size: info.size
+    variables
     
-  setAttribute: (gl, variable, value) ->
+  discoverVariables: (context) ->
+    return if @_discovered[context.id]
+    @compile context unless @isCompiled context
+    @_variables[context.id] = {}
+    @discoverUniforms context
+    @discoverAttributes context
+    @_discovered[context.id] = true
+    @_variables[context.id]
+    
+  discovered: (context) -> @_discovered[context.id]
+
+  setAttribute: (context, variable, value) ->
+    gl = context.gl
     unless variable.enabled
       gl.enableVertexAttribArray variable.location
       variable.enabled = true
-    value.bind gl
+    value.bind context
     gl.vertexAttribPointer variable.location, value.itemSize, value.dataType || GL_FLOAT, false, 0, 0
     
-  setUniform: (gl, variable, value) ->
+  setUniform: (context, variable, value) ->
+    gl = context.gl
     switch variable.type
       when GL_FLOAT
         if value.length then gl.uniform1fv variable.location, value
@@ -173,7 +186,7 @@ class Jax.Shader2.Program
       when GL_FLOAT_MAT3   then gl.uniformMatrix3fv variable.location, false, value
       when GL_FLOAT_MAT4   then gl.uniformMatrix4fv variable.location, false, value
       else throw new Error "Unexpected attribute type: #{variable}"
-
+  
   ###
   Sets the shader's variables according to the name/value pairs which appear
   in the given `assigns` object. An error will be raised if any named variable
@@ -181,14 +194,18 @@ class Jax.Shader2.Program
   If the program has not already been compiled and activated, an error is raised.
   ###
   set: (context, assigns) ->
+    @discoverVariables context unless @discovered context.id
+    variables = @_variables[context.id]
     gl = context.gl
-    variables = @variables[context.id]
     for name, value of assigns
-      variable = variables[name] or= @discoverUniform(context, name) || @discoverAttribute(context, name)
+      variable = variables[name]
       # throw new Error "No active variable named #{name}" unless variable
       if variable
-        if variable.qualifier is 'attribute' then @setAttribute gl, variable, value
-        else @setUniform gl, variable, value
+        try
+          if variable.qualifier is 'attribute' then @setAttribute context, variable, value
+          else @setUniform context, variable, value
+        catch e
+          throw new Error "Error occurred setting #{variable.qualifier} #{variable.name}: #{e.message}"
 
   ###
   Disables any attribute variable which was previously enabled by this shader.
@@ -196,7 +213,7 @@ class Jax.Shader2.Program
   have not yet been discovered, an error is raised.
   ###
   disable: (context) ->
-    return unless variables = @variables[context.id]
+    return unless variables = @_variables[context.id]
     gl = context.gl
     for name, variable of variables
       if variable.enabled
