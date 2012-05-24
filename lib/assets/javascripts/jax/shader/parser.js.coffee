@@ -1,4 +1,4 @@
-class Jax.Shader2.Parser
+class Jax.Shader.Parser
   WHITESPACE = "[\\s\\n\\t]"
   WHOLE_MATCH = 0
   SHARED = 1
@@ -67,11 +67,11 @@ class Jax.Shader2.Parser
 
   constructor: (source) ->
     @originalSource = source
-    @precision  = new Jax.Shader2.Precision
-    @uniforms   = new Jax.Shader2.Collection 'uniform'
-    @attributes = new Jax.Shader2.Collection 'attribute'
-    @varyings   = new Jax.Shader2.Collection 'varying'
-    @functions  = new Jax.Shader2.FunctionCollection
+    @precision  = new Jax.Shader.Precision
+    @uniforms   = new Jax.Shader.Collection 'uniform'
+    @attributes = new Jax.Shader.Collection 'attribute'
+    @varyings   = new Jax.Shader.Collection 'varying'
+    @functions  = new Jax.Shader.FunctionCollection
     source = parsePrecision @precision, source
     source = parseInputs @uniforms, source
     source = parseInputs @attributes, source

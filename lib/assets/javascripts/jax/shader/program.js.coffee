@@ -2,12 +2,12 @@ merge = (dest, src) ->
   for k, v of src
     dest[k] = v
     
-class Jax.Shader2.CompileError extends Jax.Error
+class Jax.Shader.CompileError extends Jax.Error
   constructor: (message) ->
     super()
     @message = message
 
-class Jax.Shader2.Program
+class Jax.Shader.Program
   buildBacktrace = (gl, shader, source) ->
     log = gl.getShaderInfoLog(shader)?.split(/\n/) || []
     rx = /\d+:(\d+):(.*)/
@@ -29,7 +29,7 @@ class Jax.Shader2.Program
     gl.compileShader glShader
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
       backtrace = buildBacktrace gl, glShader, jaxShader.toLines()
-      throw new Jax.Shader2.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
+      throw new Jax.Shader.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
       
   ensureDefaultWriters = (vertex, fragment) ->
     if vertex.main.length == 0
@@ -43,8 +43,8 @@ class Jax.Shader2.Program
     @_glShaders = {}
     @_variables = {}
     @shaders = []
-    @vertex = new Jax.Shader2 "#{@name}-v"
-    @fragment = new Jax.Shader2 "#{@name}-f"
+    @vertex = new Jax.Shader "#{@name}-v"
+    @fragment = new Jax.Shader "#{@name}-f"
     ensureDefaultWriters @vertex, @fragment
     
   glShader: (context, type) ->

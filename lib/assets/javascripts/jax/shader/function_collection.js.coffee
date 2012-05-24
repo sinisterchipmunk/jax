@@ -1,4 +1,4 @@
-class Jax.Shader2.FunctionCollection extends Jax.Shader2.Collection
+class Jax.Shader.FunctionCollection extends Jax.Shader.Collection
   detectExports = (code, exports = {}) ->
     # export(type, name, expression)
     if match = /export[\t\s\n]*\(/.exec(code)

@@ -11,7 +11,7 @@ describe "Jax.Material.Layer", ->
     layer = new Jax.Material.TestLayer {name: "one"}, { assigns: varmap }
     mesh = new Jax.Mesh.Triangles()
     model = new Jax.Model()
-    shader = new Jax.Shader2.Program()
+    shader = new Jax.Shader.Program()
     
   afterEach -> delete Jax.Material.TestLayer
   

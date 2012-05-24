@@ -3,7 +3,7 @@
 
 class Jax.Material
   constructor: (options, @name = "generic") ->
-    @shader = new Jax.Shader2.Program @name
+    @shader = new Jax.Shader.Program @name
     @layers = []
     @assigns = {}
     options = Jax.Util.normalizeOptions options, {}

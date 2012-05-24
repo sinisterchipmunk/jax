@@ -5,7 +5,7 @@
 #= require "jax/shader/precision"
 #= require "jax/shader/function_collection"
 
-class Jax.Shader2
+class Jax.Shader
   processFunctionExports = (body, functions, exports) ->
     for name, exp of exports
       if functions.isExportUsed exp
@@ -58,11 +58,11 @@ class Jax.Shader2
       dest[k] or= v
 
   constructor: (@name = "generic") ->
-    @precision  = new Jax.Shader2.Precision
-    @uniforms   = new Jax.Shader2.Collection 'uniform'
-    @attributes = new Jax.Shader2.Collection 'attribute'
-    @varyings   = new Jax.Shader2.Collection 'varying'
-    @functions  = new Jax.Shader2.FunctionCollection
+    @precision  = new Jax.Shader.Precision
+    @uniforms   = new Jax.Shader.Collection 'uniform'
+    @attributes = new Jax.Shader.Collection 'attribute'
+    @varyings   = new Jax.Shader.Collection 'varying'
+    @functions  = new Jax.Shader.FunctionCollection
     @global = ""
     @main = []
   
@@ -72,7 +72,7 @@ class Jax.Shader2
   this shader!
   ###
   append: (source) ->
-    parser = new Jax.Shader2.Parser source
+    parser = new Jax.Shader.Parser source
     result = {}
     @precision.merge parser.precision
     merge result, @uniforms.merge   parser.uniforms

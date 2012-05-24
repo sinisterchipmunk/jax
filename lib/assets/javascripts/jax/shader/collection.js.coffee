@@ -1,4 +1,4 @@
-class Jax.Shader2.Collection
+class Jax.Shader.Collection
   constructor: (@qualifier) ->
     @_variables = []
     @length = 0

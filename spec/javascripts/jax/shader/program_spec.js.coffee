@@ -1,7 +1,7 @@
-describe "Jax.Shader2.Program", ->
+describe "Jax.Shader.Program", ->
   program = null
   beforeEach ->
-    program = new Jax.Shader2.Program
+    program = new Jax.Shader.Program
   
   it "should bind textures and auto increment texture index", ->
     tex1 = new Jax.Texture(path: "/textures/rock.png")

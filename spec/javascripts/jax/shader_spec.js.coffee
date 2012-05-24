@@ -1,6 +1,6 @@
-describe "Jax.Shader2", ->
+describe "Jax.Shader", ->
   shader = null
-  beforeEach -> shader = new Jax.Shader2
+  beforeEach -> shader = new Jax.Shader
   
   it "should not err on empty params", ->
     expect(-> shader.append "void main() { }").not.toThrow()

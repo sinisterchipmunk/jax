@@ -1,4 +1,4 @@
-class Jax.Shader2.Precision
+class Jax.Shader.Precision
   constructor: ->
     @float =
       type: 'float'

@@ -1,4 +1,4 @@
-describe "Jax.Mesh2", ->
+describe "Jax.Mesh", ->
   mesh = null
   
   describe "Triangles", ->
