@@ -2,6 +2,10 @@ describe "Jax.Shader2", ->
   shader = null
   beforeEach -> shader = new Jax.Shader2
   
+  it "should not err on empty params", ->
+    expect(-> shader.append "void main() { }").not.toThrow()
+    
+  
   ###
 
   void main0(void) {
@@ -32,6 +36,10 @@ describe "Jax.Shader2", ->
   }
 
   ###
+  
+  describe "exports with no expression", ->
+    it "should raise a coherent error", ->
+      expect(-> shader.append 'void main(void) { export(vec4, POSITION); }'; shader.toString()).toThrow("Export requires 3 arguments: type, name and expression")
   
   describe "exports with no imports", ->
     beforeEach -> shader.append 'void main(void) { export(vec4, POSITION, vec4(1, 1, 1, 1)); }'

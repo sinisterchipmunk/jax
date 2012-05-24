@@ -3,10 +3,7 @@ describe "Jax.Mesh2", ->
   
   describe "Triangles", ->
     beforeEach ->
-      mesh = new Jax.Mesh.Triangles()
-      mesh.add_vertex position: [ 0, 1, 0]
-      mesh.add_vertex position: [-1, 0, 0]
-      mesh.add_vertex position: [ 1, 0, 0]
+      mesh = new Jax.Mesh.Triangles init: (v) -> v.push 0, 1, 0, -1, 0, 0, 1, 0, 0
     
     it "should be rendered as GL_TRIANGLES", ->
       mat = new Jax.Material
@@ -64,14 +61,14 @@ describe "Jax.Mesh2", ->
     describe "with vertices describing a cube", ->
       beforeEach ->
         mesh.init = (vertices) ->
-          vertices.push -1, -1, -1,
-                         1, -1, -1,
-                         1, -1,  1,
-                        -1, -1,  1,
-                        -1,  1, -1,
-                         1,  1, -1,
-                         1,  1,  1,
-                        -1,  1,  1
+          vertices.push -1,-1, -1,
+                        1, -1, -1,
+                        1, -1,  1,
+                        -1,-1,  1,
+                        -1, 1, -1,
+                        1,  1, -1,
+                        1,  1,  1,
+                        -1, 1,  1
         mesh.rebuild()
         
       describe "setting material", ->

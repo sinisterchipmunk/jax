@@ -8,9 +8,17 @@ class Jax.Shader2.Collection
       obj.mangledName = obj.name
     else
       obj.mangledName = "#{obj.name}#{@count obj.name}"
+    for other in @_variables
+      if obj.mangledName == other.mangledName
+        if obj.shared and other.shared
+          return other
+        else
+          throw new Error "BUG: Shader variable redefinition: #{obj.name} (#{JSON.stringify other} => #{JSON.stringify obj})"
     @_variables.push obj
     @length++
-    Object.defineProperty this, obj.mangledName, get: => obj
+    Object.defineProperty this, obj.mangledName,
+      configurable: true
+      get: => obj
     obj
     
   count: (name) ->

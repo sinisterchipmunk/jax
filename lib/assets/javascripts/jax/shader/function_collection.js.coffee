@@ -10,6 +10,7 @@ class Jax.Shader2.FunctionCollection extends Jax.Shader2.Collection
       end = paramEnd + 1
       
       match = /([^,]*?),([^,]*?),(.*)/m.exec params
+      if match is null then throw new Error "Export requires 3 arguments: type, name and expression"
       [type, name, expression] = [match[1].trim(), match[2].trim(), match[3].trim()]
       exports[name] =
         start: start

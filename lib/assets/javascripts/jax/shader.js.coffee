@@ -57,7 +57,7 @@ class Jax.Shader2
     for k, v of src
       dest[k] or= v
 
-  constructor: (@type, @name = "generic") ->
+  constructor: (@name = "generic") ->
     @precision  = new Jax.Shader2.Precision
     @uniforms   = new Jax.Shader2.Collection 'uniform'
     @attributes = new Jax.Shader2.Collection 'attribute'
@@ -68,7 +68,8 @@ class Jax.Shader2
   
   ###
   Appends the GLSL source code to this shader, mangling its non-shared variables
-  according to this shader's ID.
+  according to this shader's ID. Warning: this method will alter the structure of
+  this shader!
   ###
   append: (source) ->
     parser = new Jax.Shader2.Parser source

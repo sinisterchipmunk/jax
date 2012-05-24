@@ -1,4 +1,8 @@
-void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
+void main() {
+  vec4 ambient = import(AMBIENT, vec4(1)),
+       diffuse = import(DIFFUSE, vec4(1)),
+       specular = import(SPECULAR, vec4(1));
+       
   vec4 _ambient = vec4(0,0,0,0), _diffuse = vec4(0,0,0,0), _specular = vec4(0,0,0,0);
   vec3 nNormal = normalize(vNormal);
 
@@ -35,4 +39,8 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   ambient *= vec4(_ambient.rgb * LIGHT_AMBIENT.a, 1.0);
   diffuse *= vec4(_diffuse.rgb * LIGHT_DIFFUSE.a, 1.0);
   specular *= vec4(_specular.rgb * LIGHT_SPECULAR.a, 1.0);
+
+  export(vec4, AMBIENT, ambient);
+  export(vec4, DIFFUSE, diffuse);
+  export(vec4, SPECULAR, specular);
 }

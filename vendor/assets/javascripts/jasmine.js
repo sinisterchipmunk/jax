@@ -1690,9 +1690,21 @@ jasmine.StringPrettyPrinter.prototype.emitArray = function(array) {
 
 jasmine.StringPrettyPrinter.prototype.emitObject = function(obj) {
   if (obj instanceof Jax.Model) {
-    this.append("[Jax model with ID ");
+    this.append("[" + (obj.__proto__ ? obj.__proto__.constructor.name : "Jax.Model") + " with ID ");
     jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.__unique_id);
     this.append("]");
+    return;
+  }
+  if (obj instanceof Jax.Context) {
+    this.append("[Jax.Context with ID ");
+    jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.id);
+    this.append(" (" + obj.gl.canvas.id + ")]");
+    return;
+  }
+  if (obj instanceof Jax.Mesh.Base) {
+    this.append("[" + (obj.__proto__ ? obj.__proto__.constructor.name : "Jax.Mesh") + " with ");
+    jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.data.length);
+    this.append(" vertices]");
     return;
   }
   
