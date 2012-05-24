@@ -2,8 +2,8 @@
 #= require_tree "./material"
 
 class Jax.Material
-  constructor: (options, name = "generic") ->
-    @shader = new Jax.Shader2.Program name
+  constructor: (options, @name = "generic") ->
+    @shader = new Jax.Shader2.Program @name
     @layers = []
     @assigns = {}
     options = Jax.Util.normalizeOptions options, {}
@@ -18,12 +18,12 @@ class Jax.Material
   
   addLayer: (options) ->
     Klass = Jax.Material[options.type]
-    throw new Error "Material layer type #{options.type} could not be found" unless Klass
+    throw new Error "#{@name}: Material layer type #{options.type} could not be found" unless Klass
     options = Jax.Util.normalizeOptions options, shader: Klass.shader || Jax.Util.underscore options.type
     layer = new Klass options, this
     if layer instanceof Jax.Material
       throw new Error """
-        Custom material layers now inherit from Jax.Material.Layer instead of Jax.Material.
+        #{@name}: Custom material layers now inherit from Jax.Material.Layer instead of Jax.Material.
         Please also note that the constructor takes two arguments: the classic `options` hash, and a
         reference to the layer's parent instance of `Jax.Material`, which should be passed to `super`.
         Please see the documentation for more information.
@@ -42,8 +42,6 @@ class Jax.Material
       context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
     else if (buffer = mesh.getVertexBuffer()) && buffer.length
       context.gl.drawArrays mesh.draw_mode, 0, buffer.length
-      
-    # @shader.disable context, @assigns
   
   @instances: {}
   @resources: {}
@@ -60,9 +58,9 @@ class Jax.Material
         data.layers.unshift type: "Basic"
       when 'CUSTOM' then Klass = Jax.Material
       when 'SURFACE', 'VOLUME', 'HALO', 'WIRE'
-        throw new Error "Material type #{data.type}: Not yet implemented."
+        throw new Error "#{name}: Material type #{data.type} is not yet implemented."
       else
-        throw new Error "Material property `type` is invalid. Please note that its meaning changed in Jax v2.1 and see documentation for details."
+        throw new Error "#{name}: Material property `type` is invalid. Please note that its meaning changed in Jax v2.1 and see documentation for details."
     Jax.Material.instances[name] = new Klass data, name
     
   @addResources: (resources) ->
