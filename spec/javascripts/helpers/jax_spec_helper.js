@@ -34,34 +34,6 @@ beforeEach(function() {
     return matched;
   }
   
-  function testDefaultsToMaterial(spec, material_name, world) {
-    if (!world)
-      throw new Error("Specify a Jax.World to test against");
-
-    var matched = false, oldMeshFunc;
-    var meshFunc = function(context, options) {
-      options = this.getNormalizedRenderOptions(options);
-      if (material_name.test) matched = matched || material_name.test(options.default_material);
-      else matched = matched || options.default_material == material_name;
-      oldMeshFunc.call(this, context, options);
-    };
-    var tempMesh = false;
-    if (spec.actual) {
-      if (!spec.actual.mesh) { tempMesh = true; spec.actual.mesh = new Jax.Mesh.Quad(); }
-      oldMeshFunc = spec.actual.mesh.render;
-      spec.actual.mesh.render = meshFunc;
-    }
-      
-    world.render();
-    
-    // clean up
-    if (tempMesh) delete spec.actual.mesh;
-    else spec.actual.mesh.render = oldMeshFunc;
-      
-    spec.actual = "model";
-    return matched;
-  }
-
   this.addMatchers({
     toIncludeSubset: function(subset) {
       for (var i = 0; i < this.actual.length; i++) {
@@ -220,7 +192,13 @@ beforeEach(function() {
     },
     
     toDefaultToMaterial: function(name, world) {
-      return testDefaultsToMaterial(this, name, world);
+      var matr;
+      if (name instanceof Jax.Material) matr = name;
+      else matr = Jax.Material.find(name);
+      spyOn(matr, 'render');
+      world.render();
+      expect(matr.render).toHaveBeenCalled();
+      return true;
     }
   });
 });
