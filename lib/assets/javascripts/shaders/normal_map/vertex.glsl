@@ -8,6 +8,11 @@ void main(void) {
   // beyond their proper ambient value. So, we really need to apply the bump shader ONLY to diffuse+specular.
 
   if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%>) {
+    vTexCoords = VERTEX_TEXCOORDS;
+    vNormal = nMatrix * VERTEX_NORMAL;
+
+    vSurfacePos = (mvMatrix * VERTEX_POSITION).xyz;
+
     vec3 ecPosition = vec3(mvMatrix * VERTEX_POSITION);
 
     gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;

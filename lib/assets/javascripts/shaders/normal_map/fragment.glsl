@@ -1,8 +1,12 @@
-void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
+void main() {
   // ambient was applied by the basic shader; applying it again will simply brighten some fragments
   // beyond their proper ambient value. So, we really need to apply the bump shader ONLY to diffuse+specular.
 
   if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%>) {
+    vec4 ambient = import(AMBIENT, vec4(1)),
+         diffuse = import(DIFFUSE, vec4(1)),
+         specular = import(SPECULAR, vec4(1));
+
     vec3 nLightDir = normalize(vLightDir);
     vec3 nEyeDir = normalize(vEyeDir);
     vec4 color = texture2D(NormalMap, vTexCoords);
@@ -22,5 +26,11 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
   
     diffuse *= litColor;
     specular *= spec;
+
+    gl_FragColor = ambient + diffuse + specular;
+
+    export(vec4, AMBIENT, ambient);
+    export(vec4, DIFFUSE, diffuse);
+    export(vec4, SPECULAR, specular);
   }
 }

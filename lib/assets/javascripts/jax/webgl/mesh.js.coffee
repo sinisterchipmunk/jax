@@ -162,7 +162,6 @@ class Mesh
   getTangentBuffer: ->
     @validate() unless @_valid
     @rebuildTangentBuffer() unless @tangent_buffer
-    return null unless @tangent_buffer.length
     @tangent_buffer
   rebuildTangentBuffer: -> Jax.Mesh::_makeTangentBuffer.call this
     

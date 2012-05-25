@@ -3,7 +3,7 @@ describe("Material layer 'normal_map'", function() {
   
   describe("independently", function() {
     beforeEach(function() {
-      matr = new Jax.Material({ layers: [ {type: "NormalMap", path: "/textures/normal_map.png" } ] });
+      matr = new Jax.Material({ layers: [ {type: "NormalMap", path: "/textures/rock_normal.png" } ] });
     });
 
     it("should render successfully", function() {
