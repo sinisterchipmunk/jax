@@ -17,6 +17,10 @@ class Jax.Material
   @define 'fragment', get: -> @shader.fragment
   
   addLayer: (options) ->
+    if options instanceof Jax.Material.Layer
+      @layers.push options
+      return options
+    
     Klass = Jax.Material[options.type]
     throw new Error "#{@name}: Material layer type #{options.type} could not be found" unless Klass
     options = Jax.Util.normalizeOptions options, shader: Klass.shader || Jax.Util.underscore options.type
@@ -30,18 +34,60 @@ class Jax.Material
       """
     @layers.push layer
     layer
+  
+  ###
+  Renders the mesh using all material layers, beginning at `layerIndex`,
+  ensuring that they each get the number of passes they require.
+  
+  The number of passes actually performed is a product of the required
+  passes of all layers. For instance, a material with 3 layers, requiring
+  1, 2 and 3 passes respectively, will result in 1 * 2 * 3 = 6 passes.
+  The `passes` argument in each layer's `setVariables` method is generated
+  here like so:
+  
+    | Material | Pass 1 | Pass 2 | Pass 3 | Pass 4 | Pass 5 | Pass 6 |
+    |  1       |    0   |    0   |    0   |   0    |   0    |    0   |
+    |  2       |    0   |    0   |    0   |   1    |   1    |    1   |
+    |  3       |    0   |    1   |    2   |   0    |   1    |    2   |
+  
+  Thus, no matter how many rendering passes are actually performed, a layer
+  is guaranteed of two things:
+  
+    1. The value of the `pass` variable will never exceed the number of
+       passes the layer requires.
+    2. The set of layers will be rendered in every unique combination
+       possible.
+  
+  Redundant calls to `setVariables` are optimized away, so a layer should
+  not count on them or base its internal state upon them.
+  
+  Does **NOT** assume the material shader has been bound.
+  
+  Note: in most cases, you want to use `render` instead of `renderPasses`.
+  ###
+  renderPasses: (context, mesh, model, layerIndex = 0) ->
+    layer = @layers[layerIndex]
+    throw new Error "layerIndex #{layerIndex} out of range" unless layer
+    numLayers = @layers.length
+    for pass in [0...layer.numPasses context]
+      layer.setup context, mesh, model, pass
+      if layerIndex+1 == numLayers
+        # all layers are set up, now render this pass
+        @shader.set context, @assigns
+        @drawBuffers context, mesh
+      else
+        @renderPasses context, mesh, model, layerIndex+1
     
-  render: (context, mesh, model) ->
-    @shader.bind context
-    for layer in @layers
-      layer.setup context, mesh, model
-    @shader.set context, @assigns
-    
+  drawBuffers: (context, mesh) ->
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context
       context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
     else if (buffer = mesh.getVertexBuffer()) && buffer.length
       context.gl.drawArrays mesh.draw_mode, 0, buffer.length
+    
+  render: (context, mesh, model) ->
+    @shader.bind context
+    @renderPasses context, mesh, model
   
   @instances: {}
   @resources: {}

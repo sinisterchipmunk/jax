@@ -1,6 +1,26 @@
 describe "Jax.Material", ->
   matr = null
   
+  describe "with layers requiring multiple passes", ->
+    layer1 = layer2 = layer1_order = layer2_order = null
+    
+    beforeEach ->
+      [layer1_order, layer2_order] = [[], []]
+      class Jax.Material.TestLayer1 extends Jax.Material.Layer
+        numPasses: -> 2
+      class Jax.Material.TestLayer2 extends Jax.Material.Layer
+        numPasses: -> 4
+      matr = new Jax.Material
+      matr.addLayer layer1 = new Jax.Material.TestLayer1
+      matr.addLayer layer2 = new Jax.Material.TestLayer2
+      
+    it "should render in the expected order", ->
+      layer1.setVariables = (context, mesh, model, vars, pass) -> layer1_order.push pass
+      layer2.setVariables = (context, mesh, model, vars, pass) -> layer2_order.push pass
+      matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
+      expect(layer1_order).toEqualVector [0, 1]
+      expect(layer2_order).toEqualVector [0, 1, 2, 3, 0, 1, 2, 3]
+  
   describe "instance", ->
     beforeEach -> matr = new Jax.Material
     

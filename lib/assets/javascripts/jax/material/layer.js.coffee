@@ -6,7 +6,7 @@ class Jax.Material.Layer
     new EJS({text:source}).render(options)
   
   constructor: (options, material) ->
-    if options.shader and (data = Jax.shader_data options.shader)?.fragment || data?.vertex
+    if options?.shader and (data = Jax.shader_data options.shader)?.fragment || data?.vertex
       fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
       vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else if (data = this.__proto__.constructor.shaderSource) isnt undefined
@@ -14,8 +14,10 @@ class Jax.Material.Layer
       vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else
       fmap = vmap = {}
-    @variableMap = new Jax.Material.ShaderVariableMap fmap, vmap, material.assigns
+    @variableMap = new Jax.Material.ShaderVariableMap fmap, vmap, material?.assigns
     
-  setup: (context, mesh, model, shader) ->
+  numPasses: (context) -> 1
+    
+  setup: (context, mesh, model, pass) ->
     varmap = null
-    @setVariables context, mesh, model, @variableMap if @setVariables
+    @setVariables context, mesh, model, @variableMap, pass if @setVariables
