@@ -1,6 +1,10 @@
 describe("Jax.Context", function() {
   var context, canvas;
   
+  // These make the jasmine mock clock work properly with anim frame.
+  beforeEach(function() { Jax.useRequestAnimFrame = false; });
+  afterEach(function() { Jax.useRequestAnimFrame = true; });
+  
   describe("root", function() {
     beforeEach(function() {
       Jax.routes.clear();
@@ -226,10 +230,6 @@ describe("Jax.Context", function() {
       } catch(e) {
         expect(e.toString()).toMatch("Route not recognized: 'invalid'");
       }
-      // no reason to make this assertion here... and i'm not convinced
-      // it matters, so long as rendering and updating stop; this is an
-      // error condition after all
-      // expect(context.world.objects.length).toEqual(0);
       
       spyOn(two_instance, "update"); // notice we can't do this earlier because it *does* get called above
       jasmine.Clock.tick(Jax.update_speed+1);
@@ -257,52 +257,62 @@ describe("Jax.Context", function() {
       expect(context.isRendering()).toBeTruthy();
     });
     
-    it("should fire onError events during render", function() {
-      var fired = false;
-      context.addEventListener('error', function(error) {
-        // silence error. this prevents console.log() and alert() from firing.
-        error.silence = true;
-        fired = true;
-        expect(error.phase).toEqual('render');
+    describe("over time", function() {
+      beforeEach(function() {
+        jasmine.Clock.useMock();
+        context.restart();
       });
       
-      var obj = new Jax.Model();
-      obj.render = function() { throw new Error("err"); };
-      context.world.addObject(obj);
-      
-      waitsFor(function() { return fired; });
-    });
+      it("should fire onError events during render", function() {
+        var fired = false;
 
-    it("should fire onError events during object update", function() {
-      var fired = false;
-      context.addEventListener('error', function(error) {
-        // silence error. this prevents console.log() and alert() from firing.
-        error.silence = true;
-        fired = true;
-        
-        // if it's not an 'update' then we need to know what it actually is, for debugging
-        if (error.phase != 'update') expect(function() { throw error; }).not.toThrow();
-        expect(error.phase).toEqual('update');
-      });
-      
-      var obj = new Jax.Model();
-      obj.update = function() { throw new Error("err"); };
-      context.world.addObject(obj);
-      
-      waitsFor(function() { return fired; });
-    });
+        context.addEventListener('error', function(error) {
+          // silence error. this prevents console.log() and alert() from firing.
+          error.silence = true;
+          fired = true;
+          expect(error.phase).toEqual('render');
+        });
 
-    it("should fire onError events during controller update", function() {
-      var fired = false;
-      context.addEventListener('error', function(error) {
-        // silence error. this prevents console.log() and alert() from firing.
-        error.silence = true;
-        fired = true;
-        expect(error.phase).toEqual('update');
+        var obj = new Jax.Model();
+        obj.render = function() { throw new Error("err"); };
+        context.world.addObject(obj);
+        jasmine.Clock.tick(1000);
+        expect(fired).toBeTruthy();
       });
-      
-      context.current_controller.update = function() { throw new Error("err"); };
-      waitsFor(function() { return fired; });
+
+      it("should fire onError events during object update", function() {
+        var fired = false;
+        context.addEventListener('error', function(error) {
+          // silence error. this prevents console.log() and alert() from firing.
+          error.silence = true;
+          fired = true;
+
+          // if it's not an 'update' then we need to know what it actually is, for debugging
+          if (error.phase != 'update') expect(function() { throw error; }).not.toThrow();
+          expect(error.phase).toEqual('update');
+        });
+
+        var obj = new Jax.Model();
+        obj.update = function() { throw new Error("err"); };
+        context.world.addObject(obj);
+        jasmine.Clock.tick(1000);
+        expect(fired).toBeTruthy();
+      });
+
+      it("should fire onError events during controller update", function() {
+        var fired = false;
+        context.addEventListener('error', function(error) {
+          // silence error. this prevents console.log() and alert() from firing.
+          error.silence = true;
+          fired = true;
+          expect(error.phase).toEqual('update');
+        });
+
+        context.current_controller.update = function() { throw new Error("err"); };
+
+        jasmine.Clock.tick(1000);
+        expect(fired).toBeTruthy();
+      });
     });
   });
 });
