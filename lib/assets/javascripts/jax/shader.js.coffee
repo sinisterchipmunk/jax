@@ -46,7 +46,7 @@ class Jax.Shader
     body = func.body
     body = processFunctionExports body, @functions, exports
     body = processFunctionImports body, exports
-    body = mangleReferences body, @uniforms, @attributes, @varyings
+    body = mangleReferences body, @uniforms, @attributes, @varyings, @functions
     
     lines = ["#{func.type} #{func.mangledName}(#{func.params}) {"]
     lines = lines.concat body.split /\n/

@@ -7,6 +7,10 @@ describe "Jax.Shader", ->
     
     it "should parse exports with numbers", ->
       expect(shader.toString()).not.toMatch /export/
+      
+  it "should mangle references to mangled functions", ->
+    shader.append "void mangleThis() { }\n\nvoid main() { mangleThis() }"
+    expect(shader.toString()).not.toMatch /mangleThis\(/
   
   it "should not err on empty params", ->
     expect(-> shader.append "void main() { }").not.toThrow()
