@@ -19,10 +19,7 @@ Jax.Controller.create "benchmark",
     suite = new Benchmark.Suite
     
     suite.add 'Jax.Mesh.Cube (new)', ->
-      return new Jax.Mesh.Cube().getVertexBuffer()
-    
-    suite.add 'Jax.Mesh.Cube (old)', ->
-      return new Jax.Mesh.OldCube().getVertexBuffer()
+      return new Jax.Mesh.Cube().data.vertexBuffer
     
     suite.on 'cycle', (event, bench) ->
       log.html (log.html() || "") + "<p>Instantiation - #{event.target}</p>"
@@ -38,17 +35,12 @@ Jax.Controller.create "benchmark",
     suite = new Benchmark.Suite
     model = new Jax.Model()
     new_cube = new Jax.Mesh.Cube()
-    old_cube = new Jax.Mesh.OldCube()
     
     # prepare the buffers
-    new_cube.getVertexBuffer()
-    old_cube.getVertexBuffer()
+    new_cube.data.vertexBuffer
     
     suite.add 'Jax.Mesh.Cube (new)', =>
       new_cube.render @context, model
-    
-    suite.add 'Jax.Mesh.Cube (old)', =>
-      old_cube.render @context, model
     
     suite.on 'cycle', (event, bench) ->
       log.html (log.html() || "") + "<p>Rendering - #{event.target}</p>"
@@ -75,4 +67,4 @@ Jax.Controller.create "benchmark",
               color: [i / max, j / max, k / max, 1]
     
     # @world.addObject new Jax.Model position: [0, 0, -5], mesh: new Jax.Mesh.Sphere
-    # @world.addObject new Jax.Framerate ema: no
+    @world.addObject new Jax.Framerate ema: no
