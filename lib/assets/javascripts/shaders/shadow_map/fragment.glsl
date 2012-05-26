@@ -36,9 +36,12 @@ float pcf_lookup(float s, vec2 offset) {
   return (s - d > 0.00002) ? 0.0 : 1.0;
 }
 
-void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
-//ambient = vec4(0);
+void main() {
   if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%> && SHADOWMAP_ENABLED) {
+    vec4 ambient = import(AMBIENT, vec4(1)),
+         diffuse = import(DIFFUSE, vec4(1)),
+         specular = import(SPECULAR, vec4(1));
+  
     float visibility = 1.0;
     float s = vShadowCoord.z / vShadowCoord.w;
     if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
@@ -63,5 +66,11 @@ void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
 
     diffuse *= visibility;
     specular *= visibility;
+
+    gl_FragColor = ambient + diffuse + specular;
+
+    export(vec4, AMBIENT, ambient);
+    export(vec4, DIFFUSE, diffuse);
+    export(vec4, SPECULAR, specular);
   }
 }

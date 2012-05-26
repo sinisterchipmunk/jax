@@ -1,3 +1,5 @@
+shared attribute vec4 VERTEX_POSITION;
+
 void main(void) {
   if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%> && SHADOWMAP_ENABLED) {
     vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;
