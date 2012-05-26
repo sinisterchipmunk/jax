@@ -2,6 +2,12 @@ describe "Jax.Shader", ->
   shader = null
   beforeEach -> shader = new Jax.Shader
   
+  describe "parsing exports of private varyings", ->
+    beforeEach -> shader.append "varying vec4 vPos; void main() { export(vec4, exPos, vPos); }"
+    
+    it "should parse exports with numbers", ->
+      expect(shader.toString()).not.toMatch /export/
+  
   it "should not err on empty params", ->
     expect(-> shader.append "void main() { }").not.toThrow()
     

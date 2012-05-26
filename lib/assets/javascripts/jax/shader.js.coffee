@@ -43,9 +43,10 @@ class Jax.Shader
     text
   
   mangleFunction = (func, exports) ->
-    body = mangleReferences func.body, @uniforms, @attributes, @varyings
+    body = func.body
     body = processFunctionExports body, @functions, exports
     body = processFunctionImports body, exports
+    body = mangleReferences body, @uniforms, @attributes, @varyings
     
     lines = ["#{func.type} #{func.mangledName}(#{func.params}) {"]
     lines = lines.concat body.split /\n/
