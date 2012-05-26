@@ -3,10 +3,10 @@
 #= require "jax/webgl/core/events"
 #= require 'jax/webgl/core/buffer'
 #= require_self
-#= require 'jax/webgl/mesh/data'
-#= require 'jax/webgl/mesh/bounds'
-#= require 'jax/webgl/mesh/vertex_buffers'
-#= require 'jax/webgl/mesh/tangent_space'
+#= require 'jax/mesh/data'
+#= require 'jax/mesh/bounds'
+#= require 'jax/mesh/vertex_buffers'
+#= require 'jax/mesh/tangent_space'
 
 class Mesh
   constructor: (options) ->
