@@ -10,6 +10,16 @@ describe("Jax.Util", function() {
     });
   });
   
+  describe("scan", function() {
+    it("should process single-line comments", function() {
+      expect(Jax.Util.scan("\n// )\n)")).toEqual("\n// )\n");
+    });
+    
+    it("should process multi-line comments", function() {
+      expect(Jax.Util.scan("\n/*\n)\n*/\n)")).toEqual("\n/*\n)\n*/\n");
+    });
+  });
+  
   describe("vectorize", function() {
     var data;
     
