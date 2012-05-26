@@ -3,4 +3,5 @@ class Jax.Material.VertexColor extends Jax.Material.Layer
     super options, material
     
   setVariables: (context, mesh, model, vars) ->
-    vars.set 'VERTEX_COLOR', mesh.getColorBuffer()
+    mesh.data.set vars,
+      colors:   'VERTEX_COLOR'

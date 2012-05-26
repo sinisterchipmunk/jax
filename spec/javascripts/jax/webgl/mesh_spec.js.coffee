@@ -41,12 +41,12 @@ describe "Jax.Mesh", ->
     it "should build vertices from an init method supplied during construction", ->
       mesh = new Jax.Mesh.Base init: (verts) ->
         verts.push 1, 2, 3, 4, 5, 6
-      expect(mesh.getVertexBuffer().js.length).toEqual 6
+      expect(mesh.rebuild().data.vertexBuffer.length).toEqual 6
       
     it "should build vertices from an init method supplied by a subclass", ->
       class Klass extends Jax.Mesh.Base
         init: (verts) -> verts.push 1, 2, 3, 4, 5, 6
-      expect(new Klass().getVertexBuffer().js.length).toEqual 6
+      expect(new Klass().rebuild().data.vertexBuffer.length).toEqual 6
     
     xit "should parse vertex colors from string values", ->
       mesh.add_vertex position: [0, 0, 0], color: "#aabbcc"

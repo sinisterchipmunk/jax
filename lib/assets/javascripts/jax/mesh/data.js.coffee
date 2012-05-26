@@ -3,6 +3,14 @@
 # Must be initialized with a known vertex count.
 # Does not reallocate storage space because it's slow.
 
+class FloatBuffer
+  constructor: (buffer, itemSize) ->
+    @buffer = buffer
+    @itemSize = itemSize
+    @offset = buffer.byteOffset
+  
+  bind: -> # no-op for compatibility with Jax.Buffer
+
 class Jax.Mesh.Data
   # Returns the smallest unsigned int typed array that can hold
   # the specified number of vertices. Smaller arrays are generally faster.
@@ -38,6 +46,7 @@ class Jax.Mesh.Data
       @indexBuffer[i] = indices[i]
     @usage = GL_STATIC_DRAW
     @target = GL_ARRAY_BUFFER
+    @_glBuffers = {}
     
   @define 'color'
     set: (color) ->
@@ -47,6 +56,40 @@ class Jax.Mesh.Data
         @colorBuffer[i+1] = @originalColors[i+1] * @_color.green
         @colorBuffer[i+2] = @originalColors[i+2] * @_color.blue
         @colorBuffer[i+3] = @originalColors[i+3] * @_color.alpha
+        
+  @define 'context'
+    set: (context) ->
+      @_bound = false
+      @_context = context
+      
+  dispose: ->
+    for id, descriptor of @_glBuffers
+      descriptor.gl.deleteBuffer descriptor.buffer
+      delete @_glBuffers.id
+      
+  bind: (context) ->
+    gl = @_context.gl
+    unless buffer = @_glBuffers[context.id]?.buffer
+      @_glBuffers[context.id] =
+        gl: gl
+        buffer: gl.createBuffer()
+      gl.bindBuffer GL_ARRAY_BUFFER, @_glBuffers[context.id].buffer
+      gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
+    else
+      gl.bindBuffer GL_ARRAY_BUFFER, buffer
+    @_bound = true
+  
+  set: (vars, mapping) ->
+    throw new Error "Jax context for this pass is not set" unless @_context
+    @bind @_context unless @_bound
+
+    for key, target of mapping
+      switch key
+        when 'vertices' then vars.set target, @vertexWrapper
+        when 'colors'   then vars.set target, @colorWrapper
+        when 'textures' then vars.set target, @textureCoordsWrapper
+        when 'normals'  then vars.set target, @normalWrapper
+        else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
     
   allocateBuffers: (numVertices, numIndices) ->
     @length = numVertices / 3
@@ -55,12 +98,16 @@ class Jax.Mesh.Data
     @_array_buffer = new ArrayBuffer byteLength
     @vertexBufferOffset = 0
     @vertexBuffer = new Float32Array @_array_buffer, @vertexBufferOffset, @length * 3
+    @vertexWrapper = new FloatBuffer @vertexBuffer, 3
     @textureCoordsBufferOffset = @vertexBufferOffset + Float32Array.BYTES_PER_ELEMENT * @vertexBuffer.length
     @textureCoordsBuffer = new Float32Array @_array_buffer, @textureCoordsBufferOffset, @length * 2
+    @textureCoordsWrapper = new FloatBuffer @textureCoordsBuffer, 2
     @normalBufferOffset = @textureCoordsBufferOffset + Float32Array.BYTES_PER_ELEMENT * @textureCoordsBuffer.length
     @normalBuffer = new Float32Array @_array_buffer, @normalBufferOffset, @length * 3
+    @normalWrapper = new FloatBuffer @normalBuffer, 3
     @colorBufferOffset = @normalBufferOffset + Float32Array.BYTES_PER_ELEMENT * @normalBuffer.length
     @colorBuffer = new Float32Array @_array_buffer, @colorBufferOffset, @length * 4
+    @colorWrapper = new FloatBuffer @colorBuffer, 4
     @indexBufferOffset = @colorBufferOffset + Float32Array.BYTES_PER_ELEMENT * @colorBuffer.length
     @indexBuffer = new @indexFormat @_array_buffer, @indexBufferOffset, numIndices
 

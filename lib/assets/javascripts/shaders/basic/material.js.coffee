@@ -10,11 +10,13 @@ class Jax.Material.Basic extends Jax.Material.Layer
     stack = context.matrix_stack
     mat3.transpose mat4.toMat3 stack.getViewMatrix(), @vnMatrix
     
+    mesh.data.set vars,
+      colors:   'VERTEX_COLOR'
+      normals:  'VERTEX_NORMAL'
+      vertices: 'VERTEX_POSITION'
+      textures: 'VERTEX_TEXCOORDS'
+    
     vars.set
-      VERTEX_COLOR: mesh.getColorBuffer()
-      VERTEX_NORMAL: mesh.getNormalBuffer()
-      VERTEX_POSITION: mesh.getVertexBuffer()
-      VERTEX_TEXCOORDS: mesh.getTextureCoordsBuffer()
       ivMatrix: stack.getInverseViewMatrix()
       mvMatrix: stack.getModelViewMatrix()
       nMatrix: stack.getNormalMatrix()

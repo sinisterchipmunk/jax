@@ -82,10 +82,11 @@ class Jax.Material
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context
       context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
-    else if (buffer = mesh.getVertexBuffer()) && buffer.length
-      context.gl.drawArrays mesh.draw_mode, 0, buffer.length
+    else if length = mesh.data.vertexBuffer?.length
+      context.gl.drawArrays mesh.draw_mode, 0, length
     
   render: (context, mesh, model) ->
+    mesh.data.context = context
     @shader.bind context
     @renderPasses context, mesh, model
   

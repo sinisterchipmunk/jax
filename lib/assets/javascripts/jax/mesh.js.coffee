@@ -131,18 +131,8 @@ class Mesh
     @rebuild() unless @_initialized
     @_material or= Jax.Material.find "default"
     @recalculateBounds()
-    if @data.colors_buf
-      @data.colors_buf.refresh()
-      @data.vertices_buf.refresh()
-      @data.normals_buf.refresh()
-      @data.textures_buf.refresh()
-      @data.indices_buf.refresh()
-    else
-      @data.colors_buf   = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array,   GL_STATIC_DRAW, @data.colorBuffer, 4
-      @data.vertices_buf = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.vertexBuffer, 3
-      @data.normals_buf  = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.normalBuffer, 3
-      @data.textures_buf = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STATIC_DRAW, @data.textureCoordsBuffer, 2
-      @data.indices_buf  = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @data.indexFormat, GL_STATIC_DRAW, @data.indexBuffer, 1
+    @data.indices_buf.dispose() if @data.indices_buf
+    @data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @data.indexFormat, GL_STATIC_DRAW, @data.indexBuffer, 1
     @_valid = true
     
   ## functions to be (probably) deprecated
@@ -151,14 +141,12 @@ class Mesh
     @invalidate()
     [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
     @init vertices, colors, textures, normals, indices
+    @data.dispose() if @data
     @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
     @data.color = @_color
+    this
     
-  getColorBuffer:         -> @validate() unless @_valid; @data.colors_buf
-  getVertexBuffer:        -> @validate() unless @_valid; @data.vertices_buf
-  getIndexBuffer:         -> @validate() unless @_valid; @data.indices_buf
-  getNormalBuffer:        -> @validate() unless @_valid; @data.normals_buf
-  getTextureCoordsBuffer: -> @validate() unless @_valid; @data.textures_buf
+  getIndexBuffer: -> @validate() unless @_valid; @data.indices_buf
   getTangentBuffer: ->
     @validate() unless @_valid
     @rebuildTangentBuffer() unless @tangent_buffer

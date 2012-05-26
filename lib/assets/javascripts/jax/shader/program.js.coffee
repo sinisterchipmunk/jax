@@ -157,7 +157,7 @@ class Jax.Shader.Program
       gl.enableVertexAttribArray variable.location
       variable.enabled = true
     value.bind context
-    gl.vertexAttribPointer variable.location, value.itemSize, value.dataType || GL_FLOAT, false, 0, 0
+    gl.vertexAttribPointer variable.location, value.itemSize, value.dataType || GL_FLOAT, false, 0, value.offset || 0
     
   setUniform: (context, variable, value) ->
     gl = context.gl
