@@ -21,6 +21,15 @@ Jax.deprecate = function(owner, old_func, new_func, message) {
 <%# Don't provide deprecation notices in production mode, to reduce bulk. %>
 <% unless Rails.env.production? %>
 
+/** deprecated
+ * Jax.World#addLightSource(light) -> Jax.Scene.LightSource
+ * - light (Jax.Scene.LightSource): the instance of Jax.Scene.LightSource to add to this world.
+ *
+ * Adds the light to the world and then returns the light itself unchanged.
+ * Deprecated: use `Jax.World#addLight` instead.
+ **/
+Jax.deprecate(Jax.World, 'addLightSource', 'addLight');
+
 Jax.deprecate(Jax.Mesh.Base, 'getVertexBuffer', 'data.vertexBuffer');
 Jax.deprecate(Jax.Mesh.Base, 'getNormalBuffer', 'data.normalBuffer');
 Jax.deprecate(Jax.Mesh.Base, 'getColorBuffer', 'data.colorBuffer');

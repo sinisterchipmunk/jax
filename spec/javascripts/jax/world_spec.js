@@ -32,7 +32,7 @@ describe("Jax.World", function() {
   });
   
   it("should return light sources added to world", function() {
-    var lite = new Jax.Scene.LightSource();
+    var lite = new Jax.Light();
     expect(world.addLightSource(lite)).toBe(lite);
   });
   
@@ -159,12 +159,12 @@ describe("Jax.World", function() {
   
   describe("adding a light source from a string", function() {
     beforeEach(function() {
-      Jax.Scene.LightSource.addResources({"test":{}});
+      Jax.Light.addResources({"test":{}});
       world.addLightSource("test");
     });
     
     it("should find the light source automatically", function() {
-      expect(world.lighting.getLight(0)).toBeInstanceOf(Jax.Scene.LightSource);
+      expect(world.lights[0]).toBeInstanceOf(Jax.Light);
     });
   });
 });

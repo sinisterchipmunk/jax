@@ -83,6 +83,7 @@ class Jax.Framerate extends Jax.Model
     @mesh = new Jax.Mesh.Quad
       width: @width
       height: @height
+      color: [1, 1, 1, 0.5]
       material: new Jax.Material(layers: [ { type: 'Basic' }, { type: 'Texture', instance: @glTex } ])
     
   render: (context, material) ->

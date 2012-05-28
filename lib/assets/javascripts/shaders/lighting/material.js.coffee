@@ -6,8 +6,10 @@ class Jax.Material.Lighting extends Jax.Material.Layer
     super options, material
     
   setVariables: (context, mesh, model, vars, pass) ->
+    return; # Until lighting is ready to be used
+    
     stack = context.matrix_stack
-    light = context.world.lighting.getLight()
+    light = context.world.lights[pass]
     mat3.transpose mat4.toMat3 stack.getViewMatrix(), @vnMatrix
     
     mesh.data.set vars,

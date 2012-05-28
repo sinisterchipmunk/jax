@@ -5,6 +5,8 @@ class Jax.Material.ShadowMap extends Jax.Material.Layer
     super options, material
     
   setVariables: (context, mesh, model, vars, pass) ->
+    return; # Until lighting is ready to be used
+    
     light = context.world.lighting.getLight()
     shadowmap_enabled = light.isShadowMapEnabled()
     
