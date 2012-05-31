@@ -3,5 +3,5 @@ describe "Jax.Material.Lighting", ->
   beforeEach ->
     matr = new Jax.Material layers: [ { type: 'Lighting' } ]
     
-  it "should render successfully", ->
-    new Jax.Mesh(material: matr).render SPEC_CONTEXT
+  it "with no light sources", ->
+    new Jax.Mesh.Sphere(material: matr)
