@@ -51,10 +51,10 @@ describe "Jax.Shader.Program", ->
     beforeEach -> program.compile SPEC_CONTEXT
     
     it "should set an arbitrary vertex position", ->
-      expect(program.vertex.toString()).toMatch /gl_Position = vec4\(1\.0, 1\.0, 1\.0, 1\.0\);/
+      expect(program.vertex.toString()).toMatch /gl_Position = vec4/
 
     it "should set an arbitrary fragment color", ->
-      expect(program.fragment.toString()).toMatch /gl_FragColor = vec4\(1\.0, 1\.0, 1\.0, 1\.0\);/
+      expect(program.fragment.toString()).toMatch /gl_FragColor = vec4/
 
   describe "with a valid vertex and fragment pair", ->
     beforeEach ->
