@@ -5,7 +5,7 @@ class Jax.Material.VertexColor extends Jax.Material.Layer
   setVariables: (context, mesh, model, vars, pass) ->
     vars.set
       PASS: pass
-      WorldAmbientColor: new Jax.Color(0.3, 0.3, 0.3, 1).toVec4()
+      WorldAmbientColor: new Jax.Color(0.05, 0.05, 0.05, 1).toVec4()
       MaterialAmbientIntensity: 1
       
     mesh.data.set vars,

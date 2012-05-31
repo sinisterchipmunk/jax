@@ -13,8 +13,8 @@ describe "Material: default", ->
     
     beforeEach ->
       set
-        EyeSpaceLightDirection: [0, -1, 0]
-        EyeSpaceLightPosition: [0, 10, 0]
+        EyeSpaceLightDirection: [0, 0, -1]
+        EyeSpaceLightPosition: [0, 0, 10]
         LightDiffuseColor: [1, 1, 1, 1]
         LightSpecularColor: [1, 1, 1, 1]
         MaterialAmbientIntensity: 0.5
@@ -26,8 +26,8 @@ describe "Material: default", ->
         PASS: 0
         WorldAmbientColor: [0.5, 0.5, 0.5, 1]
         vColor: [0.75, 0, 0, 1]
-        vEyeSpaceSurfaceNormal: [0, 1, 0]
-        vEyeSpaceSurfacePosition: [0, 1, 0]
+        vEyeSpaceSurfaceNormal: [0, 0, 1]
+        vEyeSpaceSurfacePosition: [0, 0, -1]
       
     describe "with no lights", ->
       describe "on ambient pass", ->
@@ -39,7 +39,7 @@ describe "Material: default", ->
           
     describe "with 1 directional light facing directly toward the surface", ->
       beforeEach ->
-        set EyeSpaceLightDirection: [0, -1, 0]
+        set EyeSpaceLightDirection: [0, 0, -1]
       
       describe "with diffuse but no specular", ->
         beforeEach -> set MaterialSpecularIntensity: 0
@@ -75,9 +75,10 @@ describe "Material: default", ->
           it "should receive maximum specular color", ->
             sim.start()
             expect(sim.state.variables.gl_FragColor.value).toEqualVector [1, 0, 0, 1]
-
+            
     describe "with 1 directional light facing away from the surface", ->
-      beforeEach -> set EyeSpaceLightDirection: [0, 1, 0]
+      beforeEach ->
+        set EyeSpaceLightDirection: [0, 0, 1]
       
       describe "with diffuse but no specular", ->
         beforeEach -> set MaterialSpecularIntensity: 0

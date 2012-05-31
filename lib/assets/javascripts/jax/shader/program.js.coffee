@@ -207,6 +207,9 @@ class Jax.Shader.Program
         value.refresh context unless value.isValid context
         gl.bindTexture value.options.target, value.getHandle context
         value = textureIndex++
+      else if value instanceof Jax.Color
+        # TODO let value be anything that responds to #toVec*, #toMat*, #toFloat, etc.
+        value = value.toVec4()
       
       variable = variables[name]
       # throw new Error "No active variable named #{name}" unless variable
