@@ -20,4 +20,6 @@ class Jax.Material.Layer
     
   setup: (context, mesh, model, pass) ->
     varmap = null
-    @setVariables context, mesh, model, @variableMap, pass if @setVariables
+    return @setVariables context, mesh, model, @variableMap, pass if @setVariables
+    true
+  

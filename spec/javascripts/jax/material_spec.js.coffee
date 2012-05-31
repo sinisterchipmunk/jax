@@ -1,6 +1,8 @@
 describe "Jax.Material", ->
   matr = null
   
+  afterEach -> delete Jax.Material.TestLayer
+  
   describe "with layers requiring multiple passes", ->
     layer1 = layer2 = layer1_order = layer2_order = null
     
@@ -18,9 +20,44 @@ describe "Jax.Material", ->
       layer1.setVariables = (context, mesh, model, vars, pass) -> layer1_order.push pass
       layer2.setVariables = (context, mesh, model, vars, pass) -> layer2_order.push pass
       matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
-      expect(layer1_order).toEqualVector [0, 1]
-      expect(layer2_order).toEqualVector [0, 1, 2, 3, 0, 1, 2, 3]
+      expect(layer1_order).toEqualVector [0, 1, 2, 3]
+      expect(layer2_order).toEqualVector [0, 1, 2, 3]
+      
+  it "should skip passes where setVariables returns false", ->
+    class Jax.Material.TestLayer extends Jax.Material.Layer
+      setVariables: (context, mesh, model, vars, pass) -> return false
+    matr = new Jax.Material
+    matr.addLayer new Jax.Material.TestLayer
+    spyOn matr, 'drawBuffers'
+    matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
+    expect(matr.drawBuffers).not.toHaveBeenCalled()
+    
+  it "should not skip passes where setVariables returns undefined", ->
+    class Jax.Material.TestLayer extends Jax.Material.Layer
+      setVariables: (context, mesh, model, vars, pass) -> return undefined
+    matr = new Jax.Material
+    matr.addLayer new Jax.Material.TestLayer
+    spyOn matr, 'drawBuffers'
+    matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
+    expect(matr.drawBuffers).toHaveBeenCalled()
   
+  it "should not skip passes where setVariables returns undefined", ->
+    class Jax.Material.TestLayer extends Jax.Material.Layer
+      setVariables: (context, mesh, model, vars, pass) -> return null
+    matr = new Jax.Material
+    matr.addLayer new Jax.Material.TestLayer
+    spyOn matr, 'drawBuffers'
+    matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
+    expect(matr.drawBuffers).toHaveBeenCalled()
+
+  it "should not skip passes where setVariables is not defined", ->
+    class Jax.Material.TestLayer extends Jax.Material.Layer
+    matr = new Jax.Material
+    matr.addLayer new Jax.Material.TestLayer
+    spyOn matr, 'drawBuffers'
+    matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
+    expect(matr.drawBuffers).toHaveBeenCalled()
+
   describe "instance", ->
     beforeEach -> matr = new Jax.Material
     

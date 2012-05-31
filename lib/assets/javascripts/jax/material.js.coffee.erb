@@ -35,50 +35,40 @@ class Jax.Material
     @layers.push layer
     layer
   
-  ###
-  Renders the mesh using all material layers, beginning at `layerIndex`,
-  ensuring that they each get the number of passes they require.
-  
-  The number of passes actually performed is a product of the required
-  passes of all layers. For instance, a material with 3 layers, requiring
-  1, 2 and 3 passes respectively, will result in 1 * 2 * 3 = 6 passes.
-  The `passes` argument in each layer's `setVariables` method is generated
-  here like so:
-  
-    | Material | Pass 1 | Pass 2 | Pass 3 | Pass 4 | Pass 5 | Pass 6 |
-    |  1       |    0   |    0   |    0   |   0    |   0    |    0   |
-    |  2       |    0   |    0   |    0   |   1    |   1    |    1   |
-    |  3       |    0   |    1   |    2   |   0    |   1    |    2   |
-  
-  Thus, no matter how many rendering passes are actually performed, a layer
-  is guaranteed of two things:
-  
-    1. The value of the `pass` variable will never exceed the number of
-       passes the layer requires.
-    2. The set of layers will be rendered in every unique combination
-       possible.
-  
-  Redundant calls to `setVariables` are optimized away, so a layer should
-  not count on them or base its internal state upon them.
-  
-  Does **NOT** assume the material shader has been bound.
-  
-  Note: in most cases, you want to use `render` instead of `renderPasses`.
-  ###
-  renderPasses: (context, mesh, model, layerIndex = 0) ->
-    layer = @layers[layerIndex]
-    throw new Error "layerIndex #{layerIndex} out of range" unless layer
-    numLayers = @layers.length
-    for pass in [0...layer.numPasses context]
-      layer.setup context, mesh, model, pass
-      if layerIndex+1 == numLayers
-        # all layers are set up, now render this pass
-        @shader.set context, @assigns
-        @drawBuffers context, mesh
-      else
-        @renderPasses context, mesh, model, layerIndex+1
+  renderPasses: (context, mesh, model) ->
+    max = 0
+    for layer in @layers
+      passes = layer.numPasses(context, mesh, model)
+      max = passes if passes > max
+    gl = context.gl
+    numPassesRendered = 0
+    for pass in [0...max]
+      render = true
+      for layer in @layers
+        if result = (layer.setup context, mesh, model, pass) is false
+          render = false
+          break
+      continue unless render
+      if numPassesRendered == 1
+        gl.blendFunc GL_ONE, GL_ONE
+        gl.depthFunc GL_LEQUAL
+      numPassesRendered++
+      @shader.set context, @assigns
+      @drawBuffers context, mesh
+    if numPassesRendered > 1
+      gl.blendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+      gl.depthFunc GL_LESS
+    return numPassesRendered
     
   drawBuffers: (context, mesh) ->
+    unless <%= Rails.env.production? %> or @_alreadyWarned
+      # in development mode, check that all variables are assigned, and warn if not.
+      # Only do this once (per material).
+      @_alreadyWarned = true
+      for name, variable of @shader.variables(context)
+        if variable.value is undefined
+          console.log "Warning: material #{@name} did not set a value for shader variable #{variable.name}"
+      
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context
       context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0

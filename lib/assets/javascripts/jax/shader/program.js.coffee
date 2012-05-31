@@ -35,8 +35,8 @@ class Jax.Shader.Program
     if vertex.main.length == 0
       vertex.main.push "gl_Position = vec4(1.0, 1.0, 1.0, 1.0);"
     if fragment.main.length == 0
-      fragment.main.push "gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);"
-
+      fragment.main.push "gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);"
+      
   constructor: (@name = "generic") ->
     @_discovered = {}
     @_isCompiled = {}
@@ -149,6 +149,8 @@ class Jax.Shader.Program
     @_discovered[context.id] = true
     @_variables[context.id]
     
+  variables: (context) -> @discoverVariables context
+  
   discovered: (context) -> @_discovered[context.id]
 
   setAttribute: (context, variable, value) ->
@@ -212,6 +214,7 @@ class Jax.Shader.Program
         try
           if variable.qualifier is 'attribute' then @setAttribute context, variable, value
           else @setUniform context, variable, value
+          variable.value = value
         catch e
           throw new Error "Error occurred setting #{variable.qualifier} #{variable.name}: #{e.message}"
 
