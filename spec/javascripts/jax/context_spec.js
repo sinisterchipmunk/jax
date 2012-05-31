@@ -28,6 +28,11 @@ describe("Jax.Context", function() {
       context = new Jax.Context(canvas, {root: "welcome/index"});
       expect(context.current_controller.getControllerName()).toEqual("welcome");
     });
+
+    it("should pass options into context creation", function() {
+      context = new Jax.Context(canvas, {preserveDrawingBuffer: true});
+      expect(context.gl.getContextAttributes().preserveDrawingBuffer).toBeTruthy();
+    });
   });
   
   describe("errors", function() {
