@@ -165,13 +165,13 @@ class Jax.Shader.Program
     gl = context.gl
     switch variable.type
       when GL_FLOAT
-        if value.length then gl.uniform1fv variable.location, value
+        if value?.length then gl.uniform1fv variable.location, value
         else gl.uniform1f variable.location, value
       when GL_BOOL
-        if value.length then gl.uniform1iv variable.location, value
+        if value?.length then gl.uniform1iv variable.location, value
         else gl.uniform1i variable.location, value
       when GL_INT
-        if value.length then gl.uniform1iv variable.location, value
+        if value?.length then gl.uniform1iv variable.location, value
         else gl.uniform1i variable.location, value
       when GL_FLOAT_VEC2   then gl.uniform2fv variable.location, value
       when GL_FLOAT_VEC3   then gl.uniform3fv variable.location, value
@@ -187,7 +187,7 @@ class Jax.Shader.Program
       when GL_FLOAT_MAT2   then gl.uniformMatrix2fv variable.location, false, value
       when GL_FLOAT_MAT3   then gl.uniformMatrix3fv variable.location, false, value
       when GL_FLOAT_MAT4   then gl.uniformMatrix4fv variable.location, false, value
-      else throw new Error "Unexpected attribute type: #{variable}"
+      else throw new Error "Unexpected uniform type: #{variable}"
   
   ###
   Sets the shader's variables according to the name/value pairs which appear
@@ -207,8 +207,7 @@ class Jax.Shader.Program
         value.refresh context unless value.isValid context
         gl.bindTexture value.options.target, value.getHandle context
         value = textureIndex++
-      else if value instanceof Jax.Color
-        # TODO let value be anything that responds to #toVec*, #toMat*, #toFloat, etc.
+      else if value?.toVec4
         value = value.toVec4()
       
       variable = variables[name]
