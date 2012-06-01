@@ -13,6 +13,6 @@ void main(void) {
     float Il = 1.0; // intensity is 1: no attenuation for directional lights
 
     float lambert = import(LambertTerm, export(float, LambertTerm, dot(N, L)));
-    gl_FragColor = vec4(clamp(lambert, 0.0, 1.0) * C * Il, 1.0);
+    gl_FragColor += vec4(clamp(lambert, 0.0, 1.0) * C * Il, 1.0);
   }
 }

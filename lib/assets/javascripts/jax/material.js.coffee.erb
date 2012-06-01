@@ -10,13 +10,13 @@ class Jax.Material
     for key, value of options
       switch key
         when 'layers'  then @addLayer layer for layer in value
-        when 'color'   then @[key] = Jax.Color.parse value
         else @[key] = value
     
   @define 'vertex', get: -> @shader.vertex
   @define 'fragment', get: -> @shader.fragment
   
   addLayer: (options) ->
+    if typeof options is 'string' then options = { type: options }
     if options instanceof Jax.Material.Layer
       @layers.push options
       return options
@@ -93,7 +93,7 @@ class Jax.Material
         Klass = Jax.Material
         data.layers or= []
         data.layers.unshift type: "Basic"
-      when 'CUSTOM' then Klass = Jax.Material
+      when 'CUSTOM' then Klass = Jax.Material.Custom
       when 'SURFACE', 'VOLUME', 'HALO', 'WIRE'
         throw new Error "#{name}: Material type #{data.type} is not yet implemented."
       else

@@ -6,15 +6,18 @@ class Jax.Material.LambertDiffuse extends Jax.Material.Layer
       normals:  'VERTEX_NORMAL'
     @varMap = {}
     
-  numPasses: -> 2
+  numPasses: (context) -> context.world.lights.length + 1
     
   setVariables: (context, mesh, model, vars, pass) ->
+    return unless pass
+    
+    light = context.world.lights[pass-1]
     @varMap.NormalMatrix = context.matrix_stack.getNormalMatrix()
     @varMap.PASS = pass
-    @varMap.MaterialDiffuseIntensity = 1
-    @varMap.MaterialDiffuseColor = Jax.Color.parse("#c99")
-    @varMap.LightDiffuseColor = new Jax.Color()
-    @varMap.EyeSpaceLightDirection = vec3.normalize(new Float32Array([-1, -1, -1]))
+    @varMap.MaterialDiffuseIntensity = @material.intensity.diffuse
+    @varMap.MaterialDiffuseColor = @material.color.diffuse
+    @varMap.LightDiffuseColor = light.color.diffuse
+    @varMap.EyeSpaceLightDirection = light.eyeSpaceDirection context.matrix_stack
     
     mesh.data.set vars, @meshDataMap
     vars.set @varMap

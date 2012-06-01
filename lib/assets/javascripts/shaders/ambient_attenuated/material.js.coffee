@@ -1,9 +1,8 @@
-class Jax.Material.PhongSpecular extends Jax.Material.Layer
+class Jax.Material.AmbientAttenuated extends Jax.Material.Layer
   constructor: (options, material) ->
     super options, material
     @meshDataMap =
       vertices: 'VERTEX_POSITION'
-      normals: 'VERTEX_NORMAL'
     @varMap = {}
     
   numPasses: (context) -> context.world.lights.length + 1
@@ -13,13 +12,9 @@ class Jax.Material.PhongSpecular extends Jax.Material.Layer
     
     light = context.world.lights[pass-1]
     @varMap.ModelViewMatrix = context.matrix_stack.getModelViewMatrix()
-    @varMap.NormalMatrix = context.matrix_stack.getNormalMatrix()
     @varMap.PASS = pass
-    @varMap.MaterialShininess = @material.shininess
-    @varMap.MaterialSpecularIntensity = @material.intensity.specular
-    @varMap.MaterialSpecularColor = @material.color.specular
-    @varMap.LightSpecularColor = light.color.specular
-    @varMap.EyeSpaceLightDirection = light.eyeSpaceDirection(context.matrix_stack)
+    @varMap.MaterialAmbientIntensity = @material.intensity.ambient
+    @varMap.LightAmbientColor = light.color.ambient
     
     mesh.data.set vars, @meshDataMap
     vars.set @varMap

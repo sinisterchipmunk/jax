@@ -21,6 +21,11 @@ class Jax.Light extends Jax.Model
     @color = new Jax.Light.Color this
     @energy = 1
     
+  eyeSpaceDirection: (matrices) ->
+    vec3.normalize mat4.multiplyVec3 matrices.getModelViewMatrix(),
+      @direction,
+      @_eyeSpaceDirection or= vec3.create()
+    
 # For legacy compatibility
 # TODO remove these
 Jax.Scene or= {}

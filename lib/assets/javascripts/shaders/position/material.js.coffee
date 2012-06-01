@@ -4,4 +4,4 @@ class Jax.Material.Position extends Jax.Material.Layer
     
   setVariables: (context, mesh, model, vars) ->
     mesh.data.set vars, vertices: 'VERTEX_POSITION'
-    vars.set 'MVP', context.matrix_stack.getModelViewProjectionMatrix()
+    vars.set 'ModelViewProjectionMatrix', context.matrix_stack.getModelViewProjectionMatrix()
