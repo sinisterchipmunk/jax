@@ -18,12 +18,10 @@ class Jax.Mesh.Data
     if length < 256 then return Uint8Array
     else if length < 65536 then return Uint16Array
     
-    # FIXME meshes with more vertices can't actually use indices at all
+    # FIXME meshes with more vertices can't actually be rendered at all
     # because only GL_UNSIGNED_BYTE or GL_UNSIGNED_SHORT are supported;
-    # in this case the mesh should default to using vertices without indices
+    # in this case the mesh should be split into two meshes
     # but for now we'll let it bubble up as GL_INVALID_ENUM during render.
-    # This should be fixed after Jax.Mesh.Data has more direct control over
-    # attribute binding.
     Uint32Array
     
   # Returns the calculated length of the ArrayBuffer in bytes for the specified

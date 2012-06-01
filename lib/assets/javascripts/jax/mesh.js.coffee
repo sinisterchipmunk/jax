@@ -21,6 +21,13 @@ class Mesh
       @draw_mode = options.draw_mode if options.draw_mode
       @material = options.material || Jax.default_material
       @color = options.color if options.color
+      
+      delete options.init
+      delete options.draw_mode
+      delete options.material
+      delete options.color
+      for key, value of options
+        @[key] = value
     else
       @material = Jax.default_material
   

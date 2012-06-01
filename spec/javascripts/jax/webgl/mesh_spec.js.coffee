@@ -1,6 +1,16 @@
 describe "Jax.Mesh", ->
   mesh = null
   
+  it "should set 'this' in #init to the mesh instance", ->
+    self = null
+    mesh = new Jax.Mesh.Base init: (v) -> self = this
+    mesh.rebuild()
+    expect(self).toBe mesh
+    
+  it "should set arbitrary properties passed to super as instance properties", ->
+    mesh = new Jax.Mesh.Base size: 5
+    expect(mesh.size).toBe 5
+  
   describe "Triangles", ->
     beforeEach ->
       mesh = new Jax.Mesh.Triangles init: (v) -> v.push 0, 1, 0, -1, 0, 0, 1, 0, 0
