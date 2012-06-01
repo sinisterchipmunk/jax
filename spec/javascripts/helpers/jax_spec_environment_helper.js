@@ -61,7 +61,8 @@ function setupJaxSpecContext() {
   document.body.appendChild(canvas);
   
   beforeEach(function() {
-    Jax.getGlobal().SPEC_CONTEXT = new Jax.Context(canvas);
+    Jax.getGlobal().SPEC_CONTEXT = this.context = new Jax.Context(canvas);
+    this.world = this.context.world;
   });
   
   afterEach(function() {
