@@ -14,6 +14,7 @@ class Jax.Material.Layer
       vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else
       fmap = vmap = {}
+    @material = material
     @variableMap = new Jax.Material.ShaderVariableMap fmap, vmap, material?.assigns
     
   numPasses: (context) -> 1
