@@ -43,22 +43,24 @@ class Jax.Material
     gl = context.gl
     numPassesRendered = 0
     for pass in [0...max]
-      render = true
-      for layer in @layers
-        if result = (layer.setup context, mesh, model, pass) is false
-          render = false
-          break
-      continue unless render
-      if numPassesRendered == 1
-        gl.blendFunc GL_ONE, GL_ONE
-        gl.depthFunc GL_LEQUAL
+      continue unless @preparePass context, mesh, model, pass, numPassesRendered
       numPassesRendered++
-      @shader.set context, @assigns
       @drawBuffers context, mesh
     if numPassesRendered > 1
       gl.blendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
       gl.depthFunc GL_LESS
     return numPassesRendered
+    
+  preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
+    for layer in @layers
+      if result = (layer.setup context, mesh, model, pass) is false
+        return false
+    if numPassesRendered is 1
+      gl = context.gl
+      gl.blendFunc GL_ONE, GL_ONE
+      gl.depthFunc GL_LEQUAL
+    @shader.set context, @assigns
+    return true
     
   drawBuffers: (context, mesh) ->
     unless <%= Rails.env.production? %> or @_alreadyWarned
@@ -94,6 +96,7 @@ class Jax.Material
         data.layers or= []
         data.layers.unshift type: "Basic"
       when 'CUSTOM' then Klass = Jax.Material.Custom
+      when 'LEGACY' then Klass = Jax.Material.Legacy
       when 'SURFACE', 'VOLUME', 'HALO', 'WIRE'
         throw new Error "#{name}: Material type #{data.type} is not yet implemented."
       else

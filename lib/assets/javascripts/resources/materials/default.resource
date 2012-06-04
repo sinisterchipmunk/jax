@@ -1,4 +1,4 @@
-type: Custom
+type: Legacy
 
 intensity:
   ambient: 1

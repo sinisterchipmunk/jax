@@ -12,6 +12,22 @@ describe "Jax.Light", ->
   it "should produce a new typed light", ->
     light = new Jax.Light type: "Spot"
     expect(light).toBeInstanceOf(Jax.Light.Spot)
+    
+  describe "a directional light", ->
+    beforeEach ->
+      light = new Jax.Light.Directional
+    
+    describe "with translated view", ->
+      camera = null
+      beforeEach ->
+        camera = new Jax.Camera
+        camera.lookAt [0,0,0], [0,0,5]
+        console.log camera.getNormalMatrix()
+    
+      it "should return eye direction same as direction more than once", ->
+        console.log light.eyeDirection camera.getNormalMatrix()
+        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
+        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
   
   describe "a generic instance", ->
     beforeEach -> light = new Jax.Light

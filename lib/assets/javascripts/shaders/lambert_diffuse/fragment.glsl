@@ -6,13 +6,13 @@
 void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
-    vec3 N = import(NormalizedEyeSpaceSurfaceNormal, export(vec3, NormalizedEyeSpaceSurfaceNormal, normalize(vEyeSpaceSurfaceNormal)));
+    vec3 N = normalize(vEyeSpaceSurfaceNormal);
     vec3 L = -EyeSpaceLightDirection;
     vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
               MaterialDiffuseColor.a * MaterialDiffuseIntensity;
     float Il = 1.0; // intensity is 1: no attenuation for directional lights
 
-    float lambert = import(LambertTerm, export(float, LambertTerm, dot(N, L)));
-    gl_FragColor += vec4(clamp(lambert, 0.0, 1.0) * C * Il, 1.0);
+    float lambert = dot(N, L);
+    gl_FragColor += vec4(lambert * C * Il, 1.0);
   }
 }

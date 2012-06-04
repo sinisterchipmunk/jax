@@ -21,6 +21,12 @@ class Jax.Shader.Collection
       get: => obj
     obj
     
+  # Remove the named property and return it.
+  remove: (name) ->
+    obj = @[name]
+    @_variables.splice @_variables.indexOf(obj), 1
+    obj
+    
   count: (name) ->
     count = 0
     for obj in @_variables

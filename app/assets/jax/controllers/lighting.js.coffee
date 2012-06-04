@@ -1,8 +1,12 @@
+movement = { forward: 0, backward: 0, left: 0, right: 0 }
+
 Jax.Controller.create "lighting",
   index: ->
-    # @world.addObject new Jax.Framerate ema: no
-    @world.addLight new Jax.Light.Directional
+    @world.addObject new Jax.Framerate ema: no
+    @light = @world.addLight new Jax.Light.Directional
+      direction: [-1, 0, 0]
+      
     @world.addObject new Jax.Model 
       position: [0, 0, -5]
-      mesh: new Jax.Mesh.Sphere
-      update: (tc) -> @camera.rotate tc * 0.001, [0, 1, 0]
+      mesh: new Jax.Mesh.Teapot
+      update: (tc) -> @camera.rotate tc * 0.001, [1, 0.75, 0.5]

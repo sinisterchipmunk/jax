@@ -218,7 +218,8 @@ class Jax.Shader.Program
           else @setUniform context, variable, value
           variable.value = value
         catch e
-          throw new Error "Error occurred setting #{variable.qualifier} #{variable.name}: #{e.message}"
+          blurb = "#{variable.qualifier} #{Jax.Util.enumName variable.type} #{variable.name}"
+          throw new Error "Error occurred setting #{blurb} to `#{JSON.stringify value}`: #{e.message}"
 
   ###
   Disables any attribute variable which was previously enabled by this shader.

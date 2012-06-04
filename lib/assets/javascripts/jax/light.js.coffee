@@ -16,16 +16,27 @@ class Jax.Light extends Jax.Model
           when "DIRECTIONAL_LIGHT", Jax.DIRECITONAL_LIGHT then options.type = "Directional"
         if Jax.Light[options.type] then return new Jax.Light[options.type](options)
     
+    super options
     @enabled = true
-    @attenuation = new Jax.Light.Attenuation this
-    @color = new Jax.Light.Color this
-    @energy = 1
+    @attenuation = new Jax.Light.Attenuation this, options?.attenuation
+    @color = new Jax.Light.Color this, options?.color
+    @energy = if options?.energy is undefined then 1 else options.energy
     
-  eyeSpaceDirection: (matrices) ->
-    vec3.normalize mat4.multiplyVec3 matrices.getModelViewMatrix(),
-      @direction,
-      @_eyeSpaceDirection or= vec3.create()
+  @define 'direction',
+    get: -> @camera.getViewVector()
+    set: (dir) -> @camera.setDirection dir
+
+  @define 'position',
+    get: -> @camera.getPosition()
+    set: (pos) -> @camera.setPosition pos
+
+  eyeDirection: (matrix, dest) ->
+    vec3.normalize mat3.multiplyVec3 matrix, @camera.getViewVector(), dest
     
+  eyePosition: (matrix, dest) ->
+    mat4.multiplyVec4 matrix, @camera.getPosition(), dest
+
+
 # For legacy compatibility
 # TODO remove these
 Jax.Scene or= {}

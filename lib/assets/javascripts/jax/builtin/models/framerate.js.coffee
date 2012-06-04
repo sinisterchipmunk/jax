@@ -46,9 +46,9 @@ class Jax.Framerate extends Jax.Model
   constructor: (options = {}) ->
     options.width or= 128
     options.height or= 64
-    options.position or= [options.width / 2, options.height / 2, 0]
+    options.position or= [options.width / 2, options.height / 2, -1]
     super options
-
+    
     @canvas = document.createElement 'canvas'
     @canvas.width  = @width
     @canvas.height = @height
@@ -78,6 +78,7 @@ class Jax.Framerate extends Jax.Model
       height: @height
       mag_filter: GL_LINEAR
       min_filter: GL_LINEAR
+      flip_y: true
       
     @glTex.image = @canvas
     @mesh = new Jax.Mesh.Quad
@@ -145,11 +146,23 @@ class Jax.Framerate extends Jax.Model
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
       
     @glTex.refresh context
+    
+    unless @ortho
+      @camera.ortho
+        left: 0
+        right: context.canvas.width
+        bottom: 0
+        top: context.canvas.height
+      @ortho = @camera.getProjectionMatrix()
+      @identity = mat4.identity()
+    
     stack = context.matrix_stack
     stack.push()
-    mat4.ortho 0, context.canvas.width, context.canvas.height, 0, 0, 1, stack.getProjectionMatrix()
-    mat4.identity stack.getViewMatrix()
+    mat4.set @ortho, stack.getProjectionMatrix()
+    stack.loadViewMatrix @identity
     stack.multModelMatrix @camera.getTransformationMatrix()
+    context.gl.disable GL_DEPTH_TEST
     @mesh.render context, this, material
+    context.gl.enable GL_DEPTH_TEST
     stack.pop()
     

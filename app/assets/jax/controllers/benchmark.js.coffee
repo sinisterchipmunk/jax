@@ -1,5 +1,7 @@
 #= require 'benchmark'
 
+MAX = 5
+
 log = null
 Jax.Controller.create "benchmark",
   index: ->
@@ -53,18 +55,40 @@ Jax.Controller.create "benchmark",
     suite.run({ 'async': true });
     
     
+  update: (tc) ->
+    tc *= 0.0005
+    @_rotation or= 0
+    @_rotation += tc
+    position = @_position or= vec3.create()
+    origin = @_origin or= vec3.create()
+    radius = MAX / 2 + 1
+    
+    position[0] = Math.cos(@_rotation) * radius
+    position[1] = 0
+    position[2] = Math.sin(@_rotation) * radius
+    
+    @context.player.camera.lookAt origin, position
+    
   benchmark_complete: ->
-    max = 5
+    max = MAX
     k = 0
     
+    @world.addLight new Jax.Light.Directional
+        
     for i in [0..max]
       for j in [0..max]
         for k in [0..max]
           @world.addObject new Jax.Model
-            position: [i - 2.5, j - 2.5, -k - 5]
+            position: [i - 2.5, j - 2.5, k - 2.5]
             mesh: new Jax.Mesh.Sphere
+              size: 0.25
               radius: 0.25
-              color: [i / max, j / max, k / max, 1]
+              color: [1, 1, 1, 1]
+              material: new Jax.Material.Legacy
+                intensity:
+                  diffuse: 1.25
+                color:
+                  diffuse: [i / max, j / max, k / max, 1]
     
     # @world.addObject new Jax.Model position: [0, 0, -5], mesh: new Jax.Mesh.Sphere
     @world.addObject new Jax.Framerate ema: no
