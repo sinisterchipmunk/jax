@@ -1,7 +1,39 @@
-describe("Camera", function() {
+describe("Jax.Camera", function() {
   var camera, control;
   
   beforeEach(function() { camera = new Jax.Camera(); });
+  
+  it("should not change its orientation when looking in its current direction", function() {
+    camera.lookAt([0,0,-1]);
+    
+    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
+    expect(camera.getRightVector()).toEqualVector([1,0,0]);
+    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+  });
+  
+  it("should not change its orientation when looking in its current direction given a position", function() {
+    camera.lookAt([0,0,-1], [0,0,5]);
+    
+    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
+    expect(camera.getRightVector()).toEqualVector([1,0,0]);
+    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+  });
+  
+  it("should be able to reverse direction without losing orientation", function() {
+    camera.setPosition([0, 0, -5]);
+    camera.setDirection([0, 0, 1]);
+    expect(camera.getPosition()).toEqualVector([0, 0, -5]);
+    expect(camera.getViewVector()).toEqualVector([0, 0, 1]);
+    expect(camera.getUpVector()).toEqualVector([0, 1, 0]);
+    expect(camera.getRightVector()).toEqualVector([-1, 0, 0]);
+
+    camera.setPosition([0, 0, 5]);
+    camera.setDirection([0, 0, -1]);
+    expect(camera.getPosition()).toEqualVector([0, 0, 5]);
+    expect(camera.getViewVector()).toEqualVector([0, 0, -1]);
+    expect(camera.getUpVector()).toEqualVector([0, 1, 0]);
+    expect(camera.getRightVector()).toEqualVector([1, 0, 0]);
+  });
   
   it("should unproject properly", function() {
     camera.perspective({width:800,height:500,near:0.1,far:200});
