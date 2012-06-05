@@ -12,11 +12,3 @@ color:
   diffuse:  "#888888"
   specular: "#ffffff"
 
-layers:
-  - type: Position
-  - type: VertexColor
-  - type: AmbientAttenuated
-  - type: LambertDiffuse
-  - type: PhongSpecular
-  - type: ClampColor
-  
