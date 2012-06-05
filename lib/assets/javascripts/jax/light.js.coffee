@@ -16,11 +16,20 @@ class Jax.Light extends Jax.Model
           when "DIRECTIONAL_LIGHT", Jax.DIRECITONAL_LIGHT then options.type = "Directional"
         if Jax.Light[options.type] then return new Jax.Light[options.type](options)
     
-    super options
     @enabled = true
-    @attenuation = new Jax.Light.Attenuation this, options?.attenuation
-    @color = new Jax.Light.Color this, options?.color
+    @_color = new Jax.Light.Color
+    @_attenuation = new Jax.Light.Attenuation this
     @energy = if options?.energy is undefined then 1 else options.energy
+    
+    super options
+    
+  @define 'color',
+    get: -> @_color
+    set: (c) -> @_color = new Jax.Light.Color c
+    
+  @define 'attenuation',
+    get: -> @_attenuation
+    set: (options) -> @_attenuation = new Jax.Light.Attenuation this, options
     
   @define 'direction',
     get: -> @camera.getViewVector()
@@ -34,7 +43,7 @@ class Jax.Light extends Jax.Model
     vec3.normalize mat3.multiplyVec3 matrix, @camera.getViewVector(), dest
     
   eyePosition: (matrix, dest) ->
-    mat4.multiplyVec4 matrix, @camera.getPosition(), dest
+    mat4.multiplyVec3 matrix, @camera.getPosition(), dest
 
 
 # For legacy compatibility
