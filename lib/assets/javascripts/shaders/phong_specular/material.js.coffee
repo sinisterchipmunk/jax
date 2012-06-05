@@ -6,6 +6,7 @@ class Jax.Material.PhongSpecular extends Jax.Material.Layer
       normals: 'VERTEX_NORMAL'
     @varMap = {}
     @eyeDir = vec3.create()
+    @eyePos = vec3.create()
     
   numPasses: (context) -> context.world.lights.length + 1
     
@@ -21,6 +22,8 @@ class Jax.Material.PhongSpecular extends Jax.Material.Layer
     @varMap.MaterialSpecularColor = @material.color.specular
     @varMap.LightSpecularColor = light.color.specular
     @varMap.EyeSpaceLightDirection = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
+    # @varMap.LightType = light.type
+    # @varMap.EyeSpaceLightPosition = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
     
     mesh.data.set vars, @meshDataMap
     vars.set @varMap

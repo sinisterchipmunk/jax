@@ -6,6 +6,8 @@ shared uniform vec4 LightSpecularColor;
 shared uniform vec3 EyeSpaceLightDirection;
 shared uniform mat4 ModelViewMatrix;
 shared uniform mat3 NormalMatrix;
+shared uniform int LightType;
+shared uniform vec3 LightPosition;
 
 shared varying vec3 vEyeSpaceSurfaceNormal;
 shared varying vec3 vEyeSpaceSurfacePosition;

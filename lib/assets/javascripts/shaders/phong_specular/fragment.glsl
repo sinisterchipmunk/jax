@@ -9,7 +9,13 @@ void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
     vec3 N = normalize(vEyeSpaceSurfaceNormal);
-    vec3 L = -EyeSpaceLightDirection;
+    vec3 L;
+    if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
+      L = -EyeSpaceLightDirection;
+    }
+    else {
+      L = normalize(EyeSpaceLightPosition - vEyeSpaceSurfacePosition);
+    }
     float lambert = dot(N, L);
     if (lambert > 0.0) {
       vec3 R = reflect(L, N);
