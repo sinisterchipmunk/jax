@@ -8,6 +8,12 @@ describe "Jax.Shader", ->
     it "should parse exports with numbers", ->
       expect(shader.toString()).not.toMatch /export/
       
+  describe "parsing multiple exports of the same variable from a single body with conditionals", ->
+    beforeEach -> shader.append "void main(void) {\n  if (x == 1.0) {\n    export(float, v, 1.0);\n  } else {\n    export(float, v, 2.0);\n  }\n}"
+    
+    it "should remove the export directives", ->
+      expect(shader.toString()).not.toMatch /export/
+      
   it "should mangle references to mangled functions", ->
     shader.append "void mangleThis() { }\n\nvoid main() { mangleThis() }"
     expect(shader.toString()).not.toMatch /mangleThis\(/
@@ -15,37 +21,6 @@ describe "Jax.Shader", ->
   it "should not err on empty params", ->
     expect(-> shader.append "void main() { }").not.toThrow()
     
-  
-  ###
-
-  void main0(void) {
-    export(vec4, color, vColor * diffuse);
-  }
-
-  void main1(void) {
-    vec4 color = import(color, vec4(1));
-  }
-
-  ==
-
-  vec4 EXPORT_color;
-
-  void main0(void) {
-    #define HAVE_EXPORT_color 1
-    EXPORT_color = vColor * diffuse;
-  }
-
-  void main1(void) {
-    vec4 color =
-      #ifdef HAVE_EXPORT_COLOR
-        EXPORT_color
-      #else
-        vec4(1)
-      #endif
-    ;
-  }
-
-  ###
   
   describe "exports with no expression", ->
     it "should raise a coherent error", ->
@@ -74,13 +49,10 @@ describe "Jax.Shader", ->
       expect(shader.toString()).toMatch /vec4 EXPORT_POSITION;/
       
     it "should #define the export", ->
-      expect(shader.toString()).toMatch /\#define HAVE_EXPORT_POSITION 1/
+      expect(shader.toString()).toMatch /HAVE_EXPORT_POSITION/
       
     it "should assign the export", ->
-      expect(shader.toString()).toMatch /EXPORT_POSITION = vec4\(1, 1, 1, 1\)/
-    
-    it "should import by checking the #define", ->
-      expect(shader.toString()).toMatch /a = \n\s*\#ifdef HAVE_EXPORT_POSITION\n\s*EXPORT_POSITION\n\s*\#else\n\s*1.0\n\s*\#endif\n\s*;/
+      expect(shader.toString()).toMatch /EXPORT_POSITION\s*=/
   
   describe "after appending source", ->
     map = null

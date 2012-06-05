@@ -8,11 +8,14 @@
 class Jax.Shader
   processFunctionExports = (body, functions, exports) ->
     for name, exp of exports
-      if functions.isExportUsed exp
-        while body.indexOf(exp.fullMatch) != -1
-          body = body.replace(exp.fullMatch, "(EXPORT_#{exp.name} = #{exp.expression})\n#define HAVE_EXPORT_#{exp.name} 1\n")
-      else
-        body = body.replace(exp.fullMatch, exp.expression) while body.indexOf(exp.fullMatch) != -1
+      for match in exp.fullMatches
+        while body.indexOf(match) != -1
+          if functions.isExportUsed exp
+            body = body.replace match,
+              # ((HAVE_EXPORT_attenuation = true) && (EXPORT_attenuation = 1.0))
+              "((HAVE_EXPORT_#{exp.name} = true) ? (EXPORT_#{exp.name} = #{exp.expression}) : (#{exp.expression}))"
+          else
+            body = body.replace match, exp.expression
     body
     
   processFunctionImports = (body, exports) ->
@@ -22,7 +25,8 @@ class Jax.Shader
       name = match[1].trim()
       expression = Jax.Util.scan body[(start+match[0].length)...body.length]
       if exports[name]
-        gencode = "\n    #ifdef HAVE_EXPORT_#{name}\n      EXPORT_#{name}\n    #else\n      #{expression.trim()}\n    #endif\n  "
+        #                (HAVE_EXPORT_attenuation ? EXPORT_attenuation : (1.0))
+        gencode = "\n    (HAVE_EXPORT_#{name} ? EXPORT_#{name} : (#{expression.trim()}))"
       else
         gencode = expression
       body = body[0...start] + gencode + body[(start+match[0].length+expression.length+1)...body.length]
@@ -94,7 +98,9 @@ class Jax.Shader
     lines = lines.concat @global.split /\n/
     exports = @functions.exports
     for name, exp of exports
-      lines.push "#{exp.type} EXPORT_#{exp.name};" if @functions.isExportUsed exp
+      if @functions.isExportUsed exp
+        lines.push "bool HAVE_EXPORT_#{exp.name} = false;"
+        lines.push "#{exp.type} EXPORT_#{exp.name};"
     for func in @functions.all
       lines.push "" if lines.length > 0 # empty line for separator
       lines = lines.concat mangleFunction.call this, func, exports

@@ -12,6 +12,7 @@ class Jax.Shader.FunctionCollection extends Jax.Shader.Collection
       match = /([^,]*?),([^,]*?),(.*)/m.exec params
       if match is null then throw new Error "Export requires 3 arguments: type, name and expression"
       [type, name, expression] = [match[1].trim(), match[2].trim(), match[3].trim()]
+      fullMatch = fullMatch + match[0] + ')'
       exports[name] =
         start: start
         end: end
@@ -21,7 +22,7 @@ class Jax.Shader.FunctionCollection extends Jax.Shader.Collection
         name: name
         expression: expression
         params: params
-        fullMatch: fullMatch + match[0] + ')'
+        fullMatches: (exports[name]?.fullMatches || []).concat([ fullMatch ])
       
       replacement = ""
       replacement = replacement + " " for i in [start...end]
