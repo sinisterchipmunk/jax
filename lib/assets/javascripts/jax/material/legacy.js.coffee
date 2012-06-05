@@ -33,7 +33,8 @@ class Jax.Material.Legacy extends Jax.Material.Custom
 
     @addLayer 'Position'
     @addLayer 'VertexColor'
-    @addLayer 'AmbientAttenuated'
+    @addLayer 'LightAmbient'
     @addLayer 'LambertDiffuse'
     @addLayer 'PhongSpecular'
+    @addLayer 'Attenuation'
     @addLayer 'ClampColor'
