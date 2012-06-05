@@ -11,16 +11,25 @@ Jax.Controller.create "oz3d",
     pos[2] = Math.cos(@_rotation) * radius
     @player.camera.setPosition pos
     @player.camera.lookAt [0, 4.5, 0]
+    
+  mouse_dragged: (e) ->
+    @light.camera.move e.diffy / 100, [0, 1, 0]
+    @light.camera.move e.diffx / 100, [0, 0, 1]
+    @lighto.camera.setPosition @light.camera.getPosition()
 
   index: ->
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
     
-    @light = @world.addLight new Jax.Light.Directional
+    @light = @world.addLight new Jax.Light.Point
+      attenuation:
+        linear: 0.25
       direction: vec3.normalize([0, -1/3, -1])
+      position: [0, 9, 0]
       color:
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
+    @lighto = @world.addObject new Jax.Model position: [0, 9, 0], mesh: new Jax.Mesh.Sphere(size: 0.25)
     
     @context.player.camera.setPosition -15, 20, 25
     @context.player.camera.setDirection 0.55, -0.5, -1
@@ -28,20 +37,16 @@ Jax.Controller.create "oz3d",
     @floor_mat = new Jax.Material.Legacy
       shininess: 60
       color:
-        ambient: [0.7, 0.7, 0.7, 1]
         diffuse: [0.4, 0.9, 0.4, 1]
         specular: [0.4, 0.4, 0.4, 1]
-    
     @torus_mat = new Jax.Material.Legacy
       shininess: 60
       color:
-        ambient: [0.3, 0.3, 0.3, 1]
-        diffuse: [0.9, 0.5, 0.5, 1]
+        diffuse: [1.0, 0.5, 0.5, 1]
         specular: [0.6, 0.6, 0.6, 1]
     @sphere_mat = new Jax.Material.Legacy
       shininess: 60
       color:
-        ambient: [0.3, 0.3, 0.3, 1]
         diffuse: [0.5, 0.5, 0.9, 1]
         specular: [0.4, 0.4, 0.4, 1]
 
