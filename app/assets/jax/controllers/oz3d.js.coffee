@@ -2,7 +2,7 @@ movement = { forward: 0, backward: 0, left: 0, right: 0 }
 
 Jax.Controller.create "oz3d",
   update: (timechange) ->
-    speed = 0.00015 * timechange;
+    speed = 0.15 * timechange;
     @_rotation = (@_rotation or 0) - speed
     pos = @_pos = (@_pos or vec3.create())
     radius = Math.sqrt(15*15+25*25)
@@ -22,7 +22,7 @@ Jax.Controller.create "oz3d",
 
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
     
-    @light = @world.addLight new Jax.Light.Point
+    @light = @world.addLight new Jax.Light.Spot
       attenuation:
         linear: 0.25
       direction: vec3.normalize([0, -1/3, -1])

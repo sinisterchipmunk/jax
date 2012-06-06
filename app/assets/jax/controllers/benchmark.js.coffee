@@ -56,7 +56,7 @@ Jax.Controller.create "benchmark",
     
     
   update: (tc) ->
-    tc *= 0.0005
+    tc *= 0.5
     @_rotation or= 0
     @_rotation += tc
     position = @_position or= vec3.create()
