@@ -65,17 +65,23 @@ class Jax.Mesh.Data
       descriptor.gl.deleteBuffer descriptor.buffer
       delete @_glBuffers.id
       
-  bind: (context) ->
+  bind: () ->
+    id = @_context.id
     gl = @_context.gl
-    unless buffer = @_glBuffers[context.id]?.buffer
-      @_glBuffers[context.id] =
+    unless buffer = @_glBuffers[id]?.buffer
+      @_glBuffers[id] =
         gl: gl
         buffer: gl.createBuffer()
-      gl.bindBuffer GL_ARRAY_BUFFER, @_glBuffers[context.id].buffer
+      gl.bindBuffer GL_ARRAY_BUFFER, @_glBuffers[id].buffer
       gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
     else
       gl.bindBuffer GL_ARRAY_BUFFER, buffer
     @_bound = true
+    
+  refresh: (context) ->
+    @context = context if context
+    @bind()
+    @_context.gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
   
   set: (vars, mapping) ->
     throw new Error "Jax context for this pass is not set" unless @_context
