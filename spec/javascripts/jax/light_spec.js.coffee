@@ -22,10 +22,9 @@ describe "Jax.Light", ->
       beforeEach ->
         camera = new Jax.Camera
         camera.lookAt [0,0,0], [0,0,5]
-        console.log camera.getNormalMatrix()
     
       it "should return eye direction same as direction more than once", ->
-        console.log light.eyeDirection camera.getNormalMatrix()
+        light.direction = [-1, -1, -1]
         expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
         expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
   
@@ -33,9 +32,6 @@ describe "Jax.Light", ->
     beforeEach -> light = new Jax.Light
     
     it "should be enabled", -> expect(light.enabled).toBeTruthy()
-    it "should not have a position", -> expect(light.position).toBeUndefined()
-    it "should not have a direction", -> expect(light.direction).toBeUndefined()
-    it "should not have a type", -> expect(light.type).toBeUndefined()
     it "should have constant attenuation", -> expect(light.attenuation.constant).toBeDefined()
     it "should have linear attenuation", -> expect(light.attenuation.linear).toBeDefined()
     it "should have quadratic attenuation", -> expect(light.attenuation.quadratic).toBeDefined()

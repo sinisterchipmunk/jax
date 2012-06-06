@@ -5,7 +5,6 @@ describe "Jax.Light.Directional", ->
     beforeEach -> light = new Jax.Light.Directional
   
     it "should be enabled", -> expect(light.enabled).toBeTruthy()
-    it "should not have a position", -> expect(light.position).toBeUndefined()
     it "should have a direction", -> expect(light.direction).toBeTruthy()
     it "should have a type", -> expect(light.type).toBeDefined()
     it "should have the correct type", -> expect(light.type).toEqual Jax.DIRECTIONAL_LIGHT
