@@ -1,4 +1,4 @@
 type: Custom
 layers:
-  - type: Basic
+  - type: Position
   - type: Picking

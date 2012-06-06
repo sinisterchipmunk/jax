@@ -1,2 +1,2 @@
 uniform float INDEX;
-varying vec4 vColor;
+varying vec4 vPickingColor;
