@@ -34,23 +34,23 @@ describe("Jax.Controller", function() {
     var context;
     
     beforeEach(function() {
+      jasmine.Clock.useMock();
+      SPEC_CONTEXT.useRequestAnimFrame = false;
       klass = Jax.Controller.create("welcome", { index: function() { }, update: function(tc) { } });
       Jax.views.push("welcome/index", function() { });
       Jax.routes.map("welcome", klass);
-      context = new Jax.Context(SPEC_CONTEXT.canvas);
-      instance = context.redirectTo("welcome");
-      spyOn(instance, 'update');
+      instance = SPEC_CONTEXT.redirectTo("welcome");
     });
     
-    afterEach(function() { context.dispose(); });
+    afterEach(function() { SPEC_CONTEXT.dispose(); SPEC_CONTEXT.useRequestAnimFrame = true; });
     
-    it("should be called when the context is updated", function() {
-      /*
-        we can't really register a callback to setTimeout and check that it was called automatically,
-        so we'll have to simulate it by calling Context#update() directly.
-       */
-      context.update();
-      expect(instance.update).toHaveBeenCalled();
+    it("should be called with the elapsed time in seconds", function() {
+      spyOn(instance, 'update');
+      SPEC_CONTEXT.startRendering();
+      SPEC_CONTEXT.startUpdating();
+      jasmine.Clock.tick(75);
+      expect(instance.update).toHaveBeenCalledWith(0.016);
+      SPEC_CONTEXT.stopUpdating();
     });
   });
 
