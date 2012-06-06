@@ -27,7 +27,7 @@ describe "Jax.Mesh.Cube", ->
     expect(colors).toIncludeSubset([1, 0, 0, 1]);
     
   it "should allow altering of face color after build", ->
-    cube.rebuild();
+    cube.validate();
     cube.left.color = "#ff0000ff"
     colors = cube.data.colorBuffer;
     expect(colors).toIncludeSubset([1, 0, 0, 1]);
