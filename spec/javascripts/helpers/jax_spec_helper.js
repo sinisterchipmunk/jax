@@ -1,5 +1,9 @@
 beforeEach(function() {
   this.addMatchers({
+    toBeValid: function() {
+      return this.actual.isValid();
+    },
+    
     toIncludeSubset: function(subset) {
       for (var i = 0; i < this.actual.length; i++) {
         var found = true;
