@@ -10,19 +10,24 @@ void main(void) {
     vec3 N = normalize(vEyeSpaceSurfaceNormal);
     
     vec3 L;
+    float Il = 1.0;
     if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
       L = -EyeSpaceLightDirection;
       export(float, LightDistanceFromSurface, -1.0);
-    }
-    else {
+    } else {
       L = EyeSpaceLightPosition - vEyeSpaceSurfacePosition;
       float d = export(float, LightDistanceFromSurface, length(L));
       L /= d;
+      
+      float cosCurAngle = dot(-L, EyeSpaceLightDirection);
+      float cosInnerMinusOuterAngle = LightSpotInnerCos - LightSpotOuterCos;
+      Il = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
     }
+    
     vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
               MaterialDiffuseColor.a * MaterialDiffuseIntensity;
 
     float lambert = dot(N, L);
-    gl_FragColor += vec4(lambert * C, 1.0);
+    gl_FragColor += vec4(lambert * C * Il, 1.0);
   }
 }

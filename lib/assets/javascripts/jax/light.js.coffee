@@ -18,7 +18,10 @@ class Jax.Light extends Jax.Model
     
     @enabled = true
     @_color = new Jax.Light.Color
-    @_attenuation = new Jax.Light.Attenuation this
+    @_attenuation = new Jax.Light.Attenuation
+    @spotExponent = 32
+    @innerSpotAngle = Math.PI / 8.75
+    @outerSpotAngle = Math.PI / 8
     @energy = if options?.energy is undefined then 1 else options.energy
     
     super options
@@ -29,7 +32,7 @@ class Jax.Light extends Jax.Model
     
   @define 'attenuation',
     get: -> @_attenuation
-    set: (options) -> @_attenuation = new Jax.Light.Attenuation this, options
+    set: (options) -> @_attenuation = new Jax.Light.Attenuation options
     
   @define 'direction',
     get: -> @camera.getViewVector()
@@ -38,6 +41,19 @@ class Jax.Light extends Jax.Model
   @define 'position',
     get: -> @camera.getPosition()
     set: (pos) -> @camera.setPosition pos
+    
+  @define 'innerSpotAngle',
+    get: -> @_innerSpotAngle
+    set: (c) -> @_innerSpotAngle = c; @_innerSpotAngleCos = Math.cos c
+    
+  @define 'outerSpotAngle',
+    get: -> @_outerSpotAngle
+    set: (c) -> @_outerSpotAngle = c; @_outerSpotAngleCos = Math.cos c
+
+  @define 'outerSpotAngleCos', get: -> @_outerSpotAngleCos
+  @define 'innerSpotAngleCos', get: -> @_innerSpotAngleCos
+
+  rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
     vec3.normalize mat3.multiplyVec3 matrix, @camera.getViewVector(), dest

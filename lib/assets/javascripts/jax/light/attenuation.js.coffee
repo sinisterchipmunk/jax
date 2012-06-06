@@ -1,5 +1,5 @@
 class Jax.Light.Attenuation
-  constructor: (@light, defaults) ->
+  constructor: (defaults) ->
     @constant  = 0
     @linear    = 1
     @quadratic = 0

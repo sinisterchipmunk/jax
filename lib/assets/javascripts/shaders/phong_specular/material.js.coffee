@@ -22,8 +22,11 @@ class Jax.Material.PhongSpecular extends Jax.Material.Layer
     @varMap.MaterialSpecularColor = @material.color.specular
     @varMap.LightSpecularColor = light.color.specular
     @varMap.EyeSpaceLightDirection = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-    # @varMap.LightType = light.type
-    # @varMap.EyeSpaceLightPosition = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
+    @varMap.LightSpotExponent = light.spotExponent
+    @varMap.LightSpotInnerCos = light.innerSpotAngleCos
+    @varMap.LightSpotOuterCos = light.outerSpotAngleCos
+    @varMap.LightType = light.type
+    @varMap.EyeSpaceLightPosition = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
     
     mesh.data.set vars, @meshDataMap
     vars.set @varMap

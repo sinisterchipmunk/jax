@@ -27,6 +27,12 @@ describe "Jax.Light", ->
         light.direction = [-1, -1, -1]
         expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
         expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
+        
+  it "should set colors from options", ->
+    light = new Jax.Light color: {ambient: [1,1,1,1], diffuse: [2,2,2,2], specular: [3,3,3,3]}
+    expect(light.color.ambient.toVec4()).toEqual [1,1,1,1]
+    expect(light.color.diffuse.toVec4()).toEqual [2,2,2,2]
+    expect(light.color.specular.toVec4()).toEqual [3,3,3,3]
   
   describe "a generic instance", ->
     beforeEach -> light = new Jax.Light

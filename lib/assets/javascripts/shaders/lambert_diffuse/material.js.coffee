@@ -21,6 +21,9 @@ class Jax.Material.LambertDiffuse extends Jax.Material.Layer
     @varMap.LightDiffuseColor = light.color.diffuse
     @varMap.EyeSpaceLightDirection = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
     @varMap.LightType = light.type
+    @varMap.LightSpotExponent = light.spotExponent
+    @varMap.LightSpotInnerCos = light.innerSpotAngleCos
+    @varMap.LightSpotOuterCos = light.outerSpotAngleCos
     @varMap.EyeSpaceLightPosition = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
     @varMap.ModelViewMatrix = context.matrix_stack.getModelViewMatrix()
     

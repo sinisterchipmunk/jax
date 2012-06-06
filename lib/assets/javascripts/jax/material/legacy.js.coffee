@@ -7,7 +7,7 @@ class Jax.Material.Legacy extends Jax.Material.Custom
       diffuse: 1
       specular: 1
     @shininess = 60
-    @color = new Jax.Light.Color this, options?.color
+    @color = new Jax.Light.Color options?.color
 
     if options
       for key, value of options

@@ -1,6 +1,6 @@
 class Jax.Light.Color
-  constructor: (@light, defaults) ->
-    @diffuse  = new Jax.Color 0.5, 0.5, 0.5, 1
+  constructor: (defaults) ->
+    @diffuse  = new Jax.Color 0.7, 0.7, 0.7, 1
     @specular = new Jax.Color 1.0, 1.0, 1.0, 1
     @ambient  = new Jax.Color 0.0, 0.0, 0.0, 1
 
