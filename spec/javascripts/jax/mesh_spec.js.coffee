@@ -4,6 +4,18 @@ describe "Jax.Mesh", ->
   it "should make its data available immediately after creation", ->
     mesh = new Jax.Mesh.Triangles(init: (v) -> v.push 1, 1, 1)
     expect(mesh.data.vertexBuffer).toEqualVector [1, 1, 1]
+    
+  it "should be valid after rebuilding", ->
+    mesh = new Jax.Mesh.Quad()
+    mesh.rebuild()
+    expect(mesh).toBeValid()
+    
+  it "should always invoke #init during rebuild, even if already valid", ->
+    mesh = new Jax.Mesh.Triangles(init: ->)
+    mesh.validate()
+    spyOn mesh, 'init'
+    mesh.rebuild()
+    expect(mesh.init).toHaveBeenCalled()
   
   it "should set 'this' in #render to the mesh instance", ->
     self = null

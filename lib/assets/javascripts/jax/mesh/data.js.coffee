@@ -12,6 +12,8 @@ class FloatBuffer
   bind: -> # no-op for compatibility with Jax.Buffer
 
 class Jax.Mesh.Data
+  @include Jax.Events.Methods
+  
   # Returns the smallest unsigned int typed array that can hold
   # the specified number of vertices. Smaller arrays are generally faster.
   chooseIndexArrayFormat = (length) ->
@@ -39,15 +41,19 @@ class Jax.Mesh.Data
     (indices.push i for i in [0...@length]) if indices.length == 0
     # @vertices = new Array @length
     @assignVertexData vertices, colors, textures, normals
-    @originalColors = (c for c in @colorBuffer)
+    @freezeColors()
     for i in [0...indices.length]
       @indexBuffer[i] = indices[i]
     @usage = GL_STATIC_DRAW
     @target = GL_ARRAY_BUFFER
     @_glBuffers = {}
+    @_valid = {}
     
   @define 'color'
+    get: -> @_color
     set: (color) ->
+      @fireEvent 'colorChanged'
+      @invalidate()
       @_color = Jax.Color.parse color
       for i in [0...@colorBuffer.length] by 4
         @colorBuffer[i  ] = @originalColors[i  ] * @_color.red
@@ -60,12 +66,39 @@ class Jax.Mesh.Data
       @_bound = false
       @_context = context
       
+  ###
+  Marks the current color data as "original". Changing the color of the
+  mesh via `data.color = [...]` will blend the specified color with
+  the colors as they are now, regardless of what they were when the mesh
+  data was originally constructed.
+  ###
+  freezeColors: ->
+    @originalColors or= new Float32Array @colorBuffer.length
+    for i in [0...@colorBuffer.length]
+      @originalColors[i] = @colorBuffer[i]
+    
+  ###
+  Marks the mesh data as having changed. The next time the data is bound
+  to a GL context, the corresponding GL buffers will be refreshed.
+  ###
+  invalidate: ->
+    for id of @_valid
+      @_valid[id] = false
+      
+  ###
+  Deletes all GL buffers. Call this before you delete your handle to this
+  data, or risk memory leaks.
+  ###
   dispose: ->
     for id, descriptor of @_glBuffers
       descriptor.gl.deleteBuffer descriptor.buffer
       delete @_glBuffers.id
-      
-  bind: () ->
+  
+  ###
+  Bind the data to the current GL context, or to the specified one if given.
+  ###
+  bind: (context) ->
+    @context = context if context
     id = @_context.id
     gl = @_context.gl
     unless buffer = @_glBuffers[id]?.buffer
@@ -76,13 +109,26 @@ class Jax.Mesh.Data
       gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
     else
       gl.bindBuffer GL_ARRAY_BUFFER, buffer
+      unless @_valid[id]
+        gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
+    @_valid[id] = true
     @_bound = true
     
-  refresh: (context) ->
-    @context = context if context
-    @bind()
-    @_context.gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
+  ###
+  Sets shader variables to refer to data from this mesh, depending on the
+  mapping you give it. The `vars` parameter should be the variable set
+  as seen in `Jax.Material.Layer#setVariables`.
   
+  Example:
+  
+  class Jax.Material.SomethingCool extends Jax.Material.Layer
+    setVariables: (context, mesh, model, vars, pass) ->
+      mesh.data.set vars,
+        vertices: 'ShaderVertexAttribute'
+        colors:   'ShaderColorAttribute'
+        textures: 'ShaderTextureCoordsAttribute'
+        normals:  'ShaderNormalAttribute'
+  ###
   set: (vars, mapping) ->
     throw new Error "Jax context for this pass is not set" unless @_context
     @bind @_context unless @_bound
@@ -94,7 +140,12 @@ class Jax.Mesh.Data
         when 'textures' then vars.set target, @textureCoordsWrapper
         when 'normals'  then vars.set target, @normalWrapper
         else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
-    
+  
+  ###
+  Allocate or reallocate the typed array buffer and data views. This is called during
+  construction and should not be called explicitly unless you really know what you're
+  doing.
+  ###
   allocateBuffers: (numVertices, numIndices) ->
     @length = numVertices / 3
     @indexFormat = chooseIndexArrayFormat @length
@@ -116,6 +167,20 @@ class Jax.Mesh.Data
     @indexBuffer = new @indexFormat @_array_buffer, @indexBufferOffset, numIndices
 
   tmpvec3 = vec3.create()
+  
+  ###
+  Assigns vertex data to the mesh. If color data is omitted, the color of
+  each vertex will default to white. Normal data will be calculated if omitted,
+  but this takes a lot of time and it's recommended to supply normal data if you
+  have it. Texture coords will default to 0 if omitted, resulting in a mesh
+  that is incapable of displaying textures (but should work fine with non-textured
+  materials).
+  
+  This is called during construction. While you should be able to get away with
+  calling it explicitly, beware that doing so was not the original intended design
+  of this class so you may not get the results you were expecting. Also, be sure
+  not to assign data for more vertices than memory has been allocated for.
+  ###
   assignVertexData: (vertices, colors, textures, normals) ->
     # cache some variables for slightly faster runtime
     [_vertices, _vbuf, _nbuf, _cbuf, _tbuf] = [@vertices, @vertexBuffer, @normalBuffer, @colorBuffer, @textureCoordsBuffer]
@@ -127,11 +192,6 @@ class Jax.Mesh.Data
     length = @length
     
     for ofs in [0...length]
-      # _vertices[ofs] =
-      #   position: new Float32Array _array_buffer, _vofs + ofs * _vsize, 3
-      #   normal: new Float32Array   _array_buffer, _nofs + ofs * _vsize, 3
-      #   color: new Uint8Array      _array_buffer, _cofs + ofs * _csize, 4
-      #   texture: new Float32Array  _array_buffer, _tofs + ofs * _tsize, 2
       [vofs, cofs, tofs] = [ofs * 3, ofs * 4, ofs * 2]
       _vbuf[vofs  ]  = vertices[vofs  ]
       _vbuf[vofs+1]  = vertices[vofs+1]

@@ -9,6 +9,8 @@
 #= require 'jax/mesh/tangent_space'
 
 class Mesh
+  @include Jax.Events.Methods
+  
   constructor: (options) ->
     @_valid = false
     @_data = new Jax.Mesh.Data
@@ -50,14 +52,14 @@ class Mesh
     set: (d) ->
       @invalidate()
       @_data = d
+      @_data.addEventListener 'colorChanged', => @fireEvent 'colorChanged'
       
   @define 'color'
     get: -> @_color
     set: (color) ->
-      @invalidate()
       @_color = color
-      @data.color = @_color
-      @fireEvent 'color_changed'
+      @_data.color = @_color
+      @fireEvent 'colorChanged'
 
   @define 'vertices'
     get: ->
@@ -112,10 +114,12 @@ class Mesh
     @_data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @_data.indexFormat, GL_STATIC_DRAW, @_data.indexBuffer, 1
     @__validating = false
     @_valid = true
+    this
 
   rebuild: ->
     return unless @init
     @invalidate()
+    return @validate() unless @__validating
     [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
     @init vertices, colors, textures, normals, indices
     @_data.dispose() if @_data
@@ -181,8 +185,6 @@ class Mesh
     @_initialized = false
     @invalidate()
     
-  
-Jax.Class.Methods.addMethods.call Mesh, Jax.Events.Methods
   
 class Mesh.Triangles extends Mesh
   constructor: (args...) ->

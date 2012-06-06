@@ -9,6 +9,21 @@ describe "Jax.Mesh.Data", ->
 
     it "should use Uint8 for indices", ->
       expect(data.indexBuffer).toBeInstanceOf Uint8Array
+      
+  it "should refresh GL buffers when color is changed", ->
+    data = new Jax.Mesh.Data [1, 2, 3]
+    data.context = @context
+    data.bind()
+    spyOn @context.gl, 'bufferData'
+    data.color = '#f00'
+    data.bind()
+    expect(@context.gl.bufferData).toHaveBeenCalled()
+    
+  it "should alter color buffer when color is changed", ->
+    # I know, "duh", right?
+    data = new Jax.Mesh.Data [1, 1, 1, 2, 2, 2, 3, 3, 3]
+    data.color = [1, 0, 0, 1]
+    expect(data.colorBuffer).toEqualVector([1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
 
   describe "with 961 vertices", ->
     beforeEach ->
