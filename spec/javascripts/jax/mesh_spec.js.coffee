@@ -1,6 +1,10 @@
 describe "Jax.Mesh", ->
   mesh = null
   
+  it "should make its data available immediately after creation", ->
+    mesh = new Jax.Mesh.Triangles(init: (v) -> v.push 1, 1, 1)
+    expect(mesh.data.vertexBuffer).toEqualVector [1, 1, 1]
+  
   it "should set 'this' in #render to the mesh instance", ->
     self = null
     class M extends Jax.Mesh.Triangles

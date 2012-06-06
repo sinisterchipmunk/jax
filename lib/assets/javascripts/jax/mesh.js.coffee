@@ -11,7 +11,7 @@
 class Mesh
   constructor: (options) ->
     @_valid = false
-    @data = new Jax.Mesh.Data
+    @_data = new Jax.Mesh.Data
     @_bounds = new Jax.Mesh.Bounds
     @_color = new Jax.Color
     @_initialized = false
@@ -42,6 +42,14 @@ class Mesh
       else
         @_material = Jax.Material.find material
       @_material.name
+      
+  @define 'data'
+    get: ->
+      @validate() unless @_valid
+      @_data
+    set: (d) ->
+      @invalidate()
+      @_data = d
       
   @define 'color'
     get: -> @_color
@@ -89,17 +97,43 @@ class Mesh
   invalidate: ->
     @_valid = false
     
+  ###
+  If the mesh has been invalidated, this function will refresh its vertex information and relevant
+  WebGL buffers.
+  ###
+  validate: ->
+    return if @_valid
+    throw new Error "Already validating -- look for recursion errors!" if @__validating
+    @__validating = true
+    @rebuild() unless @_initialized
+    @_material or= Jax.Material.find "default"
+    @recalculateBounds()
+    @_data.indices_buf.dispose() if @_data.indices_buf
+    @_data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @_data.indexFormat, GL_STATIC_DRAW, @_data.indexBuffer, 1
+    @__validating = false
+    @_valid = true
+
+  rebuild: ->
+    return unless @init
+    @invalidate()
+    [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
+    @init vertices, colors, textures, normals, indices
+    @_data.dispose() if @_data
+    @_data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
+    @_data.color = @_color
+    this
+
   recalcPosition = vec3.create()
   recalculateBounds: ->
     [left, right, top, bottom, front, back] = [@_bounds.left, @_bounds.right, @_bounds.top,
                                                @_bounds.bottom, @_bounds.front, @_bounds.back]
     center = @_bounds.center
-    length = @data.vertexBuffer.length
+    length = @_data.vertexBuffer.length
     position = recalcPosition
     for i in [0...length] by 3
-      position[0] = @data.vertexBuffer[i]
-      position[1] = @data.vertexBuffer[i+1]
-      position[2] = @data.vertexBuffer[i+2]
+      position[0] = @_data.vertexBuffer[i]
+      position[1] = @_data.vertexBuffer[i+1]
+      position[2] = @_data.vertexBuffer[i+2]
       # index = i / 3
       # vertex = @data.vertices[index]
       # position = vertex.position
@@ -129,40 +163,19 @@ class Mesh
     [@_bounds.width, @_bounds.height, @_bounds.depth] = [width, height, depth]
     @_bounds
     
-  ###
-  If the mesh has been invalidated, this function will refresh its vertex information and relevant
-  WebGL buffers.
-  ###
-  validate: ->
-    return if @_valid
-    @rebuild() unless @_initialized
-    @_material or= Jax.Material.find "default"
-    @recalculateBounds()
-    @data.indices_buf.dispose() if @data.indices_buf
-    @data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @data.indexFormat, GL_STATIC_DRAW, @data.indexBuffer, 1
-    @_valid = true
-    
-  ## functions to be (probably) deprecated
-  rebuild: ->
-    return unless @init
-    @invalidate()
-    [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
-    @init vertices, colors, textures, normals, indices
-    @data.dispose() if @data
-    @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
-    @data.color = @_color
-    this
-    
   getIndexBuffer: -> @validate() unless @_valid; @data.indices_buf
+  
   getTangentBuffer: ->
     @validate() unless @_valid
     @rebuildTangentBuffer() unless @tangent_buffer
     @tangent_buffer
+    
   rebuildTangentBuffer: -> Jax.Mesh::_makeTangentBuffer.call this
     
   setColor: (c) ->
     if arguments.length > 1 then @color = arguments
     else @color = c
+    
   dispose: ->
     @_vertex_buffers.clear()
     @_initialized = false
