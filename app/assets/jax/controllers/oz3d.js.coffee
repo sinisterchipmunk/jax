@@ -18,6 +18,8 @@ Jax.Controller.create "oz3d",
     @lighto.camera.setPosition @light.camera.getPosition()
 
   index: ->
+    @world.addObject new Jax.Framerate ema: no
+
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
     
     @light = @world.addLight new Jax.Light.Point
@@ -29,7 +31,11 @@ Jax.Controller.create "oz3d",
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
-    @lighto = @world.addObject new Jax.Model position: [0, 9, 0], mesh: new Jax.Mesh.Sphere(size: 0.25)
+    @light_mat = new Jax.Material.Legacy
+      shininess: 0
+      intensity:
+        ambient: 100
+    @lighto = @world.addObject new Jax.Model position: [0, 9, 0], mesh: new Jax.Mesh.Sphere(radius: 0.2, material: @light_mat)
     
     @context.player.camera.setPosition -15, 20, 25
     @context.player.camera.setDirection 0.55, -0.5, -1
