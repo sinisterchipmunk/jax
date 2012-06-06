@@ -94,7 +94,8 @@ class Jax.Material
         # Legacy. Equivalent to Custom, but with a basic shader.
         Klass = Jax.Material
         data.layers or= []
-        data.layers.unshift type: "Basic"
+        data.layers.unshift type: "VertexColor"
+        data.layers.unshift type: "Position"
       when 'CUSTOM' then Klass = Jax.Material.Custom
       when 'LEGACY' then Klass = Jax.Material.Legacy
       when 'SURFACE', 'VOLUME', 'HALO', 'WIRE'
