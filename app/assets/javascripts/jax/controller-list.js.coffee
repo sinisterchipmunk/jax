@@ -1,18 +1,17 @@
 #= require "./dom-helpers"
 
 {div, link} = Suite
-context = null
 
 controller = (name) ->
   div link name, ->
-    context or= new Jax.Context "webgl"
+    window.jax or= new Jax.Context "webgl"
     # jax doesn't unload redirects to the same controller.
     # Within a single app this is probably expected behavior.
     # But, in this particular context, user most likely wants
     # to reload the controller entirely. So we need to manually
     # kick off the cleanup procedure.
-    context.unloadScene()
-    context.redirectTo name
+    window.jax.unloadScene()
+    window.jax.redirectTo name
     false
   
 $(document).ready ->
