@@ -1,6 +1,16 @@
 describe "Jax.Mesh", ->
   mesh = null
   
+  it "should set 'this' in #render to the mesh instance", ->
+    self = null
+    class M extends Jax.Mesh.Triangles
+      init: (v) -> v.push(0, 0, 0)
+      render: (v) -> self = this
+    mesh = new M()
+    @world.addObject new Jax.Model mesh: mesh
+    @world.render()
+    expect(self).toBe mesh
+  
   it "should set 'this' in #init to the mesh instance", ->
     self = null
     mesh = new Jax.Mesh.Base init: (v) -> self = this
