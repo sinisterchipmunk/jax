@@ -13,8 +13,8 @@ describe "Jax.Material", ->
       class Jax.Material.TestLayer2 extends Jax.Material.Layer
         numPasses: -> 4
       matr = new Jax.Material
-      matr.addLayer layer1 = new Jax.Material.TestLayer1
-      matr.addLayer layer2 = new Jax.Material.TestLayer2
+      matr.addLayer layer1 = new Jax.Material.TestLayer1 {}, matr
+      matr.addLayer layer2 = new Jax.Material.TestLayer2 {}, matr
       
     it "should render in the expected order", ->
       layer1.setVariables = (context, mesh, model, vars, pass) -> layer1_order.push pass
@@ -27,7 +27,7 @@ describe "Jax.Material", ->
     class Jax.Material.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return false
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.TestLayer
+    matr.addLayer new Jax.Material.TestLayer {}, matr
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).not.toHaveBeenCalled()
@@ -36,7 +36,7 @@ describe "Jax.Material", ->
     class Jax.Material.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return undefined
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.TestLayer
+    matr.addLayer new Jax.Material.TestLayer {}, matr
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
@@ -45,7 +45,7 @@ describe "Jax.Material", ->
     class Jax.Material.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return null
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.TestLayer
+    matr.addLayer new Jax.Material.TestLayer {}, matr
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
@@ -53,7 +53,7 @@ describe "Jax.Material", ->
   it "should not skip passes where setVariables is not defined", ->
     class Jax.Material.TestLayer extends Jax.Material.Layer
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.TestLayer
+    matr.addLayer new Jax.Material.TestLayer {}, matr
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
