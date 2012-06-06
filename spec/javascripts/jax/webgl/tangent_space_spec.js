@@ -37,7 +37,7 @@ describe("Tangent space", function() {
     
     describe("converted into a triangle fan", function() {
       beforeEach(function() {
-        mesh.getTangentBuffer(); // to generate the buffer
+        mesh.validate(); // to generate the buffer
         var _init = mesh.init;
         mesh.init = function(v, c, t, n, i) {
           _init(v, c, t, n);
