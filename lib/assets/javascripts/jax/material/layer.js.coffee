@@ -6,10 +6,15 @@ class Jax.Material.Layer
     new EJS({text:source}).render(options)
   
   constructor: (options, material) ->
+    throw new Error "Second argument must be an instance of Jax.Material" unless material
+    @setVariables = options?.setVariables if options?.setVariables
     if options?.shader and (data = Jax.shader_data options.shader)?.fragment || data?.vertex
       fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
       vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else if (data = this.__proto__.constructor.shaderSource) isnt undefined
+      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
+      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
+    else if (data = options) and data?.fragment || data?.vertex
       fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
       vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
     else
