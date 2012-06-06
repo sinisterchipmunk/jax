@@ -9,8 +9,8 @@ describe "Jax.Mesh.PLY.Parser", ->
     
   it "stringToBytes", ->
     stb = Jax.Mesh.PLY.Parser.prototype.stringToBytes
-    expect(stb('a')).toEqual [97]
-    expect(stb('@\xBC\xA0aA<\x9DJA\xDAD\u0013\xC2UL\xEAB\x865o\xC2e\xCC\xEF@p\b\u0002A\x84\v\u0010A\xEB')).toEqual(
+    expect(stb.call(Jax.Mesh.PLY.Parser.prototype, 'a')).toEqual [97]
+    expect(stb.call(Jax.Mesh.PLY.Parser.prototype, '@\xBC\xA0aA<\x9DJA\xDAD\u0013\xC2UL\xEAB\x865o\xC2e\xCC\xEF@p\b\u0002A\x84\v\u0010A\xEB')).toEqual(
       [64, 188, 160, 97, 65, 60, 157, 74, 65, 218, 68, 19, 194,
        85, 76, 234, 66, 134, 53, 111, 194, 101, 204, 239, 64,
        112, 8, 2, 65, 132, 11, 16, 65, 235]
@@ -19,7 +19,7 @@ describe "Jax.Mesh.PLY.Parser", ->
   it "readBinaryValue", ->
     rbv = Jax.Mesh.PLY.Parser.prototype.readBinaryValue
     bytes = [64, 188, 160, 97]
-    expect(rbv(bytes, 'float', 1)).toEqual(5.894577503204346)
+    expect(rbv.call(Jax.Mesh.PLY.Parser.prototype, bytes, 'float', 1)).toEqual(5.894577503204346)
   
   describe "parsing ASCII 1.0", ->
     beforeEach -> ply = new Jax.Mesh.PLY.Parser """

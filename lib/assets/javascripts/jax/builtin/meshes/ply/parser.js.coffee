@@ -113,7 +113,7 @@ class Jax.Mesh.PLY.Parser
             elementSize = @sizeOf elementType
             descriptor[property[3]] = new Array(listLength)
             for j in [0...listLength]
-              descriptor[j] = @readBinaryValue bytes, elementType, endianness, offset
+              descriptor[property[3]][j] = @readBinaryValue bytes, elementType, endianness, offset
               offset += elementSize
           else
             value = @readBinaryValue bytes, property[0], endianness, offset
