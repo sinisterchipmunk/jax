@@ -8,7 +8,10 @@
 void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
-    vec3 N = normalize(vEyeSpaceSurfaceNormal);
+    cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
+      NormalizedEyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
+    }
+    
     vec3 L;
     if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
       L = -EyeSpaceLightDirection;
@@ -22,9 +25,9 @@ void main(void) {
       SpotAttenuation = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
     }
 
-    float lambert = dot(N, L);
+    float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
     if (lambert > 0.0) {
-      vec3 R = reflect(L, N);
+      vec3 R = reflect(L, NormalizedEyeSpaceSurfaceNormal);
       vec3 C = MaterialSpecularColor.rgb * LightSpecularColor.rgb;
       vec3 E = normalize(vEyeSpaceSurfacePosition);
       gl_FragColor += vec4(C * SpotAttenuation * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);

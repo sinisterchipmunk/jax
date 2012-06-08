@@ -7,7 +7,9 @@
 void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
-    vec3 N = normalize(vEyeSpaceSurfaceNormal);
+    cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
+      NormalizedEyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
+    }
     
     vec3 L;
     float d = 1.0;
@@ -26,12 +28,14 @@ void main(void) {
       SpotAttenuation = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
     }
     
+    // this is cached here so that attenuation can get a handle on it
+    // FIXME we probably need a better interface for this sort of thing
     cache(float, LightDistanceFromSurface) { LightDistanceFromSurface = d; }
     
     vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
               MaterialDiffuseColor.a * MaterialDiffuseIntensity;
 
-    float lambert = dot(N, L);
+    float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
     gl_FragColor += vec4(lambert * C * SpotAttenuation, 1.0);
   }
 }
