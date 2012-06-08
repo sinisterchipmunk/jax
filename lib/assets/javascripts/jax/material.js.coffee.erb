@@ -36,19 +36,22 @@ class Jax.Material
     layer
   
   renderPasses: (context, mesh, model) ->
-    max = 0
-    for layer in @layers
-      passes = layer.numPasses(context, mesh, model)
-      max = passes if passes > max
-    gl = context.gl
+    submesh = mesh
     numPassesRendered = 0
-    for pass in [0...max]
-      continue unless @preparePass context, mesh, model, pass, numPassesRendered
-      numPassesRendered++
-      @drawBuffers context, mesh
-    if numPassesRendered > 1
-      gl.blendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-      gl.depthFunc GL_LESS
+    while submesh
+      max = 0
+      for layer in @layers
+        passes = layer.numPasses context, submesh, model
+        max = passes if passes > max
+      gl = context.gl
+      for pass in [0...max]
+        continue unless @preparePass context, submesh, model, pass, numPassesRendered
+        numPassesRendered++
+        @drawBuffers context, submesh
+      if numPassesRendered > 1
+        gl.blendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+        gl.depthFunc GL_LESS
+      submesh = submesh.submesh
     return numPassesRendered
     
   preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
@@ -78,7 +81,11 @@ class Jax.Material
       context.gl.drawArrays mesh.draw_mode, 0, length
     
   render: (context, mesh, model) ->
-    mesh.data.context = context
+    # FIXME only should have to do this at the top level
+    submesh = mesh
+    while submesh
+      submesh.data.context = context
+      submesh = submesh.submesh
     @shader.bind context
     @renderPasses context, mesh, model
   

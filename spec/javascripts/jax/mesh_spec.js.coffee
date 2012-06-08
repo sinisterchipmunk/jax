@@ -1,6 +1,57 @@
 describe "Jax.Mesh", ->
   mesh = null
   
+  describe "Triangles with more than 65535 vertices", ->
+    beforeEach -> mesh = new Jax.Mesh.Triangles(init: (v) -> v.push i for i in [0...(65535*3+9)])
+    
+    it "should produce a Triangles sub-mesh", ->
+      expect(mesh.submesh).toBeInstanceOf Jax.Mesh.Triangles
+    
+    it "should not have more than 65535 vertices", ->
+      expect(mesh.data.vertexBuffer.length).not.toBeGreaterThan 65535*3
+      
+    it "should not reference higher vertex indices", ->
+      for i in mesh.data.indexBuffer
+        expect(i).not.toBeGreaterThan 65535
+        
+    it "should have a sub-mesh with vertices", ->
+      expect(mesh.submesh.data.vertexBuffer.length).not.toEqual 0
+      
+  describe "TriangleStrip with more than 65535 vertices", ->
+    beforeEach -> mesh = new Jax.Mesh.TriangleStrip(init: (v) -> v.push i for i in [0...(65535*3+9)])
+
+    it "should produce a TriangleStrip sub-mesh", ->
+      expect(mesh.submesh).toBeInstanceOf Jax.Mesh.TriangleStrip
+
+    it "should not have more than 65535 vertices", ->
+      expect(mesh.data.vertexBuffer.length).not.toBeGreaterThan 65535*3
+
+    it "should not reference higher vertex indices", ->
+      for i in mesh.data.indexBuffer
+        expect(i).not.toBeGreaterThan 65535
+
+    it "should have a sub-mesh with vertices", ->
+      expect(mesh.submesh.data.vertexBuffer.length).not.toEqual 0
+      
+  describe "Base with more than 65535 vertices", ->
+    # Reminder: Jax.Mesh.Base defaults to GL_POINTS so it doesn't need to barf here.
+    
+    beforeEach -> mesh = new Jax.Mesh.Base(init: (v) -> v.push i for i in [0...(65535*3+9)])
+
+    it "should produce a Base sub-mesh", ->
+      expect(mesh.submesh).toBeInstanceOf Jax.Mesh.Base
+
+    it "should not have more than 65535 vertices", ->
+      expect(mesh.data.vertexBuffer.length).not.toBeGreaterThan 65535*3
+
+    it "should not reference higher vertex indices", ->
+      for i in mesh.data.indexBuffer
+        expect(i).not.toBeGreaterThan 65535
+
+    it "should have a sub-mesh with vertices", ->
+      expect(mesh.submesh.data.vertexBuffer.length).not.toEqual 0
+      
+
   it "should make its data available immediately after creation", ->
     mesh = new Jax.Mesh.Triangles(init: (v) -> v.push 1, 1, 1)
     expect(mesh.data.vertexBuffer).toEqualVector [1, 1, 1]
