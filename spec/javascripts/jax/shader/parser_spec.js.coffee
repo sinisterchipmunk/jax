@@ -1,6 +1,31 @@
 describe "Jax.Shader.Parser", ->
   parser = null
   
+  describe "exports", ->
+    beforeEach -> parser = new Jax.Shader.Parser('void main(void) { export(float, x, 1.0); }')
+    
+    it "should be detected", ->
+      expect(parser.exports).not.toBeEmpty()
+    
+    it "should be replaced", ->
+      expect(parser.functions.main0.body).toMatch /exported_x0 = 1\.0;/
+      
+    it "should replace one another", ->
+      parser = new Jax.Shader.Parser('void main(void) { export(float, x, 1.0); export(float, x, 2.0); }')
+      expect(parser.exports.length).toEqual 2
+      
+    it "should be mangled distinctly", ->
+      parser = new Jax.Shader.Parser('void main(void) { export(float, x, 1.0); export(float, x, 2.0); }')
+      expect(parser.exports[0].mangledName).not.toEqual parser.exports[1].mangledName
+      
+  it "should ignore commented phrases that match the function signature", ->
+    result = new Jax.Shader.Parser('// void main(void) { }')
+    expect(result.functions.all).toBeEmpty()
+    
+  it "should not lose track of functions when they are preceded with single-line comments", ->
+    result = new Jax.Shader.Parser('// some text\n\nvoid main(void) { }')
+    expect(result.functions.all).not.toBeEmpty()
+  
   describe "without a precision qualifier", ->
     beforeEach -> parser = new Jax.Shader.Parser ""
     
@@ -40,9 +65,6 @@ describe "Jax.Shader.Parser", ->
     it "ensure no more than 1 blank line appears in sequence", ->
       expect(parser.global).not.toMatch /\n[\s\t]*\n[\s\t]*\n/
       
-    it "should remove leading and trailing white space", ->
-      expect(parser.global).toEqual(parser.global.trim())
-  
   describe "parsing private functions", ->
     beforeEach -> parser = new Jax.Shader.Parser "void main(void) {\n\treturn 0;\n}"
     

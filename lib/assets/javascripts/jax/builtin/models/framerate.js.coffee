@@ -85,7 +85,7 @@ class Jax.Framerate extends Jax.Model
       width: @width
       height: @height
       color: [1, 1, 1, 0.5]
-      material: new Jax.Material(layers: [ { type: 'Basic' }, { type: 'Texture', instance: @glTex } ])
+      material: new Jax.Material(layers: [ { type: 'Position' }, { type: 'Texture', instance: @glTex } ])
     
   render: (context, material) ->
     @fps = context.getFramesPerSecond()

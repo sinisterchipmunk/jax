@@ -10,15 +10,16 @@ void main(void) {
   if (PASS != 0) {
     vec3 N = normalize(vEyeSpaceSurfaceNormal);
     vec3 L;
-    float Il = 1.0;
     if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
       L = -EyeSpaceLightDirection;
     } else {
       L = normalize(EyeSpaceLightPosition - vEyeSpaceSurfacePosition);
-      
+    }
+
+    cache(float, SpotAttenuation) {
       float cosCurAngle = dot(-L, EyeSpaceLightDirection);
       float cosInnerMinusOuterAngle = LightSpotInnerCos - LightSpotOuterCos;
-      Il = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
+      SpotAttenuation = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
     }
 
     float lambert = dot(N, L);
@@ -26,7 +27,7 @@ void main(void) {
       vec3 R = reflect(L, N);
       vec3 C = MaterialSpecularColor.rgb * LightSpecularColor.rgb;
       vec3 E = normalize(vEyeSpaceSurfacePosition);
-      gl_FragColor += vec4(C * Il * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);
+      gl_FragColor += vec4(C * SpotAttenuation * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);
     }
   }
 }

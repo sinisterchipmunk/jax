@@ -1,15 +1,17 @@
 class Jax.Shader.Parser
   WHITESPACE = "[\\s\\n\\t]"
   WHOLE_MATCH = 0
-  SHARED = 1
   # variables
+  SHARED = 1
   VARIABLE_TYPE = 2
   VARIABLE_NAME = 3
   # functions
-  RETURN_TYPE = 2
-  FUNCTION_NAME = 3
-  PARAMS = 4
-  BODY_START = 5
+  PREVIOUS_TOKEN = 1
+  FN_SHARED = 3
+  RETURN_TYPE = 4
+  FUNCTION_NAME = 5
+  PARAMS = 6
+  BODY_START = 8
   
   parsePrecision = (precision, source) ->
     rx = new RegExp "precision#{WHITESPACE}+(highp|mediump|lowp)#{WHITESPACE}+(\\w+)#{WHITESPACE}*;", "g"
@@ -40,20 +42,39 @@ class Jax.Shader.Parser
       source
       
   parseFunctions = (funcs, source) ->
-    rx = new RegExp "(shared#{WHITESPACE}+|)(\\w+)#{WHITESPACE}+(\\w+)#{WHITESPACE}*\\((.*?)\\)#{WHITESPACE}*(\{)", "g"
+    rx = new RegExp "((^|\\n|;)[\\s\\t\\n]*)(shared#{WHITESPACE}+|)(\\w+)#{WHITESPACE}+(\\w+)#{WHITESPACE}*\\(((.|\n)*?)\\)#{WHITESPACE}*(\\{)", "g"
     if match = rx.exec source
       depth = 0
       pos = source.indexOf(match[WHOLE_MATCH]) + match[WHOLE_MATCH].length
       body = Jax.Util.scan source, '}', '{', '}', pos
       pos += body.length
       funcs.add
-        shared: !!match[SHARED]
+        shared: !!match[FN_SHARED]
         type: match[RETURN_TYPE]
         params: match[PARAMS].trim()
         body: body
         name: match[FUNCTION_NAME]
-      remainingSource = source.substring(0, source.indexOf(match[WHOLE_MATCH])) + source.substring(pos + 1, source.length)
+      remainingSource = source.substring(0, source.indexOf(match[WHOLE_MATCH]) + match[PREVIOUS_TOKEN].length) \
+                      + source.substring(pos + 1, source.length)
       parseFunctions funcs, remainingSource
+    else
+      source
+      
+  parseExports = (exports, source) ->
+    rx = /export[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*/
+    if match = rx.exec source
+      type = match[1]
+      name = match[2]
+      expression = Jax.Util.scan source[(source.indexOf(match[0]) + match[0].length)..-1]
+      fullMatch = match[0] + expression + ')'
+      exp =
+        name: name
+        type: type
+        expression: expression
+        mangledName: "exported_#{name}#{exports.length}"
+        fullMatch: fullMatch
+      exports.push exp
+      parseExports exports, source.replace fullMatch, "#{exp.mangledName} = #{exp.expression}"
     else
       source
       
@@ -65,16 +86,32 @@ class Jax.Shader.Parser
     everything = everything.concat (obj for obj in @functions)
     everything
 
-  constructor: (source) ->
+  constructor: (source, @exports = []) ->
     @originalSource = source
     @precision  = new Jax.Shader.Precision
     @uniforms   = new Jax.Shader.Collection 'uniform'
     @attributes = new Jax.Shader.Collection 'attribute'
     @varyings   = new Jax.Shader.Collection 'varying'
     @functions  = new Jax.Shader.FunctionCollection
+    source = parseExports @exports, source
     source = parsePrecision @precision, source
     source = parseInputs @uniforms, source
     source = parseInputs @attributes, source
     source = parseInputs @varyings, source
     source = parseFunctions @functions, source
-    @global = source.replace(/\n[\s\t]*\n[\s\t]*\n/g, "\n\n").trim()
+    @global = source.replace(/\n[\s\t]*\n[\s\t]*\n/g, "\n\n").trim().split(/\n/)
+
+  parseCaches: (caches) ->
+    rx = /cache[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*(\w+)[\s\t\n]*\)[\s\t\n]*\{/
+    for func in @functions.all
+      while match = rx.exec(func.body)
+        [type, name] = [match[1], match[2]]
+        if caches[name] and caches[name] != type
+          throw new Error "Can't cache `#{name}` as `#{type}`: already cached it as `#{caches[name]}`"
+
+        block = Jax.Util.scan func.body[(func.body.indexOf(match[0])+match[0].length)..-1], '}', '{', '}'
+        caches[name] = type
+        @global.push "#{type} #{name};"
+        fullMatch = match[0] + block + '}'
+        directive = "\n#ifndef ALREADY_CACHED_#{name}\n#define ALREADY_CACHED_#{name} 1\n#{block}\n#endif"
+        func.body = func.body.replace fullMatch, directive

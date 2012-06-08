@@ -6,32 +6,6 @@
 #= require "jax/shader/function_collection"
 
 class Jax.Shader
-  processFunctionExports = (body, functions, exports) ->
-    for name, exp of exports
-      for match in exp.fullMatches
-        while body.indexOf(match) != -1
-          if functions.isExportUsed exp
-            body = body.replace match,
-              # ((HAVE_EXPORT_attenuation = true) && (EXPORT_attenuation = 1.0))
-              "((HAVE_EXPORT_#{exp.name} = true) ? (EXPORT_#{exp.name} = #{exp.expression}) : (#{exp.expression}))"
-          else
-            body = body.replace match, exp.expression
-    body
-    
-  processFunctionImports = (body, exports) ->
-    rx = new RegExp("import\\(([^,]*?),[\\s\\n\\t]*", "g")
-    while match = rx.exec(body)
-      start = body.indexOf(match[0])
-      name = match[1].trim()
-      expression = Jax.Util.scan body[(start+match[0].length)...body.length]
-      if exports[name]
-        #                (HAVE_EXPORT_attenuation ? EXPORT_attenuation : (1.0))
-        gencode = "\n    (HAVE_EXPORT_#{name} ? EXPORT_#{name} : (#{expression.trim()}))"
-      else
-        gencode = expression
-      body = body[0...start] + gencode + body[(start+match[0].length+expression.length+1)...body.length]
-    body
-  
   mangleVariables = (variables) ->
     lines = for variable in variables.all
       "#{variable.qualifier} #{variable.type} #{variable.mangledName};"
@@ -45,12 +19,26 @@ class Jax.Shader
         rx = new RegExp("([^a-zA-Z\$0-9_]|\\A)#{variable.name}([^a-zA-Z\$0-9_]|\\z)", "g")
         text = text.replace rx, "$1#{variable.mangledName}$2"
     text
+    
+  processImports = (body, exports) ->
+    rx = /import[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*;/
+    if match = rx.exec body
+      name = match[1]
+      expression = match[2]
+      code = ""
+      for exp in exports
+        if name == exp.name
+          code += expression.replace(new RegExp("(^|[^a-zA-Z0-9_])#{name}([^a-zA-Z0-9_]|$)", 'g'), \
+                                     "$1#{exp.mangledName}$2")
+          code += ";"
+      body = body[0...body.indexOf match[0]] + code + body[(body.indexOf(match[0]) + match[0].length)..-1]
+      body = processImports body, exports
+    body
   
   mangleFunction = (func, exports) ->
     body = func.body
-    body = processFunctionExports body, @functions, exports
-    body = processFunctionImports body, exports
     body = mangleReferences body, @uniforms, @attributes, @varyings, @functions
+    body = processImports body, exports
     
     lines = ["#{func.type} #{func.mangledName}(#{func.params}) {"]
     lines = lines.concat body.split /\n/
@@ -68,7 +56,9 @@ class Jax.Shader
     @attributes = new Jax.Shader.Collection 'attribute'
     @varyings   = new Jax.Shader.Collection 'varying'
     @functions  = new Jax.Shader.FunctionCollection
-    @global = ""
+    @exports = []
+    @caches = {}
+    @global = []
     @main = []
   
   ###
@@ -77,33 +67,34 @@ class Jax.Shader
   this shader!
   ###
   append: (source) ->
-    parser = new Jax.Shader.Parser source
+    parser = new Jax.Shader.Parser source, @exports
+    parser.parseCaches @caches
     result = {}
     @precision.merge parser.precision
     merge result, @uniforms.merge   parser.uniforms
     merge result, @attributes.merge parser.attributes
     merge result, @varyings.merge   parser.varyings
     merge result, @functions.merge  parser.functions
-    @global += "\n\n" if @global
-    @global += parser.global
+    (@global.push line unless @global.indexOf(line) != -1) for line in parser.global
     @main.push "#{result.main}();" if result.main
+    
     result
+    
+  exportDeclarations: ->
+    for exp in @exports
+      "#{exp.type} #{exp.mangledName};"
   
   toLines: ->
     lines = []
     lines = lines.concat @precisionLines()
+    lines = lines.concat @exportDeclarations()
     lines = lines.concat mangleVariables @uniforms
     lines = lines.concat mangleVariables @attributes
     lines = lines.concat mangleVariables @varyings
-    lines = lines.concat @global.split /\n/
-    exports = @functions.exports
-    for name, exp of exports
-      if @functions.isExportUsed exp
-        lines.push "bool HAVE_EXPORT_#{exp.name} = false;"
-        lines.push "#{exp.type} EXPORT_#{exp.name};"
+    lines = lines.concat @global
     for func in @functions.all
       lines.push "" if lines.length > 0 # empty line for separator
-      lines = lines.concat mangleFunction.call this, func, exports
+      lines = lines.concat mangleFunction.call this, func, @exports
     unless @functions.main
       lines.push ""
       lines.push "void main(void) {"

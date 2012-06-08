@@ -18,6 +18,10 @@ describe("Jax.Util", function() {
     it("should process multi-line comments", function() {
       expect(Jax.Util.scan("\n/*\n)\n*/\n)")).toEqual("\n/*\n)\n*/\n");
     });
+    
+    it("should not choke on division", function() {
+      expect(Jax.Util.scan("\n 1 / 2)")).toEqual("\n 1 / 2");
+    });
   });
   
   describe("vectorize", function() {

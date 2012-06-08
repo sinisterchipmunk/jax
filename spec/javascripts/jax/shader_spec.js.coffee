@@ -2,18 +2,69 @@ describe "Jax.Shader", ->
   shader = null
   beforeEach -> shader = new Jax.Shader
   
-  describe "parsing exports of private varyings", ->
-    beforeEach -> shader.append "varying vec4 vPos; void main() { export(vec4, exPos, vPos); }"
+  describe "multiple exports accross appends", ->
+    beforeEach ->
+      shader.append "void main(void) { export(float, x, 1.0); }"
+      shader.append "void main(void) { export(float, x, 2.0); }"
     
-    it "should parse exports with numbers", ->
-      expect(shader.toString()).not.toMatch /export/
-      
-  describe "parsing multiple exports of the same variable from a single body with conditionals", ->
-    beforeEach -> shader.append "void main(void) {\n  if (x == 1.0) {\n    export(float, v, 1.0);\n  } else {\n    export(float, v, 2.0);\n  }\n}"
+    it "should be accumulated", ->
+      sim = new ShaderScript.Simulator vertex: shader.toString()
+      sim.start()
+      expect(sim.state.variables.exported_x0.value).toEqual 1
+      expect(sim.state.variables.exported_x1.value).toEqual 2
+  
+  describe "importing with no prior exports", ->
+    beforeEach -> shader.append 'float s = 0; void main() { import(x, s += x); }'
     
-    it "should remove the export directives", ->
-      expect(shader.toString()).not.toMatch /export/
+    it "should be ignored", ->
+      sim = new ShaderScript.Simulator vertex: shader.toString()
+      sim.start()
+      expect(sim.state.variables.s.value).toEqual 0
+  
+  describe "importing with prior exports", ->
+    beforeEach -> shader.append 'float s = 0; void main() { export(float, x, 1.0); export(float, x, 2.0); import(x, s += x); }'
+
+    it "should be accumulated", ->
+      sim = new ShaderScript.Simulator vertex: shader.toString()
+      sim.start()
+      expect(sim.state.variables.s.value).toEqual 3
+
+  it "should merge identical definitions from in more than one append", ->
+    shader.append "int i;"
+    shader.append "int i;"
+    expect(shader.toString().indexOf("int i;")).toEqual shader.toString().lastIndexOf("int i;")
+    
+  describe "with multiple functions with params spanning multiple lines", ->
+    # the white space formatting here is crucial!
+    beforeEach -> shader.append """
+    float calcAttenuation(in vec3 ecPosition3,
+                          out vec3 lightDirection)
+    {
+    }
+
+    void DirectionalLight(
+                          )
+    {
+      return 1;
+    }
+    """
+    
+    it "should not omit curly braces from the function", ->
+      expect(shader.toString()).toMatch /\{[\s\t\n]*return 1;[\s\t\n]*\}/
+  
+  describe "parsing cache directives", ->
+    it "should use only the first value", ->
+      shader.append "void main() { cache(float, len) {\n  len = 2.0;\n} }"
+      shader.append "void main() { cache(float, len) {\n  len = 1.0;\n} }"
+      sim = new ShaderScript.Simulator
+        vertex: shader.toString()
+      sim.start()
+      expect(sim.state.variables.len.value).toEqual 2.0
       
+    it "should throw an error when caching differring types", ->
+      shader.append "void main() { cache(float, len) {\n  len = 2.0;\n} }"
+      expect(-> shader.append "void main() { cache(int, len) {\n  len = 1;\n} }").toThrow "Can't cache `len` as `int`: already cached it as `float`"
+  
   it "should mangle references to mangled functions", ->
     shader.append "void mangleThis() { }\n\nvoid main() { mangleThis() }"
     expect(shader.toString()).not.toMatch /mangleThis\(/
@@ -21,38 +72,6 @@ describe "Jax.Shader", ->
   it "should not err on empty params", ->
     expect(-> shader.append "void main() { }").not.toThrow()
     
-  
-  describe "exports with no expression", ->
-    it "should raise a coherent error", ->
-      expect(-> shader.append 'void main(void) { export(vec4, POSITION); }'; shader.toString()).toThrow("Export requires 3 arguments: type, name and expression")
-  
-  describe "exports with no imports", ->
-    beforeEach -> shader.append 'void main(void) { export(vec4, POSITION, vec4(1, 1, 1, 1)); }'
-    
-    it "should produce only the export expression, not the export itself", ->
-      expect(shader.toString()).not.toMatch /POSITION/
-      expect(shader.toString()).toMatch /vec4\(1, 1, 1, 1\);/
-      
-  describe "imports with no exports", ->
-    beforeEach -> shader.append 'void main(void) { import(POSITION, vec4(1, 1, 1, 1)); }'
-    
-    it "should not use the export", ->
-      expect(shader.toString()).not.toMatch /POSITION/
-      
-    it "should use the default", ->
-      expect(shader.toString()).toMatch /vec4/
-      
-  describe "exports and imports", ->
-    beforeEach -> shader.append 'void main(void) {export(vec4, POSITION, vec4(1, 1, 1, 1));a = import(POSITION, 1.0);}'
-    
-    it "should create the export", ->
-      expect(shader.toString()).toMatch /vec4 EXPORT_POSITION;/
-      
-    it "should #define the export", ->
-      expect(shader.toString()).toMatch /HAVE_EXPORT_POSITION/
-      
-    it "should assign the export", ->
-      expect(shader.toString()).toMatch /EXPORT_POSITION\s*=/
   
   describe "after appending source", ->
     map = null
