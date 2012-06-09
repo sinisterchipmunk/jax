@@ -12,4 +12,4 @@ shared uniform float LightSpotInnerCos;
 shared uniform float LightSpotOuterCos;
 shared uniform float LightSpotExponent;
 
-shared varying vec3 vEyeSpaceSurfaceNormal;
+shared varying vec3 vEyeSpaceSurfaceNormal, vEyeSpaceSurfacePosition;
