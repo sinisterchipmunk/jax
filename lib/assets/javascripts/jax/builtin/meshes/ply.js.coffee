@@ -2,7 +2,14 @@
 #= require_tree './ply'
 
 class Jax.Mesh.PLY extends Jax.Mesh.Triangles
+  ###
+  Examples:
+  
+    new Jax.Mesh.PLY "/path/to/model.ply"
+    new Jax.Mesh.PLY path: "/path/to/model.ply", method: "POST"
+  ###
   constructor: (options) ->
+    if typeof options is 'string' then options = path: options
     @path = options?.path
     @method = options?.method || "GET"
     delete options.path if options?.path
