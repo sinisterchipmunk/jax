@@ -59,8 +59,31 @@ describe "Jax.Mesh.Data", ->
     it "should default color to white", ->
       expect(data.colorBuffer).toEqualVector [1, 1, 1, 1]
       
-    it "should default normal to normalized vertex position", ->
-      expect(data.normalBuffer).toEqualVector vec3.normalize([1, 2, 3])
+    describe "when normals are bound", ->
+      beforeEach -> data.context = @context
+      
+      it "should fire a shouldRecalculateNormals event", ->
+        fired = false
+        data.addEventListener 'shouldRecalculateNormals', -> fired = true
+        data.set {}, normals: 'NORMS'
+        expect(fired).toBeTrue()
+        
+      it "should not fire a shouldRecalculateNormals event for subsequent bindings", ->
+        count = 0
+        data.addEventListener 'shouldRecalculateNormals', -> count++
+        data.set {}, normals: 'NORMS'
+        data.set {}, normals: 'NORMS'
+        data.set {}, normals: 'NORMS'
+        expect(count).toEqual 1
+        
+    describe "when normals are not bound", ->
+      beforeEach -> data.context = @context
+
+      it "should not fire a shouldRecalculateNormals event", ->
+        fired = false
+        data.addEventListener 'shouldRecalculateNormals', -> fired = true
+        data.set {}, vertices: 'VERTS'
+        expect(fired).toBeFalse()
       
     it "should default textures to 0", ->
       expect(data.textureCoordsBuffer).toEqualVector [0, 0]

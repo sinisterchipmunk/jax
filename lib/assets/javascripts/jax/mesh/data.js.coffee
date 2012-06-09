@@ -134,12 +134,45 @@ class Jax.Mesh.Data
     @bind @_context unless @_bound
 
     for key, target of mapping
-      switch key
-        when 'vertices' then vars.set target, @vertexWrapper
-        when 'colors'   then vars.set target, @colorWrapper
-        when 'textures' then vars.set target, @textureCoordsWrapper
-        when 'normals'  then vars.set target, @normalWrapper
-        else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
+      if vars.set
+        # TODO phase out vars.set in favor of direct assignment
+        switch key
+          when 'vertices' then vars.set target, @vertexWrapper
+          when 'colors'   then vars.set target, @colorWrapper
+          when 'textures' then vars.set target, @textureCoordsWrapper
+          when 'normals'
+            @recalculateNormals() if @shouldRecalculateNormals()
+            vars.set target, @normalWrapper
+          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
+      else
+        switch key
+          when 'vertices' then vars[target] = @vertexWrapper
+          when 'colors'   then vars[target] = @colorWrapper
+          when 'textures' then vars[target] = @textureCoordsWrapper
+          when 'normals'
+            @recalculateNormals() if @shouldRecalculateNormals()
+            vars[target] = @normalWrapper
+          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
+          
+  ###
+  Requests this data set's normals to be recalculated. Note that this does not directly
+  perform the recalculation. Instead, it fires a `shouldRecalculateNormals` event, so
+  that the object containing this mesh data can control the method in which normals
+  are calculated. For example, a point cloud might calculate its normals entirely
+  differently from a triangle mesh, and it is not the responsibility of `Jax.Mesh.Data`
+  to keep track of which algorithm it should use.
+  ###
+  recalculateNormals: () ->
+    @fireEvent 'shouldRecalculateNormals'
+    @_shouldRecalculateNormals = false
+    @invalidate()
+    true
+    
+  ###
+  Returns true if the mesh data has detected that its normal data should be recalculated.
+  ###
+  shouldRecalculateNormals: () ->
+    return @_shouldRecalculateNormals
   
   ###
   Allocate or reallocate the typed array buffer and data views. This is called during
@@ -190,21 +223,15 @@ class Jax.Mesh.Data
     _csize = 4 * Float32Array.BYTES_PER_ELEMENT
     _array_buffer = @_array_buffer
     length = @length
+    if normals.length is 0 then @_shouldRecalculateNormals = true
+    else @_shouldRecalculateNormals = false
     
     for ofs in [0...length]
       [vofs, cofs, tofs] = [ofs * 3, ofs * 4, ofs * 2]
       _vbuf[vofs  ]  = vertices[vofs  ]
       _vbuf[vofs+1]  = vertices[vofs+1]
       _vbuf[vofs+2]  = vertices[vofs+2]
-      if normals.length <= vofs
-        tmpvec3[0] = vertices[vofs]
-        tmpvec3[1] = vertices[vofs+1]
-        tmpvec3[2] = vertices[vofs+2]
-        vec3.normalize tmpvec3
-        _nbuf[vofs  ] = tmpvec3[0]
-        _nbuf[vofs+1] = tmpvec3[1]
-        _nbuf[vofs+2] = tmpvec3[2]
-      else
+      unless @_shouldRecalculateNormals
         _nbuf[vofs  ]  = normals[vofs  ]
         _nbuf[vofs+1]  = normals[vofs+1]
         _nbuf[vofs+2]  = normals[vofs+2]

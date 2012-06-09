@@ -10,7 +10,7 @@ class Mesh
   
   constructor: (options) ->
     @_valid = false
-    @_data = new Jax.Mesh.Data
+    @data = new Jax.Mesh.Data
     @_bounds = new Jax.Mesh.Bounds
     @_color = new Jax.Color
     @_initialized = false
@@ -48,8 +48,10 @@ class Mesh
       @_data
     set: (d) ->
       @invalidate()
+      @_data.dispose() if @_data
       @_data = d
       @_data.addEventListener 'colorChanged', => @fireEvent 'colorChanged'
+      @_data.addEventListener 'shouldRecalculateNormals', => @recalculateNormals()
       
   @define 'color'
     get: -> @_color
@@ -82,7 +84,35 @@ class Mesh
       @_submesh = submesh
       
   draw_mode: GL_POINTS
-      
+  
+  ###
+  Immediately recalculates this mesh's vertex normals.
+  
+  This method is meant to be overridden by subclasses. The default implementation just
+  builds a vector from the calculated center of the mesh to each vertex and normalizes
+  that vector.
+  
+  Note that if this mesh has more than 65535 vertices, its sub-mesh will not automatically
+  have its normals recalculated, so you'll need to call `mesh.submesh.recalculateNormals()`.
+  
+  Returns true.
+  ###
+  recalcNormal = vec3.create()
+  recalculateNormals: ->
+    normals = @data.normalBuffer
+    vertices = @data.vertexBuffer
+    center = @bounds.center
+    for i in [0...vertices.length] by 3
+      recalcNormal[0] = vertices[i]
+      recalcNormal[1] = vertices[i+1]
+      recalcNormal[2] = vertices[i+2]
+      vec3.subtract recalcNormal, center, recalcNormal
+      vec3.normalize recalcNormal
+      normals[i  ] = recalcNormal[0]
+      normals[i+1] = recalcNormal[1]
+      normals[i+2] = recalcNormal[2]
+    true
+    
   render: (context, model, material) ->
     @validate() unless @_valid
     if material
@@ -128,7 +158,7 @@ class Mesh
     [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
     @init vertices, colors, textures, normals, indices
     @submesh = @split vertices, colors, textures, normals, indices if vertices.length > 65535*3
-    @_data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
+    @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
     @_data.color = @_color
     this
   

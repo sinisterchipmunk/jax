@@ -1,22 +1,31 @@
 describe "Jax.Mesh", ->
-  mesh = null
+  mesh = material = null
   
-  describe "Triangles with more than 65535 vertices", ->
-    beforeEach -> mesh = new Jax.Mesh.Triangles(init: (v) -> v.push i for i in [0...(65535*3+9)])
+  describe "initialized without normal data", ->
+    beforeEach ->
+      mesh = new Jax.Mesh.Base(init: (v) -> v.push 1, 1, 1, 2, 2, 2)
+      @world.addLight new Jax.Light.Directional # to ensure normals get assigned
     
-    it "should produce a Triangles sub-mesh", ->
-      expect(mesh.submesh).toBeInstanceOf Jax.Mesh.Triangles
-    
-    it "should not have more than 65535 vertices", ->
-      expect(mesh.data.vertexBuffer.length).not.toBeGreaterThan 65535*3
+    it "should recalculate its normals only once when rendered twice", ->
+      spyOn mesh, 'recalculateNormals'
+      mesh.render @context, new Jax.Model
+      mesh.render @context, new Jax.Model
+      expect(mesh.recalculateNormals.callCount).toBe 1
       
-    it "should not reference higher vertex indices", ->
-      for i in mesh.data.indexBuffer
-        expect(i).not.toBeGreaterThan 65535
+    it "should set each normal to the vertex direction relative to calculated mesh center", ->
+      # calculated center should be 1.5, 1.5, 1.5, making the normals [-1,-1,-1], [1,1,1]
+      mesh.render @context, new Jax.Model
+      expect(mesh.data.normalBuffer).toEqualVector [vec3.normalize([-1,-1,-1])..., vec3.normalize([1,1,1])...]
+      
+    describe "with a submesh", ->
+      beforeEach -> mesh.submesh = new Jax.Mesh.Base(init: (v) -> v.push 2, 3, 4)
+      
+      it "should recalculate normals of its submesh exactly once", ->
+        spyOn mesh.submesh, 'recalculateNormals'
+        mesh.render @context, new Jax.Model
+        mesh.render @context, new Jax.Model
+        expect(mesh.submesh.recalculateNormals.callCount).toBe 1
         
-    it "should have a sub-mesh with vertices", ->
-      expect(mesh.submesh.data.vertexBuffer.length).not.toEqual 0
-      
   describe "TriangleStrip with more than 65535 vertices", ->
     beforeEach -> mesh = new Jax.Mesh.TriangleStrip(init: (v) -> v.push i for i in [0...(65535*3+9)])
 
@@ -53,7 +62,7 @@ describe "Jax.Mesh", ->
       
 
   it "should make its data available immediately after creation", ->
-    mesh = new Jax.Mesh.Triangles(init: (v) -> v.push 1, 1, 1)
+    mesh = new Jax.Mesh.Base(init: (v) -> v.push 1, 1, 1)
     expect(mesh.data.vertexBuffer).toEqualVector [1, 1, 1]
     
   it "should be valid after rebuilding", ->
@@ -62,7 +71,7 @@ describe "Jax.Mesh", ->
     expect(mesh).toBeValid()
     
   it "should always invoke #init during rebuild, even if already valid", ->
-    mesh = new Jax.Mesh.Triangles(init: ->)
+    mesh = new Jax.Mesh.Base(init: ->)
     mesh.validate()
     spyOn mesh, 'init'
     mesh.rebuild()
@@ -70,7 +79,7 @@ describe "Jax.Mesh", ->
   
   it "should set 'this' in #render to the mesh instance", ->
     self = null
-    class M extends Jax.Mesh.Triangles
+    class M extends Jax.Mesh.Base
       init: (v) -> v.push(0, 0, 0)
       render: (v) -> self = this
     mesh = new M()
@@ -87,19 +96,6 @@ describe "Jax.Mesh", ->
   it "should set arbitrary properties passed to super as instance properties", ->
     mesh = new Jax.Mesh.Base size: 5
     expect(mesh.size).toBe 5
-  
-  describe "Triangles", ->
-    beforeEach ->
-      mesh = new Jax.Mesh.Triangles init: (v) -> v.push 0, 1, 0, -1, 0, 0, 1, 0, 0
-    
-    it "should be rendered as GL_TRIANGLES", ->
-      mat = new Jax.Material
-      mat.render = (context, _mesh, options) ->
-        # after all that setup, here's the real test...
-        expect(_mesh.draw_mode).toEqual GL_TRIANGLES
-      spyOn(mat, 'render').andCallThrough()
-      mesh.render "context", "model", mat
-      expect(mat.render).toHaveBeenCalled()
   
   describe "Base", ->
     beforeEach -> mesh = new Jax.Mesh.Base()

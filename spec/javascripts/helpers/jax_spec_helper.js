@@ -41,7 +41,11 @@ beforeEach(function() {
     },
     
     toBeTrue: function() {
-      return this.actual == true;
+      return this.actual === true;
+    },
+    
+    toBeFalse: function() {
+      return this.actual === false;
     },
     
     toBeUndefined: function() {
