@@ -14,7 +14,8 @@ of vertex indices whose length is divisible by 3, with each group of 3
 indices representing a triangle.
 ###
 Jax.Mesh.Normals =
-  hash: (vx, vy, vz, cr, cg, cb, ca, ts, tt, nx, ny, nz, ax=0, ay=0, az=0, aw=0, bx=0, bY=0, bz=0) ->
+  hash: (vx, vy, vz, cr=0, cg=0, cb=0, ca=0, ts=0, tt=0, nx=0, \
+         ny=0, nz=0, ax=0, ay=0, az=0, aw=0, bx=0, bY=0, bz=0) ->
     "#{vx.toFixed PRECISION},#{vy.toFixed PRECISION},#{vz.toFixed PRECISION}," + \
     "#{cr.toFixed PRECISION},#{cg.toFixed PRECISION},#{cb.toFixed PRECISION}," + \
     "#{ca.toFixed PRECISION},#{ts.toFixed PRECISION},#{tt.toFixed PRECISION}," + \

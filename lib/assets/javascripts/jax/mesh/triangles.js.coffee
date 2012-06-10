@@ -32,6 +32,10 @@ class Jax.Mesh.Triangles extends Jax.Mesh.Base
     # but it's more efficient to track those vertices and create corresponding unique
     # indices on the fly. Since we have to iterate through indices either way, performance
     # difference is negligible.
+    
+    # compensate for un-populated indices by building them up from vertices
+    if indices.length is 0
+      indices = (i / 3 for i in [0...vertices.length] by 3)
       
     for i in [0...indices.length] by 3
       i1 = indices[i]
