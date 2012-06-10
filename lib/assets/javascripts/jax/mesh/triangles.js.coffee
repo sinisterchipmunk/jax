@@ -2,6 +2,11 @@ class Jax.Mesh.Triangles extends Jax.Mesh.Base
   @include Jax.Mesh.Tangents
   @include Jax.Mesh.Normals
   
+  # Precision used in hashing algorithm. This is important because of floating
+  # point inaccuracies, which could cause vertices which should have the same
+  # hash, to have different ones.
+  PRECISION = 6
+
   constructor: (args...) ->
     @draw_mode or= GL_TRIANGLES
     super args...
@@ -15,6 +20,16 @@ class Jax.Mesh.Triangles extends Jax.Mesh.Base
     triangleOrder.splice 0, triangleOrder.length
     for i in [0...numIndices] by 3
       triangleOrder.push indices[i], indices[i+1], indices[i+2]
+
+  hash: (vx, vy, vz, cr=0, cg=0, cb=0, ca=0, ts=0, tt=0, nx=0, \
+         ny=0, nz=0, ax=0, ay=0, az=0, aw=0, bx=0, bY=0, bz=0) ->
+    "#{vx.toFixed PRECISION},#{vy.toFixed PRECISION},#{vz.toFixed PRECISION}," + \
+    "#{cr.toFixed PRECISION},#{cg.toFixed PRECISION},#{cb.toFixed PRECISION}," + \
+    "#{ca.toFixed PRECISION},#{ts.toFixed PRECISION},#{tt.toFixed PRECISION}," + \
+    "#{nx.toFixed PRECISION},#{ny.toFixed PRECISION},#{nz.toFixed PRECISION}," + \
+    "#{ax.toFixed PRECISION},#{ay.toFixed PRECISION},#{az.toFixed PRECISION}," + \
+    "#{aw.toFixed PRECISION},#{bx.toFixed PRECISION},#{bY.toFixed PRECISION}," + \
+    "#{bz.toFixed PRECISION}"
 
   split: (vertices, colors, textures, normals, indices, tangents, bitangents) ->
     max = 65535
