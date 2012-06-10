@@ -19,28 +19,26 @@ class Jax.Mesh.Data
   chooseIndexArrayFormat = (length) ->
     if length < 256 then return Uint8Array
     else if length < 65536 then return Uint16Array
-    
-    # FIXME meshes with more vertices can't actually be rendered at all
-    # because only GL_UNSIGNED_BYTE or GL_UNSIGNED_SHORT are supported;
-    # in this case the mesh should be split into two meshes
-    # but for now we'll let it bubble up as GL_INVALID_ENUM during render.
+    # Uint32Array won't actually be used because meshes larger than 65536
+    # vertices will be split into multiple meshes. WebGL doesn't actually
+    # support more than 65536 vertices.
     Uint32Array
     
   # Returns the calculated length of the ArrayBuffer in bytes for the specified
   # number of vertices and its vertex index buffer.
   calcByteLength = (numVerts, numIndices, indexFormat) ->
-    numVerts * 6 * Float32Array.BYTES_PER_ELEMENT + # vertices, normals
+    numVerts * 9 * Float32Array.BYTES_PER_ELEMENT + # vertices, normals, bitangents
     numVerts * 2 * Float32Array.BYTES_PER_ELEMENT + # textures
-    numVerts * 4 * Float32Array.BYTES_PER_ELEMENT +   # colors
+    numVerts * 8 * Float32Array.BYTES_PER_ELEMENT + # colors, tangents
     numIndices * indexFormat.BYTES_PER_ELEMENT      # indices
   
-  constructor: (vertices = [], colors = [], textures = [], normals = [], indices = []) ->
+  constructor: (vertices = [], colors = [], textures = [], normals = [], \
+                indices = [], tangents = [], bitangents = []) ->
     throw new Error "Vertex data length must be given in multiples of 3" if vertices % 3
     # build up indices if none were given
     @allocateBuffers vertices.length, indices.length || vertices.length / 3
     (indices.push i for i in [0...@length]) if indices.length == 0
-    # @vertices = new Array @length
-    @assignVertexData vertices, colors, textures, normals
+    @assignVertexData vertices, colors, textures, normals, tangents, bitangents
     @freezeColors()
     for i in [0...indices.length]
       @indexBuffer[i] = indices[i]
@@ -66,6 +64,18 @@ class Jax.Mesh.Data
       @_bound = false
       @_context = context
       
+  @getter 'tangentBuffer', ->
+    @recalculateTangents() if @shouldRecalculateTangents()
+    @_tangentBuffer
+    
+  @getter 'bitangentBuffer', ->
+    @recalculateBitangents() if @shouldRecalculateBitangents()
+    @_bitangentBuffer
+
+  @getter 'normalBuffer', ->
+    @recalculateNormals() if @shouldRecalculateNormals()
+    @_normalBuffer
+
   ###
   Marks the current color data as "original". Changing the color of the
   mesh via `data.color = [...]` will blend the specified color with
@@ -128,6 +138,29 @@ class Jax.Mesh.Data
         colors:   'ShaderColorAttribute'
         textures: 'ShaderTextureCoordsAttribute'
         normals:  'ShaderNormalAttribute'
+    
+  Valid keys include:
+    * vertices:   3-component vertex position data stored as X, Y, Z.
+    * colors:     4-component color data stored as R, G, B, A.
+    * textures:   2-component texture coordinate data stored as S, T.
+    * normals:    3-component vertex normal data stored as X, Y, Z.
+    * tangents:   4-component tangent data stored as X, Y, Z, W.
+    * bitangents: 3-component bitangent data stored as X, Y, Z.
+    
+  Face normals are unit-length vectors which point perpendicular to the
+  points of a polygon. Vertex normals are the average of all face normals
+  shared by a single vertex.
+  
+  Tangents are unit-length vectors which are parallel to the surface of
+  the face, aligned with the S-component of the texture coordinates. Their
+  W component is 1 when the tangent matrix is right-handed, -1 when left-handed.
+  
+  Bitangents are unit-length vectors which are parallel to the surface of
+  the face, aligned with the T-component of the texture coordinates. They
+  are sometime erroneously referred to as binormals. They can be calculated
+  on the fly with the formula `B = Tw * cross(N, T)` where Tw is the W component
+  of the corresponding tangent, N is the vertex normal, and T is the first 3
+  components of the tangent.
   ###
   set: (vars, mapping) ->
     throw new Error "Jax context for this pass is not set" unless @_context
@@ -143,7 +176,13 @@ class Jax.Mesh.Data
           when 'normals'
             @recalculateNormals() if @shouldRecalculateNormals()
             vars.set target, @normalWrapper
-          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
+          when 'tangents'
+            @recalculateTangents() if @shouldRecalculateTangents()
+            vars.set target, @tangentWrapper
+          when 'bitangents'
+            @recalculateTangents() if @shouldRecalculateBitangents()
+            vars.set target, @bitangentWrapper
+          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals', 'tangents', 'bitangents'"
       else
         switch key
           when 'vertices' then vars[target] = @vertexWrapper
@@ -152,7 +191,13 @@ class Jax.Mesh.Data
           when 'normals'
             @recalculateNormals() if @shouldRecalculateNormals()
             vars[target] = @normalWrapper
-          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals'"
+          when 'tangents'
+            @recalculateTangents() if @shouldRecalculateTangents()
+            vars[target] = @tangentWrapper
+          when 'bitangents'
+            @recalculateBitangents() if @shouldRecalculateBitangents()
+            vars[target] = @bitangentWrapper
+          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals', 'tangents', 'bitangents'"
           
   ###
   Requests this data set's normals to be recalculated. Note that this does not directly
@@ -163,16 +208,41 @@ class Jax.Mesh.Data
   to keep track of which algorithm it should use.
   ###
   recalculateNormals: () ->
-    @fireEvent 'shouldRecalculateNormals'
     @_shouldRecalculateNormals = false
+    @fireEvent 'shouldRecalculateNormals'
+    @invalidate()
+    true
+    
+  ###
+  Requests this data set's tangents to be recalculated. Note that this does not directly
+  perform the recalculation. Instead, it fires a `shouldRecalculateTangents` event, so
+  that the object containing this mesh data can control the method in which tangents
+  are calculated.
+  ###
+  recalculateTangents: () ->
+    @_shouldRecalculateTangents = false
+    @fireEvent 'shouldRecalculateTangents'
+    @invalidate()
+    true
+  
+  ###
+  Requests this data set's bitangents to be recalculated. Note that this does not directly
+  perform the recalculation. Instead, it fires a `shouldRecalculateBitangents` event, so
+  that the object containing this mesh data can control the method in which bitangents
+  are calculated.
+  ###
+  recalculateBitangents: () ->
+    @_shouldRecalculateBitangents = false
+    @fireEvent 'shouldRecalculateBitangents'
     @invalidate()
     true
     
   ###
   Returns true if the mesh data has detected that its normal data should be recalculated.
   ###
-  shouldRecalculateNormals: () ->
-    return @_shouldRecalculateNormals
+  shouldRecalculateNormals:    () -> return @_shouldRecalculateNormals
+  shouldRecalculateTangents:   () -> return @_shouldRecalculateTangents
+  shouldRecalculateBitangents: () -> return @_shouldRecalculateBitangents
   
   ###
   Allocate or reallocate the typed array buffer and data views. This is called during
@@ -191,12 +261,18 @@ class Jax.Mesh.Data
     @textureCoordsBuffer = new Float32Array @_array_buffer, @textureCoordsBufferOffset, @length * 2
     @textureCoordsWrapper = new FloatBuffer @textureCoordsBuffer, 2
     @normalBufferOffset = @textureCoordsBufferOffset + Float32Array.BYTES_PER_ELEMENT * @textureCoordsBuffer.length
-    @normalBuffer = new Float32Array @_array_buffer, @normalBufferOffset, @length * 3
-    @normalWrapper = new FloatBuffer @normalBuffer, 3
-    @colorBufferOffset = @normalBufferOffset + Float32Array.BYTES_PER_ELEMENT * @normalBuffer.length
+    @_normalBuffer = new Float32Array @_array_buffer, @normalBufferOffset, @length * 3
+    @normalWrapper = new FloatBuffer @_normalBuffer, 3
+    @colorBufferOffset = @normalBufferOffset + Float32Array.BYTES_PER_ELEMENT * @_normalBuffer.length
     @colorBuffer = new Float32Array @_array_buffer, @colorBufferOffset, @length * 4
     @colorWrapper = new FloatBuffer @colorBuffer, 4
-    @indexBufferOffset = @colorBufferOffset + Float32Array.BYTES_PER_ELEMENT * @colorBuffer.length
+    @tangentBufferOffset = @colorBufferOffset + Float32Array.BYTES_PER_ELEMENT * @colorBuffer.length
+    @_tangentBuffer = new Float32Array @_array_buffer, @tangentBufferOffset, @length * 4
+    @tangentWrapper = new FloatBuffer @_tangentBuffer, 4
+    @bitangentBufferOffset = @tangentBufferOffset + Float32Array.BYTES_PER_ELEMENT * @tangentBuffer.length
+    @_bitangentBuffer = new Float32Array @_array_buffer, @bitangentBufferOffset, @length * 3
+    @bitangentWrapper = new FloatBuffer @_bitangentBuffer, 3
+    @indexBufferOffset = @bitangentBufferOffset + Float32Array.BYTES_PER_ELEMENT * @bitangentBuffer.length
     @indexBuffer = new @indexFormat @_array_buffer, @indexBufferOffset, numIndices
 
   tmpvec3 = vec3.create()
@@ -214,36 +290,40 @@ class Jax.Mesh.Data
   of this class so you may not get the results you were expecting. Also, be sure
   not to assign data for more vertices than memory has been allocated for.
   ###
-  assignVertexData: (vertices, colors, textures, normals) ->
+  assignVertexData: (vertices, colors, textures, normals, tangents, bitangents) ->
     # cache some variables for slightly faster runtime
-    [_vertices, _vbuf, _nbuf, _cbuf, _tbuf] = [@vertices, @vertexBuffer, @normalBuffer, @colorBuffer, @textureCoordsBuffer]
-    [_vofs, _nofs, _cofs, _tofs] = [@vertexBufferOffset, @normalBufferOffset, @colorBufferOffset, @textureCoordsBufferOffset]
-    _vsize = 3 * Float32Array.BYTES_PER_ELEMENT
-    _tsize = 2 * Float32Array.BYTES_PER_ELEMENT
-    _csize = 4 * Float32Array.BYTES_PER_ELEMENT
-    _array_buffer = @_array_buffer
+    [_vbuf, _nbuf, _cbuf, _tbuf, _tans, _btan] = [ \
+      @vertexBuffer, @_normalBuffer, @colorBuffer, @textureCoordsBuffer, @_tangentBuffer, @_bitangentBuffer]
+    
     length = @length
-    if normals.length is 0 then @_shouldRecalculateNormals = true
-    else @_shouldRecalculateNormals = false
+    @_shouldRecalculateNormals  = (normals.length is 0)
+    @_shouldRecalculateTangents = (tangents.length is 0)
+    @_shouldRecalculateBitangents = (bitangents.length is 0)
     
     for ofs in [0...length]
-      [vofs, cofs, tofs] = [ofs * 3, ofs * 4, ofs * 2]
-      _vbuf[vofs  ]  = vertices[vofs  ]
-      _vbuf[vofs+1]  = vertices[vofs+1]
-      _vbuf[vofs+2]  = vertices[vofs+2]
-      unless @_shouldRecalculateNormals
-        _nbuf[vofs  ]  = normals[vofs  ]
-        _nbuf[vofs+1]  = normals[vofs+1]
-        _nbuf[vofs+2]  = normals[vofs+2]
-      if colors.length <= cofs
-        _cbuf[cofs] = _cbuf[cofs+1] = _cbuf[cofs+2] = _cbuf[cofs+3] = 1
+      [ofs2, ofs3, ofs4] = [ofs * 2, ofs * 3, ofs * 4]
+      _vbuf[ofs3  ] = vertices[ofs3  ]
+      _vbuf[ofs3+1] = vertices[ofs3+1]
+      _vbuf[ofs3+2] = vertices[ofs3+2]
+      # normals don't need a default value because they are not guaranteed to have
+      # any value unless explicitly given. Same for tangents. Textures default to 0.
+      _nbuf[ofs3  ] = normals[ofs3  ]
+      _nbuf[ofs3+1] = normals[ofs3+1]
+      _nbuf[ofs3+2] = normals[ofs3+2]
+      _tans[ofs4  ] = tangents[ofs4  ]
+      _tans[ofs4+1] = tangents[ofs4+1]
+      _tans[ofs4+2] = tangents[ofs4+2]
+      _tans[ofs4+3] = tangents[ofs4+3]
+      _btan[ofs4  ] = bitangents[ofs3  ]
+      _btan[ofs4+1] = bitangents[ofs3+1]
+      _btan[ofs4+2] = bitangents[ofs3+2]
+      _tbuf[ofs2  ] = textures[ofs2  ] || 0
+      _tbuf[ofs2+1] = textures[ofs2+1] || 0
+
+      if colors.length <= ofs4
+        _cbuf[ofs4] = _cbuf[ofs4+1] = _cbuf[ofs4+2] = _cbuf[ofs4+3] = 1
       else
-        _cbuf[cofs  ]   = colors[cofs  ]
-        _cbuf[cofs+1]   = colors[cofs+1]
-        _cbuf[cofs+2]   = colors[cofs+2]
-        _cbuf[cofs+3]   = colors[cofs+3]
-      if textures.length <= tofs
-        _tbuf[tofs] = _tbuf[tofs+1] = 0
-      else
-        _tbuf[tofs  ] = textures[tofs  ]
-        _tbuf[tofs+1] = textures[tofs+1]
+        _cbuf[ofs4  ] = colors[ofs4  ]
+        _cbuf[ofs4+1] = colors[ofs4+1]
+        _cbuf[ofs4+2] = colors[ofs4+2]
+        _cbuf[ofs4+3] = colors[ofs4+3]

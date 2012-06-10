@@ -13,7 +13,7 @@ Function::accessor = (prop, setter, getter) ->
 Function::extend = (mixins...) ->
   for mixin in mixins
     for name, method of mixin
-      this[name] or= method
+      this[name] = method unless this.hasOwnProperty(name)
 
 Function::include = (mixins...) ->
   Function::extend.apply this.prototype, mixins

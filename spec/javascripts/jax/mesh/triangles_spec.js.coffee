@@ -18,11 +18,22 @@ describe "Jax.Mesh.Triangles", ->
       expect(mesh.submesh.data.vertexBuffer.length).not.toEqual 0
       
   beforeEach ->
-    mesh = new Jax.Mesh.Triangles init: (v) -> v.push 0, 1, 0, -1, 0, 0, 1, 0, 0
+    mesh = new Jax.Mesh.Triangles init: (v, c, t, n) ->
+      v.push -1,1,0,  -1,-1,0,  1,1,0
+      t.push 0,1,      0,0,     1,1
+      n.push 0,0,1,    0,0,1,   0,0,1
 
   it "should calculate correct normals", ->
     mesh.recalculateNormals()
     expect(mesh.data.normalBuffer).toEqualVector [0, 0, 1, 0, 0, 1, 0, 0, 1]
+    
+  it "should calculate correct tangents", ->
+    mesh.recalculateTangents()
+    expect(mesh.data.tangentBuffer).toEqualVector [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
+    
+  it "should calculate correct bitangents", ->
+    mesh.recalculateBitangents()
+    expect(mesh.data.bitangentBuffer).toEqualVector [0, 1, 0, 0, 1, 0, 0, 1, 0]
 
   it "should be rendered as GL_TRIANGLES", ->
     mat = new Jax.Material

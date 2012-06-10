@@ -52,6 +52,8 @@ class Mesh
       @_data = d
       @_data.addEventListener 'colorChanged', => @fireEvent 'colorChanged'
       @_data.addEventListener 'shouldRecalculateNormals', => @recalculateNormals()
+      @_data.addEventListener 'shouldRecalculateTangents', => @recalculateTangents()
+      @_data.addEventListener 'shouldRecalculateBitangents', => @recalculateBitangents()
       
   @define 'color'
     get: -> @_color
@@ -113,6 +115,12 @@ class Mesh
       normals[i+2] = recalcNormal[2]
     true
     
+  recalculateTangents: ->
+    throw new Error "Can't calculate tangents for #{this.__proto__.constructor.name}"
+    
+  recalculateBitangents: ->
+    throw new Error "Can't calculate bitangents for #{this.__proto__.constructor.name}"
+    
   render: (context, model, material) ->
     @validate() unless @_valid
     if material
@@ -149,6 +157,7 @@ class Mesh
     @_data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @_data.indexFormat, GL_STATIC_DRAW, @_data.indexBuffer, 1
     @__validating = false
     @_valid = true
+    @fireEvent 'validated'
     this
 
   rebuild: ->
@@ -160,6 +169,7 @@ class Mesh
     @submesh = @split vertices, colors, textures, normals, indices if vertices.length > 65535*3
     @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
     @_data.color = @_color
+    @fireEvent 'rebuilt'
     this
   
   ###
@@ -240,13 +250,6 @@ class Mesh
     
   getIndexBuffer: -> @validate() unless @_valid; @data.indices_buf
   
-  getTangentBuffer: ->
-    @validate() unless @_valid
-    @rebuildTangentBuffer() unless @tangent_buffer
-    @tangent_buffer
-    
-  rebuildTangentBuffer: -> Jax.Mesh::_makeTangentBuffer.call this
-    
   setColor: (c) ->
     if arguments.length > 1 then @color = arguments
     else @color = c

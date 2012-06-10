@@ -1,12 +1,12 @@
 describe("Tangent space", function() {
   var mesh;
   it("should work with spheres", function() {
-    expect(new Jax.Mesh.Sphere().getTangentBuffer().js).not.toBeEmpty();
+    expect(new Jax.Mesh.Sphere().data.tangentBuffer).not.toBeEmpty();
   });
   
   describe("with a triangle strip", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh.Base({
+      mesh = new Jax.Mesh.TriangleStrip({
         init: function(verts, colors, textureCoords, normals) {
           var width = 1, height = 1;
       
@@ -35,30 +35,14 @@ describe("Tangent space", function() {
       });
     });
     
-    describe("converted into a triangle fan", function() {
-      beforeEach(function() {
-        mesh.validate(); // to generate the buffer
-        var _init = mesh.init;
-        mesh.init = function(v, c, t, n, i) {
-          _init(v, c, t, n);
-          v.push(0, 0, 0);
-          t.push(0.5, 0.5);
-          n.push(0, 0, 1);
-          i.push(4, 0, 1, 3, 2);
-        };
-        mesh.rebuild();
-        mesh.draw_mode = GL_TRIANGLE_FAN;
-      });
-
-      it("should calculate tangents appropriately", function() {
-        expect(mesh.rebuildTangentBuffer().js).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
-      });
+    it("should calculate tangents appropriately", function() {
+      expect(mesh.data.tangentBuffer).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
     });
   });
   
   describe("with a triangle fan", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh.Base({
+      mesh = new Jax.Mesh.TriangleFan({
         init: function(verts, colors, textureCoords, normals) {
           var width = 1, height = 1;
       
@@ -85,20 +69,18 @@ describe("Tangent space", function() {
           normals.push(0,0,1);
           normals.push(0,0,1);
           normals.push(0,0,1);
-        },
-        
-        draw_mode: GL_TRIANGLE_FAN
+        }
       });
     });
     
     it("should calculate tangents appropriately", function() {
-      expect(mesh.getTangentBuffer().js).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
+      expect(mesh.data.tangentBuffer).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
     });
   });
 
   describe("with triangles", function() {
     beforeEach(function() {
-      mesh = new Jax.Mesh({
+      mesh = new Jax.Mesh.Triangles({
         init: function(verts, colors, textureCoords, normals, indices) {
           var width = 1, height = 1;
       
@@ -130,7 +112,7 @@ describe("Tangent space", function() {
     });
     
     it("should calculate tangents appropriately", function() {
-      expect(mesh.getTangentBuffer().js).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
+      expect(mesh.data.tangentBuffer).toEqualVector([1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1]);
     });
   });
 
