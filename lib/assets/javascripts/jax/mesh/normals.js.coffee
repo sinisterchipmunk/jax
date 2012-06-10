@@ -2,6 +2,11 @@ bufs =
   vec: vec3.create()
   tri: new Jax.Geometry.Triangle()
 
+# Precision used in hashing algorithm. This is important because of floating
+# point inaccuracies, which could cause vertices which should have the same
+# hash, to have different ones.
+PRECISION = 6
+
 ###
 Adds methods for calculating tangents for triangle-based meshes. The mesh
 is expected to maintain a `triangleOrder` property, which must be an array
@@ -9,8 +14,14 @@ of vertex indices whose length is divisible by 3, with each group of 3
 indices representing a triangle.
 ###
 Jax.Mesh.Normals =
-  hash: (vx, vy, vz, cr, cg, cb, ca, ts, tt, nx, ny, nz) ->
-    "#{vx},#{vy},#{vz},#{cr},#{cg},#{cb},#{ca},#{ts},#{tt},#{nx},#{ny},#{nz}"
+  hash: (vx, vy, vz, cr, cg, cb, ca, ts, tt, nx, ny, nz, ax=0, ay=0, az=0, aw=0, bx=0, bY=0, bz=0) ->
+    "#{vx.toFixed PRECISION},#{vy.toFixed PRECISION},#{vz.toFixed PRECISION}," + \
+    "#{cr.toFixed PRECISION},#{cg.toFixed PRECISION},#{cb.toFixed PRECISION}," + \
+    "#{ca.toFixed PRECISION},#{ts.toFixed PRECISION},#{tt.toFixed PRECISION}," + \
+    "#{nx.toFixed PRECISION},#{ny.toFixed PRECISION},#{nz.toFixed PRECISION}," + \
+    "#{ax.toFixed PRECISION},#{ay.toFixed PRECISION},#{az.toFixed PRECISION}," + \
+    "#{aw.toFixed PRECISION},#{bx.toFixed PRECISION},#{bY.toFixed PRECISION}," + \
+    "#{bz.toFixed PRECISION}"
     
   recalculateNormals: ->
     # Calculates vertex normals in 2 passes. First pass, accumulate normals.

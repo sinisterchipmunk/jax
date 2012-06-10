@@ -164,10 +164,11 @@ class Mesh
     return unless @init
     @dispose()
     return @validate() unless @__validating
-    [vertices, colors, textures, normals, indices] = [[], [], [], [], []]
-    @init vertices, colors, textures, normals, indices
-    @submesh = @split vertices, colors, textures, normals, indices if vertices.length > 65535*3
-    @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices
+    [vertices, colors, textures, normals, indices, tangents, bitangents] = [[], [], [], [], [], [], []]
+    @init vertices, colors, textures, normals, indices, tangents, bitangents
+    if vertices.length > 65535*3
+      @submesh = @split vertices, colors, textures, normals, indices, tangents, bitangents
+    @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices, tangents, bitangents
     @_data.color = @_color
     @fireEvent 'rebuilt'
     this
@@ -185,15 +186,17 @@ class Mesh
   default implementation treats vertices as a point cloud, and may not produce accurate
   results if the draw mode is something other than GL_POINTS.
   ###
-  split: (vertices, colors, textures, normals, indices) ->
+  split: (vertices, colors, textures, normals, indices, tangents, bitangents) ->
     max = 65535
     return null if vertices.length <= max * 3
     _v = _c = _t = _n = null
     _i = []
-    _v = vertices.splice max*3, vertices.length
-    _c = colors.splice   max*4, colors.length   if colors.length   >= max*4
-    _t = textures.splice max*2, textures.length if textures.length >= max*2
-    _n = normals.splice  max*3, normals.length  if normals.length  >= max*3
+    _v = vertices.splice   max*3, vertices.length
+    _c = colors.splice     max*4, colors.length     if colors.length     >= max*4
+    _t = textures.splice   max*2, textures.length   if textures.length   >= max*2
+    _n = normals.splice    max*3, normals.length    if normals.length    >= max*3
+    _a = tangents.splice   max*4, tangents.length   if tangents.length   >= max*4
+    _b = bitangents.splice max*3, bitangents.length if bitangents.length >= max*3
     for i in [0...indices.length]
       if indices[i] > max
         _i.push indices[i]
@@ -206,6 +209,8 @@ class Mesh
         (c.push __c for __c in _c) if _c
         (t.push __t for __t in _t) if _t
         (n.push __n for __n in _n) if _n
+        (n.push __a for __a in _a) if _a
+        (n.push __b for __b in _b) if _b
         (i.push __i - 65535 for __i in _i)
 
   recalcPosition = vec3.create()
