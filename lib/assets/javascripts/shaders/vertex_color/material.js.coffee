@@ -1,7 +1,8 @@
 class Jax.Material.VertexColor extends Jax.Material.Layer
+  constructor: (options, material) ->
+    super options, material
+    @dataMap = colors: 'VERTEX_COLOR'
+    
   setVariables: (context, mesh, model, vars, pass) ->
-    vars.set
-      PASS: pass
-      
-    mesh.data.set vars,
-      colors:   'VERTEX_COLOR'
+    vars.PASS = pass
+    mesh.data.set vars, @dataMap

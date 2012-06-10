@@ -21,11 +21,15 @@ class Jax.Material.Layer
       fmap = vmap = {}
     @material = material
     @variableMap = new Jax.Material.ShaderVariableMap fmap, vmap, material?.assigns
+    @transitionalVariableMap = {}
     
   numPasses: (context) -> 1
     
   setup: (context, mesh, model, pass) ->
     varmap = null
-    return @setVariables context, mesh, model, @variableMap, pass if @setVariables
+    if @setVariables
+      vars = @transitionalVariableMap
+      return false if @setVariables(context, mesh, model, vars, pass) is false
+      @variableMap.set vars
     true
   

@@ -4,7 +4,6 @@ class Jax.Material.WorldAmbient extends Jax.Material.Layer
     super options, material
   
   setVariables: (context, mesh, model, vars, pass) ->
-    vars.set
-      PASS: pass
-      WorldAmbientColor: context.world.ambientColor.toVec4()
-      MaterialAmbientIntensity: @material.intensity?.ambient || @defaultIntensity
+    vars.PASS = pass
+    vars.WorldAmbientColor = context.world.ambientColor.toVec4()
+    vars.MaterialAmbientIntensity = @material.intensity?.ambient || @defaultIntensity

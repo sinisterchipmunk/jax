@@ -6,12 +6,10 @@ class Jax.Material.Attenuation extends Jax.Material.Layer
   numPasses: (context) -> context.world.lights.length + 1
     
   setVariables: (context, mesh, model, vars, pass) ->
+    vars.PASS = pass
     return unless pass
     
     light = context.world.lights[pass-1]
-    @varMap.PASS = pass
-    @varMap.ConstantAttenuation = light.attenuation.constant
-    @varMap.LinearAttenuation = light.attenuation.linear
-    @varMap.QuadraticAttenuation = light.attenuation.quadratic
-    
-    vars.set @varMap
+    vars.ConstantAttenuation = light.attenuation.constant
+    vars.LinearAttenuation = light.attenuation.linear
+    vars.QuadraticAttenuation = light.attenuation.quadratic

@@ -26,8 +26,7 @@ Jax.Controller.create "oz3d",
       attenuation:
         linear: 0.25
       direction: vec3.normalize([0, -1/3, -1])
-      # position: [0, 9, 0]
-      position: [0, 9, 10]
+      position: [0, 9, 0]
       color:
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]

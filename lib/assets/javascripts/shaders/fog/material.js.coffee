@@ -19,9 +19,8 @@ class Jax.Material.Fog extends Jax.Material.Layer
       else throw new Error "Jax: Fog algorithm must be one of LINEAR, EXPONENTIAL, or EXP2"
     
   setVariables: (context, mesh, model, vars, pass) ->
-    vars.set
-      End: @end
-      Scale: 1.0 / (@end - @start)
-      Algorithm: @algorithm
-      Density: @density
-      FogColor: @color
+    vars.End = @end
+    vars.Scale = 1.0 / (@end - @start)
+    vars.Algorithm = @algorithm
+    vars.Density = @density
+    vars.FogColor = @color

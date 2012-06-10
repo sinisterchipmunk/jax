@@ -7,6 +7,5 @@ class Jax.Material.NormalMap extends Jax.Material.Layer
     super {shader: "normal_map"}, material
     
   setVariables: (context, mesh, model, vars, pass) ->
-    vars.set
-      NormalMap: @map
-      VERTEX_TANGENT: mesh.getTangentBuffer()
+    vars.NormalMap = @map
+    vars.VERTEX_TANGENT = mesh.getTangentBuffer()
