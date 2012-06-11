@@ -10,6 +10,7 @@ class Jax.Material.ShaderVariableMap
 
     if valueOrNothing is undefined
       for k, v of keyOrVariables
+        continue if v is undefined
         if key = map[k] then assigns[key] = v
         else if k in realNames then assigns[k] = v
         else throw new Error "Variable '#{k}' not found!"
@@ -17,9 +18,10 @@ class Jax.Material.ShaderVariableMap
       k = keyOrVariables
       v = valueOrNothing
       
-      if key = map[k] then assigns[key] = v
-      else if k in realNames then assigns[k] = v
-      else throw new Error "Variable '#{k}' not found!"
+      if v isnt undefined
+        if key = map[k] then assigns[key] = v
+        else if k in realNames then assigns[k] = v
+        else throw new Error "Variable '#{k}' not found!"
     assigns
   
   texture: (name, tex, context) ->

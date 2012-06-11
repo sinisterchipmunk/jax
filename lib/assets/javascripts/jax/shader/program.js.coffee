@@ -201,18 +201,25 @@ class Jax.Shader.Program
     gl = context.gl
     textureIndex = 0
     for name, value of assigns
-      # special case for textures
-      if value instanceof Jax.Texture
-        gl.activeTexture GL_TEXTURE0 + textureIndex
-        value.refresh context unless value.isValid context
-        gl.bindTexture value.options.target, value.getHandle context
-        value = textureIndex++
-      else if value?.toVec4
-        value = value.toVec4()
-      
       variable = variables[name]
       # throw new Error "No active variable named #{name}" unless variable
       if variable
+        if value is undefined
+          variable.value = undefined
+          if variable.qualifier is 'attribute' and variable.enabled
+            gl.disableVertexAttribArray variable.location
+            variable.enabled = false
+          continue
+      
+        # special case for textures
+        if value instanceof Jax.Texture
+          gl.activeTexture GL_TEXTURE0 + textureIndex
+          value.refresh context unless value.isValid context
+          gl.bindTexture value.options.target, value.getHandle context
+          value = textureIndex++
+        else if value?.toVec4
+          value = value.toVec4()
+      
         try
           if variable.qualifier is 'attribute' then @setAttribute context, variable, value
           else @setUniform context, variable, value

@@ -24,9 +24,15 @@ class Jax.Material.Layer
     @transitionalVariableMap = {}
     
   numPasses: (context) -> 1
+  
+  clearTransitionalVariableMap: ->
+    map = @transitionalVariableMap
+    map[k] = undefined for k of map
+    true
     
   setup: (context, mesh, model, pass) ->
     varmap = null
+    @clearTransitionalVariableMap()
     if @setVariables
       vars = @transitionalVariableMap
       return false if @setVariables(context, mesh, model, vars, pass) is false

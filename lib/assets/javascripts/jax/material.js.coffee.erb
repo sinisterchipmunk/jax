@@ -34,12 +34,19 @@ class Jax.Material
       """
     @layers.push layer
     layer
+    
+  clearAssigns: ->
+    assigns = @assigns
+    for k of assigns
+      assigns[k] = undefined
+    true
   
   renderPasses: (context, mesh, model) ->
     submesh = mesh
     numPassesRendered = 0
     while submesh
       max = 0
+      @clearAssigns() # don't taint assigns from one mesh to the next
       for layer in @layers
         passes = layer.numPasses context, submesh, model
         max = passes if passes > max
@@ -61,7 +68,7 @@ class Jax.Material
     if numPassesRendered is 1
       gl = context.gl
       gl.blendFunc GL_ONE, GL_ONE
-      gl.depthFunc GL_LEQUAL
+      gl.depthFunc GL_EQUAL
     @shader.set context, @assigns
     return true
     

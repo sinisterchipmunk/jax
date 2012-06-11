@@ -3,6 +3,29 @@ describe "Jax.Material", ->
   
   afterEach -> delete Jax.Material.TestLayer
   
+  it "should not re-bind attribute arrays which are not overwritten between objects", ->
+    # when for example obj A binds its normals, but obj B does not,
+    # then it should not try to create a vertex attrib pointer using
+    # the normal buffer length and offset from obj A.
+    # This is a case of tainted state.
+    matr = new Jax.Material
+    obj1 = new Jax.Model mesh: new Jax.Mesh.Sphere(material: matr)
+    obj2 = new Jax.Model mesh: new Jax.Mesh.Quad(material: matr)
+    matr.addLayer new Jax.Material.Layer {
+      vertex: "shared attribute vec3 NORMAL, VERT; void main(void) { gl_Position = vec4(VERT * NORMAL, 1.0); }"
+      setVariables: (context, mesh, model, vars, pass) ->
+        if model is obj1 then mesh.data.set vars, normals: 'NORMAL'
+        mesh.data.set vars, vertices: 'VERT'
+    }, matr
+
+    normalVariable = matr.shader.discoverVariables(SPEC_CONTEXT)['NORMAL']
+
+    obj1.render SPEC_CONTEXT, matr
+    spyOn(matr.shader, 'setAttribute').andCallThrough()
+    obj2.render SPEC_CONTEXT, matr
+    expect(matr.shader.setAttribute).not.toHaveBeenCalledWith \
+      SPEC_CONTEXT, normalVariable, obj1.mesh.data.normalWrapper
+  
   describe "with layers requiring multiple passes", ->
     layer1 = layer2 = layer1_order = layer2_order = null
     
