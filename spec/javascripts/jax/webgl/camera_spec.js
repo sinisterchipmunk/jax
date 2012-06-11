@@ -3,6 +3,12 @@ describe("Jax.Camera", function() {
   
   beforeEach(function() { camera = new Jax.Camera(); });
   
+  it("should initialize camera when given position and direction", function() {
+    camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});
+    expect(camera.getPosition()).toEqualVector([1,1,1]);
+    expect(camera.getViewVector()).toEqualVector(vec3.normalize([2,2,2]));
+  });
+  
   it("should not change its orientation when looking in its current direction", function() {
     camera.lookAt([0,0,-1]);
     
