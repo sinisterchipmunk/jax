@@ -1,6 +1,6 @@
-describe "Jax.Material.DualParaboloid", ->
+describe "Jax.Material.Paraboloid", ->
   matr = null
-  beforeEach -> matr = new Jax.Material layers: [ { type: 'DualParaboloid' } ]
+  beforeEach -> matr = new Jax.Material layers: [ { type: 'Paraboloid' } ]
   
   it "should render successfully", ->
     new Jax.Mesh(material: matr).render SPEC_CONTEXT
