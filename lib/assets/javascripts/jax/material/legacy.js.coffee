@@ -37,5 +37,6 @@ class Jax.Material.Legacy extends Jax.Material.Custom
     @addLayer 'LightAmbient'
     @addLayer 'LambertDiffuse'
     @addLayer 'PhongSpecular'
+    @addLayer 'ShadowMap'
     @addLayer 'Attenuation'
     @addLayer 'ClampColor'

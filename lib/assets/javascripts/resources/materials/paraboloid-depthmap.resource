@@ -1,4 +1,5 @@
-type: Paraboloid
+type: Custom
 
 layers:
+  - type: Paraboloid
   - type: Depthmap

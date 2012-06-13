@@ -22,7 +22,7 @@ Jax.Controller.create "oz3d",
 
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
     
-    @light = @world.addLight new Jax.Light.Point
+    @light = @world.addLight new Jax.Light.Directional
       attenuation:
         linear: 0.25
       direction: vec3.normalize([0, -1/3, -1])
@@ -35,7 +35,12 @@ Jax.Controller.create "oz3d",
       shininess: 0
       intensity:
         ambient: 100
-    @lighto = @world.addObject new Jax.Model position: [0, 9, 0], mesh: new Jax.Mesh.Sphere(radius: 0.2, material: @light_mat)
+    @lighto = @world.addObject new Jax.Model
+      position: [0, 9, 0]
+      castShadow: false
+      receiveShadow: false
+      illuminated: false
+      mesh: new Jax.Mesh.Sphere(radius: 0.2, material: @light_mat)
     
     @context.player.camera.setPosition -15, 20, 25
     @context.player.camera.setDirection 0.55, -0.5, -1
@@ -61,6 +66,7 @@ Jax.Controller.create "oz3d",
         size: 50
         segments: 20
         material: @floor_mat
+      castShadow: false
       direction: [0, 1, 0]
     
     @world.addObject new Jax.Model

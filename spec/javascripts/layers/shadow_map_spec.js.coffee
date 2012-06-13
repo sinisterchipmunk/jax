@@ -4,3 +4,6 @@ describe "Jax.Material.ShadowMap", ->
   
   it "should render successfully", ->
     new Jax.Mesh(material: matr).render SPEC_CONTEXT
+
+  describe "with a directional light", ->
+    beforeEach -> @world.addLight new Jax.Light.Directional

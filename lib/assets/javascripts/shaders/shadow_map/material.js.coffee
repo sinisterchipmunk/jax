@@ -1,21 +1,32 @@
 class Jax.Material.ShadowMap extends Jax.Material.Layer
   constructor: (options, material) ->
-    options or= {}
-    options.shader or= "shadow_map"
     super options, material
-    
+    @meshMap = vertices: 'VERTEX_POSITION'
+  
+  numPasses: (context) -> context.world.lights.length + 1
+  
+  prepare: (context, mesh, model) ->
+    for i in [1...@numPasses(context)]
+      light = context.world.lights[i-1]
+      if light.shadowmap then light.shadowmap.validate context
+    true
+  
   setVariables: (context, mesh, model, vars, pass) ->
-    return # Until lighting is ready to be used
+    vars.PASS = pass
+    vars.SHADOWMAP_ENABLED = false
+    return unless pass
     
-    light = context.world.lighting.getLight()
-    shadowmap_enabled = light.isShadowMapEnabled()
+    light = context.world.lights[pass-1]
+    vars.SHADOWMAP_ENABLED = !!light.shadowmap
+    return unless vars.SHADOWMAP_ENABLED
     
-    vars.DP_SHADOW_NEAR = 0.1  # c.world.lighting.getLight().getDPShadowNear() || 0.1
-    vars.DP_SHADOW_FAR =  500  # c.world.lighting.getLight().getDPShadowFar()  || 500
+    vars.DP_SHADOW_NEAR = 1
+    vars.DP_SHADOW_FAR =  200
     vars.SHADOWMAP_PCF_ENABLED = false
-    vars.SHADOWMAP_ENABLED = shadowmap_enabled
-      
-    if shadowmap_enabled
-      vars.SHADOWMAP_MATRIX = light.getShadowMatrix()
-      if front = light.getShadowMapTextures(context)[0] then vars.SHADOWMAP0 = front
-      if back = light.getShadowMapTextures(context)[1]  then vars.SHADOWMAP1 = back
+    vars.SHADOWMAP_MATRIX = light.shadowmap.shadowMatrix
+    vars.SHADOWMAP_WIDTH = light.shadowmap.width
+    vars.SHADOWMAP_HEIGHT = light.shadowmap.height
+    vars.mMatrix = context.matrix_stack.getModelMatrix()
+    vars.IsDualParaboloid = light.shadowmap.isDualParaboloid()
+    mesh.data.set vars, @meshMap
+    light.shadowmap.bindTextures context, vars, 'SHADOWMAP0', 'SHADOWMAP1'

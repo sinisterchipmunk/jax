@@ -47,6 +47,9 @@ class Jax.Framerate extends Jax.Model
     options.width or= 128
     options.height or= 64
     options.position or= [options.width / 2, options.height / 2, -1]
+    options.castShadow or= false
+    options.receiveShadow or= false
+    options.illuminated or= false
     super options
     
     @canvas = document.createElement 'canvas'

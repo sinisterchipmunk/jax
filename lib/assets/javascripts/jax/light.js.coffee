@@ -52,7 +52,7 @@ class Jax.Light extends Jax.Model
 
   @define 'outerSpotAngleCos', get: -> @_outerSpotAngleCos
   @define 'innerSpotAngleCos', get: -> @_innerSpotAngleCos
-
+  
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
@@ -61,6 +61,25 @@ class Jax.Light extends Jax.Model
   eyePosition: (matrix, dest) ->
     mat4.multiplyVec3 matrix, @camera.getPosition(), dest
 
+  crMinIntensity = 10.0 / 256.0
+  maxEffectiveRange: (rangeIncrement = 1.0) ->
+    attenuation = @attenuation
+    
+    # make sure the parameters are reasonable and that
+    # the algorithm will terminate
+    if attenuation.constant < 0.0 or attenuation.linear < 0.0 or attenuation.quadratic < 0.0 or \
+       (attenuation.constant < (1 / crMinIntensity) and attenuation.linear is 0 and attenuation.quadratic is 0)
+      return -1
+
+    distance = rangeIncrement
+    while @calculateIntensity(distance) > crMinIntensity
+      distance += rangeIncrement
+
+    distance
+    
+  calculateIntensity: (distance) ->
+    return 1.0 / (@attenuation.constant + @attenuation.linear * distance + \
+                  @attenuation.quadratic * distance * distance);
 
 # For legacy compatibility
 # TODO remove these

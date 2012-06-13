@@ -4,3 +4,4 @@ class Jax.Light.Point extends Jax.Light
     @innerSpotAngle = Math.PI
     @outerSpotAngle = Math.PI
     @type = Jax.POINT_LIGHT
+    @shadowmap = new Jax.ShadowMap.Point this

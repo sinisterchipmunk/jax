@@ -220,6 +220,7 @@ class Mesh
     center = @_bounds.center
     length = @_data.vertexBuffer.length
     position = recalcPosition
+    biggest = 0
     for i in [0...length] by 3
       position[0] = @_data.vertexBuffer[i]
       position[1] = @_data.vertexBuffer[i+1]
@@ -244,6 +245,7 @@ class Mesh
     width  = right[0] - left[0]
     height = top[1]   - bottom[1]
     depth  = front[2] - back[2]
+    biggest = (if width > height && width > depth then width else if height > depth then height else depth)
     center[0] = left[0]   + width  * 0.5
     center[1] = bottom[1] + height * 0.5
     center[2] = back[2]   + depth  * 0.5
@@ -251,6 +253,7 @@ class Mesh
     if height < Math.EPSILON then height = 0.0001
     if depth  < Math.EPSILON then depth  = 0.0001
     [@_bounds.width, @_bounds.height, @_bounds.depth] = [width, height, depth]
+    @_bounds.radius = biggest / 2
     @_bounds
     
   getIndexBuffer: -> @validate() unless @_valid; @data.indices_buf
