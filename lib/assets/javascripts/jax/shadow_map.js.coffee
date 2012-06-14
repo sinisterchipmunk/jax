@@ -6,7 +6,7 @@ class Jax.ShadowMap
     @_shadowMatrix = mat4.create()
     @_projectionMatrix = mat4.create()
     @_isValid = false
-    @light.camera.addEventListener 'matrixUpdated', => @invalidate()
+    @light.camera.addEventListener 'updated', => @invalidate()
     @biasMatrix = mat4.identity()
     @clearColor = [0, 0, 0, 0]
     @cullFace = GL_FRONT
@@ -38,17 +38,9 @@ class Jax.ShadowMap
   validate: (context) ->
     unless @_isValid
       unless @illuminationFBO
-        # use the largest texture we can get away with, for best quality
-        # some machines report framebuffer size larger than they can handle in practice,
-        # so we'll start at the reported size and then bit-shift downward until we reach
-        # a valid size. If we have to go lower than 128x128 then something else is wrong.
+        # try to use a 1024x1024 framebuffer, but degrade gracefully if it's too big
         maxSize = context.gl.getParameter context.gl.MAX_RENDERBUFFER_SIZE
-        
-        # Actually both firefox and chrome currently crash to desktop when I do this,
-        # at least on my MBP, which reports size 8192. For now I'll just go with some
-        # known good value. Size 4096 doesn't crash browser, but loses the WebGL context.
-        knownGood = 2048
-        maxSize = knownGood if maxSize > knownGood
+        maxSize = 1024 if maxSize > 1024
         
         done = false
         while !done
@@ -74,7 +66,7 @@ class Jax.ShadowMap
       # shadowMatrix = bias * projection * modelview
       mat4.set @light.camera.getInverseTransformationMatrix(), @_shadowMatrix
       mat4.multiply @_projectionMatrix, @_shadowMatrix, @_shadowMatrix
-      @_isValid = true
+      @_isValid = !!context
       @illuminate context
       # after rendering, bias the matrix to produce coords in range [0,1] instead of [-1,1]
       mat4.multiply @biasMatrix, @_shadowMatrix, @_shadowMatrix

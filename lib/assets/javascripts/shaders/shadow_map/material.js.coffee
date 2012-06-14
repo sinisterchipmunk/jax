@@ -22,8 +22,8 @@ class Jax.Material.ShadowMap extends Jax.Material.Layer
     vars.mMatrix = context.matrix_stack.getModelMatrix()
     mesh.data.set vars, @meshMap
 
-    vars['ParaboloidNear[0]'] = @material.paraboloidNear || 1
-    vars['ParaboloidFar[0]']  = @material.paraboloidFar  || 200
+    vars['ParaboloidNear[0]'] = light.shadowmap.paraboloidNear || 1
+    vars['ParaboloidFar[0]']  = light.shadowmap.paraboloidFar  || 200
     vars['SHADOWMAP_PCF_ENABLED[0]'] = false
     vars['SHADOWMAP_MATRIX[0]'] = light.shadowmap.shadowMatrix
     vars['SHADOWMAP_WIDTH[0]'] = light.shadowmap.width

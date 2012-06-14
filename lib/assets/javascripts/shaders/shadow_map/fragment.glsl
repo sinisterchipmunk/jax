@@ -19,9 +19,8 @@ vec4 shadowCoord;
 float dp_lookup(const vec2 offset, const sampler2D shadowmap) {
   vec4 rgba_depth = texture2D(shadowmap, shadowCoord.xy * 0.5 + 0.5 + offset);
   float shadowDepth = unpack_depth(rgba_depth);
-  if (shadowDepth < 0.005) return 1.0;
-  if (shadowDepth - shadowCoord.z > -0.005) return 1.0;
-  return 0.0;
+  if (shadowDepth == 0.0) return 1.0;
+  return shadowDepth - shadowCoord.z > -0.005 ? 1.0 : 0.0;
 }
       
 float depth_lookup(const vec2 offset, const sampler2D shadowmap) {

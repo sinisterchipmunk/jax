@@ -1,8 +1,9 @@
 class Jax.ShadowMap.Spot extends Jax.ShadowMap
+  relative = vec3.create()
+
   setupProjection: (projection, context) ->
     # first, find the most distance object from the light
     mostDistant = 0
-    relative = vec3.create()
     
     for id, obj of context.world.objects
       vec3.subtract @light.position, obj.camera.getPosition(), relative
@@ -18,7 +19,7 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     # account for infinite influence
     if far is -1 then far = mostDistant
 
-    fov = @light.outerSpotAngle * 180 / Math.PI
+    fov = @light.outerSpotAngle * 180 / Math.PI * 2
     near = 0.1
     aspect_ratio = @width / @height
 

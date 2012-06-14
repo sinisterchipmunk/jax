@@ -28,13 +28,13 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     vars[front] = @shadowmapFBO.getTexture context, 0
     vars[back]  = @backFBO.getTexture      context, 0
 
+  relative = vec3.create()
   setupProjection: (projection, context) ->
     # the paraboloid will perform its own projection in the shader
     mat4.identity projection
     
     # now calculate zNear and zFar for the paraboloid
     mostDistant = 0
-    relative = vec3.create()
     
     # first, find the most distant object from the light
     for id, obj of context.world.objects
