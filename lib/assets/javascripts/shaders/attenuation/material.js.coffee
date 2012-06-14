@@ -13,3 +13,4 @@ class Jax.Material.Attenuation extends Jax.Material.Layer
     vars.ConstantAttenuation = light.attenuation.constant
     vars.LinearAttenuation = light.attenuation.linear
     vars.QuadraticAttenuation = light.attenuation.quadratic
+    

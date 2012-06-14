@@ -10,16 +10,17 @@ class Jax.Material.PhongSpecular extends Jax.Material.IlluminationLayer
     @eyePos = vec3.create()
     
   illuminate: (context, mesh, model, vars, light) ->
+    vars['LightSpecularColor[0]'] = light.color.diffuse
+    vars['EyeSpaceLightDirection[0]'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
+    vars['LightType[0]'] = light.type
+    vars['LightSpotExponent[0]'] = light.spotExponent
+    vars['LightSpotInnerCos[0]'] = light.innerSpotAngleCos
+    vars['LightSpotOuterCos[0]'] = light.outerSpotAngleCos
+    vars['EyeSpaceLightPosition[0]'] = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
+
     vars.ModelViewMatrix = context.matrix_stack.getModelViewMatrix()
     vars.NormalMatrix = context.matrix_stack.getNormalMatrix()
     vars.MaterialShininess = @material.shininess
     vars.MaterialSpecularIntensity = @material.intensity.specular
     vars.MaterialSpecularColor = @material.color.specular
-    vars.LightSpecularColor = light.color.specular
-    vars.EyeSpaceLightDirection = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-    vars.LightSpotExponent = light.spotExponent
-    vars.LightSpotInnerCos = light.innerSpotAngleCos
-    vars.LightSpotOuterCos = light.outerSpotAngleCos
-    vars.LightType = light.type
-    vars.EyeSpaceLightPosition = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
     mesh.data.set vars, @meshDataMap

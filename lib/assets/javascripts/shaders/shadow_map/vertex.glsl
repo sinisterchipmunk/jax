@@ -1,9 +1,9 @@
 shared attribute vec4 VERTEX_POSITION;
 
 void main(void) {
-  bvec2 shouldRender = bvec2(PASS != 0, SHADOWMAP_ENABLED);
-  if (all(shouldRender)) {
-    vVertPos = VERTEX_POSITION;
-    vShadowCoord = SHADOWMAP_MATRIX * mMatrix * VERTEX_POSITION;
+  if (PASS != 0) {
+    for (int LIGHT = 0; LIGHT < MAX_LIGHTS; LIGHT++)
+      if (SHADOWMAP_ENABLED[LIGHT])
+        vShadowCoord[LIGHT] = SHADOWMAP_MATRIX[LIGHT] * mMatrix * VERTEX_POSITION;
   }
 }

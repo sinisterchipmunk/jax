@@ -13,20 +13,20 @@ class Jax.Material.ShadowMap extends Jax.Material.Layer
   
   setVariables: (context, mesh, model, vars, pass) ->
     vars.PASS = pass
-    vars.SHADOWMAP_ENABLED = false
+    vars['SHADOWMAP_ENABLED[0]'] = false
     return unless pass
     
     light = context.world.lights[pass-1]
-    vars.SHADOWMAP_ENABLED = !!light.shadowmap
-    return unless vars.SHADOWMAP_ENABLED
+    vars['SHADOWMAP_ENABLED[0]'] = !!light.shadowmap
     
+    vars.mMatrix = context.matrix_stack.getModelMatrix()
+    mesh.data.set vars, @meshMap
+
     vars.DP_SHADOW_NEAR = 1
     vars.DP_SHADOW_FAR =  200
-    vars.SHADOWMAP_PCF_ENABLED = false
-    vars.SHADOWMAP_MATRIX = light.shadowmap.shadowMatrix
-    vars.SHADOWMAP_WIDTH = light.shadowmap.width
-    vars.SHADOWMAP_HEIGHT = light.shadowmap.height
-    vars.mMatrix = context.matrix_stack.getModelMatrix()
-    vars.IsDualParaboloid = light.shadowmap.isDualParaboloid()
-    mesh.data.set vars, @meshMap
-    light.shadowmap.bindTextures context, vars, 'SHADOWMAP0', 'SHADOWMAP1'
+    vars['SHADOWMAP_PCF_ENABLED[0]'] = false
+    vars['SHADOWMAP_MATRIX[0]'] = light.shadowmap.shadowMatrix
+    vars['SHADOWMAP_WIDTH[0]'] = light.shadowmap.width
+    vars['SHADOWMAP_HEIGHT[0]'] = light.shadowmap.height
+    vars['IsDualParaboloid[0]'] = light.shadowmap.isDualParaboloid()
+    light.shadowmap.bindTextures context, vars, 'SHADOWMAP0[0]', 'SHADOWMAP1[0]'
