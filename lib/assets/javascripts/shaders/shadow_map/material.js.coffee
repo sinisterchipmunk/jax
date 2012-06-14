@@ -17,7 +17,7 @@ class Jax.Material.ShadowMap extends Jax.Material.Layer
     return unless pass
     
     light = context.world.lights[pass-1]
-    vars['SHADOWMAP_ENABLED[0]'] = !!light.shadowmap
+    vars['SHADOWMAP_ENABLED[0]'] = !!light.shadowmap && model.receiveShadow
     
     vars.mMatrix = context.matrix_stack.getModelMatrix()
     mesh.data.set vars, @meshMap
