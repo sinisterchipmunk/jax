@@ -1,4 +1,6 @@
-class Jax.Material.LambertDiffuse extends Jax.Material.Layer
+#= require "jax/material/illumination_layer"
+
+class Jax.Material.LambertDiffuse extends Jax.Material.IlluminationLayer
   constructor: (options, material) ->
     super options, material
     @meshDataMap =
@@ -7,13 +9,7 @@ class Jax.Material.LambertDiffuse extends Jax.Material.Layer
     @eyeDir = vec3.create()
     @eyePos = vec3.create()
     
-  numPasses: (context) -> context.world.lights.length + 1
-    
-  setVariables: (context, mesh, model, vars, pass) ->
-    vars.PASS = pass
-    return unless pass
-    
-    light = context.world.lights[pass-1]
+  illuminate: (context, mesh, model, vars, light) ->
     vars.NormalMatrix = context.matrix_stack.getNormalMatrix()
     vars.MaterialDiffuseIntensity = @material.intensity.diffuse
     vars.MaterialDiffuseColor = @material.color.diffuse
