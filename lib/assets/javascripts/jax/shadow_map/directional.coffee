@@ -1,22 +1,23 @@
 class Jax.ShadowMap.Directional extends Jax.ShadowMap
+  
+  center = vec3.create()
   setupProjection: (projection, context) ->
-    @_center or= vec3.create()
-    @_center[0] = @_center[1] = @_center[2] = 0
+    center[0] = center[1] = center[2] = 0
     count = 0
     for id, obj of context.world.objects
       continue unless obj.castShadow
       count += 1
-      vec3.add obj.camera.getPosition(), @_center, @_center
+      vec3.add obj.camera.getPosition(), center, center
       
     if count > 0
-      vec3.scale @_center, 1 / count
-      @light.camera.setPosition @_center
+      vec3.scale center, 1 / count
+      @light.camera.setPosition center
       
       sceneRadius = 0
       dist = vec3.create()
       for id, obj of context.world.objects
         continue unless obj.castShadow
-        length = vec3.length(vec3.subtract @_center, obj.camera.getPosition(), dist) + obj.mesh?.bounds.radius
+        length = vec3.length(vec3.subtract center, obj.camera.getPosition(), dist) + obj.mesh?.bounds.radius
         sceneRadius = length if sceneRadius < length
       
       mat4.ortho -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, projection

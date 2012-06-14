@@ -87,7 +87,7 @@ class Jax.ShadowMap
       gl.disable GL_BLEND
       # Push the depth values back so that they don't cause self-shadowing artifacts
       gl.enable GL_POLYGON_OFFSET_FILL
-      gl.cullFace @cullFace
+      gl.cullFace @cullFace if @cullFace
       gl.polygonOffset 2, 2
       context.matrix_stack.push()
       @setupMatrices context.matrix_stack
@@ -108,9 +108,13 @@ class Jax.ShadowMap
     
   illuminationArray = []
   isIlluminated: (model, context) ->
+    @validate context
     @illuminationFBO or= new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
     @illuminationData or= new Uint8Array @width * @height * 4
+    cullFace = @cullFace
+    @cullFace = null
     @illuminate context, 'picking', @illuminationFBO, true
+    @cullFace = cullFace
     context.world.parsePickData @illuminationData, illuminationArray
-    return @illuminationArray.indexOf(model.__unique_id) != -1
+    return illuminationArray.indexOf(model.__unique_id) != -1
     
