@@ -53,6 +53,26 @@ class Jax.Light extends Jax.Model
   @define 'outerSpotAngleCos', get: -> @_outerSpotAngleCos
   @define 'innerSpotAngleCos', get: -> @_innerSpotAngleCos
   
+  ###
+  Returns true if the specified model is close enough to this light
+  source to be at least partially illuminated by it. This does not 
+  indicate whether or not the model is in shadow, which is a much
+  more time-consuming calculation performed by
+  `Jax.ShadowMap#isIlluminated`.
+  ###
+  isInRange: (model) ->
+    radius = model.mesh?.bounds.radius || 0
+    # My first thought was to exit early on 0-radius meshes since they're
+    # invisible, but this would be a bad idea because some models contain
+    # other models instead of meshes...
+    objPos = model.position
+    dist = vec3.length(vec3.subtract objPos, @position) - radius
+    range = @maxEffectiveRange()
+    return range is -1 or range >= dist
+
+  dispose: (context) ->
+    this.shadowmap?.dispose context
+  
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->

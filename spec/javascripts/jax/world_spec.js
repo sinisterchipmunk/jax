@@ -13,6 +13,27 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should notify shadow maps when added objects are modified", function() {
+    var light = world.addLight(new Jax.Light.Directional());
+    var obj = world.addObject(new Jax.Model());
+    light.shadowmap.validate(SPEC_CONTEXT);
+    expect(light.shadowmap).toBeValid(); // sanity check
+    
+    obj.camera.move(1);
+    expect(light.shadowmap).not.toBeValid();
+  });
+  
+  it("should stop notifying shadow maps after object has been removed", function() {
+    var light = world.addLight(new Jax.Light.Directional());
+    var obj = world.addObject(new Jax.Model());
+    world.removeObject(obj);
+    light.shadowmap.validate(SPEC_CONTEXT);
+    expect(light.shadowmap).toBeValid(); // sanity check
+    
+    obj.camera.move(1);
+    expect(light.shadowmap).toBeValid();
+  });
+  
   it("should render objects added to the world", function() {
     var mat = new Jax.Material();
     rendered_ids = [];

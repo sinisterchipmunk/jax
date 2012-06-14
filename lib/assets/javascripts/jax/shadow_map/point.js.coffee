@@ -20,12 +20,15 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     @cullFace = GL_BACK
     material.direction = -1
     super context, material, @backFBO
+    
+  dispose: (context) ->
+    super context
+    @backFBO?.dispose context
   
   isDualParaboloid: -> true
 
   bindTextures: (context, vars, front, back) ->
-    @validate context
-    vars[front] = @shadowmapFBO.getTexture context, 0
+    super context, vars, front
     vars[back]  = @backFBO.getTexture      context, 0
 
   relative = vec3.create()
@@ -39,7 +42,7 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     # first, find the most distant object from the light
     for id, obj of context.world.objects
       vec3.subtract @light.position, obj.camera.getPosition(), relative
-      dist = vec3.length(relative) + obj.mesh.bounds.radius
+      dist = vec3.length(relative) + obj.mesh?.bounds.radius
       if dist > mostDistant then mostDistant = dist
       
     # now use a small fraction of that distance as a range increment for

@@ -16,7 +16,7 @@ class Jax.ShadowMap.Directional extends Jax.ShadowMap
       dist = vec3.create()
       for id, obj of context.world.objects
         continue unless obj.castShadow
-        length = vec3.length(vec3.subtract @_center, obj.camera.getPosition(), dist) + obj.mesh.bounds.radius
+        length = vec3.length(vec3.subtract @_center, obj.camera.getPosition(), dist) + obj.mesh?.bounds.radius
         sceneRadius = length if sceneRadius < length
       
       mat4.ortho -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, projection

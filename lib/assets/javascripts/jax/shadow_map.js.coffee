@@ -22,7 +22,6 @@ class Jax.ShadowMap
     @_projectionMatrix
     
   bindTextures: (context, vars, texture1) ->
-    @validate context
     vars[texture1] = @shadowmapFBO.getTexture context, 0
     
   ###
@@ -36,42 +35,29 @@ class Jax.ShadowMap
     throw new Error "ShadowMap type #{@__proto__.constructor.name} did not initialize its projection matrix!"
     
   validate: (context) ->
-    unless @_isValid
-      unless @illuminationFBO
+    if context and not @_isValid
+      unless @_initialized
         # try to use a 1024x1024 framebuffer, but degrade gracefully if it's too big
         maxSize = context.gl.getParameter context.gl.MAX_RENDERBUFFER_SIZE
         maxSize = 1024 if maxSize > 1024
-        
-        done = false
-        while !done
-          try
-            width = height = maxSize
-            @illuminationFBO = new Jax.Framebuffer width: width, height: height, depth: true, color: GL_RGBA
-            @illuminationFBO.validate context
-            done = true
-          catch e
-            @illuminationFBO.dispose context
-            if maxSize <= 128
-              throw new Error "Couldn't negotiate acceptable renderbuffer size: #{e}"
-            else
-              newSize = maxSize >> 1
-              console.log "Warning: renderbuffer size #{maxSize} wasn't accepted, trying #{newSize}"
-              maxSize = newSize
-        @width or= maxSize
-        @height or= maxSize
+        @width = @height = maxSize
         @shadowmapFBO = new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
-        @illuminationData = new Uint8Array @width * @height * 4
+        @_initialized = true
 
       @setupProjection @_projectionMatrix, context
       # shadowMatrix = bias * projection * modelview
       mat4.set @light.camera.getInverseTransformationMatrix(), @_shadowMatrix
       mat4.multiply @_projectionMatrix, @_shadowMatrix, @_shadowMatrix
-      @_isValid = !!context
+      @_isValid = true
       @illuminate context
-      # after rendering, bias the matrix to produce coords in range [0,1] instead of [-1,1]
+      # apply bias matrix only after illumination, so that it doesn't skew the illumination
       mat4.multiply @biasMatrix, @_shadowMatrix, @_shadowMatrix
     
   invalidate: -> @_isValid = @_isUpToDate = false
+  
+  dispose: (context) ->
+    @shadowmapFBO?.dispose context
+    @illuminationFBO?.dispose context
     
   isValid: -> @_isValid
   
@@ -112,15 +98,19 @@ class Jax.ShadowMap
       
     # restore viewport
     gl.clearColor.apply gl, clearColor
-    gl.viewport 0, 0, context.canvas.clientWidth, context.canvas.clientHeight
+    canvasWidth  = context.canvas.clientWidth  || context.canvas.width
+    canvasHeight = context.canvas.clientHeight || context.canvas.height
+    gl.viewport 0, 0, canvasWidth, canvasHeight
     gl.polygonOffset 0, 0
     gl.disable GL_POLYGON_OFFSET_FILL
     gl.cullFace GL_BACK
     gl.enable GL_BLEND
     
+  illuminationArray = []
   isIlluminated: (model, context) ->
-    @illuminationArray or= []
+    @illuminationFBO or= new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
+    @illuminationData or= new Uint8Array @width * @height * 4
     @illuminate context, 'picking', @illuminationFBO, true
-    context.world.parsePickData @illuminationData, @illuminationArray
+    context.world.parsePickData @illuminationData, illuminationArray
     return @illuminationArray.indexOf(model.__unique_id) != -1
     

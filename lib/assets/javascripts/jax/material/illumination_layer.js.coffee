@@ -14,16 +14,6 @@ class Jax.Material.IlluminationLayer extends Jax.Material.Layer
   numPasses: (context) -> context.world.lights.length + 1
 
   ###
-  Returns true if the specified model is close enough to this light
-  source to be at least partially illuminated by it.
-  ###
-  modelInRange: (light, model) ->
-    [lightPos, objPos] = [light.position, model.position]
-    dist = vec3.length(vec3.subtract objPos, lightPos) - model.mesh.bounds.radius
-    range = light.maxEffectiveRange()
-    return range is -1 or range >= dist
-
-  ###
   Returns immediately on ambient passes; aborts the render pass
   entirely if the light source is too far away from the specified
   model to have any effect. Otherwise, calls #illuminate.
@@ -34,7 +24,7 @@ class Jax.Material.IlluminationLayer extends Jax.Material.Layer
     vars.PASS = pass
     return unless pass
     light = context.world.lights[pass-1]
-    return false unless @modelInRange light, model
+    return false unless light.isInRange model
     return @illuminate context, mesh, model, vars, light
     
   ###
