@@ -53,6 +53,12 @@ describe "Jax.Shader", ->
       expect(shader.toString()).toMatch /\{[\s\t\n]*return 1;[\s\t\n]*\}/
   
   describe "parsing cache directives", ->
+    it "should parse array caches properly", ->
+      shader.append "void main() { cache(float, len[2]) { len[0] = 1.0; len[1] = 2.0; } }"
+      sim = new ShaderScript.Simulator vertex: shader.toString()
+      sim.start()
+      expect(sim.state.variables.len.value).toEqual [1, 2]
+    
     it "should use only the first value", ->
       shader.append "void main() { cache(float, len) {\n  len = 2.0;\n} }"
       shader.append "void main() { cache(float, len) {\n  len = 1.0;\n} }"

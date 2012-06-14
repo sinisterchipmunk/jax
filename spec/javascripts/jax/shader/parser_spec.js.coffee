@@ -102,6 +102,10 @@ describe "Jax.Shader.Parser", ->
       expect(parser.functions.main.name).toEqual 'main'
 
   describe "parsing private uniforms", ->
+    it "should find a uniform array", ->
+      parser = new Jax.Shader.Parser "uniform vec3 directions[2];"
+      expect(parser.uniforms.length).toEqual 1
+    
     it "should find a single uniform", ->
       parser = new Jax.Shader.Parser "uniform mat4 mvMatrix;"
       expect(parser.uniforms.length).toEqual 1
@@ -128,6 +132,10 @@ describe "Jax.Shader.Parser", ->
       expect(parser.uniforms.pMatrix0.shared).toBeFalsy()
 
   describe "parsing shared uniforms", ->
+    it "should find a uniform array", ->
+      parser = new Jax.Shader.Parser "shared uniform vec3 directions[2];"
+      expect(parser.uniforms.length).toEqual 1
+    
     it "should find a single uniform", ->
       parser = new Jax.Shader.Parser "shared uniform mat4 mvMatrix;"
       expect(parser.uniforms.length).toEqual 1
@@ -155,6 +163,10 @@ describe "Jax.Shader.Parser", ->
 
   
   describe "parsing private attributes", ->
+    it "should find an attribute array", ->
+      parser = new Jax.Shader.Parser "attribute vec3 directions[2];"
+      expect(parser.attributes.length).toEqual 1
+    
     it "should find a single attribute", ->
       parser = new Jax.Shader.Parser "attribute vec4 position;"
       expect(parser.attributes.length).toEqual 1
@@ -181,6 +193,10 @@ describe "Jax.Shader.Parser", ->
       expect(parser.attributes.tangent0.shared).toBeFalsy()
 
   describe "parsing shared attributes", ->
+    it "should find an attribute array", ->
+      parser = new Jax.Shader.Parser "shared attribute vec3 directions[2];"
+      expect(parser.attributes.length).toEqual 1
+    
     it "should find a single attribute", ->
       parser = new Jax.Shader.Parser "shared attribute vec4 position;"
       expect(parser.attributes.length).toEqual 1
@@ -208,6 +224,10 @@ describe "Jax.Shader.Parser", ->
 
 
   describe "parsing private varyings", ->
+    it "should find a varying array", ->
+      parser = new Jax.Shader.Parser "varying vec3 directions[2];"
+      expect(parser.varyings.length).toEqual 1
+    
     it "should find a single varying", ->
       parser = new Jax.Shader.Parser "varying vec4 position;"
       expect(parser.varyings.length).toEqual 1
@@ -234,6 +254,10 @@ describe "Jax.Shader.Parser", ->
       expect(parser.varyings.tangent0.shared).toBeFalsy()
 
   describe "parsing shared varyings", ->
+    it "should find a varying array", ->
+      parser = new Jax.Shader.Parser "shared varying vec3 directions[2];"
+      expect(parser.varyings.length).toEqual 1
+    
     it "should find a single varying", ->
       parser = new Jax.Shader.Parser "shared varying vec4 position;"
       expect(parser.varyings.length).toEqual 1

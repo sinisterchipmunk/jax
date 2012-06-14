@@ -28,7 +28,7 @@ class Jax.Shader.Parser
 
   parseInputs = (variables, source) ->
     qualifier = variables.qualifier
-    rx = new RegExp "(shared#{WHITESPACE}+|)#{qualifier}#{WHITESPACE}+(\\w+)((#{WHITESPACE}+\\w+,?)+)#{WHITESPACE}*;", "g"
+    rx = new RegExp "(shared#{WHITESPACE}+|)#{qualifier}#{WHITESPACE}+(\\w+)((#{WHITESPACE}+[\\w\\[\\]]+,?)+)#{WHITESPACE}*;", "g"
     if match = rx.exec source
       variable_names = (m.trim() for m in match[VARIABLE_NAME].split(','))
       for name in variable_names
@@ -102,7 +102,7 @@ class Jax.Shader.Parser
     @global = source.replace(/\n[\s\t]*\n[\s\t]*\n/g, "\n\n").trim().split(/\n/)
 
   parseCaches: (caches) ->
-    rx = /cache[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*(\w+)[\s\t\n]*\)[\s\t\n]*\{/
+    rx = /cache[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*([\w\[\]]+)[\s\t\n]*\)[\s\t\n]*\{/
     for func in @functions.all
       while match = rx.exec(func.body)
         [type, name] = [match[1], match[2]]
@@ -113,5 +113,6 @@ class Jax.Shader.Parser
         caches[name] = type
         @global.push "#{type} #{name};"
         fullMatch = match[0] + block + '}'
+        name = name.replace(/[\[\]]/g, '_')
         directive = "\n#ifndef ALREADY_CACHED_#{name}\n#define ALREADY_CACHED_#{name} 1\n#{block}\n#endif"
         func.body = func.body.replace fullMatch, directive
