@@ -10,6 +10,9 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
       @backFBO = new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
     
     material = Jax.Material.find material
+    material.paraboloidNear = @paraboloidNear
+    material.paraboloidFar  = @paraboloidFar
+    
     @cullFace = GL_FRONT
     material.direction = 1
     super context, material, fbo
@@ -29,27 +32,25 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     # the paraboloid will perform its own projection in the shader
     mat4.identity projection
     
-    # first, find the most distance object from the light
-    # mostDistant = 0
-    # relative = vec3.create()
-    # 
-    # for id, obj of context.world.objects
-    #   vec3.subtract @light.position, obj.camera.getPosition(), relative
-    #   dist = vec3.length(relative) + obj.mesh.bounds.radius
-    #   if dist > mostDistant then mostDistant = dist
-    #   
-    # # now use a small fraction of that distance as a range increment for
-    # # calculating the effective range of this light. This doesn't have to
-    # # be precise.
-    # rangeIncrement = (mostDistant / 100) || 0.1
-    # far = @light.maxEffectiveRange rangeIncrement
-    # 
-    # # account for infinite influence
-    # if far is -1 then far = mostDistant
-    # 
-    # fov = 45
-    # near = 0.1
-    # aspect_ratio = @width / @height
-    # 
-    # mat4.perspective fov, aspect_ratio, near, far, projection
-    # 
+    # now calculate zNear and zFar for the paraboloid
+    mostDistant = 0
+    relative = vec3.create()
+    
+    # first, find the most distant object from the light
+    for id, obj of context.world.objects
+      vec3.subtract @light.position, obj.camera.getPosition(), relative
+      dist = vec3.length(relative) + obj.mesh.bounds.radius
+      if dist > mostDistant then mostDistant = dist
+      
+    # now use a small fraction of that distance as a range increment for
+    # calculating the effective range of this light. This doesn't have to
+    # be precise.
+    rangeIncrement = (mostDistant / 100) || 0.1
+    far = @light.maxEffectiveRange rangeIncrement
+    
+    # account for infinite influence
+    if far is -1 then far = mostDistant
+    
+    @paraboloidNear = 0.1
+    @paraboloidFar = far
+    

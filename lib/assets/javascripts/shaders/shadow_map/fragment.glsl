@@ -51,7 +51,7 @@ void main() {
         if (IsDualParaboloid[<%= LIGHT %>]) {
           if (shadowCoord.z > 0.0) front = true;
           else shadowCoord.z *= -1.0;
-          mapToParaboloid(shadowCoord, 0.1, 500.0);
+          mapToParaboloid(shadowCoord, ParaboloidNear[<%= LIGHT %>], ParaboloidFar[<%= LIGHT %>]);
           shadowCoord.z = shadowCoord.z * 0.5 + 0.5;
           
           if (front) {

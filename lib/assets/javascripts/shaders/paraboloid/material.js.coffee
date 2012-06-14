@@ -11,7 +11,7 @@ class Jax.Material.Paraboloid extends Jax.Material.Layer
       
     mesh.data.set vars, @_meshMap
     vars.ModelView = context.matrix_stack.getModelViewMatrix()
-    vars.DP_SHADOW_NEAR = 1
-    vars.DP_SHADOW_FAR  = 200
-    vars.DP_DIRECTION   = direction
+    vars.Near = @material.paraboloidNear || 1
+    vars.Far  = @material.paraboloidFar  || 1
+    vars.Direction = direction
   
