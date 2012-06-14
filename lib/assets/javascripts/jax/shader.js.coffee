@@ -87,11 +87,11 @@ class Jax.Shader
   toLines: ->
     lines = []
     lines = lines.concat @precisionLines()
+    lines = lines.concat @global
     lines = lines.concat @exportDeclarations()
     lines = lines.concat mangleVariables @uniforms
     lines = lines.concat mangleVariables @attributes
     lines = lines.concat mangleVariables @varyings
-    lines = lines.concat @global
     for func in @functions.all
       lines.push "" if lines.length > 0 # empty line for separator
       lines = lines.concat mangleFunction.call this, func, @exports

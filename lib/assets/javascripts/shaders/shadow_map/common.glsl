@@ -3,12 +3,12 @@
 shared uniform int PASS;
 shared uniform mat4 mMatrix, pMatrix;
 
-shared uniform bool IsDualParaboloid[1];
-shared uniform bool SHADOWMAP_ENABLED[1];
-shared uniform sampler2D SHADOWMAP0[1], SHADOWMAP1[1];
-shared uniform mat4 SHADOWMAP_MATRIX[1];
-shared uniform bool SHADOWMAP_PCF_ENABLED[1];
-shared uniform float DP_SHADOW_NEAR[1], DP_SHADOW_FAR[1];
-shared uniform float SHADOWMAP_WIDTH[1], SHADOWMAP_HEIGHT[1];
+shared uniform bool IsDualParaboloid[MAX_LIGHTS];
+shared uniform bool SHADOWMAP_ENABLED[MAX_LIGHTS];
+shared uniform sampler2D SHADOWMAP0[MAX_LIGHTS], SHADOWMAP1[MAX_LIGHTS];
+shared uniform mat4 SHADOWMAP_MATRIX[MAX_LIGHTS];
+shared uniform bool SHADOWMAP_PCF_ENABLED[MAX_LIGHTS];
+shared uniform float DP_SHADOW_NEAR[MAX_LIGHTS], DP_SHADOW_FAR[MAX_LIGHTS];
+shared uniform float SHADOWMAP_WIDTH[MAX_LIGHTS], SHADOWMAP_HEIGHT[MAX_LIGHTS];
 
-shared varying vec4 vShadowCoord[1];
+shared varying vec4 vShadowCoord[MAX_LIGHTS];
