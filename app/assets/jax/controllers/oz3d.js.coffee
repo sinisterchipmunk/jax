@@ -15,22 +15,38 @@ Jax.Controller.create "oz3d",
   mouse_dragged: (e) ->
     @light.camera.move e.diffy / 100, [0, 1, 0]
     @light.camera.move e.diffx / 100, [0, 0, 1]
-    @lighto.camera.setPosition @light.camera.getPosition()
+    @lighto.camera.setPosition @light.camera.getPosition() unless @light instanceof Jax.Light.Directional
+    
+    # FIXME this should not be necessary
+    @light.shadowmap.invalidate()
+    
+  key_released: (e) ->
+    # FIXME this is bad practice, use World#removeLight
+    @world.lights.splice(0, @world.lights.length)
+    vec3.set @lighto.camera.getPosition(),   @lightOptions.position
+    vec3.set @lighto.camera.getViewVector(), @lightOptions.direction
+    switch ++@lightType % 3
+      when 0 then @light = new Jax.Light.Point       @lightOptions
+      when 1 then @light = new Jax.Light.Directional @lightOptions
+      when 2 then @light = new Jax.Light.Spot        @lightOptions
+    @world.addLight @light
 
   index: ->
     @world.addObject new Jax.Framerate ema: no
 
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
-    
-    @light = @world.addLight new Jax.Light.Directional
+    @lightType = 1
+    @lightOptions =
       attenuation:
         linear: 0.25
-      direction: vec3.normalize([0, -1/3, -1])
-      position: [0, 9, 0]
+      direction: vec3.normalize([0, -2/3, -1])
+      position: [0, 9, 9]
       color:
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
+    
+    @light = @world.addLight new Jax.Light.Directional @lightOptions
     @light_mat = new Jax.Material.Legacy
       shininess: 0
       intensity:
