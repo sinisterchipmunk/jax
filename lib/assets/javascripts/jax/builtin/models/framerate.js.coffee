@@ -113,8 +113,8 @@ class Jax.Framerate extends Jax.Model
       else
         fema = @fps_points[@current-1]
         uema = @ups_points[@current-1]
-      @fps_points[@current] = (fps_pcnt * exponent) + (fema * (1 - @ema_exponent))
-      @ups_points[@current] = (ups_pcnt * exponent) + (uema * (1 - @ema_exponent))
+      @fps_points[@current] = (fps_pcnt * @ema_exponent) + (fema * (1 - @ema_exponent))
+      @ups_points[@current] = (ups_pcnt * @ema_exponent) + (uema * (1 - @ema_exponent))
     else
       @fps_points[@current] = fps_pcnt
       @ups_points[@current] = ups_pcnt
