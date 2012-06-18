@@ -4,6 +4,10 @@ beforeEach(function() {
       return this.actual.isValid();
     },
     
+    toInclude: function(obj) {
+      return this.actual.indexOf(obj) != -1;
+    },
+    
     toIncludeSubset: function(subset) {
       for (var i = 0; i < this.actual.length; i++) {
         var found = true;
