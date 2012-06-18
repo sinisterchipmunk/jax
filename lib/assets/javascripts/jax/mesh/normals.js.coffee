@@ -3,7 +3,7 @@ bufs =
   tri: new Jax.Geometry.Triangle()
 
 ###
-Adds methods for calculating tangents for triangle-based meshes. The mesh
+Adds methods for calculating normals for triangle-based meshes. The mesh
 is expected to maintain a `triangleOrder` property, which must be an array
 of vertex indices whose length is divisible by 3, with each group of 3
 indices representing a triangle.
