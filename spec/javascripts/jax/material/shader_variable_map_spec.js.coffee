@@ -6,7 +6,7 @@ describe "Jax.Material.ShaderVariableMap", ->
     map.set a: 1, b: 2
     expect(map.assigns).toEqual {_a: 1, _b: 2}
   
-  it "should raise an error if assigning a variable that does not exist", ->
+  xit "should raise an error if assigning a variable that does not exist", ->
     expect(-> map.set c: 2).toThrow("Variable 'c' not found!")
     
   it "should not raise an error if assigning to a variable's real name", ->
