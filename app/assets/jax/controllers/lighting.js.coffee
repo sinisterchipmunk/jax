@@ -55,9 +55,6 @@ Jax.Controller.create "lighting",
     newPos[0] += e.diffx * 0.1
     newPos[2] -= e.diffy * 0.1
     @teapot.camera.setPosition newPos
-    @point.shadowmap.invalidate()
-    @directional.shadowmap.invalidate()
-    @spot.shadowmap.invalidate()
 
   update: (timechange) ->
     return unless spot = @spot
@@ -77,7 +74,7 @@ Jax.Controller.create "lighting",
     # it's trivial to orient it within the scene. Rotating about the Y axis causes a
     # horizontal movement.
     spot.rotate rotationDirection*timechange, 0, 1, 0
-
+    
     # update player position if s/he's holding a movement key down
     # var speed = 25 * timechange;
     # 
