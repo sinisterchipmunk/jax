@@ -3,6 +3,26 @@ describe("Jax.Camera", function() {
   
   beforeEach(function() { camera = new Jax.Camera(); });
   
+  describe("its frustum", function() {
+    var frustum;
+    beforeEach(function() {
+      camera.perspective({near:0.1,far:10,height:100,width:100});
+      frustum = camera.getFrustum();
+    });
+    
+    it("should know when a cube is in front of it", function() {
+      expect(frustum.cube([0, 0, -5], 0.1, 0.1, 0.1)).toBe(Jax.Scene.Frustum.INSIDE);
+    });
+    
+    it("should know when a cube is behind it", function() {
+      expect(frustum.cube([0, 0, 5], 0.1, 0.1, 0.1)).toBe(Jax.Scene.Frustum.OUTSIDE);
+    });
+
+    it("should know when a cube is intersecting it", function() {
+      expect(frustum.cube([0, 0, 0], 10, 10, 10)).toBe(Jax.Scene.Frustum.INTERSECT);
+    });
+  });
+  
   it("should initialize camera when given position and direction", function() {
     camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});
     expect(camera.getPosition()).toEqualVector([1,1,1]);
