@@ -44,7 +44,7 @@ Jax.Controller.create "octree",
     
     @_cam = camera = new Jax.Camera()
     camera.perspective near: 1, far: 50, width: @context.canvas.width, height: @context.canvas.height
-    camera.setPosition [0, 0, 5]
+    camera.setPosition [0.1, 0.1, 4.75]
     @world.addObject camera.getFrustum().getRenderable()
 
     context = @context
@@ -55,26 +55,26 @@ Jax.Controller.create "octree",
         numNodes = 0
         octree.traverse camera.getPosition(), (node) =>
           numNodes++
-          size = node.size * 2
+          size = node.size
           node.mesh.render context, this, material
           
           switch camera.getFrustum().cube(node.position, size, size, size)
             when Jax.Scene.Frustum.OUTSIDE
               # not visible, abort traversal
               return false
-            when Jax.Scene.Frustum.INTERSECT
-              # partially visible, render immediate objects and check sub-nodes
-              for i, o of node.objects
-                numObjs++
-                o.render context, material
-              return true
-            else
+            when Jax.Scene.Frustum.INSIDE
               # wholly visible, render all objects in this and child nodes
               # and then abort traversal
               for i, o of node.nestedObjects
                 numObjs++
                 o.render context, material
               return false
+            else
+              # partially visible, render immediate objects and check sub-nodes
+              for i, o of node.objects
+                numObjs++
+                o.render context, material
+              return true
         if min is null or min > numObjs then min = numObjs
         if max is null or max < numObjs then max = numObjs
         $('#jax-banner').html("Objects rendered: #{numObjs}; nodes traversed: #{numNodes}; records: [#{min}, #{max}]")
