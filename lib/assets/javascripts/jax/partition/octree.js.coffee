@@ -135,7 +135,7 @@ class Jax.Octree
     objSize = obj.mesh?.bounds.radius || 0.1
     octPos  = @position
     octSize = @size
-    return false if objSize > octSize * 0.5
+    return false if objSize > octSize
     if objPos[0] > octPos[0] + octSize then return false
     if objPos[0] < octPos[0] - octSize then return false
     if objPos[1] > octPos[1] + octSize then return false
@@ -322,19 +322,39 @@ class Jax.Octree
   be found.
   ###
   find: (obj) ->
-    return this if @objects[obj.__unique_id]
-    for child in @children
-      if result = child?.find obj
-        return result
+    if @objects[obj.__unique_id]
+      return this
+    else
+      for child in @children
+        if child and child.nestedObjects[obj.__unique_id]
+          if result = child.find obj
+            return result
     return null
     
   update: (obj) ->
     node = @find obj
-    unless node.canContain obj
-      node.remove obj
-      (node.parent || node).add obj
-    else
-      node.reEvaluateObjects()
+    replace = false
+    
+    # It's much faster to do the deleting all the way up the tree here,
+    # rather than use #remove, and then just merge once at the top of the
+    # tree rather than at every level along the way.
+    
+    while (node && !node.canContain obj)
+      replace = true
+      id = obj.__unique_id
+      if node.nestedObjects[id]
+        delete node.nestedObjects[id]
+        node.nestedObjectCount--
+      if node.objects[id]
+        delete node.objects[id]
+        node.objectCount--
+      node = node.parent
+    
+    return unless replace
+    node or= this
+    node.add obj
+    node.merge() if node.nestedObjectCount <= node.mergeThreshold
+    true
       
   ###
   Traverses this octree and its children, calling the callback method at each
@@ -348,7 +368,7 @@ class Jax.Octree
   position, which must be a `vec3`.
   ###
   traverse: (pos, callback) ->
-    # return if @nestedObjectCount is 0
+    return if @nestedObjectCount is 0
     return if callback(this) is false
 
     # So after some benchmarking, recursive traversal is actually faster than
