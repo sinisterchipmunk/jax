@@ -348,12 +348,12 @@ class Jax.Octree
       if node.objects[id]
         delete node.objects[id]
         node.objectCount--
+      node.merge() if node.nestedObjectCount <= node.mergeThreshold
       node = node.parent
     
     return unless replace
     node or= this
     node.add obj
-    node.merge() if node.nestedObjectCount <= node.mergeThreshold
     true
       
   ###
