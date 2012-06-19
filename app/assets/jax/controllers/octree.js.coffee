@@ -38,14 +38,16 @@ Jax.Controller.create "octree",
             rot: rot
             radius: radius
             position: pos
-            mesh: new Jax.Mesh.Cube(color: [Math.abs(x) / 2, Math.abs(y) / 2, 1, 1])
+            mesh: new Jax.Mesh.Sphere(radius: 0.25 + (Math.random() * 0.25 - 0.125), slices: 8, stacks: 8, color: [Math.abs(x) / 2, Math.abs(y) / 2, 1, 1])
 
-    @world.addObject new Jax.Model position: [ 0, 0, 5], mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
+    @world.addObject new Jax.Model position: [ 0, 0, 4.5], mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
     
     @_cam = camera = new Jax.Camera()
-    camera.perspective near: 1, far: 50, width: @context.canvas.width, height: @context.canvas.height
-    camera.setPosition [0.1, 0.1, 4.75]
+    camera.perspective near: 1, far: 10, width: @context.canvas.width, height: @context.canvas.height
+    camera.setPosition [0, 0, 4.5]
     @world.addObject camera.getFrustum().getRenderable()
+    @world.addLight new Jax.Light.Directional
+      shadows: false
 
     context = @context
     max = min = null
@@ -56,8 +58,6 @@ Jax.Controller.create "octree",
         octree.traverse camera.getPosition(), (node) =>
           numNodes++
           size = node.size
-          node.mesh.render context, this, material
-          
           switch camera.getFrustum().cube(node.position, size, size, size)
             when Jax.Scene.Frustum.OUTSIDE
               # not visible, abort traversal
@@ -65,12 +65,16 @@ Jax.Controller.create "octree",
             when Jax.Scene.Frustum.INSIDE
               # wholly visible, render all objects in this and child nodes
               # and then abort traversal
+              if node.nestedObjectCount
+                node.mesh.render context, this, material
               for i, o of node.nestedObjects
                 numObjs++
                 o.render context, material
               return false
             else
               # partially visible, render immediate objects and check sub-nodes
+              if (node.objectCount)
+                node.mesh.render context, this, material
               for i, o of node.objects
                 numObjs++
                 o.render context, material
@@ -81,5 +85,5 @@ Jax.Controller.create "octree",
           
     # octree.add @world.addObject new Jax.Model position: [5, 5, 5], mesh: new Jax.Mesh.Cube(color: '#f00')
 
-    # @player.camera.ortho near: 1, far: 250, left: -10, right: 10, top: 10, bottom: -10
+    @player.camera.ortho near: 1, far: 250, left: -10, right: 10, top: 10, bottom: -10
     @player.camera.lookAt [0, 0, 0], [0, 27, 0]

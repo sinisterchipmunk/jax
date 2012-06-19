@@ -37,8 +37,6 @@ object has no mesh or its mesh has no vertices, the size defaults to 0.1 to prev
 recursion errors.
 ###
 class Jax.Octree
-  SCALE = 1.1
-  
   constructor: (@splitThreshold = 2, @mergeThreshold = 1, @depth = 0, @size = 1, @parent) ->
     @_isParent = false
     @_isSubdivided = false
@@ -50,7 +48,7 @@ class Jax.Octree
     @position = vec3.create()
     
   @getter 'mesh', ->
-    @_mesh or= new Jax.Mesh.LineCube @size * SCALE, @position
+    @_mesh or= new Jax.Mesh.LineCube @size, @position
     
   ###
   Returns true if this octree contains other octrees, which is the case if
@@ -100,7 +98,6 @@ class Jax.Octree
   chidlren.
   ###
   subdivide: ->
-    # console.log "subdividing #{@depth}"
     @_isSubdivided = true
   
   chvec = vec3.create()
@@ -135,17 +132,16 @@ class Jax.Octree
   ###
   canContain: (obj) ->
     objPos  = obj.position
-    objSize = 0
+    objSize = obj.mesh?.bounds.radius || 0.1
     octPos  = @position
-    octSize = @size * SCALE
-    return false if (obj.mesh?.bounds.radius || 0.1) > octSize
-    result = true
-    if objPos[0] + objSize > octPos[0] + octSize then return false
-    if objPos[0] - objSize < octPos[0] - octSize then return false
-    if objPos[1] + objSize > octPos[1] + octSize then return false
-    if objPos[1] - objSize < octPos[1] - octSize then return false
-    if objPos[2] + objSize > octPos[2] + octSize then return false
-    if objPos[2] - objSize < octPos[2] - octSize then return false
+    octSize = @size
+    return false if objSize > octSize * 0.5
+    if objPos[0] > octPos[0] + octSize then return false
+    if objPos[0] < octPos[0] - octSize then return false
+    if objPos[1] > octPos[1] + octSize then return false
+    if objPos[1] < octPos[1] - octSize then return false
+    if objPos[2] > octPos[2] + octSize then return false
+    if objPos[2] < octPos[2] - octSize then return false
     return true
     
   ###
@@ -158,7 +154,6 @@ class Jax.Octree
   Returns the object.
   ###
   trackNestedObject: (obj) ->
-    # console.log "tracking #{obj.__unique_id} at #{@depth}"
     unless @nestedObjects[obj.__unique_id]
       @nestedObjects[obj.__unique_id] = obj
       @nestedObjectCount++
@@ -172,7 +167,6 @@ class Jax.Octree
   nested objects meets the @mergeThreshold.
   ###
   untrackNestedObject: (obj) ->
-    # console.log "untracking #{obj.__unique_id} at #{@depth}"
     if @nestedObjects[obj.__unique_id]
       delete @nestedObjects[obj.__unique_id]
       @nestedObjectCount--
@@ -186,7 +180,6 @@ class Jax.Octree
   @splitThreshold.
   ###
   addToSelf: (obj) ->
-    # console.log "addToSelf[#{@depth}] #{obj.__unique_id}"
     unless @objects[obj.__unique_id]
       @objects[obj.__unique_id] = obj
       @objectCount++
@@ -225,7 +218,6 @@ class Jax.Octree
   Removes the object from the octree, potentially triggering a merge.
   ###
   remove: (obj) ->
-    # console.log "removing #{obj.__unique_id} from #{@depth}"
     if @objects[obj.__unique_id]
       delete @objects[obj.__unique_id]
       @objectCount--
@@ -238,7 +230,6 @@ class Jax.Octree
   octree.
   ###  
   split: ->
-    # console.log "splitting #{@depth}"
     @subdivide()
     for id, obj of @objects
       @addToChild obj
@@ -250,7 +241,6 @@ class Jax.Octree
   current node, but the act of moving objects to child nodes may do so.
   ###
   reEvaluateObjects: ->
-    # console.log "re-evaluating #{@depth}"
     if @isSubdivided()
       for i, obj of @objects
         @addToChild obj
@@ -261,7 +251,6 @@ class Jax.Octree
   this node and then un-subdividing this node.
   ###
   merge: ->
-    # console.log "merging #{@depth}"
     @_isSubdivided = false
     for child in @children
       child?.clear()
@@ -276,7 +265,6 @@ class Jax.Octree
   and then un-subdivides itself.
   ###
   clear: ->
-    # console.log "clearing #{@depth}, which has #{@nestedObjectCount} / #{@objectCount}"
     for id, obj of @nestedObjects
       delete @nestedObjects[id]
     for id, obj of @objects
@@ -292,9 +280,7 @@ class Jax.Octree
   ###
   addToChild: (obj) ->
     child = @getChildInQuadrant obj.position
-    # console.log "addToChild[#{child.depth}] #{obj.__unique_id}"
     if child.canContain obj
-      # console.log "Child can contain, moving"
       if @objects[obj.__unique_id]
         delete @objects[obj.__unique_id]
         @objectCount--
@@ -362,7 +348,7 @@ class Jax.Octree
   position, which must be a `vec3`.
   ###
   traverse: (pos, callback) ->
-    return if @nestedObjectCount is 0
+    # return if @nestedObjectCount is 0
     return if callback(this) is false
 
     # So after some benchmarking, recursive traversal is actually faster than
