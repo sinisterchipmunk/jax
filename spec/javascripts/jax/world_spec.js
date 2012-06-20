@@ -13,6 +13,29 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should not add mesh-less objects to the octree", function() {
+    // because such models may have their own rendering algo,
+    // and by default they won't be sent down the pipe anyway.
+    world.addObject(new Jax.Model());
+    expect(world.octree.nestedObjectCount).toEqual(0);
+  });
+  
+  it("should call 'render' on mesh-less objects", function() {
+    // validates that the object does in fact get rendered if
+    // not added to the octree
+    var called = false;
+    var obj = world.addObject(new Jax.Model({render: function(){ called = true; }}));
+    world.render();
+    expect(called).toBeTrue()
+  });
+  
+  it("should add meshed objects to the octree", function() {
+    // because such models may have their own rendering algo,
+    // and by default they won't be sent down the pipe anyway.
+    world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad}));
+    expect(world.octree.nestedObjectCount).toEqual(1);
+  });
+  
   it("should render opaque objects in front-to-back order relative to the camera", function() {
     world.octree.splitThreshold = 1;
     var log = [];
