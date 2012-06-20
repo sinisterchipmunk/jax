@@ -13,6 +13,37 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should render opaque objects in front-to-back order relative to the camera", function() {
+    world.octree.splitThreshold = 1;
+    var log = [];
+    var logThis = function() { log.push(this); };
+    var obj2 = world.addObject(new Jax.Model({render: logThis, position: [0,0,-4], mesh: new Jax.Mesh.Sphere}));
+    var obj1 = world.addObject(new Jax.Model({render: logThis, position: [0,0,-1], mesh: new Jax.Mesh.Sphere}));
+    world.render();
+    console.log(world.octree);
+    expect(log).toEqual([obj1, obj2]);
+  });
+  
+  it("should render transparent objects in back-to-front order relative to the camera", function() {
+    world.octree.splitThreshold = 1;
+    var log = [];
+    var logThis = function() { log.push(this); };
+    var obj1 = world.addObject(new Jax.Model({render: logThis, transparent: true, position: [0,0,-1], mesh: new Jax.Mesh.Sphere}));
+    var obj2 = world.addObject(new Jax.Model({render: logThis, transparent: true, position: [0,0,-4], mesh: new Jax.Mesh.Sphere}));
+    world.render();
+    expect(log).toEqual([obj2, obj1]);
+  });
+  
+  it("should render transparent objects after opaque objects", function() {
+    world.octree.splitThreshold = 1;
+    var log = [];
+    var logThis = function() { log.push(this); };
+    var obj1 = world.addObject(new Jax.Model({render: logThis, transparent: true, position: [0,0,-4], mesh: new Jax.Mesh.Sphere}));
+    var obj2 = world.addObject(new Jax.Model({render: logThis, transparent: false, position: [0,0,-1], mesh: new Jax.Mesh.Sphere}));
+    world.render();
+    expect(log).toEqual([obj2, obj1]);
+  });
+  
   it("should notify shadow maps when added objects are modified", function() {
     var light = world.addLight(new Jax.Light.Directional());
     var obj = world.addObject(new Jax.Model());
@@ -54,7 +85,7 @@ describe("Jax.World", function() {
   
   it("should return light sources added to world", function() {
     var lite = new Jax.Light();
-    expect(world.addLightSource(lite)).toBe(lite);
+    expect(world.addLight(lite)).toBe(lite);
   });
   
   describe("picking", function() {
@@ -69,7 +100,7 @@ describe("Jax.World", function() {
       // put some objects in the world for picking
       // function mesh() { return new Jax.Mesh.Sphere({size:1.0}); }
       
-      mesh = new Jax.Mesh.Sphere();
+      mesh = new Jax.Mesh.Sphere({radius: 1.0});
       ofront       = world.addObject(new Jax.Model({position:[ 0.0, 0.0, -5],mesh:mesh}));
       otopleft     = world.addObject(new Jax.Model({position:[-2.5, 2.5, -5],mesh:mesh}));
       otopright    = world.addObject(new Jax.Model({position:[ 2.5, 2.5, -5],mesh:mesh}));
@@ -181,7 +212,7 @@ describe("Jax.World", function() {
   describe("adding a light source from a string", function() {
     beforeEach(function() {
       Jax.Light.addResources({"test":{}});
-      world.addLightSource("test");
+      world.addLight("test");
     });
     
     it("should find the light source automatically", function() {
