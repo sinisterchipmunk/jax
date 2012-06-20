@@ -1,6 +1,19 @@
 describe "Jax.Mesh", ->
   mesh = material = null
   
+  describe "a mesh with no colors", ->
+    beforeEach ->
+      mesh = new Jax.Mesh.Base
+        init: (v, c, t, n, i) ->
+          v.push 1,1,1
+          t.push 0,0
+          n.push 1,1,1
+          i.push 0
+    
+    it "should rebuild successfully", ->
+      mesh.rebuild()
+      mesh.rebuild()
+  
   describe "initialized without normal data", ->
     beforeEach ->
       mesh = new Jax.Mesh.Base(init: (v) -> v.push 1, 1, 1, 2, 2, 2)
