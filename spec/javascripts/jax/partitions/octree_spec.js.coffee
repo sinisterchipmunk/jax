@@ -199,9 +199,9 @@ describe "Jax.Octree", ->
         expect(octree.isParent()).toBeFalse()
         
     
-    describe "after adding an object at its origin with a radius of 0.4", ->
+    describe "after adding an object at its origin with a radius of 0.25", ->
       beforeEach ->
-        obj1 = new Jax.Model mesh: new Jax.Mesh.Sphere(radius: 0.4)
+        obj1 = new Jax.Model mesh: new Jax.Mesh.Sphere(radius: 0.25)
         octree.add obj1
         
       it "should have 1 object", -> expect(octree.objectCount).toEqual 1
@@ -225,7 +225,7 @@ describe "Jax.Octree", ->
         
       describe "after adding a second identical object", ->
         beforeEach ->
-          obj2 = new Jax.Model mesh: new Jax.Mesh.Sphere(radius: 0.4)
+          obj2 = new Jax.Model mesh: new Jax.Mesh.Sphere(radius: 0.25)
           octree.add obj2
           
         describe "and then enlarging the octree", ->
