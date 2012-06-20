@@ -91,7 +91,9 @@ class Jax.Octree
 
     @subdivide()
     @reEvaluateObjects()
-    @_mesh = null
+    @mesh.halfSize = @size
+    @mesh.offset = @position
+    @mesh.invalidate()
     
   ###
   Subdivides this octree, but does not actually instantiate any of its
