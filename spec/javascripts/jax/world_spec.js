@@ -13,6 +13,15 @@ describe("Jax.World", function() {
     world = SPEC_CONTEXT.world;
   });
   
+  it("should remove objects from itself during disposal", function() {
+    // it used to do a simple delete on objects, but now there
+    // are event listeners that have to be unhooked, etc.
+    var obj = world.addObject(new Jax.Model());
+    spyOn(world, 'removeObject');
+    world.dispose();
+    expect(world.removeObject).toHaveBeenCalledWith(obj);
+  });
+  
   it("should not add mesh-less objects to the octree", function() {
     // because such models may have their own rendering algo,
     // and by default they won't be sent down the pipe anyway.
@@ -211,11 +220,6 @@ describe("Jax.World", function() {
     
     it("should remove objects by reference", function() {
       world.removeObject(model);
-      expect(world.countObjects()).toEqual(0);
-    });
-
-    it("should remove objects by ID", function() {
-      world.removeObject(model.__unique_id);
       expect(world.countObjects()).toEqual(0);
     });
   });
