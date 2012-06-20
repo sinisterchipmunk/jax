@@ -2,30 +2,57 @@ describe("Jax.World", function() {
   var world;
   
   beforeEach(function() {
-    s = this.suite;
-    d = s.description;
-    while (s) {
-      s = s.parentSuite;
-      if (s) d = s.description + " " + d;
-    }
-    
     SPEC_CONTEXT.prepare();
     world = SPEC_CONTEXT.world;
   });
   
-  it("should remove objects from itself during disposal", function() {
-    // it used to do a simple delete on objects, but now there
-    // are event listeners that have to be unhooked, etc.
-    var obj = world.addObject(new Jax.Model());
-    spyOn(world, 'removeObject');
-    world.dispose();
-    expect(world.removeObject).toHaveBeenCalledWith(obj);
+  describe("disposal", function() {
+    it("should remove objects from itself", function() {
+      // it used to do a simple delete on objects, but now there
+      // are event listeners that have to be unhooked, etc.
+      var obj = world.addObject(new Jax.Model());
+      spyOn(world, 'removeObject').andCallThrough();
+      world.dispose();
+      expect(world.removeObject).toHaveBeenCalledWith(obj);
+    });
+    
+    it("should handle removal of multiple objects", function() {
+      world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
+      world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
+      world.dispose();
+    });
+    
+    it("should handle removal of multiple lights", function() {
+      world.addLight(new Jax.Light.Directional);
+      world.addLight(new Jax.Light.Point);
+      world.dispose();
+    });
+    
+    it("should not encounter errors disposing after render", function() {
+      world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
+      world.render();
+      world.dispose();
+    });
+    
+    it("twice in a row should have no effect", function() {
+      world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
+      world.render();
+      world.dispose();
+      world.dispose();
+    });
+    
+    it("should not return any objects", function() {
+      world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
+      world.render();
+      world.dispose();
+      expect(world.getObjects()).toEqual([]);
+    });
   });
   
-  it("should remove objects the octree", function() {
+  it("should remove objects from the octree", function() {
     // it used to do a simple delete on objects, but now there
     // are event listeners that have to be unhooked, etc.
-    var obj = world.addObject(new Jax.Model());
+    var obj = world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
     world.removeObject(obj);
     expect(world.octree.nestedObjectCount).toEqual(0);
   });

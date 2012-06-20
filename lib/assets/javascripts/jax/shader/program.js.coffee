@@ -220,38 +220,9 @@ class Jax.Shader.Program
         else if value?.toVec4
           value = value.toVec4()
       
-      
-        ###
-        The commented-out portions of this function, below, are successful at removing
-        all redundant operations from the pipeline. Unfortunately the implementation
-        as-commented is doomed to iterate through every buffer of every pass for every
-        object, every frame... and needless to say, that's not acceptable. Until a better
-        approach can be found, we'll just have to live with some redundancy in our lives.
-        ###
-        
-        # return if the assignment would be redundant, to avoid filling the pipe with
-        # useless GL commands
-        # if value?.length
-        #   if variable.value?.length
-        #     redundant = true
-        #     for k in [0...value.length]
-        #       if variable.value[k] != value[k]
-        #         redundant = false
-        #         break
-        #     continue if redundant
-        # else
-        #   continue if variable.value == value
-
         try
           if variable.qualifier is 'attribute' then @setAttribute context, variable, value
           else @setUniform context, variable, value
-          # if value.length
-          #   variable.value = new Array(value.length) unless variable.value?.length
-          #   variable.value.splice value.length, variable.value.length if variable.value.length > value.length
-          #   for k in [0...value.length]
-          #     variable.value[k] = value[k]
-          # else
-          #   variable.value = value
         catch e
           blurb = "#{variable.qualifier} #{Jax.Util.enumName variable.type} #{variable.name}"
           throw new Error "Error occurred setting #{blurb} to `#{JSON.stringify value}`: #{e.message}"

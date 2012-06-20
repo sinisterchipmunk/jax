@@ -101,7 +101,8 @@ class Jax.Mesh.Data
   ###
   dispose: ->
     for id, descriptor of @_glBuffers
-      descriptor.gl.deleteBuffer descriptor.buffer
+      # webgl will delete the buffer for us
+      # descriptor.gl.deleteBuffer descriptor.buffer
       delete @_glBuffers.id
   
   ###
