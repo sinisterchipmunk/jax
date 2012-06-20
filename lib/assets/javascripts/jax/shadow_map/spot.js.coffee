@@ -5,7 +5,7 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     # first, find the most distance object from the light
     mostDistant = 0
     
-    for id, obj of context.world.objects
+    for id, obj of context.world.getObjects()
       vec3.subtract @light.position, obj.camera.getPosition(), relative
       dist = vec3.length(relative) + obj.mesh?.bounds.radius
       if dist > mostDistant then mostDistant = dist

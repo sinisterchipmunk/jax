@@ -22,6 +22,14 @@ describe("Jax.World", function() {
     expect(world.removeObject).toHaveBeenCalledWith(obj);
   });
   
+  it("should remove objects the octree", function() {
+    // it used to do a simple delete on objects, but now there
+    // are event listeners that have to be unhooked, etc.
+    var obj = world.addObject(new Jax.Model());
+    world.removeObject(obj);
+    expect(world.octree.nestedObjectCount).toEqual(0);
+  });
+  
   it("should not add mesh-less objects to the octree", function() {
     // because such models may have their own rendering algo,
     // and by default they won't be sent down the pipe anyway.
@@ -221,6 +229,24 @@ describe("Jax.World", function() {
     it("should remove objects by reference", function() {
       world.removeObject(model);
       expect(world.countObjects()).toEqual(0);
+    });
+  });
+  
+  describe("a model with `cull` set to `false`", function() {
+    var model;
+    beforeEach(function() { world.addObject(new Jax.Model({cull: false,mesh: new Jax.Mesh.Cube()})); });
+    
+    it("should not be added to the octree", function() {
+      expect(world.octree.nestedObjectCount).toBe(0);
+    });
+  });
+  
+  describe("a mesh with `cull` set to `false`", function() {
+    var model;
+    beforeEach(function() { world.addObject(new Jax.Model({mesh: new Jax.Mesh.Cube({cull: false})})); });
+    
+    it("should not be added to the octree", function() {
+      expect(world.octree.nestedObjectCount).toBe(0);
     });
   });
   

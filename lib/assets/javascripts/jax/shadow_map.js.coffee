@@ -91,7 +91,7 @@ class Jax.ShadowMap
       gl.polygonOffset 2, 2
       context.matrix_stack.push()
       @setupMatrices context.matrix_stack
-      context.world.render material
+      context.world.render material, false
       context.matrix_stack.pop()
       if capture
         gl.readPixels 0, 0, @width, @height, GL_RGBA, GL_UNSIGNED_BYTE, @illuminationData

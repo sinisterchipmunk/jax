@@ -17,14 +17,9 @@ Jax.Controller.create "oz3d",
     @light.camera.move e.diffx / 100, [0, 0, 1]
     @lighto.camera.setPosition @light.camera.getPosition() unless @light instanceof Jax.Light.Directional
     
-    # FIXME this should not be necessary
-    @light.shadowmap.invalidate()
-    
   key_released: (e) ->
     # FIXME this is bad practice, use World#removeLight
-    @world.lights.splice(0, @world.lights.length)
-    vec3.set @lighto.camera.getPosition(),   @lightOptions.position
-    vec3.set @lighto.camera.getViewVector(), @lightOptions.direction
+    @world.lights.length = 0
     switch ++@lightType % 3
       when 0 then @light = new Jax.Light.Point       @lightOptions
       when 1 then @light = new Jax.Light.Directional @lightOptions
@@ -39,24 +34,25 @@ Jax.Controller.create "oz3d",
     @lightOptions =
       attenuation:
         linear: 0.25
-      direction: vec3.normalize([0, -2/3, -1])
-      position: [0, 9, 9]
+      position: [0, 15, 10]
       color:
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
     
-    @light = @world.addLight new Jax.Light.Directional @lightOptions
     @light_mat = new Jax.Material.Legacy
       shininess: 0
       intensity:
         ambient: 100
     @lighto = @world.addObject new Jax.Model
-      position: [0, 9, 0]
+      position: @lightOptions.position
       castShadow: false
       receiveShadow: false
       illuminated: false
       mesh: new Jax.Mesh.Sphere(radius: 0.2, material: @light_mat)
+    @lighto.camera.lookAt [0,0,-3]
+    @lightOptions.direction = @lighto.camera.getViewVector()
+    @light = @world.addLight new Jax.Light.Directional @lightOptions
     
     @context.player.camera.setPosition -15, 20, 25
     @context.player.camera.setDirection 0.55, -0.5, -1
