@@ -9,12 +9,77 @@ describe "Jax.Input.Mouse", ->
     new Jax.Input.Mouse @context.canvas
     expect(@context.canvas.addEventListener).not.toHaveBeenCalled()
     
+  describe "with a scaled canvas", ->
+    target = voffset = LEFT = TOP = null
+    beforeEach ->
+      LEFT = 202
+      TOP = 202 + voffset
+      voffset = -((document.scrollTop  || document.body.scrollTop  || 0) - (document.clientTop  || document.body.clientTop  || 0))
+      mouse = new Jax.Input.Mouse target =
+        width: 300
+        height: 300
+        clientWidth: 600
+        clientHeight: 600
+        offsetTop: 100
+        offsetLeft: 100
+        addEventListener: ->
+        removeEventListener: ->
+        offsetParent:
+          offsetTop: 100
+          offsetLeft: 100
+          
+    it "should create `x` and `y` properties local to the canvas", ->
+      mouse.listen 'move', (e) -> evt = e
+      mouse.processEvent 'mousemove',
+        clientX: LEFT
+        clientY: TOP
+        target: target
+      expect(evt.x).toEqual 0
+      expect(evt.y).toEqual 0
+      
+    it "should track differences in `x` and `y`", ->
+      mouse.listen 'move', (e) -> evt = e
+      mouse.processEvent 'mousemove',
+        clientX: LEFT + 3
+        clientY: TOP  + 3
+        target: target
+      mouse.processEvent 'mousemove',
+        clientX: LEFT + 10
+        clientY: TOP  + 1
+        target: target
+      expect(evt.diffx).toBeGreaterThan 0
+      expect(evt.diffy).toBeLessThan 0
+
+    it "should massage mouse position into real framebuffer coordinates", ->
+      mouse.listen 'move', (e) -> evt = e
+      mouse.processEvent 'mousemove',
+        clientX: LEFT + 300
+        clientY: TOP  + 300
+        target: target
+      expect(evt.x).toEqual 150
+      expect(evt.y).toEqual 150
+    
   describe "with a mouse drag handler", ->
     events = null
     beforeEach ->
       events = []
       mouse.listen 'drag', (e) -> events.push e
       
+    it "should stop dragging when the mouse leaves the canvas", ->
+      mouse.trigger 'mousedown'
+      mouse.trigger 'mousemove'
+      mouse.trigger 'mouseout'
+      mouse.trigger 'mouseover'
+      mouse.trigger 'mousemove'
+      expect(events.length).toEqual 1
+      
+    it "should stop dragging when the mouse is clicked", ->
+      mouse.trigger 'mousedown'
+      mouse.trigger 'mouseup'
+      mouse.trigger 'click'
+      mouse.trigger 'mousemove'
+      expect(events).toBeEmpty()
+
     it "should not fire drag event for mouse moves while button is depressed", ->
       mouse.trigger 'mousemove'
       mouse.trigger 'mousemove'

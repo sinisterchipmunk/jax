@@ -24,6 +24,15 @@ class Jax.Input
   ###  
   trigger: (type, event) ->
     throw new Error "#{@__proto__.constructor.name} can't trigger event type #{type}: not implemented"
+    
+  ###
+  Explicitly process a given event object. This is normally invoked by
+  an event listener added to the underlying receiver.
+  ###
+  processEvent: (eventType, evt) ->
+    for listener in @getReceiverEventListeners eventType
+      listener.call(this, evt)
+    true
       
   ###
   Convenience method that just registers the specified event listener with
@@ -33,8 +42,7 @@ class Jax.Input
   attach: (eventType, callback) ->
     listeners = @getReceiverEventListeners(eventType)
     unless listeners.interface
-      listeners.interface = (evt) =>
-        listener.call(this, evt) for listener in listeners
+      listeners.interface = (evt) => @processEvent eventType, evt
       @receiver.addEventListener eventType, listeners.interface
     listeners.push callback
     
