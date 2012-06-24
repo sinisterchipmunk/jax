@@ -26,7 +26,7 @@ class Jax.World
       obj = this # when event is fired, `this` becomes the object
       if obj.castShadow
         for light in world.lights
-          continue unless light.isInRange obj
+          continue unless light.shadowmap and light.isInRange obj
           light.shadowmap.invalidate()
       true
           

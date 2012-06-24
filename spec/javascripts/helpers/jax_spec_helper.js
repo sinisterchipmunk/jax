@@ -138,30 +138,6 @@ beforeEach(function() {
       return this.actual.length == 0;
     },
     
-    toBeIlluminated: function() {
-      var model = this.actual;
-      this.actual = "model";
-      var original_render = model.render;
-      
-      SPEC_CONTEXT.world.addObject(model);
-      SPEC_CONTEXT.world.addLightSource(new Jax.Scene.LightSource({type:Jax.DIRECTIONAL_LIGHT}));
-
-      var illuminated = false;
-      model.render = function() {
-        if (SPEC_CONTEXT.current_pass == Jax.Scene.ILLUMINATION_PASS)
-          illuminated = true;
-      };
-
-      spyOn(model, 'render').andCallThrough();
-      SPEC_CONTEXT.world.render();
-      
-      var called = model.render.callCount;
-      if (!model.render.callCount) result = false; // fail-safe
-      
-      model.render = original_render;
-      return called && illuminated;
-    },
-    
     toBeRendered: function() {
       var model = this.actual;
       var original_render = model.render;

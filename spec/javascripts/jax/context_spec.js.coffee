@@ -1,4 +1,4 @@
-describe 'Jax.Context2', ->
+describe 'Jax.Context', ->
   beforeEach ->
     Jax.useRequestAnimFrame = false
     jasmine.Clock.useMock()
@@ -27,6 +27,7 @@ describe 'Jax.Context2', ->
     c.dispose()
     
   describe "redirecting", ->
+    Two = null
     beforeEach ->
       Jax.routes.clear()
       One = Jax.Controller.create "one", index: ->
@@ -36,6 +37,10 @@ describe 'Jax.Context2', ->
         update: (tc) ->
       Jax.views.push 'one/index', ->
       Jax.views.push 'two/index', ->
+        
+    it 'should return the controller it redirected to', ->
+      result = @context.redirectTo 'two'
+      expect(result).toBeInstanceOf Two
         
     it 'should render views when it has them', ->
       @context.redirectTo 'two/index'

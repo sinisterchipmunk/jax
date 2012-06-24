@@ -76,9 +76,14 @@ class Jax.Context
     @controller?.update? timechange
     @world.update timechange
     
-  render: ->
+  prepare: ->
     @reloadMatrices()
     @renderer.prepare()
+    
+  viewport: -> @renderer.viewport()
+    
+  render: ->
+    @prepare()
     if @view
       @view.render()
     else
@@ -217,6 +222,7 @@ class Jax.Context
     @registerListeners()
     @startRendering()
     @startUpdating()
+    @controller
     
   setupView: (view) ->
     view.context = this
@@ -231,9 +237,10 @@ class Jax.Context
     delete @_player # TODO remove this line when deprecated `player` is removed!
     
   setupCamera: ->
-    @activeCamera.perspective
-      width:  @canvas.clientWidth  || @canvas.width
-      height: @canvas.clientHeight || @canvas.height
+    if @canvas
+      @activeCamera.perspective
+        width:  @canvas.clientWidth  || @canvas.width
+        height: @canvas.clientHeight || @canvas.height
     
   dispose: ->
     @stopUpdating()

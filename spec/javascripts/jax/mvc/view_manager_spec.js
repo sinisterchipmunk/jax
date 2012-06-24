@@ -7,11 +7,11 @@ describe("Jax.ViewManager", function() {
     beforeEach(function() { views.push("controller/action", function() { }); });
     
     it("should return the registered view", function() {
-      expect(views.get("controller/action")).toBeInstanceOf(Jax.View);
+      expect(views.find("controller/action")).toBeInstanceOf(Jax.View);
     });
     
-    it("should throw an error when requesting a missing view", function() {
-      expect(function() { return views.get("missing/action"); }).toThrow(new Error("Could not find view at 'missing/action'!"));
+    it("should return null when requesting a missing view", function() {
+      expect(views.find("missing/action")).toBeNull();
     });
   });
 });

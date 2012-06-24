@@ -19,5 +19,8 @@ class Jax.Renderer.WebGL
   Prepare to render the scene.
   ###
   prepare: ->
+    @viewport()
+    
+  viewport: ->
     @context.viewport 0, 0, @context.canvas.width, @context.canvas.height
     
