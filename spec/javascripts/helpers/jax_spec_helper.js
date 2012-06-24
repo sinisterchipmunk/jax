@@ -1,5 +1,17 @@
 beforeEach(function() {
   this.addMatchers({
+    toBeDisposed: function() {
+      return this.actual.isDisposed();
+    },
+    
+    toBeRendering: function() {
+      return this.actual.isRendering();
+    },
+    
+    toBeUpdating: function() {
+      return this.actual.isUpdating();
+    },
+    
     toBeValid: function() {
       return this.actual.isValid();
     },

@@ -1,0 +1,253 @@
+describe 'Jax.Context2', ->
+  beforeEach ->
+    Jax.useRequestAnimFrame = false
+    jasmine.Clock.useMock()
+  afterEach -> Jax.useRequestAnimFrame = true
+  
+  it 'should have an id', -> expect(@context.id).not.toBeUndefined()
+  it 'should have a world', -> expect(@context.world).toBeInstanceOf Jax.World
+  it 'should set uptime to 0', -> expect(@context.uptime).toEqual 0
+  it 'should have a camera', -> expect(@context.activeCamera).toBeInstanceOf Jax.Camera
+  it 'should have a matrix stack', -> expect(@context.matrix_stack).toBeInstanceOf Jax.MatrixStack
+  it 'should init framerate to 0', -> expect(@context.getFramesPerSecond()).toEqual 0
+  it 'should init update rate to 0', -> expect(@context.getUpdatesPerSecond()).toEqual 0
+  it 'should have a default framerate sample ratio', -> expect(@context.framerateSampleRatio).toBeDefined()
+  it 'should not be disposed', -> expect(@context).not.toBeDisposed()
+  it 'should be updating', -> expect(@context).toBeUpdating()
+  it 'should not be rendering', -> expect(@context).not.toBeRendering()
+  it 'should keep a handle to the canvas', -> expect(@context.canvas).toBe document.getElementById('spec-canvas')
+  
+  it 'should find canvas by id', ->
+    c = new Jax.Context @context.canvas.getAttribute 'id'
+    expect(c.canvas).toBe @context.canvas
+  
+  it 'should pass webgl options into the webgl canvas', ->
+    c = new Jax.Context document.createElement('canvas'), preserveDrawingBuffer: true
+    expect(c.renderer.context.getContextAttributes().preserveDrawingBuffer).toBe true
+    c.dispose()
+    
+  describe "redirecting", ->
+    beforeEach ->
+      Jax.routes.clear()
+      One = Jax.Controller.create "one", index: ->
+      Two = Jax.Controller.create "two",
+        index: -> @world.addObject new Jax.Model()
+        second: ->
+        update: (tc) ->
+      Jax.views.push 'one/index', ->
+      Jax.views.push 'two/index', ->
+        
+    it 'should render views when it has them', ->
+      @context.redirectTo 'two/index'
+      spyOn @context.view, 'render'
+      jasmine.Clock.tick 1000
+      expect(@context.view.render).toHaveBeenCalled()
+      
+    it 'should make world accessible to views', ->
+      @context.redirectTo 'two/index'
+      expect(@context.view.world).toBe @context.world
+      
+    it 'should make context accessible to views', ->
+      @context.redirectTo 'two/index'
+      expect(@context.view.context).toBe @context
+
+    describe 'to the index action in the same controller', ->
+      it "should reload the scene as a special case", ->
+        # normally redirection within the same controller won't unload
+        # the scene, but a redirect to `index` indicates the scene should
+        # be reloaded.
+        @context.redirectTo 'two'
+        controller = @context.controller
+        @context.redirectTo 'two'
+        expect(@context.controller).not.toBe controller
+          
+    describe 'to a different action in the same controller', ->
+      originalView = null
+      beforeEach ->
+        @context.redirectTo 'two'
+        originalView = @context.view
+      
+      describe 'without a view', ->
+        beforeEach ->
+          @context.redirectTo 'two/second'
+          
+        it 'should not unload the world', ->
+          expect(@context.world.getObjects()).not.toBeEmpty()
+          
+        it 'should not change the view', ->
+          expect(@context.view).toBe originalView
+          
+      describe 'with a view', ->
+        beforeEach ->
+          Jax.views.push 'two/second', ->
+          @context.redirectTo 'two/second'
+          
+        it "should use the new view", ->
+          expect(@context.view).not.toBe originalView
+          
+        it "should not unload the world", ->
+          expect(@context.world.getObjects()).not.toBeEmpty()
+          
+    describe "to a different controller", ->
+      originalView = null
+      beforeEach ->
+        @context.redirectTo 'one'
+        originalView = @context.view
+        @context.redirectTo 'two'
+        
+      it "should initialize the new view", ->
+        expect(@context.view).not.toBe originalView
+        
+      it "should dispose of the world", ->
+        spyOn @context.world, 'dispose'
+        @context.redirectTo 'one'
+        expect(@context.world.dispose).toHaveBeenCalled()
+        
+      it "should reset the active camera", ->
+        expect(@context.activeCamera).toBe @context.world.cameras[0]
+        
+    describe "to a bad route", ->
+      it "should throw an error", ->
+        expect(=> @context.redirectTo 'invalid').toThrow "Route not recognized: 'invalid' (controller not found)"
+        
+      it "should stop updating", ->
+        @context.redirectTo 'two'
+        spyOn @context.controller, 'update'
+        try
+          @context.redirectTo 'invalid'
+        catch e
+          1 # no op
+        jasmine.Clock.tick 1000
+        expect(@context.controller.update).not.toHaveBeenCalled()
+        
+      it "should stop rendering", ->
+        @context.redirectTo 'one'
+        spyOn @context.world, 'render'
+        try
+          @context.redirectTo 'invalid'
+        catch e
+          1 # no op
+        jasmine.Clock.tick 1000
+        expect(@context.world.render).not.toHaveBeenCalled()
+  
+  describe 'disposal', ->
+    it 'should dispose its world', ->
+      spyOn @context.world, 'dispose'
+      @context.dispose()
+      expect(@context.world.dispose).toHaveBeenCalled()
+  
+  describe 'after disposal', ->
+    beforeEach -> @context.dispose()
+    
+    it "should be disposed", -> expect(@context).toBeDisposed()
+    it "should not be rendering", -> expect(@context).not.toBeRendering()
+    it "should not be updating", -> expect(@context).not.toBeUpdating()
+    
+    it "should not start updating", ->
+      @context.startUpdating()
+      expect(@context).not.toBeUpdating()
+      spyOn @context, 'update'
+      jasmine.Clock.tick 1000
+      expect(@context.update).not.toHaveBeenCalled()
+      
+    it "should not start rendering", ->
+      @context.startRendering()
+      expect(@context).not.toBeRendering()
+      spyOn @context, 'render'
+      jasmine.Clock.tick 1000
+      expect(@context.render).not.toHaveBeenCalled()
+    
+  describe 'at a controller with an update method', ->
+    beforeEach ->
+      Jax.Controller.create 'test', update: (tc) ->
+      @context.redirectTo 'test'
+      
+    it "should update its world", ->
+      spyOn @context.world, 'update'
+      jasmine.Clock.tick 1000
+      expect(@context.world.update).toHaveBeenCalled()
+      
+    it "should perform controller updates", ->
+      spyOn @context.controller, 'update'
+      jasmine.Clock.tick 1000
+      expect(@context.controller.update).toHaveBeenCalled()
+      
+    it "should perform renders", ->
+      spyOn @context, 'render'
+      jasmine.Clock.tick 1000
+      expect(@context.render).toHaveBeenCalled()
+  
+  it "should accept a canvas as an option", ->
+    context = new Jax.Context canvas: @context.canvas
+    expect(context.canvas).toBe @context.canvas
+  
+  describe "given a root controller", ->
+    TestController = null
+    beforeEach ->
+      TestController = Jax.Controller.create 'test', {}
+      @context = new Jax.Context null, root: 'test'
+      
+    it "redirect there immediately", ->
+      expect(@context.controller).toBeInstanceOf TestController
+  
+  describe "with a canvas and no options", ->
+    it "should initialize a WebGL renderer", ->
+      context = new Jax.Context @context.canvas
+      expect(context.renderer).toBeInstanceOf Jax.Renderer.WebGL
+      
+    it "should set perspective mode on the camera", ->
+      context = new Jax.Context @context.canvas
+      expect(context.activeCamera.projection.type).toEqual 'perspective'
+    
+  describe "with no arguments", ->
+    it "should not initialize a renderer", ->
+      context = new Jax.Context()
+      expect(context.renderer).toBeUndefined()
+  
+  describe "without a controller", ->
+    it "should not have a controller (sanity check)", ->
+      expect(@context.controller).toBeUndefined()
+    
+    it "should not register any event listeners on the canvas", ->
+      expect(@context.canvas.getEventListeners()).toBeEmpty()
+  
+  describe "at a controller that has no appropriate callbacks", ->
+    beforeEach ->
+      Jax.Controller.create 'test', {}
+      @context.redirectTo 'test'
+    
+    it "should not register any event listeners on the canvas", ->
+      expect(@context.canvas.getEventListeners()).toBeEmpty()
+      
+  describe "at a controller with a mouse_pressed listener", ->
+    beforeEach ->
+      Jax.Controller.create 'test', mouse_pressed: (e) ->
+      @context.redirectTo 'test'
+    
+    it "should fire the callback", ->
+      spyOn @context.controller, 'mouse_pressed'
+      @context.mouse.trigger 'mousedown'
+      expect(@context.controller.mouse_pressed).toHaveBeenCalled()
+      
+  describe "at a controller with every possible callback", ->
+    beforeEach ->
+      Jax.Controller.create 'test',
+        mouse_clicked: (e) ->
+        mouse_pressed: (e) ->
+        mouse_released: (e) ->
+        mouse_moved: (e) ->
+        mouse_dragged: (e) ->
+        mouse_entered: (e) ->
+        mouse_exited: (e) ->
+        mouse_over: (e) ->
+        key_pressed: (e) ->
+        key_released: (e) ->
+        key_typed: (e) ->
+      @context.redirectTo 'test'
+        
+    describe "after disposing the context", ->
+      beforeEach -> @context.dispose()
+        
+      it "should remove all event listeners from its canvas", ->
+        expect(@context.canvas.getEventListeners()).toBeEmpty()
+      

@@ -15,6 +15,7 @@ class Jax.World
     @_objectsArray = []
     @_renderQueue = []
     @_sortPosition = vec3.create()
+    @_cameras = []
     
     # these numbers pulled from a hat.
     @octree = new Jax.Octree 20, 10
@@ -48,10 +49,21 @@ class Jax.World
     console.log """The getter `objects` is deprecated; please use `getObjects()` instead.
     Note that the latter returns an array, where the former used to be a
     generic object."""
+    console.log new Error().stack
     result = {}
     for obj in @getObjects()
       result[obj.__unique_id] = obj
     result
+  
+  @define 'cameras',
+    get: -> @_cameras
+    set: (i) ->
+      if i < 1 then i = 1
+      num = @_cameras.length
+      @_cameras.length = i
+      if i > num
+        for j in [num...i]
+          @_cameras[j] = new Jax.Camera
   
   ###
   Renders this World to its Jax context. If a material (or its name) is not
@@ -66,7 +78,7 @@ class Jax.World
     if material
       # objects will look up their materials individually, but that wastes time.
       material = Jax.Material.find material unless material instanceof Jax.Material
-    @renderOpaques(material, cull) +
+    @renderOpaques(material, cull) + \
     @renderTransparencies(material)
     
   ###
@@ -132,7 +144,7 @@ class Jax.World
   renderOpaquesInOctree: (material) ->
     numObjectsRendered = 0
     context = @context
-    frustum = context.player.camera.getFrustum()
+    frustum = context.activeCamera.getFrustum()
     queue = @_renderQueue
     [renderOctree, octreeModel] = [@renderOctree, @octreeModel]
     @octree.traverse @_sortPosition, (node) =>
@@ -330,7 +342,8 @@ class Jax.World
   the objects' respective `update` functions (if they have one).
   ###
   update: (timechange) ->
-    object.update?(timechange) for object in @getObjects()
+    for object in @getObjects()
+      object.update?(timechange)
     
   ###
   Disposes of this world by removing all references to its objects and

@@ -47,8 +47,8 @@ Jax.Controller.create "lighting",
         diffuse: [0, 0, 1, 1]
         specular: [0, 0, 1, 1]
     
-    @player.camera.setPosition 0, 15, 50
-    @player.camera.lookAt [0, 0, 0]
+    @context.activeCamera.setPosition 0, 15, 50
+    @context.activeCamera.lookAt [0, 0, 0]
     
   mouse_dragged: (e) ->
     newPos = @teapot.camera.getPosition()
@@ -78,5 +78,5 @@ Jax.Controller.create "lighting",
     # update player position if s/he's holding a movement key down
     # var speed = 25 * timechange;
     # 
-    # this.player.camera.move((movement.forward + movement.backward) * speed);
-    # this.player.camera.strafe((movement.left + movement.right) * speed);
+    # this.activeCamera.move((movement.forward + movement.backward) * speed);
+    # this.activeCamera.strafe((movement.left + movement.right) * speed);
