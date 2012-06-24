@@ -15,7 +15,7 @@ class Jax.Camera
       imv: mat4.identity()
       p:   mat4.identity()
       n:   mat3.identity()
-    @frustum = new Jax.Scene.Frustum @matrices.mv, @matrices.p
+    @frustum = new Jax.Scene.Frustum @matrices.imv, @matrices.p
     @reset()
     @setFixedYawAxis true, vec3.UNIT_Y
     
