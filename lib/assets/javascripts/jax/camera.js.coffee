@@ -3,6 +3,9 @@
 
 class Jax.Camera
   @include Jax.Events.Methods
+  LOCAL_VIEW  = vec3.create [0, 0,-1]
+  LOCAL_RIGHT = vec3.create [1, 0, 0]
+  LOCAL_UP    = vec3.create [0, 1, 0]
   
   constructor: (options) ->
     @rotation = quat4.identity()
@@ -13,42 +16,60 @@ class Jax.Camera
       p:   mat4.identity()
       n:   mat3.identity()
     @frustum = new Jax.Scene.Frustum @matrices.mv, @matrices.p
-    @addEventListener 'updated', => @invalidate()
     @reset()
     @setFixedYawAxis true, vec3.UNIT_Y
+    
     @_isValid = false
+    @_viewVector = vec3.create()
+    @_upVector   = vec3.create()
+    @_rightVector= vec3.create()
     
     if options
       @setPosition  options.position if options.position
       @setDirection options.direction if options.direction
     
-  invalidate: (invalidateMatrices) ->
+  invalidate: ->
     @_isValid = false
-    @_stale and= !invalidateMatrices
+    @_stale = true
     @frustum.invalidate()
     
   isValid: -> @_isValid
   
-  validate: ->
+  recalculateMatrices: ->
+    @validate() unless @isValid()
+    @_stale = false
     mat4.fromRotationTranslation @rotation, @position, @matrices.mv
     mat4.inverse @matrices.mv, @matrices.imv
     mat4.toInverseMat3 @matrices.mv, @matrices.n
     mat3.transpose @matrices.n
     @fireEvent 'matrixUpdated'
+  
+  validate: () ->
+    @_isValid = true
+    @_viewVector  = quat4.multiplyVec3 @rotation, LOCAL_VIEW,  @_viewVector
+    @_rightVector = quat4.multiplyVec3 @rotation, LOCAL_RIGHT, @_rightVector
+    @_upVector    = quat4.multiplyVec3 @rotation, LOCAL_UP,    @_upVector
     
   setFixedYawAxis: (useFixedYaw, axis) ->
     @_fixedYaw = useFixedYaw
     @_fixedYawAxis = axis if axis
     
   getFrustum: ->
+    @recalculateMatrices() if @_stale
     @validate() unless @isValid()
+    @frustum.validate() unless @frustum.isValid()
     @frustum
-  
-  getPosition:    -> vec3.create @position
+  getPosition:    -> @position
   getDirection:   -> @getViewVector()
-  getViewVector:  -> quat4.multiplyVec3 @rotation, [0, 0,-1], vec3.create()
-  getRightVector: -> quat4.multiplyVec3 @rotation, [1, 0, 0], vec3.create()
-  getUpVector:    -> quat4.multiplyVec3 @rotation, [0, 1, 0], vec3.create()
+  getViewVector:  ->
+    @validate() unless @isValid()
+    @_viewVector
+  getRightVector: ->
+    @validate() unless @isValid()
+    @_rightVector
+  getUpVector:    ->
+    @validate() unless @isValid()
+    @_upVector
   
   ortho: (options) ->
     options.left or= -1
@@ -96,7 +117,11 @@ class Jax.Camera
       @position[0] = x
       @position[1] = y
       @position[2] = z
-    @invalidate true
+    # no need to completely invalidate, just force matrices and
+    # frustum to update, that way we skip the overhead of
+    # recalculating view, right and up vectors, which won't change.
+    @_stale = true
+    @frustum.invalidate()
     @fireEvent 'updated'
     
   _dirVec = vec3.create()
@@ -115,6 +140,7 @@ class Jax.Camera
       rotquat = vec3.toQuatRotation @getViewVector(), vec, _dirQuat
       quat4.multiply rotquat, @rotation, @rotation
     quat4.normalize @rotation
+    @invalidate()
     @fireEvent 'updated'
     this
     
@@ -141,6 +167,7 @@ class Jax.Camera
     rotquat = quat4.fromAngleAxis amount, vec, _rotQuat
     quat4.normalize rotquat
     quat4.multiply rotquat, @rotation, @rotation
+    @invalidate()
     @fireEvent 'updated'
     this
     
@@ -171,19 +198,19 @@ class Jax.Camera
     @setDirection vec3.subtract point, pos, view
     
   getTransformationMatrix: ->
-    @validate() unless @isValid()
+    @recalculateMatrices() if @_stale
     @matrices.mv
     
   getInverseTransformationMatrix: ->
-    @validate() unless @isValid()
+    @recalculateMatrices() if @_stale
     @matrices.imv
   
   getNormalMatrix: ->
-    @validate() unless @isValid()
+    @recalculateMatrices() if @_stale
     @matrices.n
     
   getProjectionMatrix: ->
-    @validate() unless @isValid()
+    @recalculateMatrices() if @_stale
     @matrices.p
     
   _unprojectInf = vec4.create()
@@ -230,6 +257,7 @@ class Jax.Camera
   move: (distance, direction) ->
     direction or= @getViewVector()
     vec3.add vec3.scale(direction, distance, _moveVec), @position, @position
+    @invalidate()
     @fireEvent 'updated'
     this
     
@@ -248,4 +276,5 @@ class Jax.Camera
     @position[0] = @position[1] = @position[2] = 0
     @rotation[0] = @rotation[1] = @rotation[2] = 0
     @rotation[3] = 1
+    @invalidate()
     @fireEvent 'updated'
