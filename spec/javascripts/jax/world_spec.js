@@ -182,7 +182,7 @@ describe("Jax.World", function() {
     it("bottom right", function() { expect(world.pick(at.right,at.bottom)       === obottomright).toBeTruthy(); });
     
     it("object blocked by another larger object", function() {
-      var front = world.addObject(new Jax.Model({position: [0.0, 0.0, -0.01], mesh: new Jax.Mesh.Quad({size: 10})}));
+      var front = world.addObject(new Jax.Model({position: [0.0, 0.0, -0.1], mesh: new Jax.Mesh.Quad({size: 10})}));
       expect(world.pick(at.center_x, at.center_y)).toBe(front);
     });
     
