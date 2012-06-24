@@ -50,6 +50,10 @@ class Jax.Context
     console.log "Jax.Context#current_controller is deprecated, use Jax.Context#controller instead."
     @controller
     
+  @getter 'current_view', ->
+    console.log 'Jax.Context#current_view is deprecated, use Jax.Context#view instead.'
+    @view
+    
   @getter 'player', ->
     console.log "Jax.Context#player is deprecated; it only contained `camera`, so you should use Jax.Context#activeCamera instead."
     @_player or= camera: @activeCamera
@@ -80,7 +84,8 @@ class Jax.Context
     @reloadMatrices()
     @renderer.prepare()
     
-  viewport: -> @renderer.viewport()
+  viewport: ->
+    @renderer.viewport()
     
   render: ->
     @prepare()
