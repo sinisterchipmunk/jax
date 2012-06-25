@@ -9,13 +9,13 @@ Jax.Controller.create "oz3d",
     pos[0] = Math.sin(@_rotation) * radius
     pos[1] = 20
     pos[2] = Math.cos(@_rotation) * radius
-    @player.camera.setPosition pos
-    @player.camera.lookAt [0, 4.5, 0]
+    @context.activeCamera.setPosition pos
+    @context.activeCamera.lookAt [0, 4.5, 0]
     
   mouse_dragged: (e) ->
     @light.camera.move e.diffy / 100, [0, 1, 0]
     @light.camera.move e.diffx / 100, [0, 0, 1]
-    @lighto.camera.setPosition @light.camera.getPosition() unless @light instanceof Jax.Light.Directional
+    @lighto.camera.setPosition @light.camera.position unless @light instanceof Jax.Light.Directional
     
   key_released: (e) ->
     # FIXME this is bad practice, use World#removeLight
@@ -54,8 +54,8 @@ Jax.Controller.create "oz3d",
     @lightOptions.direction = @lighto.camera.getViewVector()
     @light = @world.addLight new Jax.Light.Directional @lightOptions
     
-    @context.player.camera.setPosition -15, 20, 25
-    @context.player.camera.setDirection 0.55, -0.5, -1
+    @context.activeCamera.setPosition -15, 20, 25
+    @context.activeCamera.setDirection 0.55, -0.5, -1
     
     @floor_mat = new Jax.Material.Legacy
       shininess: 60
