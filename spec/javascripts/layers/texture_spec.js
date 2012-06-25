@@ -7,7 +7,7 @@ describe("Material layer 'texture'", function() {
     });
 
     it("should render successfully", function() {
-      new Jax.Mesh({material:matr}).render(SPEC_CONTEXT);
+      new Jax.Mesh.Triangles({material:matr}).render(SPEC_CONTEXT);
     });
   });
 });
