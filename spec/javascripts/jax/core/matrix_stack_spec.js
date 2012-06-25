@@ -24,5 +24,11 @@ describe("Jax.MatrixStack", function() {
         expect(vec).toEqualVector([-1,-1,-1]);
       });
     });
+    
+    it("should revert when popped", function() {
+      mat4.set([1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4], stack.getModelMatrix());
+      stack.pop();
+      expect(stack.getModelMatrix()).toEqualVector(mat4.identity());
+    });
   });
 });
