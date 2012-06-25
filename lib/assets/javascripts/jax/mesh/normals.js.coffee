@@ -1,3 +1,5 @@
+#= require 'jax/geometry'
+
 bufs =
   vec: vec3.create()
   tri: new Jax.Geometry.Triangle()

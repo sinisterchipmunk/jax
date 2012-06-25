@@ -7,7 +7,7 @@ describe("Jax.Camera", function() {
     var frustum;
     beforeEach(function() {
       camera.perspective({near:0.1,far:10,height:100,width:100});
-      frustum = camera.getFrustum();
+      frustum = camera.frustum;
     });
     
     it("should know when a cube is in front of it", function() {
@@ -25,40 +25,40 @@ describe("Jax.Camera", function() {
   
   it("should initialize camera when given position and direction", function() {
     camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});
-    expect(camera.getPosition()).toEqualVector([1,1,1]);
-    expect(camera.getViewVector()).toEqualVector(vec3.normalize([2,2,2]));
+    expect(camera.position).toEqualVector([1,1,1]);
+    expect(camera.direction).toEqualVector(vec3.normalize([2,2,2]));
   });
   
   it("should not change its orientation when looking in its current direction", function() {
     camera.lookAt([0,0,-1]);
     
-    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
-    expect(camera.getRightVector()).toEqualVector([1,0,0]);
-    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+    expect(camera.direction).toEqualVector([0,0,-1]);
+    expect(camera.right).toEqualVector([1,0,0]);
+    expect(camera.up).toEqualVector([0,1,0]);
   });
   
   it("should not change its orientation when looking in its current direction given a position", function() {
     camera.lookAt([0,0,-1], [0,0,5]);
     
-    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
-    expect(camera.getRightVector()).toEqualVector([1,0,0]);
-    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+    expect(camera.direction).toEqualVector([0,0,-1]);
+    expect(camera.right).toEqualVector([1,0,0]);
+    expect(camera.up).toEqualVector([0,1,0]);
   });
   
   it("should be able to reverse direction without losing orientation", function() {
     camera.setPosition([0, 0, -5]);
     camera.setDirection([0, 0, 1]);
-    expect(camera.getPosition()).toEqualVector([0, 0, -5]);
-    expect(camera.getViewVector()).toEqualVector([0, 0, 1]);
-    expect(camera.getUpVector()).toEqualVector([0, 1, 0]);
-    expect(camera.getRightVector()).toEqualVector([-1, 0, 0]);
+    expect(camera.position).toEqualVector([0, 0, -5]);
+    expect(camera.direction).toEqualVector([0, 0, 1]);
+    expect(camera.up).toEqualVector([0, 1, 0]);
+    expect(camera.right).toEqualVector([-1, 0, 0]);
 
     camera.setPosition([0, 0, 5]);
     camera.setDirection([0, 0, -1]);
-    expect(camera.getPosition()).toEqualVector([0, 0, 5]);
-    expect(camera.getViewVector()).toEqualVector([0, 0, -1]);
-    expect(camera.getUpVector()).toEqualVector([0, 1, 0]);
-    expect(camera.getRightVector()).toEqualVector([1, 0, 0]);
+    expect(camera.position).toEqualVector([0, 0, 5]);
+    expect(camera.direction).toEqualVector([0, 0, -1]);
+    expect(camera.up).toEqualVector([0, 1, 0]);
+    expect(camera.right).toEqualVector([1, 0, 0]);
   });
   
   it("should unproject properly", function() {
@@ -70,10 +70,10 @@ describe("Jax.Camera", function() {
     camera.setViewVector([0, -0.980580, -0.196116]);
     
     // sanity checks
-    expect(camera.getPosition()).toEqualVector([38.375, 75, 44.25]);
-    expect(camera.getUpVector()).toEqualVector([0, 0.196116, -0.980580]);
-    expect(camera.getRightVector()).toEqualVector([1,0,0]);
-    expect(camera.getViewVector()).toEqualVector([0, -0.980580, -0.196116]);
+    expect(camera.position).toEqualVector([38.375, 75, 44.25]);
+    expect(camera.up).toEqualVector([0, 0.196116, -0.980580]);
+    expect(camera.right).toEqualVector([1,0,0]);
+    expect(camera.direction).toEqualVector([0, -0.980580, -0.196116]);
     
     
     var nearest = [ 38.308727, 74.893821, 44.271007 ];
@@ -90,7 +90,7 @@ describe("Jax.Camera", function() {
     camera.move(10);
     camera.yaw(Math.PI/2);
     camera.move(10);
-    expect(camera.getPosition()).toEqualVector(-10, 0, -10);
+    expect(camera.position).toEqualVector(-10, 0, -10);
   });
   
   it("rotation then reset", function() {
@@ -99,29 +99,29 @@ describe("Jax.Camera", function() {
     camera.yaw(1);
     camera.roll(1);
     camera.reset();
-    expect(camera.getViewVector()).toEqualVector([0,0,-1]);
-    expect(camera.getPosition()).toEqualVector([0,0,0]);
-    expect(camera.getUpVector()).toEqualVector([0,1,0]);
-    expect(camera.getRightVector()).toEqualVector([1,0,0]);
+    expect(camera.direction).toEqualVector([0,0,-1]);
+    expect(camera.position).toEqualVector([0,0,0]);
+    expect(camera.up).toEqualVector([0,1,0]);
+    expect(camera.right).toEqualVector([1,0,0]);
   });
   
   it("strafing with rotations", function() {
     camera.move(10);
     camera.yaw(Math.PI/2);
     camera.strafe(10);
-    expect(camera.getPosition()).toEqualVector(0, 0, -20);
+    expect(camera.position).toEqualVector(0, 0, -20);
   });
   
   it("multiple rotations", function() {
     camera.pitch(Math.PI/6); // rotate up a bit
     camera.yaw(Math.PI/6); // rotate to side a bit
     // check for camera drift
-    expect(camera.getUpVector()).toEqualVector([0.25,0.8660253286361694,0.4330127239227295]);
+    expect(camera.up).toEqualVector([0.25,0.8660253286361694,0.4330127239227295]);
   });
   
   it("should project move and strafe", function() {
     var pos = camera.projectMovement(1, 1);
-    vec3.subtract(camera.getPosition(), pos);
+    vec3.subtract(camera.position, pos);
     expect(pos).toEqualVector([1,0,-1])
   });
   
@@ -131,12 +131,12 @@ describe("Jax.Camera", function() {
     it("should not lose up vector", function() {
       camera.setPosition([-1.8,0.35,1.8]);
       camera.lookAt([0,0,0]);
-      var up = camera.getUpVector();
+      var up = camera.up;
       // FIXME is this safe?
       expect(Math.abs(up[0])).toBeLessThan(0.1);
       expect(Math.abs(up[1])).toBeGreaterThan(0.9);
       expect(Math.abs(up[2])).toBeLessThan(0.1);
-      // expect(camera.getUpVector()).toEqualVector([0,1,0]);
+      // expect(camera.up).toEqualVector([0,1,0]);
     });
   });
   
@@ -147,15 +147,15 @@ describe("Jax.Camera", function() {
       camera.pitch(Math.PI/6); // rotate up a bit
       camera.yaw(Math.PI/6); // rotate to side a bit
       // check for camera drift
-      expect(camera.getUpVector()).toEqualVector([0,0.8660253286361694,0.4999999701976776]);
+      expect(camera.up).toEqualVector([0,0.8660253286361694,0.4999999701976776]);
     });
   });
   
   describe("by default", function() {
-    it("should have position [0,0,0]", function() { expect(camera.getPosition()).toEqualVector([0,0,0]); });
-    it("should have view [0,0,-1]", function() { expect(camera.getViewVector()).toEqualVector([0,0,-1]); });
-    it("should have right [1,0,0]", function() { expect(camera.getRightVector()).toEqualVector([1,0,0]); });
-    it("should have up [0,1,0]", function() { expect(camera.getUpVector()).toEqualVector([0,1,0]); });
+    it("should have position [0,0,0]", function() { expect(camera.position).toEqualVector([0,0,0]); });
+    it("should have view [0,0,-1]", function() { expect(camera.direction).toEqualVector([0,0,-1]); });
+    it("should have right [1,0,0]", function() { expect(camera.right).toEqualVector([1,0,0]); });
+    it("should have up [0,1,0]", function() { expect(camera.up).toEqualVector([0,1,0]); });
   });
   
   describe("perspective projection", function() {
@@ -181,7 +181,7 @@ describe("Jax.Camera", function() {
   
   it("should set and get position accurately", function() {
     camera.setPosition(20, 0, 20);
-    expect(camera.getPosition()).toEqualVector([20,0,20]);
+    expect(camera.position).toEqualVector([20,0,20]);
     var matr = camera.getTransformationMatrix();
     expect(matr[12]).toEqual(20);
     expect(matr[13]).toEqual(0);
@@ -190,18 +190,18 @@ describe("Jax.Camera", function() {
   
   it("should lookAt the origin without losing position", function() {
     camera.setPosition(20, 0, 20);
-    expect(camera.getPosition()).toEqualVector([20,0,20]);
+    expect(camera.position).toEqualVector([20,0,20]);
     camera.lookAt([0,0,0]);
-    expect(camera.getPosition()).toEqualVector([20,0,20]);
+    expect(camera.position).toEqualVector([20,0,20]);
   });
   
   it("should set view relative to position", function() {
     camera.setPosition(10, 10, 10);
     camera.setDirection([-1, 0, 0]);
     
-    expect(camera.getPosition()).toEqualVector([10,10,10]);
-    expect(camera.getViewVector()).toEqualVector([-1,0,0]);
-    expect(camera.getUpVector()).toEqualVector([0,1,0]);
+    expect(camera.position).toEqualVector([10,10,10]);
+    expect(camera.direction).toEqualVector([-1,0,0]);
+    expect(camera.up).toEqualVector([0,1,0]);
   });
   
   describe("orienting the camera after translation", function() {
@@ -210,26 +210,26 @@ describe("Jax.Camera", function() {
       camera.setDirection([0, 0, -1]);
     });
     
-    it("should not change its position", function() { expect(camera.getPosition()).toEqualVector([100,100,100]); });
+    it("should not change its position", function() { expect(camera.position).toEqualVector([100,100,100]); });
     
   });
   
   it("should rotate", function() {
     camera.rotate(Math.PI, 1,0,0); // 180 deg, we're now pointing backwards
-    expect(camera.getViewVector()).toEqualVector([0,0,1]);
+    expect(camera.direction).toEqualVector([0,0,1]);
   });
   
   it("should look at a position", function() {
     camera.lookAt([10, 10, 10], [12, 10, 10]);
-    expect(camera.getPosition()).toEqualVector([12,10,10]);
-    expect(camera.getViewVector()).toEqualVector([-1,0,0]);
+    expect(camera.position).toEqualVector([12,10,10]);
+    expect(camera.direction).toEqualVector([-1,0,0]);
   });
   
   describe("orientation", function() {
     it(" pos(0,0,1), view(0,-1,0)", function() {
       camera.setPosition(0,0,1);
       camera.setDirection([0,-1,0]);
-      expect(camera.getViewVector()).toEqualVector([0,-1,0]);
+      expect(camera.direction).toEqualVector([0,-1,0]);
     });
   });
 
@@ -237,30 +237,30 @@ describe("Jax.Camera", function() {
     beforeEach(function() { camera.lookAt([0,0,-1], [0,0,0]); });
     
     it("should return position accurately", function() {
-      expect(camera.getPosition()).toEqualVector([0,0,0]);
+      expect(camera.position).toEqualVector([0,0,0]);
     });
 
     it("should return view accurately", function() {
-      expect(camera.getViewVector()).toEqualVector([0,0,-1]);
+      expect(camera.direction).toEqualVector([0,0,-1]);
     });
 
     it("should return up accurately", function() {
-      expect(camera.getUpVector()).toEqualVector([0,1,0]);
+      expect(camera.up).toEqualVector([0,1,0]);
     });
 
     it("should return right accurately", function() {
-      expect(camera.getRightVector()).toEqualVector([1,0,0]);
+      expect(camera.right).toEqualVector([1,0,0]);
     });
   });
   
   it("should set the position using numbers", function() {
     camera.setPosition(1, 1, 1);
-    expect(camera.getPosition()).toEqualVector([1,1,1]);
+    expect(camera.position).toEqualVector([1,1,1]);
   });
   
   it("should set the position using a vector", function() {
     camera.setPosition([1,1,1]);
-    expect(camera.getPosition()).toEqualVector([1,1,1]);
+    expect(camera.position).toEqualVector([1,1,1]);
   });
   
   describe("orienting the camera with numeric arguments and no position", function() {
@@ -268,38 +268,38 @@ describe("Jax.Camera", function() {
       camera.setDirection(0, 0, 1);
     });
     
-    it("position should be 0,0,0", function() { expect(camera.getPosition()).toEqualVector([0,0,0]);      });
-    it("view should be 0,0,1",     function() { expect(camera.getViewVector()).toEqualVector([0, 0, 1]);  });
+    it("position should be 0,0,0", function() { expect(camera.position).toEqualVector([0,0,0]);      });
+    it("view should be 0,0,1",     function() { expect(camera.direction).toEqualVector([0, 0, 1]);  });
   });
   
   it("should strafe right", function() {
     camera.strafe(10);
-    expect(camera.getPosition()).toEqualVector([10, 0, 0]);
+    expect(camera.position).toEqualVector([10, 0, 0]);
   });
 
   it("should strafe left", function() {
     camera.strafe(-10);
-    expect(camera.getPosition()).toEqualVector([-10, 0, 0]);
+    expect(camera.position).toEqualVector([-10, 0, 0]);
   });
   
   it("should move forward", function() {
     camera.move(10);
-    expect(camera.getPosition()).toEqualVector([0,0,-10]);
+    expect(camera.position).toEqualVector([0,0,-10]);
   });
   
   it("should move backward", function() {
     camera.move(-10);
-    expect(camera.getPosition()).toEqualVector([0,0,10]);
+    expect(camera.position).toEqualVector([0,0,10]);
   });
   
   it("should move 'forward' along a given vector", function() {
     camera.move(10, [0,1,0]);
-    expect(camera.getPosition()).toEqualVector([0,10,0]);
+    expect(camera.position).toEqualVector([0,10,0]);
   });
   
   it("should move 'backward' along a given vector", function() {
     camera.move(-10, [0,1,0]);
-    expect(camera.getPosition()).toEqualVector([0,-10,0]);
+    expect(camera.position).toEqualVector([0,-10,0]);
   });
 
   describe("events", function() {

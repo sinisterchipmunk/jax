@@ -142,7 +142,7 @@ class Jax.World
   renderOpaquesInOctree: (material) ->
     numObjectsRendered = 0
     context = @context
-    frustum = context.activeCamera.getFrustum()
+    frustum = context.activeCamera.frustum
     queue = @_renderQueue
     [renderOctree, octreeModel] = [@renderOctree, @octreeModel]
     @octree.traverse @_sortPosition, (node) =>
