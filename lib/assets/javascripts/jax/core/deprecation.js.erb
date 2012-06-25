@@ -100,7 +100,8 @@ Jax.deprecate(Jax.Context, 'getModelViewMatrix', 'matrix_stack.getModelViewMatri
 Jax.deprecate(Jax.Context, 'getInverseModelViewMatrix', 'matrix_stack.getInverseModelViewMatrix');
 Jax.deprecate(Jax.Context, 'getModelViewProjectionMatrix', 'matrix_stack.getModelViewProjectionMatrix');
 Jax.deprecate(Jax.Context, 'getInverseProjectionMatrix', 'matrix_stack.getInverseProjectionMatrix');
-
+Jax.deprecateProperty(Jax.Context, 'current_controller', 'controller');
+Jax.deprecateProperty(Jax.Context, 'current_view', 'view');
 
 /** deprecated
  * vec3.distance(a, b[, dest]) -> vec3

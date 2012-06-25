@@ -46,16 +46,9 @@ class Jax.Context
     @startUpdating()
     @redirectTo options.root if options?.root
     
-  @getter 'current_controller', ->
-    console.log "Jax.Context#current_controller is deprecated, use Jax.Context#controller instead."
-    @controller
-    
-  @getter 'current_view', ->
-    console.log 'Jax.Context#current_view is deprecated, use Jax.Context#view instead.'
-    @view
-    
   @getter 'player', ->
-    console.log "Jax.Context#player is deprecated; it only contained `camera`, so you should use Jax.Context#activeCamera instead."
+    console.log new Error("Jax.Context#player is deprecated; it only contained `camera`, " + \
+                          "so you should use Jax.Context#activeCamera instead.").stack
     @_player or= camera: @activeCamera
     
     

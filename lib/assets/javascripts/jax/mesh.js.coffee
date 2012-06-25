@@ -271,7 +271,7 @@ class Mesh.Deprecated extends Mesh
   constructor: (args...) ->
     deprecation_message = "Using Jax.Mesh directly has been deprecated. Please use Jax.Mesh.Triangles or a similar variant instead."
     if typeof console isnt 'undefined'
-      console.log deprecation_message
+      console.log new Error(deprecation_message).stack
     else throw new Error deprecation_message
     super args...
     
