@@ -1,5 +1,3 @@
-#= require 'jax/webgl/scene'
-
 ###
 A +Jax.World+ represents a scene in the graphics engine. All objects to be rendered (or at least,
 all objects that you do not want to manually control!) should be added to the world. Each instance
@@ -150,10 +148,10 @@ class Jax.World
     @octree.traverse @_sortPosition, (node) =>
       size = node.size * 2
       switch frustum.cube node.position, size, size, size
-        when Jax.Scene.Frustum.OUTSIDE
+        when Jax.Frustum.OUTSIDE
           # not visible, abort traversal
           return false
-        when Jax.Scene.Frustum.INSIDE
+        when Jax.Frustum.INSIDE
           # completely visible, render all objects and abort traversal
           objectCount = node.nestedObjectCount
           objects = node.nestedObjects

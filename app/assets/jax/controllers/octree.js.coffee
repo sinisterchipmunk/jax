@@ -78,7 +78,7 @@ Jax.Controller.create "octree",
     @_cam = camera = new Jax.Camera()
     camera.perspective near: 1, far: 10, width: @context.canvas.width, height: @context.canvas.height
     camera.setPosition [0, 0, 4.5]
-    @world.addObject camera.getFrustum().getRenderable()
+    @world.addObject camera.getFrustum()
     # @world.addLight new Jax.Light.Directional
     #   shadows: false
     #   direction: [0, -1, -0.25]
@@ -92,10 +92,10 @@ Jax.Controller.create "octree",
       numNodes++
       size = node.size# * 2
       switch camera.getFrustum().cube(node.position, size, size, size)
-        when Jax.Scene.Frustum.OUTSIDE
+        when Jax.Frustum.OUTSIDE
           # not visible, abort traversal
           return false
-        # when Jax.Scene.Frustum.INSIDE
+        # when Jax.Frustum.INSIDE
         #   # wholly visible, render all objects in this and child nodes
         #   # and then abort traversal
         #   if node.nestedObjectCount

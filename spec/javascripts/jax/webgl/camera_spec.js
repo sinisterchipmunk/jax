@@ -11,15 +11,15 @@ describe("Jax.Camera", function() {
     });
     
     it("should know when a cube is in front of it", function() {
-      expect(frustum.cube([0, 0, -5], 0.1, 0.1, 0.1)).toBe(Jax.Scene.Frustum.INSIDE);
+      expect(frustum.cube([0, 0, -5], 0.1, 0.1, 0.1)).toBe(Jax.Frustum.INSIDE);
     });
     
     it("should know when a cube is behind it", function() {
-      expect(frustum.cube([0, 0, 5], 0.1, 0.1, 0.1)).toBe(Jax.Scene.Frustum.OUTSIDE);
+      expect(frustum.cube([0, 0, 5], 0.1, 0.1, 0.1)).toBe(Jax.Frustum.OUTSIDE);
     });
 
     it("should know when a cube is intersecting it", function() {
-      expect(frustum.cube([0, 0, 0], 10, 10, 10)).toBe(Jax.Scene.Frustum.INTERSECT);
+      expect(frustum.cube([0, 0, 0], 10, 10, 10)).toBe(Jax.Frustum.INTERSECT);
     });
   });
   

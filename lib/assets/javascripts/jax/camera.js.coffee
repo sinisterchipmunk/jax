@@ -1,5 +1,6 @@
 #= require 'jax/webgl/core/events'
-#= require 'jax/webgl/scene'
+#= require_self
+#= require_tree './camera'
 
 class Jax.Camera
   @include Jax.Events.Methods
@@ -15,7 +16,6 @@ class Jax.Camera
       imv: mat4.identity()
       p:   mat4.identity()
       n:   mat3.identity()
-    @frustum = new Jax.Scene.Frustum @matrices.imv, @matrices.p
     @reset()
     @setFixedYawAxis true, vec3.UNIT_Y
     
@@ -31,7 +31,7 @@ class Jax.Camera
   invalidate: ->
     @_isValid = false
     @_stale = true
-    @frustum.invalidate()
+    @frustum?.invalidate()
     
   isValid: -> @_isValid
   
@@ -55,6 +55,7 @@ class Jax.Camera
     @_fixedYawAxis = axis if axis
     
   getFrustum: ->
+    @frustum or= new Jax.Frustum @matrices.imv, @matrices.p
     @recalculateMatrices() if @_stale
     @validate() unless @isValid()
     @frustum.validate() unless @frustum.isValid()
@@ -121,7 +122,7 @@ class Jax.Camera
     # frustum to update, that way we skip the overhead of
     # recalculating view, right and up vectors, which won't change.
     @_stale = true
-    @frustum.invalidate()
+    @frustum?.invalidate()
     @fireEvent 'updated'
     
   _dirVec = vec3.create()
