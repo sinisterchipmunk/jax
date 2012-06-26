@@ -51,6 +51,8 @@ class Jax.Color
   @parse: (value) ->
     if typeof value is 'string' and value[0] == '#'
       parseHexColor value[1..-1]
+    else if typeof value is 'string' and (split = value.split(' ')).length != 0
+      new Jax.Color (parseFloat(c) for c in split)...
     else if value?.toVec4
       new Jax.Color value.toVec4()...
     else if value?.length

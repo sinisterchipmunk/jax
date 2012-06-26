@@ -72,6 +72,8 @@ Jax.deprecate(Jax.Camera, 'getUpVector', 'up');
  **/
 Jax.deprecate(Jax.World, 'addLightSource', 'addLight');
 
+Jax.deprecate(Jax.Light, 'getPosition', 'position');
+
 Jax.deprecate(Jax.Mesh.Base, 'getVertexBuffer', 'data.vertexBuffer');
 Jax.deprecate(Jax.Mesh.Base, 'getNormalBuffer', 'data.normalBuffer');
 Jax.deprecate(Jax.Mesh.Base, 'getColorBuffer', 'data.colorBuffer');
@@ -102,6 +104,8 @@ Jax.deprecate(Jax.Context, 'getModelViewProjectionMatrix', 'matrix_stack.getMode
 Jax.deprecate(Jax.Context, 'getInverseProjectionMatrix', 'matrix_stack.getInverseProjectionMatrix');
 Jax.deprecateProperty(Jax.Context, 'current_controller', 'controller');
 Jax.deprecateProperty(Jax.Context, 'current_view', 'view');
+
+Jax.deprecateProperty(Jax.View, 'gl', 'context.gl', 'The @gl property of Jax views has been deprecated. Please use @context.renderer instead. If @context.renderer cannot do what you need, then use @context.gl, but bear in mind that this will become a deprecated property sometime in the future, after @context.renderer becomes more capable.');
 
 /** deprecated
  * vec3.distance(a, b[, dest]) -> vec3

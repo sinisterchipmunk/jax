@@ -13,6 +13,10 @@ describe "Jax.Mesh", ->
     it "should rebuild successfully", ->
       mesh.rebuild()
       mesh.rebuild()
+      
+  it "should initialize from a color as a space-delimited string", ->
+    mesh = new Jax.Mesh.Quad color: "1 2 3 4"
+    expect(mesh.data.colorBuffer).toIncludeSubset [1, 2, 3, 4]
   
   describe "initialized without normal data", ->
     beforeEach ->
