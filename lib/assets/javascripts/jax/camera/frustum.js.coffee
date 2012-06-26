@@ -1,7 +1,7 @@
 #= require 'jax/geometry'
 
 class Jax.Frustum extends Jax.Model
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   
   [RIGHT, LEFT, BOTTOM, TOP, FAR, NEAR] = [0, 1, 2, 3, 4, 5]
   @OUTSIDE:   Jax.Geometry.Plane.BACK

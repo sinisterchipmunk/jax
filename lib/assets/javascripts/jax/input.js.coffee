@@ -2,7 +2,7 @@
 #= require_tree './input'
 
 class Jax.Input
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   
   constructor: (@receiver) ->
     @_listeners = {}

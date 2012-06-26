@@ -1,12 +1,12 @@
 #= require 'jax/core/coffee_patterns'
 #= require 'jax/color'
-#= require "jax/webgl/core/events"
+#= require 'jax/core/event_emitter'
 #= require 'jax/webgl/core/buffer'
 #= require_self
 #= require_tree './mesh'
 
 class Mesh
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   
   constructor: (options) ->
     @_valid = false

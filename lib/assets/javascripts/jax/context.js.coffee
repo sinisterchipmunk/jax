@@ -2,7 +2,7 @@
 #= require 'jax/webgl'
 
 class Jax.Context
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   guid = 0
   
   constructor: (@canvas, options) ->

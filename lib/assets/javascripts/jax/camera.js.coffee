@@ -1,9 +1,9 @@
-#= require 'jax/webgl/core/events'
+#= require 'jax/core/event_emitter'
 #= require_self
 #= require_tree './camera'
 
 class Jax.Camera
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   LOCAL_VIEW  = vec3.create [0, 0,-1]
   LOCAL_RIGHT = vec3.create [1, 0, 0]
   LOCAL_UP    = vec3.create [0, 1, 0]

@@ -12,7 +12,7 @@ class FloatBuffer
   bind: -> # no-op for compatibility with Jax.Buffer
 
 class Jax.Mesh.Data
-  @include Jax.Events.Methods
+  @include Jax.EventEmitter
   
   # Returns the smallest unsigned int typed array that can hold
   # the specified number of vertices. Smaller arrays are generally faster.
