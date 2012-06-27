@@ -10,6 +10,10 @@ describe 'jax:install' do
     subject.should generate(:route)
   end
   
+  it "should generate Coffee manifest" do
+    subject.should generate("app/assets/jax/jax.js.coffee")
+  end
+  
   it "should generate Coffee application helper" do
     subject.should generate("app/assets/jax/helpers/application_helper.js.coffee")
   end
@@ -19,6 +23,10 @@ describe 'jax:install' do
   end
   
   with_args "--without-coffeescript" do
+    it "should generate JS manifest" do
+      subject.should generate("app/assets/jax/jax.js")
+    end
+
     it "should generate JS application controller" do
       subject.should generate("app/assets/jax/controllers/application_controller.js")
     end
