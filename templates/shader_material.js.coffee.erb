@@ -1,20 +1,6 @@
-Jax.Material['<%=class_name%>'] = Jax.Class.create Jax.Material,
-  initialize: ($super, options) ->
-    options = Jax.Util.normalizeOptions options,
-      # You can specify default options (see +manifest.yml+) here.
-      shader: "<%=file_name%>"
-    
-    $super options
+class Jax.Material.<%= class_name%> extends Jax.Material.Layer
+  numPasses: -> 1
   
   setVariables: (context, mesh, options, vars) ->
-    # vars.texture 'Texture', this.texture, context
-
-    vars.set
-      mvMatrix: context.getModelViewMatrix()
-      nMatrix:  context.getNormalMatrix()
-      pMatrix:  context.getProjectionMatrix()
-      
-      VERTEX_POSITION:  mesh.getVertexBuffer()
-      VERTEX_COLOR:     mesh.getColorBuffer()
-      VERTEX_NORMAL:    mesh.getNormalBuffer()
-      VERTEX_TEXCOORDS: mesh.getTextureCoordsBuffer()
+    # vars.VariableName = value
+  
