@@ -61,13 +61,14 @@ class Jax.Light extends Jax.Model
   more time-consuming calculation performed by
   `Jax.ShadowMap#isIlluminated`.
   ###
+  inRangeVec = vec3.create()
   isInRange: (model) ->
     radius = model.mesh?.bounds.radius || 0
     # My first thought was to exit early on 0-radius meshes since they're
     # invisible, but this would be a bad idea because some models contain
     # other models instead of meshes...
     objPos = model.position
-    dist = vec3.length(vec3.subtract objPos, @position) - radius
+    dist = vec3.length(vec3.subtract objPos, @position, inRangeVec) - radius
     range = @maxEffectiveRange()
     return range is -1 or range >= dist
 

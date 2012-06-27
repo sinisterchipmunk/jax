@@ -51,9 +51,9 @@ Jax.Controller.create "lighting",
     @context.activeCamera.lookAt [0, 0, 0]
     
   mouse_dragged: (e) ->
-    newPos = @teapot.camera.getPosition()
+    newPos = @teapot.camera.position
     newPos[0] += e.diffx * 0.1
-    newPos[2] -= e.diffy * 0.1
+    newPos[2] += e.diffy * 0.1
     @teapot.camera.setPosition newPos
 
   update: (timechange) ->

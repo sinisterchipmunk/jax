@@ -244,7 +244,11 @@ class Jax.World
   Returns the object with the specified object ID if it has been added to
   this World, or undefined if it has not.
   ###
-  getObject: (id) -> @_objects[id]
+  getObject: (id) ->
+    return object if object = @_objects[id]
+    for object in @getObjects()
+      return object if object.__unique_id == id
+    null
   
   ###
   If the model has not been added to this World, nothing happens. Otherwise,
