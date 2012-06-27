@@ -19,7 +19,7 @@ class Jax.World
     @_renderQueue = []
     @_sortPosition = vec3.create()
     @_cameras = []
-    
+    @cameras = 1
     # these numbers pulled from a hat.
     @octree = new Jax.Octree 20, 10
     @_octreeModel = new Jax.Model octree: @octree

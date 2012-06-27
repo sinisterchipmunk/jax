@@ -55,7 +55,6 @@ class Jax.Context
     @id = guid++
     @world = new Jax.World this
     @uptime = 0
-    @activeCamera = new Jax.Camera()
     @matrix_stack = new Jax.MatrixStack()
     @framerateSampleRatio = 0.9
     @updateSpeed = 33
@@ -68,9 +67,14 @@ class Jax.Context
     
   @getter 'player', ->
     console.log new Error("Jax.Context#player is deprecated; it only contained `camera`, " + \
-                          "so you should use Jax.Context#activeCamera instead.").stack
-    @_player or= camera: @activeCamera
+                          "so you should use Jax.Controller#activeCamera instead.").stack
+    camera: @activeCamera
     
+  @define 'activeCamera',
+    set: (c) -> @controller?.activeCamera = c
+    get: ->
+      if @controller then @controller.activeCamera
+      else @world.cameras[0]
     
   isDisposed: -> @_isDisposed
   isRendering: -> @_isRendering
@@ -250,13 +254,12 @@ class Jax.Context
   unloadScene: ->
     @world.dispose()
     @world.cameras = 1
-    @activeCamera = @world.cameras[0]
     @setupCamera()
     delete @_player # TODO remove this line when deprecated `player` is removed!
     
   setupCamera: ->
-    if @canvas
-      @activeCamera.perspective
+    if @world and @canvas
+      @world.cameras[0].perspective
         width:  @canvas.clientWidth  || @canvas.width
         height: @canvas.clientHeight || @canvas.height
     
