@@ -22,6 +22,23 @@ class Jax.Context
     @_renderHandle = @_updateHandle = null
     @_framesPerSecond = @_updatesPerSecond = 0
     
+    @_errorFunc = (error, url, line) =>
+      if @controller and @controller.error
+        result = @controller.error error, url, line
+      else if typeof(ApplicationController) isnt 'undefined' and \
+          ApplicationController.prototype.error
+        result = ApplicationController.prototype.error.apply \
+          (@controller || new ApplicationController()), arguments
+          
+      if result is true
+        # non-fatal, restart rendering and updating
+        @restart()
+        true
+      else
+        @stopRendering()
+        @stopUpdating()
+        false
+    
     @_updateFunc = =>
       timechange = @refreshUPS()
       @update timechange
@@ -33,6 +50,8 @@ class Jax.Context
       @render()
       if @isRendering() then @requestRenderFrame()
       
+    window.addEventListener 'error', @_errorFunc
+
     @id = guid++
     @world = new Jax.World this
     @uptime = 0
@@ -242,6 +261,7 @@ class Jax.Context
         height: @canvas.clientHeight || @canvas.height
     
   dispose: ->
+    window.removeEventListener 'error', @_errorFunc
     @stopUpdating()
     @stopRendering()
     @world.dispose()

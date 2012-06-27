@@ -7,24 +7,67 @@ describe 'Jax.Context', ->
   it 'should have an id', -> expect(@context.id).not.toBeUndefined()
   it 'should have a world', -> expect(@context.world).toBeInstanceOf Jax.World
   it 'should set uptime to 0', -> expect(@context.uptime).toEqual 0
-  it 'should have a camera', -> expect(@context.activeCamera).toBeInstanceOf Jax.Camera
-  it 'should have a matrix stack', -> expect(@context.matrix_stack).toBeInstanceOf Jax.MatrixStack
-  it 'should init framerate to 0', -> expect(@context.getFramesPerSecond()).toEqual 0
-  it 'should init update rate to 0', -> expect(@context.getUpdatesPerSecond()).toEqual 0
-  it 'should have a default framerate sample ratio', -> expect(@context.framerateSampleRatio).toBeDefined()
+  it 'should have a camera', ->
+    expect(@context.activeCamera).toBeInstanceOf Jax.Camera
+  it 'should have a matrix stack', ->
+    expect(@context.matrix_stack).toBeInstanceOf Jax.MatrixStack
+  it 'should init framerate to 0', -> 
+    expect(@context.getFramesPerSecond()).toEqual 0
+  it 'should init update rate to 0', -> 
+    expect(@context.getUpdatesPerSecond()).toEqual 0
+  it 'should have a default framerate sample ratio', -> 
+    expect(@context.framerateSampleRatio).toBeDefined()
   it 'should not be disposed', -> expect(@context).not.toBeDisposed()
   it 'should be updating', -> expect(@context).toBeUpdating()
   it 'should not be rendering', -> expect(@context).not.toBeRendering()
-  it 'should keep a handle to the canvas', -> expect(@context.canvas).toBe document.getElementById('spec-canvas')
+  it 'should keep a handle to the canvas', ->
+    expect(@context.canvas).toBe document.getElementById('spec-canvas')
   
   it 'should find canvas by id', ->
     c = new Jax.Context @context.canvas.getAttribute 'id'
     expect(c.canvas).toBe @context.canvas
   
   it 'should pass webgl options into the webgl canvas', ->
-    c = new Jax.Context document.createElement('canvas'), preserveDrawingBuffer: true
-    expect(c.renderer.context.getContextAttributes().preserveDrawingBuffer).toBe true
+    c = new Jax.Context document.createElement('canvas'),
+      preserveDrawingBuffer: true
+    expect(c.renderer.context.getContextAttributes().preserveDrawingBuffer) \
+      .toBe true
     c.dispose()
+  
+  describe "handling errors", ->
+    context = error = null
+    beforeEach ->
+      error = shouldResume = null
+      Jax.Controller.create "test",
+        error: (err) -> error = err; shouldResume
+        index: ->
+        failNonFatally: ->
+          shouldResume = true
+          @raise()
+        failFatally: ->
+          shouldResume = null
+          @raise()
+        raise: ->
+          # raise a mock error, as a real one would fubar the test case
+          err = document.createEvent 'Events'
+          err.initEvent 'error', true, true
+          window.dispatchEvent err
+      context = new Jax.Context(document.createElement('canvas'))
+      context.redirectTo 'test'
+      
+    it "should pass error into handler", ->
+      context.controller.failNonFatally()
+      expect(error).not.toBeNull()
+      
+    it "should halt rendering if the handler returned false", ->
+      context.controller.failFatally()
+      expect(context.isRendering()).toBeFalse()
+      expect(context.isUpdating()).toBeFalse()
+    
+    it "should resume rendering if the handler returned true", ->
+      context.controller.failNonFatally()
+      expect(context.isRendering()).toBeTrue()
+      expect(context.isUpdating()).toBeTrue()
     
   describe "redirecting", ->
     Two = null
