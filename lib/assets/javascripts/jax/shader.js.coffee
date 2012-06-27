@@ -1,9 +1,5 @@
 #= require_self
-#= require "jax/shader/parser"
-#= require "jax/shader/collection"
-#= require "jax/shader/program"
-#= require "jax/shader/precision"
-#= require "jax/shader/function_collection"
+#= require_tree './shader'
 
 class Jax.Shader
   mangleVariables = (variables) ->

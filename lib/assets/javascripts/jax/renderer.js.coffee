@@ -1,15 +1,17 @@
-#= require_self
-#= require_tree "./renderer"
+#= require 'jax/core'
 
 class Jax.Renderer
+  @registeredOrder: []
+  
+  @register: (klass) -> @registeredOrder.push klass
+  
   @attemptThese: (canvas, renderers, contextOptions) ->
-    for renderer in renderers
+    for Renderer in renderers
       try
-        if Renderer = Jax.Renderer[renderer]
+        Renderer = Jax.Renderer[renderer] unless Renderer instanceof Function
+        if Renderer
           return new Renderer canvas, contextOptions
-        else throw new Error "BUG: class Jax.Renderer.#{renderer} not found!"
       catch e
         console.log "Instantiation of renderer #{renderer} failed with: #{e}"
-        console.log "Trying to use a different one..."
     throw new Error "Could not find a compatible renderer."
     

@@ -1,3 +1,5 @@
+#= require "jax/partition/octree"
+
 ###
 A +Jax.World+ represents a scene in the graphics engine. All objects to be rendered (or at least,
 all objects that you do not want to manually control!) should be added to the world. Each instance

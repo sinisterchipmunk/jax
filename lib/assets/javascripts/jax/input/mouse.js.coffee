@@ -32,10 +32,8 @@ class Jax.Input.Mouse extends Jax.Input
     [x, y] = [0, 0]
     ele = @receiver
     while ele
-      x += ele.offsetLeft || 0
-      y += ele.offsetTop  || 0
-      x += Jax.Compatibility.offsetLeft
-      y += Jax.Compatibility.offsetTop
+      x += (ele.offsetLeft || 0) + 1
+      y += (ele.offsetTop  || 0) + 1
       ele = ele.offsetParent
     cumOffset[0] = x
     cumOffset[1] = y

@@ -16,7 +16,7 @@ module Jax
     end
     
     config.before_configuration do
-      config.action_view.javascript_expansions[:jax] ||= [ 'jax', 'jax/application' ]
+      config.action_view.javascript_expansions[:jax] ||= [ 'jax' ]
     end
     
     initializer 'jax.engine' do |app|

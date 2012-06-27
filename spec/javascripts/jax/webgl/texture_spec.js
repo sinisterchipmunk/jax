@@ -1,4 +1,4 @@
-describe("Texture", function() {
+describe("Jax.Texture", function() {
   var _img = "/textures/rss.png";
   var tex;
   

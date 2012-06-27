@@ -1,4 +1,3 @@
-#= require 'jax/core/event_emitter'
 #= require_self
 #= require_tree './camera'
 

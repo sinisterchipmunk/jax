@@ -1,4 +1,5 @@
-#= require 'jax/core/coffee_patterns'
+#= require 'jax/core'
+#= require 'jax/renderer'
 #= require 'jax/webgl'
 
 class Jax.Context
@@ -183,8 +184,8 @@ class Jax.Context
   ###
   setupRenderer: (options) ->
     options = Jax.Util.normalizeOptions options,
-      renderers: ['WebGL']
-    return unless @canvas and options.renderers.length
+      renderers: Jax.Renderer.registeredOrder
+    return unless @canvas
     @renderer = Jax.Renderer.attemptThese @canvas, options.renderers, options
     # TODO deprecate `gl`, maybe around v3.1ish.
     @gl = @renderer.context
@@ -195,8 +196,8 @@ class Jax.Context
   ###
   setupInputDevices: ->
     if @canvas
-      @mouse    = new Jax.Input.Mouse    @canvas
-      @keyboard = new Jax.Input.Keyboard @canvas
+      @mouse    = new Jax.Input.Mouse    @canvas if Jax.Input?.Mouse
+      @keyboard = new Jax.Input.Keyboard @canvas if Jax.Input?.Keyboard
     
   redirectTo: (path) ->
     @unregisterListeners()
@@ -249,17 +250,30 @@ class Jax.Context
     
   registerListeners: ->
     return unless @controller
-    if @controller.mouse_pressed  then @mouse.listen 'press',      (evt) => @controller.mouse_pressed  evt
-    if @controller.mouse_released then @mouse.listen 'release',    (evt) => @controller.mouse_released evt
-    if @controller.mouse_clicked  then @mouse.listen 'click',      (evt) => @controller.mouse_clicked  evt
-    if @controller.mouse_moved    then @mouse.listen 'move',       (evt) => @controller.mouse_moved    evt
-    if @controller.mouse_entered  then @mouse.listen 'enter',      (evt) => @controller.mouse_entered  evt
-    if @controller.mouse_exited   then @mouse.listen 'exit',       (evt) => @controller.mouse_exited   evt
-    if @controller.mouse_dragged  then @mouse.listen 'drag',       (evt) => @controller.mouse_dragged  evt
-    if @controller.mouse_over     then @mouse.listen 'over',       (evt) => @controller.mouse_over     evt
-    if @controller.key_pressed    then @keyboard.listen 'press',   (evt) => @controller.key_pressed    evt
-    if @controller.key_released   then @keyboard.listen 'release', (evt) => @controller.key_released   evt
-    if @controller.key_typed      then @keyboard.listen 'type',    (evt) => @controller.key_typed      evt
+    if @mouse
+      if @controller.mouse_pressed  then @mouse.listen 'press',      (evt) => 
+        @controller.mouse_pressed  evt
+      if @controller.mouse_released then @mouse.listen 'release',    (evt) =>
+        @controller.mouse_released evt
+      if @controller.mouse_clicked  then @mouse.listen 'click',      (evt) =>
+        @controller.mouse_clicked  evt
+      if @controller.mouse_moved    then @mouse.listen 'move',       (evt) =>
+        @controller.mouse_moved    evt
+      if @controller.mouse_entered  then @mouse.listen 'enter',      (evt) =>
+        @controller.mouse_entered  evt
+      if @controller.mouse_exited   then @mouse.listen 'exit',       (evt) =>
+        @controller.mouse_exited   evt
+      if @controller.mouse_dragged  then @mouse.listen 'drag',       (evt) =>
+        @controller.mouse_dragged  evt
+      if @controller.mouse_over     then @mouse.listen 'over',       (evt) =>
+        @controller.mouse_over     evt
+    if @keyboard
+      if @controller.key_pressed    then @keyboard.listen 'press',   (evt) =>
+        @controller.key_pressed    evt
+      if @controller.key_released   then @keyboard.listen 'release', (evt) =>
+        @controller.key_released   evt
+      if @controller.key_typed      then @keyboard.listen 'type',    (evt) =>
+        @controller.key_typed      evt
     true
     
   unregisterListeners: ->

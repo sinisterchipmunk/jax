@@ -1,4 +1,6 @@
-class Jax.Renderer.WebGL
+#= require 'jax/renderer'
+
+Jax.Renderer.register class Jax.Renderer.WebGL
   constructor: (canvas, options) ->
     throw new Error "WebGL not supported!" unless canvas.getContext
     @context = canvas.getContext 'experimental-webgl', options
