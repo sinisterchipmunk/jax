@@ -1,3 +1,4 @@
+#= require "jax/core"
 #= require "jax/partition/octree"
 
 ###
@@ -7,6 +8,8 @@ of +Jax.Context+ has its own +Jax.World+, and the currently-active +Jax.World+ i
 controllers and views as the +this.world+ property.
 ###
 class Jax.World
+  @include Jax.EventEmitter
+  
   constructor: (@context) ->
     @renderOctree = false
     @lights = []
@@ -43,7 +46,9 @@ class Jax.World
       
   @define 'ambientColor',
     get: -> @_ambientColor
-    set: (c) -> @_ambientColor = Jax.Color.parse c
+    set: (c) ->
+      @_ambientColor = Jax.Color.parse c
+      @fireEvent 'ambientChanged'
     
   @getter 'objects', ->
     console.log """The getter `objects` is deprecated; please use `getObjects()` instead.
@@ -64,6 +69,7 @@ class Jax.World
       if i > num
         for j in [num...i]
           @_cameras[j] = new Jax.Camera
+      @fireEvent 'numCamerasChanged'
   
   ###
   Renders this World to its Jax context. If a material (or its name) is not
@@ -185,6 +191,7 @@ class Jax.World
   addLight: (light) ->
     light = Jax.Light.find(light) unless light instanceof Jax.Light
     @lights.push light
+    @fireEvent 'lightAdded'
     light
     
   ###
@@ -192,6 +199,7 @@ class Jax.World
   ###
   removeLight: (light) ->
     @lights.splice @lights.indexOf(light)
+    @fireEvent 'lightRemoved'
     light
 
   ###
@@ -220,9 +228,11 @@ class Jax.World
     if addToOctree
       @octree.add object
       object.addEventListener 'transformed', @updateOctree
+      @fireEvent 'objectAddedToOctree'
     else
       @_objects[object.__unique_id] = object
     @getObjects().push object
+    @fireEvent 'objectAdded'
     if object.castShadow isnt false
       # immediately invalidate shadow maps so that this object doesn't
       # not have a shadow
@@ -251,7 +261,10 @@ class Jax.World
     @invalidateShadowMaps.apply obj
     obj.removeEventListener 'transformed', @invalidateShadowMaps
     obj.removeEventListener 'transformed', @updateOctree
-    @octree.find(obj)?.remove obj
+    if node = @octree.find(obj)
+      node.remove obj
+      @fireEvent 'objectRemovedFromOctree'
+    @fireEvent 'objectRemoved'
     obj
     
   pickDataBuffers = {}
@@ -365,4 +378,5 @@ class Jax.World
     for light in @lights.splice(0)
       @removeLight light
       light.dispose @context
+    @fireEvent 'disposed'
     true
