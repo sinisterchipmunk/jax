@@ -1,16 +1,16 @@
-describe "<%=class_name%>", ->
+describe "<%= class_name %>", ->
   model = null
   
   describe "defaults", ->
     beforeEach ->
-      model = new <%=class_name%>()
+      model = new <%= class_name %>()
       
     <%- attributes.each do |attr| -%>
     it "should have a '<%=attr.name%>' attribute", ->
-      expect(model.<%=attr.name%>).toEqual(<%=attr.default.to_json%>)
+      expect(model.<%= attr.name %>).toEqual(<%= attr.default.to_json %>)
 
     <%- end -%>
   
-  it "should instantiate without errors", ->
-    expect(-> new <%=class_name%>()).not.toThrow()
+  it "should create a default instance without failing", ->
+    expect(-> new <%= class_name %>()).not.toThrow()
   
