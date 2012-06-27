@@ -22,7 +22,7 @@ Jax.Controller.create "octree",
       pos = obj.position
       pos[0] = Math.sin(obj.rot) * obj.radius
       pos[2] = Math.cos(obj.rot) * obj.radius
-      obj.camera.setPosition pos
+      obj.camera.position = pos
       @octree.update obj
     true
 
@@ -37,7 +37,7 @@ Jax.Controller.create "octree",
     # 
     # octree.add new Jax.Model position: [-0.5, -0.5,-0.5], mesh: new Jax.Mesh.Sphere(radius: 0.5)
     # octree.add @o = new Jax.Model position: [ 0.8,  0.8, 0.8], mesh: new Jax.Mesh.Sphere(radius: 0.1)
-    # @context.activeCamera.setPosition [0, 0, 5]
+    # @context.activeCamera.position = [0, 0, 5]
     # 
     # @world.addObject new Jax.Model
     #   render: (context, material) ->
@@ -77,7 +77,7 @@ Jax.Controller.create "octree",
     
     @_cam = camera = new Jax.Camera()
     camera.perspective near: 1, far: 10, width: @context.canvas.width, height: @context.canvas.height
-    camera.setPosition [0, 0, 4.5]
+    camera.position = [0, 0, 4.5]
     @world.addObject camera.frustum
     # @world.addLight new Jax.Light.Directional
     #   shadows: false

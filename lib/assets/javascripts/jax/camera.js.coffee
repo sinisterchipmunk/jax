@@ -9,7 +9,7 @@ class Jax.Camera
   
   constructor: (options) ->
     @rotation = quat4.identity()
-    @position = vec3.create()
+    @_position = vec3.create()
     @matrices =
       mv:  mat4.identity()
       imv: mat4.identity()
@@ -24,8 +24,8 @@ class Jax.Camera
     @_rightVector= vec3.create()
     
     if options
-      @setPosition  options.position if options.position
-      @setDirection options.direction if options.direction
+      @_position = options.position if options.position
+      @direction = options.direction if options.direction
       
   @getter 'frustum', ->
     @_frustum or= new Jax.Frustum @matrices.imv, @matrices.p
@@ -33,10 +33,30 @@ class Jax.Camera
     @recalculateMatrices() if @_stale
     @_frustum.validate() unless @_frustum.isValid()
     @_frustum
+
     
-  @getter 'direction', ->
-    @validate() unless @isValid()
-    @_viewVector
+  _dirVec = vec3.create()
+  _dirRightVec = vec3.create()
+  _dirUpVec = vec3.create()
+  _dirQuat = quat4.create()
+  @define 'direction',
+    get: ->
+      @validate() unless @isValid()
+      @_viewVector
+    set: (dir) ->
+      vec = vec3.set dir, _dirVec
+      vec3.scale vec, -1
+      vec3.normalize vec
+      if @_fixedYaw
+        right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
+        up    = vec3.normalize vec3.cross vec, right, _dirUpVec
+        quat4.fromAxes vec, right, up, @rotation
+      else
+        rotquat = vec3.toQuatRotation @direction, vec, _dirQuat
+        quat4.multiply rotquat, @rotation, @rotation
+      quat4.normalize @rotation
+      @invalidate()
+      @fireEvent 'updated'
     
   @getter 'right', ->
     @validate() unless @isValid()
@@ -45,6 +65,17 @@ class Jax.Camera
   @getter 'up', ->
     @validate() unless @isValid()
     @_upVector
+    
+  @define 'position',
+    get: -> @_position
+    set: (x) ->
+      vec3.set x, @_position
+      # no need to completely invalidate, just force matrices and
+      # frustum to update, that way we skip the overhead of
+      # recalculating view, right and up vectors, which won't change.
+      @_stale = true
+      @_frustum?.invalidate()
+      @fireEvent 'updated'
     
   invalidate: ->
     @_isValid = false
@@ -111,42 +142,6 @@ class Jax.Camera
       type: 'perspective'
     @fireEvent 'matrixUpdated'
     
-  setPosition: (x, y, z) ->
-    if y is undefined
-      vec3.set x, @position
-    else
-      @position[0] = x
-      @position[1] = y
-      @position[2] = z
-    # no need to completely invalidate, just force matrices and
-    # frustum to update, that way we skip the overhead of
-    # recalculating view, right and up vectors, which won't change.
-    @_stale = true
-    @_frustum?.invalidate()
-    @fireEvent 'updated'
-    
-  _dirVec = vec3.create()
-  _dirRightVec = vec3.create()
-  _dirUpVec = vec3.create()
-  _dirQuat = quat4.create()
-  setDirection: (dir) ->
-    vec = vec3.set dir, _dirVec
-    vec3.scale vec, -1
-    vec3.normalize vec
-    if @_fixedYaw
-      right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
-      up    = vec3.normalize vec3.cross vec, right, _dirUpVec
-      quat4.fromAxes vec, right, up, @rotation
-    else
-      rotquat = vec3.toQuatRotation @direction, vec, _dirQuat
-      quat4.multiply rotquat, @rotation, @rotation
-    quat4.normalize @rotation
-    @invalidate()
-    @fireEvent 'updated'
-    this
-    
-  setViewVector: (dir) -> @setDirection dir
-    
   _rotVec = vec3.create()
   _rotQuat = quat4.create()
   rotate: (amount, x, y, z) ->
@@ -188,15 +183,15 @@ class Jax.Camera
     @rotateWorld amount, axis
     
   reorient: (view, pos) ->
-    if pos then @setPosition pos
-    @setDirection view
+    if pos then @position = pos
+    @direction = view
     this
     
   lookAt: (point, pos) ->
-    if pos then @setPosition pos
+    if pos then @position = pos
     else pos = @position
     view = @direction
-    @setDirection vec3.subtract point, pos, view
+    @direction = vec3.subtract point, pos, view
     
   getTransformationMatrix: ->
     @recalculateMatrices() if @_stale

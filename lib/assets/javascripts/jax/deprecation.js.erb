@@ -10,6 +10,12 @@
   }
 
   function createDelegator(oldProp, newProp, message) {
+    var setter = false;
+    if (newProp) {
+      setter = newProp.charAt(newProp.length-1) === '=';
+      newProp = newProp.replace(/=$/, '');
+    }
+    
     return (function() {
       var _value;
       var src = this;
@@ -25,7 +31,15 @@
           else console.log(message);
           if (_value instanceof Function)
             return _value.apply(this, arguments);
-          else return _value;
+          else {
+            if (setter)
+              if (arguments.length > 1)
+                return src[prop] = arguments;
+              else
+                return src[prop] = arguments[0];
+            else
+              return _value;
+          }
         }
       } else {
         throw new Error(message);
@@ -60,6 +74,9 @@ if (Jax.Camera) {
   Jax.deprecate(Jax.Camera, 'getViewVector', 'direction');
   Jax.deprecate(Jax.Camera, 'getRightVector', 'right');
   Jax.deprecate(Jax.Camera, 'getUpVector', 'up');
+  Jax.deprecate(Jax.Camera, 'setDirection', 'direction=');
+  Jax.deprecate(Jax.Camera, 'setViewVector', 'direction=');
+  Jax.deprecate(Jax.Camera, 'setPosition', 'position=');
   /** deprecated
    * Jax.Camera#orient(viewVector, upVector[, positionVector]) -> Jax.Camera
    * - viewVector (vec3): the new direction that the camera will be pointing

@@ -47,14 +47,14 @@ Jax.Controller.create "lighting",
         diffuse: [0, 0, 1, 1]
         specular: [0, 0, 1, 1]
     
-    @context.activeCamera.setPosition 0, 15, 50
+    @context.activeCamera.position = [0, 15, 50]
     @context.activeCamera.lookAt [0, 0, 0]
     
   mouse_dragged: (e) ->
     newPos = @teapot.camera.position
     newPos[0] += e.diffx * 0.1
     newPos[2] += e.diffy * 0.1
-    @teapot.camera.setPosition newPos
+    @teapot.camera.position = newPos
 
   update: (timechange) ->
     return unless spot = @spot

@@ -46,15 +46,15 @@ describe("Jax.Camera", function() {
   });
   
   it("should be able to reverse direction without losing orientation", function() {
-    camera.setPosition([0, 0, -5]);
-    camera.setDirection([0, 0, 1]);
+    camera.position = [0, 0, -5];
+    camera.direction = [0, 0, 1];
     expect(camera.position).toEqualVector([0, 0, -5]);
     expect(camera.direction).toEqualVector([0, 0, 1]);
     expect(camera.up).toEqualVector([0, 1, 0]);
     expect(camera.right).toEqualVector([-1, 0, 0]);
 
-    camera.setPosition([0, 0, 5]);
-    camera.setDirection([0, 0, -1]);
+    camera.position = [0, 0, 5];
+    camera.direction = [0, 0, -1];
     expect(camera.position).toEqualVector([0, 0, 5]);
     expect(camera.direction).toEqualVector([0, 0, -1]);
     expect(camera.up).toEqualVector([0, 1, 0]);
@@ -64,10 +64,10 @@ describe("Jax.Camera", function() {
   it("should unproject properly", function() {
     camera.perspective({width:800,height:500,near:0.1,far:200});
     
-    camera.setPosition([38.375, 75, 44.25]);
+    camera.position = [38.375, 75, 44.25];
     // camera.setUpVector([0, 0.196116, -0.980580]);
     // camera.setRightVector([1,0,0]);
-    camera.setViewVector([0, -0.980580, -0.196116]);
+    camera.direction = [0, -0.980580, -0.196116];
     
     // sanity checks
     expect(camera.position).toEqualVector([38.375, 75, 44.25]);
@@ -94,7 +94,7 @@ describe("Jax.Camera", function() {
   });
   
   it("rotation then reset", function() {
-    camera.setPosition([1,1,1]);
+    camera.position = [1,1,1];
     camera.pitch(1);
     camera.yaw(1);
     camera.roll(1);
@@ -129,7 +129,7 @@ describe("Jax.Camera", function() {
     // this is the default, no beforeEach necessary
     
     it("should not lose up vector", function() {
-      camera.setPosition([-1.8,0.35,1.8]);
+      camera.position = [-1.8,0.35,1.8];
       camera.lookAt([0,0,0]);
       var up = camera.up;
       // FIXME is this safe?
@@ -180,7 +180,7 @@ describe("Jax.Camera", function() {
   });
   
   it("should set and get position accurately", function() {
-    camera.setPosition(20, 0, 20);
+    camera.position = [20, 0, 20];
     expect(camera.position).toEqualVector([20,0,20]);
     var matr = camera.getTransformationMatrix();
     expect(matr[12]).toEqual(20);
@@ -189,15 +189,15 @@ describe("Jax.Camera", function() {
   });
   
   it("should lookAt the origin without losing position", function() {
-    camera.setPosition(20, 0, 20);
+    camera.position = [20, 0, 20];
     expect(camera.position).toEqualVector([20,0,20]);
     camera.lookAt([0,0,0]);
     expect(camera.position).toEqualVector([20,0,20]);
   });
   
   it("should set view relative to position", function() {
-    camera.setPosition(10, 10, 10);
-    camera.setDirection([-1, 0, 0]);
+    camera.position = [10, 10, 10];
+    camera.direction = [-1, 0, 0];
     
     expect(camera.position).toEqualVector([10,10,10]);
     expect(camera.direction).toEqualVector([-1,0,0]);
@@ -206,8 +206,8 @@ describe("Jax.Camera", function() {
   
   describe("orienting the camera after translation", function() {
     beforeEach(function() {
-      camera.setPosition(100, 100, 100);
-      camera.setDirection([0, 0, -1]);
+      camera.position = [100,100,100];
+      camera.direction = [0, 0, -1];
     });
     
     it("should not change its position", function() { expect(camera.position).toEqualVector([100,100,100]); });
@@ -227,8 +227,8 @@ describe("Jax.Camera", function() {
   
   describe("orientation", function() {
     it(" pos(0,0,1), view(0,-1,0)", function() {
-      camera.setPosition(0,0,1);
-      camera.setDirection([0,-1,0]);
+      camera.position = [0,0,1];
+      camera.direction = [0,-1,0];
       expect(camera.direction).toEqualVector([0,-1,0]);
     });
   });
@@ -253,19 +253,14 @@ describe("Jax.Camera", function() {
     });
   });
   
-  it("should set the position using numbers", function() {
-    camera.setPosition(1, 1, 1);
-    expect(camera.position).toEqualVector([1,1,1]);
-  });
-  
   it("should set the position using a vector", function() {
-    camera.setPosition([1,1,1]);
+    camera.position = [1,1,1];
     expect(camera.position).toEqualVector([1,1,1]);
   });
   
   describe("orienting the camera with numeric arguments and no position", function() {
     beforeEach(function() {
-      camera.setDirection(0, 0, 1);
+      camera.direction = [0, 0, 1];
     });
     
     it("position should be 0,0,0", function() { expect(camera.position).toEqualVector([0,0,0]);      });
@@ -307,13 +302,13 @@ describe("Jax.Camera", function() {
       spyOn(camera, 'fireEvent').andCallThrough();
     });
     
-    it("should fire 'updated' when setPosition called", function() {
-      camera.setPosition(1, 1, 1);
+    it("should fire 'updated' when position= called", function() {
+      camera.position = [1, 1, 1];
       expect(camera.fireEvent).toHaveBeenCalledWith('updated');
     });
     
     it("should fire 'updated' when orient called", function() {
-      camera.setDirection(0, 0, -1);
+      camera.direction = [ 0, 0, -1 ];
       expect(camera.fireEvent).toHaveBeenCalledWith('updated');
     });
   });

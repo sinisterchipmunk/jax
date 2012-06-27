@@ -74,14 +74,15 @@ Jax.Controller.create "benchmark",
     k = 0
     
     @world.addLight new Jax.Light.Directional
-        
+    @player.camera.position = [0, 0, 10]
+    
     for i in [0..max]
       for j in [0..max]
         for k in [0..max]
           @world.addObject new Jax.Model
             position: [i - 2.5, j - 2.5, k - 2.5]
+            castShadow: false
             mesh: new Jax.Mesh.Sphere
-              size: 0.25
               radius: 0.25
               color: [1, 1, 1, 1]
               material: new Jax.Material.Legacy
@@ -90,5 +91,4 @@ Jax.Controller.create "benchmark",
                 color:
                   diffuse: [i / max, j / max, k / max, 1]
     
-    # @world.addObject new Jax.Model position: [0, 0, -5], mesh: new Jax.Mesh.Sphere
     @world.addObject new Jax.Framerate ema: no

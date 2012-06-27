@@ -87,7 +87,6 @@ describe("Jax.World", function() {
     var obj2 = world.addObject(new Jax.Model({render: logThis, position: [0,0,-4], mesh: new Jax.Mesh.Sphere}));
     var obj1 = world.addObject(new Jax.Model({render: logThis, position: [0,0,-1], mesh: new Jax.Mesh.Sphere}));
     world.render();
-    console.log(world.octree);
     expect(log).toEqual([obj1, obj2]);
   });
   

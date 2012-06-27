@@ -11,7 +11,7 @@ class Jax.ShadowMap.Directional extends Jax.ShadowMap
       
     if count > 0
       vec3.scale center, 1 / count
-      @light.camera.setPosition center
+      @light.camera.position = center
       
       sceneRadius = 0
       dist = vec3.create()

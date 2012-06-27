@@ -37,11 +37,11 @@ class Jax.Light extends Jax.Model
     
   @define 'direction',
     get: -> @camera.direction
-    set: (dir) -> @camera.setDirection dir
+    set: (dir) -> @camera.direction = dir
 
   @define 'position',
     get: -> @camera.position
-    set: (pos) -> @camera.setPosition pos
+    set: (pos) -> @camera.position = pos
     
   @define 'innerSpotAngle',
     get: -> @_innerSpotAngle
