@@ -1,12 +1,11 @@
-describe("<%=class_name%>Controller", function() {
+describe("<%= class_name %>Controller", function() {
   var controller;
   
   beforeEach(function() {
-    SPEC_CONTEXT.redirectTo("<%=file_name%>/index");
-    controller = SPEC_CONTEXT.current_controller;
+    this.context.redirectTo("<%= file_name %>");
   });
   
   it("should do something", function() {
-    expect(controller).toBeInstanceOf(Jax.Controller);
+    expect(this.context.controller).toBeInstanceOf(Jax.Controller);
   });
 });
