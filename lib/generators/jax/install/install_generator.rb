@@ -16,6 +16,10 @@ DESC
         route %{mount Jax::Engine => "/jax" unless Rails.env == "production"}
       end
       
+      def create_example_html
+        copy_file 'run_webgl.html.erb', 'public/jax_example.html'
+      end
+      
       def create_jax_application_controller
         coffee_template_with_fallback "application_controller.js", 'app/assets/jax/controllers/application_controller.js'
       end
