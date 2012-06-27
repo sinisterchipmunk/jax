@@ -20,6 +20,7 @@ class Jax.ShadowMap.Directional extends Jax.ShadowMap
         length = vec3.length(vec3.subtract center, obj.camera.position, dist) + obj.mesh?.bounds.radius
         sceneRadius = length if sceneRadius < length
       
+      sceneRadius = 1 if sceneRadius is 0
       mat4.ortho -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, -sceneRadius, sceneRadius, projection
     else
       mat4.ortho -1, 1, -1, 1, -1, 1, projection
