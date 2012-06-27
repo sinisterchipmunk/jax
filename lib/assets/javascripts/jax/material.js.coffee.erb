@@ -6,7 +6,7 @@ class Jax.Material
     @shader = new Jax.Shader.Program @name
     @layers = []
     @assigns = {}
-    options or= {}
+    options = Jax.Util.normalizeOptions options, {}
     for key, value of options
       switch key
         when 'layers'  then @addLayer layer for layer in value
@@ -21,7 +21,6 @@ class Jax.Material
       @layers.push options
       return options
     
-    # options or= {}
     options = Jax.Util.normalizeOptions options, {}
     Klass = Jax.Material[options.type]
     throw new Error "#{@name}: Material layer type #{options.type} could not be found" unless Klass
