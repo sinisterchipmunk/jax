@@ -108,24 +108,25 @@ class Jax.Material
   
   @instances: {}
   @resources: {}
+  @__isMaterial: true
   
   @find: (name) ->
     return Jax.Material.instances[name] if Jax.Material.instances[name]
     throw new Error "Material '#{name}' could not be found!" unless data = Jax.Material.resources[name]
     # FIXME Messy...
     switch data.type?.toString().toUpperCase()
-      when undefined
-        # Legacy. Equivalent to Custom, but with a basic shader.
-        Klass = Jax.Material
-        data.layers or= []
-        data.layers.unshift type: "VertexColor"
-        data.layers.unshift type: "Position"
-      when 'CUSTOM' then Klass = Jax.Material.Custom
-      when 'LEGACY' then Klass = Jax.Material.Legacy
-      when 'SURFACE', 'VOLUME', 'HALO', 'WIRE'
-        throw new Error "#{name}: Material type #{data.type} is not yet implemented."
+      when 'CUSTOM'  then Klass = Jax.Material.Custom
+      when 'LEGACY'  then Klass = Jax.Material.Legacy
+      when 'SURFACE' then Klass = Jax.Material.Surface
+      when 'HALO'    then Klass = Jax.Material.Halo
+      when 'WIRE'    then Klass = Jax.Material.Wire
       else
-        throw new Error "#{name}: Material property `type` is invalid. Please note that its meaning changed in Jax v2.1 and see documentation for details."
+        # last-ditch effort to find custom materials
+        unless Klass = Jax.Material[data.type] and Klass.__isMaterial
+          console.log "#{name}: Material type #{data.type} is invalid. Please note that its meaning changed in Jax v3.0; it should be one of 'Surface', 'Legacy', 'Wire', 'Halo', 'Custom'."
+          console.log "Type of material #{name} is defaulting to 'Legacy'."
+          Klass = Jax.Material.Legacy
+    throw new Error "#{name}: Material type #{data.type} is not yet implemented." unless Klass
     Jax.Material.instances[name] = new Klass data, name
     
   @addResources: (resources) ->
