@@ -8,14 +8,17 @@ class Jax.Shader.CompileError extends Jax.Error
     @message = message
 
 class Jax.Shader.Program
-  buildBacktrace = (gl, shader, source) ->
+  guid = 0
+  
+  buildBacktrace: (gl, shader, source) ->
     log = gl.getShaderInfoLog(shader)?.split(/\n/) || []
     rx = /\d+:(\d+):(.*)/
     errors = (rx.exec line for line in log)
     for index in [0...source.length]
       line = source[index]
       humanLineNo = index+1
-      if humanLineNo < 10 then humanLineNo = "  #{humanLineNo}" else if humanLineNo < 100 then humanLineNo = " #{humanLineNo}"
+      if humanLineNo < 10 then humanLineNo = "  #{humanLineNo}"
+      else if humanLineNo < 100 then humanLineNo = " #{humanLineNo}"
       log.push "#{humanLineNo} : #{line}"
       for errno in [0...errors.length]
         if errors[errno] and parseInt(errors[errno][1]) == index+1
@@ -24,20 +27,21 @@ class Jax.Shader.Program
           errno = 0
     log
 
-  compileShader = (gl, jaxShader, glShader) ->
+  compileShader: (gl, jaxShader, glShader) ->
     gl.shaderSource glShader, jaxShader.toString()
     gl.compileShader glShader
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
-      backtrace = buildBacktrace gl, glShader, jaxShader.toLines()
+      backtrace = @buildBacktrace gl, glShader, jaxShader.toLines()
       throw new Jax.Shader.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
       
-  ensureDefaultWriters = (vertex, fragment) ->
+  ensureDefaultWriters: (vertex, fragment) ->
     if vertex.main.length == 0
       vertex.main.push "gl_Position = vec4(1.0, 1.0, 1.0, 1.0);"
     if fragment.main.length == 0
       fragment.main.push "gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);"
       
   constructor: (@name = "generic") ->
+    @_guid or= guid++
     @_discovered = {}
     @_isCompiled = {}
     @_glShaders = {}
@@ -45,27 +49,68 @@ class Jax.Shader.Program
     @shaders = []
     @vertex = new Jax.Shader "#{@name}-v"
     @fragment = new Jax.Shader "#{@name}-f"
-    ensureDefaultWriters @vertex, @fragment
+    @ensureDefaultWriters @vertex, @fragment
+    
+  loadDescriptor: (context) ->
+    descriptors = context._shaderDescriptors or= {}
+    vhash = Jax.Util.hash @vertex.toString()
+    fhash = Jax.Util.hash @fragment.toString()
+    phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
+    descriptor = {}
+    descriptor.vertex   = descriptors[vhash]
+    descriptor.fragment = descriptors[fhash]
+    descriptor.program  = descriptors[phash]
+    descriptor
+    
+  saveDescriptor: (context, descriptor) ->
+    descriptors = context._shaderDescriptors or= {}
+    vhash = Jax.Util.hash @vertex.toString()
+    fhash = Jax.Util.hash @fragment.toString()
+    phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
+    descriptors[vhash] = descriptor.vertex
+    descriptors[fhash] = descriptor.fragment
+    descriptors[phash] = descriptor.program
+    descriptor
     
   glShader: (context, type) ->
     unless _gl = @_glShaders[context.id]
       gl = context.gl
-      _gl = @_glShaders[context.id] =
-        program: gl.createProgram()
-        vertex: gl.createShader GL_VERTEX_SHADER
-        fragment: gl.createShader GL_FRAGMENT_SHADER
-      gl.attachShader _gl.program, _gl.vertex
-      gl.attachShader _gl.program, _gl.fragment
-    if type then _gl[type] else _gl
+      _gl = @_glShaders[context.id] = {}
+    if type then _gl[type]
+    else _gl
     
   compile: (context) ->
     gl = context.gl
+    descriptor = @loadDescriptor context
     glShader = @glShader context
-    compileShader gl, @vertex, glShader.vertex
-    compileShader gl, @fragment, glShader.fragment
-    gl.linkProgram glShader.program
-    unless gl.getProgramParameter glShader.program, GL_LINK_STATUS
-      throw new Error "Could not initialize shader!\n\n"+ gl.getProgramInfoLog glShader.program
+    if descriptor.program
+      glShader.program = descriptor.program
+      glShader.vertex = descriptor.vertex
+      glShader.fragment = descriptor.fragment
+    else
+      # guid's on shader objects make them easier to debug,
+      # this should have no effect on runtime
+      descriptor.program = glShader.program = gl.createProgram()
+      descriptor.program._guid = guid++
+      if descriptor.vertex
+        glShader.vertex = descriptor.vertex
+      else
+        descriptor.vertex = glShader.vertex = gl.createShader GL_VERTEX_SHADER
+        descriptor.vertex._guid = guid++
+        @compileShader gl, @vertex, glShader.vertex
+      if descriptor.fragment
+        glShader.fragment = descriptor.fragment
+      else
+        descriptor.fragment = glShader.fragment = gl.createShader GL_FRAGMENT_SHADER
+        descriptor.fragment._guid = guid++
+        @compileShader gl, @fragment, glShader.fragment
+      gl.attachShader glShader.program, glShader.vertex
+      gl.attachShader glShader.program, glShader.fragment
+      gl.linkProgram glShader.program
+      unless gl.getProgramParameter glShader.program, GL_LINK_STATUS
+        throw new Error "Could not initialize shader!\n\n"+ \
+                        gl.getProgramInfoLog glShader.program
+      @saveDescriptor context, descriptor
     @_variables[context.id] = {}
     @_discovered[context.id] = false
     @_isCompiled[context.id] = true

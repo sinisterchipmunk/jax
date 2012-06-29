@@ -2,7 +2,114 @@ describe "Jax.Shader.Program", ->
   program = null
   beforeEach ->
     program = new Jax.Shader.Program
+    
+  describe "compiling two different programs with identical sources", ->
+    program2 = null
+    beforeEach ->
+      vcode = 'void main(void) { gl_Position = vec4(1); }'
+      fcode = 'void main(void) { gl_FragColor = vec4(1); }'
+      program.vertex.append vcode
+      program.fragment.append fcode
+      program2 = new Jax.Shader.Program
+      program2.vertex.append vcode
+      program2.fragment.append fcode
+      
+    it 'sanity check', ->
+      expect(program.vertex).not.toBe program2.vertex
+      expect(program.fragment).not.toBe program2.fragment
+      expect(program.glShader(@context).program).toBe program.glShader(@context).program
+      expect(program.glShader(@context).vertex).toBe program.glShader(@context).vertex
+      expect(program.glShader(@context).fragment).toBe program.glShader(@context).fragment
+    
+    it 'should produce the same GL program', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).program).toBe program2.glShader(@context).program
+      
+    it 'should produce the same GL vertex shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).vertex).toBe program2.glShader(@context).vertex
+      
+    it 'should produce the same GL fragment shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).fragment).toBe program2.glShader(@context).fragment
   
+  describe "compiling two programs with identical vertex and differring fragment", ->
+    program2 = null
+    beforeEach ->
+      vcode = 'void main(void) { gl_Position = vec4(1); }'
+      program.vertex.append vcode
+      program.fragment.append 'void main(void) { gl_FragColor = vec4(1); }'
+      program2 = new Jax.Shader.Program
+      program2.vertex.append vcode
+      program2.fragment.append 'void main(void) { gl_FragColor = vec4(2); }'
+
+    it 'should produce a different GL program', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+
+    it 'should produce the same GL vertex shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).vertex).toBe program2.glShader(@context).vertex
+
+    it 'should produce a different GL fragment shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).fragment).not.toBe program2.glShader(@context).fragment
+      
+  describe "compiling two programs with different vertex and identical fragment", ->
+    program2 = null
+    beforeEach ->
+      fcode = 'void main(void) { gl_FragColor = vec4(1); }'
+      program.vertex.append  'void main(void) { gl_Position = vec4(1); }'
+      program.fragment.append fcode
+      program2 = new Jax.Shader.Program
+      program2.vertex.append 'void main(void) { gl_Position = vec4(2); }'
+      program2.fragment.append fcode
+
+    it 'should produce a different GL program', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+
+    it 'should produce a different GL vertex shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).vertex).not.toBe program2.glShader(@context).vertex
+
+    it 'should produce the same GL fragment shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).fragment).toBe program2.glShader(@context).fragment
+      
+  describe "compiling two programs with different vertex and fragment", ->
+    program2 = null
+    beforeEach ->
+      program.vertex.append    'void main(void) { gl_Position = vec4(1); }'
+      program.fragment.append  'void main(void) { gl_FragColor = vec4(1); }'
+      program2 = new Jax.Shader.Program
+      program2.vertex.append   'void main(void) { gl_Position = vec4(2); }'
+      program2.fragment.append 'void main(void) { gl_FragColor = vec4(2); }'
+
+    it 'should produce a different GL program', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+
+    it 'should produce a different GL vertex shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).vertex).not.toBe program2.glShader(@context).vertex
+
+    it 'should produce the same GL fragment shader', ->
+      program.compile @context
+      program2.compile @context
+      expect(program.glShader(@context).fragment).not.toBe program2.glShader(@context).fragment
+
   it "should bind textures and auto increment texture index", ->
     tex1 = new Jax.Texture(path: "/textures/rock.png")
     tex2 = new Jax.Texture(path: "/textures/rock.png")
