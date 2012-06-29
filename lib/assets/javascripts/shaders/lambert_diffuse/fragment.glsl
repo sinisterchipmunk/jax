@@ -11,33 +11,31 @@ void main(void) {
       NormalizedEyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
     }
   
-    for (int LIGHT = 0; LIGHT < MAX_LIGHTS; LIGHT++) {
-      vec3 L;
-      float d = 1.0;
-      if (LightType[LIGHT] == <%= Jax.DIRECTIONAL_LIGHT %>) {
-        L = -EyeSpaceLightDirection[LIGHT];
-        d = 1.0;
-      } else {
-        L = EyeSpaceLightPosition[LIGHT] - vEyeSpaceSurfacePosition;
-        d = length(L);
-        L /= d;
-      }
-    
-      cache(float, SpotAttenuation[MAX_LIGHTS]) {
-        float cosCurAngle = dot(-L, EyeSpaceLightDirection[LIGHT]);
-        float cosInnerMinusOuterAngle = LightSpotInnerCos[LIGHT] - LightSpotOuterCos[LIGHT];
-        SpotAttenuation[LIGHT] = clamp((cosCurAngle - LightSpotOuterCos[LIGHT]) / cosInnerMinusOuterAngle, 0.0, 1.0);
-      }
-    
-      // this is cached here so that attenuation can get a handle on it
-      // FIXME we probably need a better interface for this sort of thing
-      cache(float, LightDistanceFromSurface[MAX_LIGHTS]) { LightDistanceFromSurface[LIGHT] = d; }
-    
-      vec3 C =  LightDiffuseColor[LIGHT].rgb * MaterialDiffuseColor.rgb *
-                MaterialDiffuseColor.a * MaterialDiffuseIntensity;
-
-      float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
-      gl_FragColor += vec4(lambert * C * SpotAttenuation[LIGHT], 1.0);
+    vec3 L;
+    float d = 1.0;
+    if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
+      L = -EyeSpaceLightDirection;
+      d = 1.0;
+    } else {
+      L = EyeSpaceLightPosition - vEyeSpaceSurfacePosition;
+      d = length(L);
+      L /= d;
     }
+  
+    cache(float, SpotAttenuation) {
+      float cosCurAngle = dot(-L, EyeSpaceLightDirection);
+      float cosInnerMinusOuterAngle = LightSpotInnerCos - LightSpotOuterCos;
+      SpotAttenuation = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
+    }
+  
+    // this is cached here so that attenuation can get a handle on it
+    // FIXME we probably need a better interface for this sort of thing
+    cache(float, LightDistanceFromSurface) { LightDistanceFromSurface = d; }
+  
+    vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
+              MaterialDiffuseColor.a * MaterialDiffuseIntensity;
+
+    float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
+    gl_FragColor += vec4(lambert * C * SpotAttenuation, 1.0);
   }
 }

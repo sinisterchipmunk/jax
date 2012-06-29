@@ -1,4 +1,4 @@
-void mapToParaboloid(inout vec4 position, const float zNear, const float zFar) {
+void mapToParaboloid(inout vec4 position, float zNear, float zFar) {
   float L = length(position.xyz);
   position /= L;
   position.z += 1.0;

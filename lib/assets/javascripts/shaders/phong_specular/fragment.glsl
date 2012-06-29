@@ -12,27 +12,25 @@ void main(void) {
       NormalizedEyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
     }
   
-    for (int LIGHT = 0; LIGHT < MAX_LIGHTS; LIGHT++) {
-      vec3 L;
-      if (LightType[LIGHT] == <%= Jax.DIRECTIONAL_LIGHT %>) {
-        L = -EyeSpaceLightDirection[LIGHT];
-      } else {
-        L = normalize(EyeSpaceLightPosition[LIGHT] - vEyeSpaceSurfacePosition);
-      }
+    vec3 L;
+    if (LightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
+      L = -EyeSpaceLightDirection;
+    } else {
+      L = normalize(EyeSpaceLightPosition - vEyeSpaceSurfacePosition);
+    }
 
-      cache(float, SpotAttenuation[MAX_LIGHTS]) {
-        float cosCurAngle = dot(-L, EyeSpaceLightDirection[LIGHT]);
-        float cosInnerMinusOuterAngle = LightSpotInnerCos[LIGHT] - LightSpotOuterCos[LIGHT];
-        SpotAttenuation[LIGHT] = clamp((cosCurAngle - LightSpotOuterCos[LIGHT]) / cosInnerMinusOuterAngle, 0.0, 1.0);
-      }
+    cache(float, SpotAttenuation) {
+      float cosCurAngle = dot(-L, EyeSpaceLightDirection);
+      float cosInnerMinusOuterAngle = LightSpotInnerCos - LightSpotOuterCos;
+      SpotAttenuation = clamp((cosCurAngle - LightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
+    }
 
-      float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
-      if (lambert > 0.0) {
-        vec3 R = reflect(L, NormalizedEyeSpaceSurfaceNormal);
-        vec3 C = MaterialSpecularColor.rgb * LightSpecularColor[LIGHT].rgb;
-        vec3 E = normalize(vEyeSpaceSurfacePosition);
-        gl_FragColor += vec4(C * SpotAttenuation[LIGHT] * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);
-      }
+    float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
+    if (lambert > 0.0) {
+      vec3 R = reflect(L, NormalizedEyeSpaceSurfaceNormal);
+      vec3 C = MaterialSpecularColor.rgb * LightSpecularColor.rgb;
+      vec3 E = normalize(vEyeSpaceSurfacePosition);
+      gl_FragColor += vec4(C * SpotAttenuation * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);
     }
   }
 }
