@@ -1,171 +1,215 @@
-describe "Jax.Shader", ->
-  shader = null
-  beforeEach -> shader = new Jax.Shader
+describe "Jax.Shader2", ->
+  shader = log = null
+  beforeEach ->
+    log = false
+    shader = new Jax.Shader()
+  sim = ->
+    console.log shader.toString() if log
+    new ShaderScript.Simulator(vertex: shader.toString()).start()
+  variable = (name) -> sim().state.variables[name]
+  simval = (name) -> variable(name).value
   
-  describe "multiple exports accross appends", ->
-    beforeEach ->
-      shader.append "void main(void) { export(float, x, 1.0); }"
-      shader.append "void main(void) { export(float, x, 2.0); }"
-    
-    it "should be accumulated", ->
-      sim = new ShaderScript.Simulator vertex: shader.toString()
-      sim.start()
-      expect(sim.state.variables.exported_x0.value).toEqual 1
-      expect(sim.state.variables.exported_x1.value).toEqual 2
-  
-  describe "importing with no prior exports", ->
-    beforeEach -> shader.append 'float s = 0; void main() { import(x, s += x); }'
-    
-    it "should be ignored", ->
-      sim = new ShaderScript.Simulator vertex: shader.toString()
-      sim.start()
-      expect(sim.state.variables.s.value).toEqual 0
-  
-  describe "importing with prior exports", ->
-    beforeEach -> shader.append 'float s = 0; void main() { export(float, x, 1.0); export(float, x, 2.0); import(x, s += x); }'
-
-    it "should be accumulated", ->
-      sim = new ShaderScript.Simulator vertex: shader.toString()
-      sim.start()
-      expect(sim.state.variables.s.value).toEqual 3
-
-  it "should merge identical definitions from in more than one append", ->
-    shader.append "int i;"
-    shader.append "int i;"
-    expect(shader.toString().indexOf("int i;")).toEqual shader.toString().lastIndexOf("int i;")
-    
-  describe "with multiple functions with params spanning multiple lines", ->
-    # the white space formatting here is crucial!
-    beforeEach -> shader.append """
-    float calcAttenuation(in vec3 ecPosition3,
-                          out vec3 lightDirection)
-    {
-    }
-
-    void DirectionalLight(
-                          )
-    {
-      return 1;
-    }
-    """
-    
-    it "should not omit curly braces from the function", ->
-      expect(shader.toString()).toMatch /\{[\s\t\n]*return 1;[\s\t\n]*\}/
-  
-  describe "parsing cache directives", ->
-    it "should parse array caches properly", ->
-      shader.append "void main() { cache(float, len[2]) { len[0] = 1.0; len[1] = 2.0; } }"
-      sim = new ShaderScript.Simulator vertex: shader.toString()
-      sim.start()
-      expect(sim.state.variables.len.value).toEqual [1, 2]
-    
-    it "should use only the first value", ->
-      shader.append "void main() { cache(float, len) {\n  len = 2.0;\n} }"
-      shader.append "void main() { cache(float, len) {\n  len = 1.0;\n} }"
-      sim = new ShaderScript.Simulator
-        vertex: shader.toString()
-      sim.start()
-      expect(sim.state.variables.len.value).toEqual 2.0
-      
-    it "should throw an error when caching differring types", ->
-      shader.append "void main() { cache(float, len) {\n  len = 2.0;\n} }"
-      expect(-> shader.append "void main() { cache(int, len) {\n  len = 1;\n} }").toThrow "Can't cache `len` as `int`: already cached it as `float`"
-  
-  it "should mangle references to mangled functions", ->
-    shader.append "void mangleThis() { }\n\nvoid main() { mangleThis() }"
-    expect(shader.toString()).not.toMatch /mangleThis\(/
-  
-  it "should not err on empty params", ->
-    expect(-> shader.append "void main() { }").not.toThrow()
-    
-  
-  describe "after appending source", ->
+  describe 'append', ->
     map = null
     beforeEach ->
-      map = shader.append """
-      shared uniform mat4 mvMatrix;
-      shared attribute vec4 position;
-      shared varying vec3 vPosition;
-      shared int myfunc(int x) { return x; }
-
-      uniform mat4 pMatrix;
-      attribute vec3 normal;
-      varying vec3 vNormal;
-      void main(void) { gl_Position = pMatrix * mvMatrix * vec4(position, 1); }
-
-      vec4 _position;
-      """
-      
-    describe "the return value", ->
-      it "should map shared uniforms", ->
-        expect(map.mvMatrix).toEqual('mvMatrix')
+      map = shader.append 'uniform float one; shared uniform float two;'
     
-      it "should map shared attributes", ->
-        expect(map.position).toEqual('position')
-
-      it "should map shared varyings", ->
-        expect(map.vPosition).toEqual('vPosition')
-        
-      it "should map shared functions", ->
-        expect(map.myfunc).toEqual('myfunc')
+    it 'should return a name mangling map', ->
+      expect(map.one).toEqual 'one0'
+      expect(map.two).toEqual 'two'
+  
+  describe "an empty addition", ->
+    beforeEach -> shader.append ""
     
-      it "should map private uniforms", ->
-        expect(map.pMatrix).toEqual('pMatrix0')
-
-      it "should map private attributes", ->
-        expect(map.normal).toEqual('normal0')
-
-      it "should map private varyings", ->
-        expect(map.vNormal).toEqual('vNormal0')
-        
-      it "should map private functions", ->
-        expect(map.main).toEqual('main0')
-
-    it "should detect uniforms", ->
-      expect(shader.uniforms.length).toEqual 2
-      
-    it "should detect attributes", ->
-      expect(shader.attributes.length).toEqual 2
-      
-    it "should detect varyings", ->
-      expect(shader.varyings.length).toEqual 2
-      
-    it "should detect functions", ->
-      expect(shader.functions.length).toEqual 2
+    it "should not produce `undefined` in the sources", ->
+      expect(shader.toString()).not.toMatch /undefined/
+  
+  describe 'using built-in functions', ->
+    beforeEach -> shader.append 'float x; void main(void) { x = pow(2.0, 2.0); }'
     
-    it "should detect globals", ->
-      expect(shader.global).toMatch /vec4 _position;/
+    it 'should not mangle references', ->
+      expect(simval 'x').toEqual 4
+  
+  describe 'with shared uniforms defined in multiple appendages', ->
+    beforeEach ->
+      shader.append 'shared uniform float one;'
+      shader.append 'shared uniform float one;'
+    
+    it 'should not redefine them', ->
+      expect(shader.toString().indexOf('uniform float one')).toEqual shader.toString().lastIndexOf('uniform float one')
+  
+  describe 'with multiple shared uniforms declared at once', ->
+    beforeEach -> shader.append 'shared uniform float one, two, three;'
+    
+    it 'should define them all', ->
+      expect(variable 'one').not.toBeUndefined()
+      expect(variable 'two').not.toBeUndefined()
+      expect(variable 'three').not.toBeUndefined()
+  
+  describe 'with multiple un-shared uniforms declared at once', ->
+    beforeEach -> shader.append 'uniform float one, two, three;'
+
+    it 'should mangle them all', ->
+      expect(variable 'one0').not.toBeUndefined()
+      expect(variable 'two0').not.toBeUndefined()
+      expect(variable 'three0').not.toBeUndefined()
+
+  describe "with an appendage that exported a variable", ->
+    beforeEach -> shader.append 'void main() { export(float, x, 1.0); export(float, x, 1.0); }'
+    
+    describe "importing it", ->
+      beforeEach -> shader.append 'float t = 0.0; void main() { import(x, t += x); }'
       
-    describe "its source code", ->
-      it "should produce a default precision qualifier", ->
-        expect(shader.toString()).toMatch /precision mediump float;/
-
-      it "should mangle references to private variables", ->
-        expect(shader.toString()).toMatch /gl_Position = pMatrix0 \* mvMatrix \* vec4\(position, 1\)/
-
-      it "should mangle non-shared attributes", ->
-        expect(shader.toString()).toMatch /attribute vec3 normal0;/
-
-      it "should mangle non-shared uniforms", ->
-        expect(shader.toString()).toMatch /uniform mat4 pMatrix0;/
-
-      it "should mangle non-shared varyings", ->
-        expect(shader.toString()).toMatch /varying vec3 vNormal0;/
+      it "should accumulate as many times as it was exported", ->
+        expect(simval 't').toEqual 2
         
-      it "should mangle non-shared functions", ->
-        expect(shader.toString()).toMatch /void main0\(void\)/
-        
-      it "should not mangle shared attributes", ->
-        expect(shader.toString()).toMatch /attribute vec4 position;/
+  describe 'with two cached blocks', ->
+    beforeEach ->
+      shader.append 'float x; void main(void) { cache(float, y) { x = 1.0;} }'
+      shader.append 'float x; void main(void) { cache(float, y) { x = 1.0;} }'
+    
+    it 'should only evaluate the first block', ->
+      expect(simval 'x').toEqual 1
+      
+  describe "with a cache assignment", ->
+    beforeEach -> shader.append 'void main(void) { cache(float, y) { y = 1.0; } }'
+    
+    it 'should define the variable', ->
+      expect(simval 'y').toEqual 1
+  
+  describe 'with an appendage with a main', ->
+    beforeEach -> shader.append 'float x; void main(void) { x = 1.0; }'
+    
+    it "should mangle the main", ->
+      expect(shader.toString()).toMatch /void main0/
+      
+    it "should execute the main", ->
+      expect(simval 'x').toEqual 1
+  
+  describe "pushing code into main", ->
+    beforeEach -> shader.main.push 'float x = 1.5;'
+    
+    it "should process the pushed code", ->
+      expect(simval 'x').toEqual 1.5
+      
+  it "should set float precision to mediump", ->
+    expect(shader.toString()).toMatch /precision mediump float;/
+    
+  describe "with a specified precision", ->
+    beforeEach -> shader.append "precision highp float;"
+    
+    it "should not set mediump precision", ->
+      expect(shader.toString()).not.toMatch /precision mediump float;/
+      
+    it "should not alter the specified precision", ->
+      expect(shader.toString()).toMatch /precision highp float;/
+      
+  describe "shared", ->
+    describe "injecting a shared attribute", ->
+      beforeEach -> shader.append "shared attribute vec3 x;"
+    
+      it "should not mangle the name", ->
+        expect(variable 'x').not.toBeUndefined()
+      
+    describe "injecting a shared uniform", ->
+      beforeEach -> shader.append "shared uniform vec3 xyz;"
 
-      it "should not mangle shared uniforms", ->
-        expect(shader.toString()).toMatch /uniform mat4 mvMatrix;/
+      it "should not mangle the name", ->
+        expect(variable 'xyz').not.toBeUndefined()
 
-      it "should not mangle shared varyings", ->
-        expect(shader.toString()).toMatch /varying vec3 vPosition;/
+    describe "injecting a shared varying", ->
+      beforeEach -> shader.append "shared varying vec3 x;"
 
-      it "should not mangle shared functions", ->
-        expect(shader.toString()).toMatch /int myfunc\(int x\)/
+      it "should not mangle the name", ->
+        expect(variable 'x').not.toBeUndefined()
 
-      it "should include globals", ->
-        expect(shader.toString()).toMatch /vec4 _position;/
+    describe "referencing a shared attribute", ->
+      s = null
+      beforeEach ->
+        shader.append 'shared attribute float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x.value = 2.0
+        s.start()
+
+      it "should not mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3
+
+    describe "referencing a shared uniform", ->
+      s = null
+      beforeEach ->
+        shader.append 'shared uniform float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x.value = 2.0
+        s.start()
+
+      it "should not mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3
+
+    describe "referencing a shared varying", ->
+      s = null
+      beforeEach ->
+        shader.append 'shared varying float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x.value = 2.0
+        s.start()
+
+      it "should not mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3
+
+  describe "un-shared", ->
+    describe "injecting an un-shared attribute", ->
+      beforeEach -> shader.append "attribute vec3 x;"
+    
+      it "should mangle the name", ->
+        expect(variable 'x0').not.toBeUndefined()
+      
+    describe "injecting an un-shared uniform", ->
+      beforeEach -> shader.append "uniform vec3 x;"
+
+      it "should mangle the name", ->
+        expect(variable 'x0').not.toBeUndefined()
+
+    describe "injecting an un-shared varying", ->
+      beforeEach -> shader.append "varying vec3 x;"
+
+      it "should mangle the name", ->
+        expect(variable 'x0').not.toBeUndefined()
+
+    describe "referencing an un-shared attribute", ->
+      s = null
+      beforeEach ->
+        shader.append 'attribute float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x0.value = 2.0
+        s.start()
+    
+      it "should mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3
+
+    describe "referencing an un-shared uniform", ->
+      s = null
+      beforeEach ->
+        shader.append 'uniform float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x0.value = 2.0
+        s.start()
+
+      it "should mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3
+
+    describe "referencing an un-shared varying", ->
+      s = null
+      beforeEach ->
+        shader.append 'varying float x; void t(void) { float y = x + 1.0; }'
+        shader.main.push 't0();'
+        s = new ShaderScript.Simulator vertex: shader.toString()
+        s.state.variables.x0.value = 2.0
+        s.start()
+
+      it "should mangle the reference", ->
+        expect(s.state.scope.find('root.block.t0.block.y').value).toEqual 3

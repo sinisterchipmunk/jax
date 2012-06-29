@@ -1,6 +1,6 @@
 class Jax.Material.Layer
   shaderSource = (data, which) ->
-    source = (data.common || "") + (data[which] + "")
+    source = (data.common || "") + (data[which] || "")
     options =
       SHADER_TYPE: which
     new EJS({text:source}).render(options)
@@ -9,14 +9,14 @@ class Jax.Material.Layer
     throw new Error "Second argument must be an instance of Jax.Material" unless material
     @setVariables = options?.setVariables if options?.setVariables
     if options?.shader and (data = Jax.shader_data options.shader)?.fragment || data?.vertex
-      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
-      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
+      fmap = material.fragment.append shaderSource data, 'fragment'
+      vmap = material.vertex.append   shaderSource data, 'vertex'
     else if (data = this.__proto__.constructor.shaderSource) isnt undefined
-      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
-      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
+      fmap = material.fragment.append shaderSource data, 'fragment'
+      vmap = material.vertex.append   shaderSource data, 'vertex'
     else if (data = options) and data?.fragment || data?.vertex
-      fmap = material.fragment.append shaderSource data, 'fragment' if data.fragment
-      vmap = material.vertex.append   shaderSource data, 'vertex'   if data.vertex
+      fmap = material.fragment.append shaderSource data, 'fragment'
+      vmap = material.vertex.append   shaderSource data, 'vertex'
     else
       fmap = vmap = {}
     @material = material

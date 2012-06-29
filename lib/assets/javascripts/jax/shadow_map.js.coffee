@@ -22,7 +22,7 @@ class Jax.ShadowMap
     @_projectionMatrix
     
   bindTextures: (context, vars, texture1) ->
-    vars[texture1] = @shadowmapFBO.getTexture context, 0
+    vars[texture1] = @shadowmapFBO?.getTexture context, 0
     
   ###
   Sets up the projection matrix used to render to the framebuffer object from the

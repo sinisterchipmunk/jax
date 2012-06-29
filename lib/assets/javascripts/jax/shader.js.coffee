@@ -1,113 +1,219 @@
 #= require_self
 #= require_tree './shader'
 
-class Jax.Shader
-  mangleVariables = (variables) ->
-    lines = for variable in variables.all
-      "#{variable.qualifier} #{variable.type} #{variable.mangledName};"
-    lines.push "" if lines.length > 0 # empty line for separator
-    lines
-    
-  mangleReferences = (text, collections...) ->
-    for collection in collections
-      for variable in collection.all
-        continue if variable.shared
-        rx = new RegExp("([^a-zA-Z\$0-9_]|\\A)#{variable.name}([^a-zA-Z\$0-9_]|\\z)", "g")
-        text = text.replace rx, "$1#{variable.mangledName}$2"
-    text
-    
-  processImports = (body, exports) ->
-    rx = /import[\s\t\n]*\([\s\t\n]*(\w+)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*;/
-    if match = rx.exec body
-      name = match[1]
-      expression = match[2]
-      code = ""
-      for exp in exports
-        if name == exp.name
-          code += expression.replace(new RegExp("(^|[^a-zA-Z0-9_])#{name}([^a-zA-Z0-9_]|$)", 'g'), \
-                                     "$1#{exp.mangledName}$2")
-          code += ";"
-      body = body[0...body.indexOf match[0]] + code + body[(body.indexOf(match[0]) + match[0].length)..-1]
-      body = processImports body, exports
-    body
-  
-  mangleFunction = (func, exports) ->
-    body = func.body
-    body = mangleReferences body, @uniforms, @attributes, @varyings, @functions
-    body = processImports body, exports
-    
-    lines = ["#{func.type} #{func.mangledName}(#{func.params}) {"]
-    lines = lines.concat body.split /\n/
-    lines.push "}"
-    lines.push "" if lines.length > 0 # empty line for separator
-    lines
-    
-  merge = (dest, src) ->
-    for k, v of src
-      dest[k] or= v
-
-  constructor: (@name = "generic") ->
-    @precision  = new Jax.Shader.Precision
-    @uniforms   = new Jax.Shader.Collection 'uniform'
-    @attributes = new Jax.Shader.Collection 'attribute'
-    @varyings   = new Jax.Shader.Collection 'varying'
-    @functions  = new Jax.Shader.FunctionCollection
-    @exports = []
-    @caches = {}
-    @global = []
-    @main = []
-  
-  ###
-  Appends the GLSL source code to this shader, mangling its non-shared variables
-  according to this shader's ID. Warning: this method will alter the structure of
-  this shader!
-  ###
-  append: (source) ->
-    parser = new Jax.Shader.Parser source, @exports
-    parser.parseCaches @caches
-    result = {}
-    @precision.merge parser.precision
-    merge result, @uniforms.merge   parser.uniforms
-    merge result, @attributes.merge parser.attributes
-    merge result, @varyings.merge   parser.varyings
-    merge result, @functions.merge  parser.functions
-    (@global.push line unless @global.indexOf(line) != -1) for line in parser.global
-    @main.push "#{result.main}();" if result.main
-    
-    result
-    
-  exportDeclarations: ->
-    for exp in @exports
-      "#{exp.type} #{exp.mangledName};"
-  
-  toLines: ->
-    lines = []
-    lines = lines.concat @precisionLines()
-    lines = lines.concat @global
-    lines = lines.concat @exportDeclarations()
-    lines = lines.concat mangleVariables @uniforms
-    lines = lines.concat mangleVariables @attributes
-    lines = lines.concat mangleVariables @varyings
-    for func in @functions.all
-      lines.push "" if lines.length > 0 # empty line for separator
-      lines = lines.concat mangleFunction.call this, func, @exports
-    unless @functions.main
-      lines.push ""
-      lines.push "void main(void) {"
-      for main in @main
-        lines.push "  #{main}"
-      lines.push "}"
-    lines
-    
-  precisionLines: ->
-    lines = []
-    for precision in @precision.all
-      lines.push "precision #{precision.qualifier} #{precision.type};"
-    lines.push "" if lines.length > 0
-    lines
-    
-  ###
-  Converts this shader into its complete, name-mangled source code.
-  ###
+class Main extends Array
   toString: ->
-    @toLines().join("\n")
+    "void main(void) {\n  #{@join '\n  '}\n}"
+    
+class Parser
+  findVariables: ->
+    variables = []
+    rx = /(shared |)(varying|uniform|attribute) (\w+) ([^;]+);/
+    src = @src
+    while match = rx.exec src
+      offsetStart = match.index
+      offsetEnd = match.index + match[0].length
+      variables.push
+        shared: !!match[1]
+        qualifier: match[2]
+        type: match[3]
+        names: match[4].split(/, ?/)
+        match: match
+      src = src[0...offsetStart] + src[offsetEnd..-1]
+    variables
+    
+  findFunctions: ->
+    functions = []
+    rx = /(\w+) (\w+)\((.*?)\) {/
+    src = @src
+    while match = rx.exec src
+      offsetStart = match.index
+      offsetEnd = match.index + match[0].length
+      signature = match[3]
+      offsetEnd += Jax.Util.scan(src[offsetEnd..-1], '}', '{').length + 1
+      func = src[offsetStart...offsetEnd]
+      src = src[0...offsetStart] + src[offsetEnd..-1]
+      functions.push
+        shared: false
+        signature: signature
+        full: func
+        type: match[1]
+        name: match[2]
+    functions
+  
+  constructor: (src) ->
+    @src = src
+    
+  getMangledMain: (mangler) ->
+    mangles = @findFunctions()
+    for mangle in mangles
+      if mangle.name == 'main'
+        mangle.mangledName = mangle.name + mangler
+        return mangle
+    null
+    
+  map: (mangler) ->
+    map = {}
+    mangles = @findVariables()
+    for mangle in mangles
+      for name in mangle.names
+        if mangle.shared
+          map[name] = name
+        else
+          map[name] = name + mangler
+    map
+    
+  mangle: (mangler, currentSrc) ->
+    src = @src
+    # variables
+    mangles = @findVariables()
+    for mangle in mangles
+      mangledNames = []
+      for name in mangle.names
+        if mangle.shared
+          continue if new RegExp("#{name}(,|;)").test currentSrc
+          mangledNames.push name
+        else
+          mangledNames.push name + mangler
+      if mangledNames.length > 0
+        mangledNames = mangledNames.join ', '
+        variable = [mangle.qualifier, mangle.type, mangledNames].join ' '
+        variable += ';'
+      else
+        variable = ""
+
+      src = src.replace mangle.match[0], variable
+      # references
+      continue if mangle.shared
+      for name in mangle.names
+        mangledName = name + mangler
+        while match = new RegExp("(^|\\W)#{name}(\\W|$)").exec src
+          src = src.replace match[0], match[1] + mangledName + match[2]
+          
+    # functions
+    mangles = @findFunctions()
+    for mangle in mangles
+      mangledName = mangle.name + mangler
+      mangledSignature = mangle.signature.replace mangle.name, mangledName
+      mangledFunc = mangle.full.replace mangle.signature, mangledSignature
+      src = src.replace mangle.full, mangledFunc
+      while match = new RegExp("(^|\\W)#{mangle.name}(\\W|$)").exec src
+        src = src.replace match[0], match[1] + mangledName + match[2]
+    
+    src
+
+class Jax.Shader
+  constructor: (@name = "generic") ->
+    @sources = []
+    @main = new Main()
+    
+  processExportsAndImports: (code) ->
+    exports = []
+    rx = /export\(/
+    offset = 0
+    exportID = 0
+    while match = rx.exec code[offset..-1]
+      offsetStart = match.index + offset
+      offsetEnd = offsetStart + match[0].length
+      remainder = Jax.Util.scan code[offsetEnd..-1]
+      offsetEnd += remainder.length + 1
+      exp = /^(.*?), (.*?), (.*)$/.exec remainder
+      exports.push
+        fullMatch: code[offsetStart...offsetEnd]
+        type: exp[1]
+        name: exp[2]
+        mangledName: "export_" + exp[2] + exportID++
+        value: exp[3]
+        offsetStart: offsetStart
+        offsetEnd: offsetEnd
+      offset = offsetEnd
+    
+    rx = /import\(/
+    for offset in [(code.length-1)..0]
+      if match = rx.exec code[offset..-1]
+        offsetStart = match.index + offset
+        offsetEnd = offsetStart + match[0].length
+        remainder = Jax.Util.scan code[offsetEnd..-1]
+        offsetEnd += remainder.length + 1
+        # consume terminators to prevent empty statements
+        offsetEnd++ if code[offsetEnd] == ';'
+        imp = /^(.*?), (.*)$/.exec remainder
+        imp =
+          fullMatch: code[offsetStart...offsetEnd]
+          name: imp[1]
+          value: imp[2]
+          offsetStart: offsetStart
+          offsetEnd: offsetEnd
+        replacement = ""
+        for exp in exports
+          if exp.name == imp.name and exp.offsetStart < imp.offsetStart
+            value = imp.value.replace new RegExp(imp.name, 'g'), exp.mangledName
+            replacement += value + ";\n"
+        code = code.replace imp.fullMatch, replacement
+
+    definitions = ""
+    for exp in exports
+      definitions += "#{exp.type} #{exp.mangledName};\n"
+      expr = exp.mangledName + " = " + exp.value;
+      code = code.replace(exp.fullMatch, expr);
+    
+    if match = /precision.*?\n/.exec code
+      ofs = match.index + match[0].length
+      code = code[0...ofs] + definitions + code[ofs..-1]
+    else
+      code = definitions + code
+      
+    code
+    
+  toLines: ->
+    @toString().split('\n')
+    
+  toString: ->
+    main = new Main
+    main.push line for line in @main
+    
+    result = ""
+    for src, i in @sources
+      result += src.mangle i, result
+      result += "\n"
+      if mangledMain = src.getMangledMain i
+        main.push mangledMain.mangledName + "();"
+    body = @processExportsAndImports result + main.toString()
+
+    # caches
+    caches = {}
+    while match = /cache\(([^,]+?), (.*?)\) \{/.exec body
+      cacheType = match[1].trim()
+      cacheName = match[2].trim()
+      offsetStart = match.index
+      offsetEnd = offsetStart + match[0].length
+      rest = Jax.Util.scan body[offsetEnd..-1], '}', '{'
+      offsetEnd += rest.length + 1
+      cache = body[offsetStart...offsetEnd]
+      cacheCode = ""
+      if caches[cacheName]
+        if caches[cacheName].type != cacheType
+          throw new Error "Cached variable #{cacheName} has a conflicting type: #{cacheType} (already defined as a #{caches[cacheName].type})"
+      else
+        caches[cacheName] =
+          name: cacheName
+          type: cacheType
+        cacheCode += rest
+      body = body[0...offsetStart] + cacheCode + body[offsetEnd..-1]
+    definitions = ""
+    for name, cache of caches
+      definitions += cache.type + " " + cache.name + ";\n"
+    if match = /precision.*?\n/.exec body
+      ofs = match.index + match[0].length
+      body = body[0...ofs] + definitions + body[ofs..-1]
+    else
+      body = definitions + body
+
+    if body.indexOf('precision') is -1
+      "precision mediump float;\n\n" + body
+    else body
+    
+  append: (src) ->
+    mangler = @sources.length
+    @sources.push parser = new Parser(src)
+    parser.map mangler
