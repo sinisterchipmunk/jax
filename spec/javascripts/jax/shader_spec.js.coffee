@@ -9,6 +9,11 @@ describe "Jax.Shader2", ->
   variable = (name) -> sim().state.variables[name]
   simval = (name) -> variable(name).value
   
+  describe 'toString', ->
+    it 'should produce the same results each time', ->
+      shader.append 'void main(void) { gl_Position = vec4(1); }'
+      expect(shader.toString()).toEqual shader.toString()
+  
   describe 'append', ->
     map = null
     beforeEach ->
