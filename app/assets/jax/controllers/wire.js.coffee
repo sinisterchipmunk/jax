@@ -137,24 +137,22 @@ Jax.Controller.create "wire",
           @_p2verts = new Jax.Buffer GL_ARRAY_BUFFER, null, GL_STREAM_DRAW, buf2, 4
           @_p3verts = new Jax.Buffer GL_ARRAY_BUFFER, null, GL_STREAM_DRAW, buf3, 3
         mesh.data.set vars, vertices: 'position'
-        vars.set
-          WIN_SCALE: [context.canvas.width/2, context.canvas.height/2]
-          WIRE_COL: [0.7, 0.7, 0.8, 1]
-          FILL_COL: [0, 0, 0, 0]
-          MVP: context.matrix_stack.getModelViewProjectionMatrix()
-          # be sure to set these AFTER setting the mesh position above, or else
-          # the buffers below will bind new GL buffers and mess up the mesh data
-          # transfer.
-          p1_3d: @_p2verts
-          p2_3d: @_p3verts
+        vars.WIN_SCALE = [context.canvas.width/2, context.canvas.height/2]
+        vars.WIRE_COL = [0.7, 0.7, 0.8, 1]
+        vars.FILL_COL = [0, 0, 0, 0]
+        vars.MVP = context.matrix_stack.getModelViewProjectionMatrix()
+        # be sure to set these AFTER setting the mesh position above, or else
+        # the buffers below will bind new GL buffers and mess up the mesh data
+        # transfer.
+        vars.p1_3d = @_p2verts
+        vars.p2_3d = @_p3verts
     }, material
     tpmesh.material = material
     
-    # @world.addLight new Jax.Light.Directional
+    @world.addLight new Jax.Light.Directional direction: [-1, -1, -1]
     
-    @world.ambientColor = [1,1,1,1]
     @world.addObject new Jax.Framerate ema: no
     @world.addObject new Jax.Model 
-      position: [0, 0, -3]
+      position: [0, 0, -5]
       mesh: tpmesh
-      update: (tc) -> @camera.rotate tc, 1, 0.75, 0.5
+      update: (tc) -> @camera.rotate tc * 0.25, 1, 0.75, 0.5
