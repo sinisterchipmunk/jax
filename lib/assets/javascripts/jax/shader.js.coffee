@@ -8,7 +8,7 @@ class Main extends Array
 class Parser
   findVariables: ->
     variables = []
-    rx = /(shared |)(varying|uniform|attribute) (\w+) ([^;]+);/
+    rx = /(shared[\s\t\n]+|)(varying|uniform|attribute)[\s\t\n]+(\w+)[\s\t\n]+(((\w+)([\s\t\n]*,[\s\t\n]*|))+)[\s\t\n]*;/
     src = @src
     while match = rx.exec src
       offsetStart = match.index
@@ -24,7 +24,7 @@ class Parser
     
   findFunctions: ->
     functions = []
-    rx = /(\w+) (\w+)\((.*?)\) {/
+    rx = /(\w+)[\s\t\n]+(\w+)[\s\t\n]*\([\s\t\n]*[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*{/
     src = @src
     while match = rx.exec src
       offsetStart = match.index
@@ -109,7 +109,7 @@ class Jax.Shader
     
   processExportsAndImports: (code) ->
     exports = []
-    rx = /export\(/
+    rx = /export[\s\t\n]*\(/
     offset = 0
     exportID = 0
     while match = rx.exec code[offset..-1]
@@ -117,7 +117,7 @@ class Jax.Shader
       offsetEnd = offsetStart + match[0].length
       remainder = Jax.Util.scan code[offsetEnd..-1]
       offsetEnd += remainder.length + 1
-      exp = /^(.*?), (.*?), (.*)$/.exec remainder
+      exp = /^(.*?)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*,[\s\t\n]*(.*)$/.exec remainder
       exports.push
         fullMatch: code[offsetStart...offsetEnd]
         type: exp[1]
@@ -128,7 +128,7 @@ class Jax.Shader
         offsetEnd: offsetEnd
       offset = offsetEnd
     
-    rx = /import\(/
+    rx = /import[\s\t\n]*\(/
     for offset in [(code.length-1)..0]
       if match = rx.exec code[offset..-1]
         offsetStart = match.index + offset
@@ -137,7 +137,7 @@ class Jax.Shader
         offsetEnd += remainder.length + 1
         # consume terminators to prevent empty statements
         offsetEnd++ if code[offsetEnd] == ';'
-        imp = /^(.*?), (.*)$/.exec remainder
+        imp = /^(.*?)[\s\t\n]*,[\s\t\n]*(.*)$/.exec remainder
         imp =
           fullMatch: code[offsetStart...offsetEnd]
           name: imp[1]
@@ -182,7 +182,7 @@ class Jax.Shader
 
     # caches
     caches = {}
-    while match = /cache\(([^,]+?), (.*?)\) \{/.exec body
+    while match = /cache[\s\t\n]*\([\s\t\n]*([^,]+?)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*\{/.exec body
       cacheType = match[1].trim()
       cacheName = match[2].trim()
       offsetStart = match.index
