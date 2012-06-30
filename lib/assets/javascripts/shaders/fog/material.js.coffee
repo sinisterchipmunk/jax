@@ -3,7 +3,7 @@ Jax.EXPONENTIAL = 2
 Jax.EXP2 = 3
 
 class Jax.Material.Fog extends Jax.Material.Layer
-  constructor: (options, material) ->
+  constructor: (options) ->
     options or= {}
     @start     = options.start
     @end       = options.end
@@ -12,7 +12,7 @@ class Jax.Material.Fog extends Jax.Material.Layer
     @color     = options.color     || Jax.Color.parse '#fff'
     @color     = Jax.Util.colorize @color
     @_positionMap = position: 'VERTEX_POSITION'
-    super options, material
+    super options
     
     switch @algorithm
       when Jax.LINEAR, Jax.EXPONENTIAL, Jax.EXP2 then ;

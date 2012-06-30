@@ -1,30 +1,25 @@
-class Jax.Material.ShaderVariableMap
-  constructor: (vmap, fmap, @assigns = {}) ->
-    @_map = {}
-    @_map[k] = v for k, v of vmap
-    @_map[k] = v for k, v of fmap
-    @realNames = (v for k, v of @_map)
-    
-  set: (keyOrVariables, valueOrNothing) ->
-    [map, assigns, realNames] = [@_map, @assigns, @realNames]
+###
+A dummy object that is only here for legacy reasons;
+it could really be replaced by a generic object except
+for the `set` function and the `texture` function, both
+of which are deprecated in favor of just directly setting
+property values on the object.
 
+Values assigned to the variable map are eventually assigned
+to shaders, so their keys should be names of shader
+variables.
+###
+class Jax.Material.ShaderVariableMap
+  set: (keyOrVariables, valueOrNothing) ->
     if valueOrNothing is undefined
       for k, v of keyOrVariables
         continue if v is undefined
-        if key = map[k] then assigns[key] = v
-        else assigns[k] = v
-        # else if k in realNames then assigns[k] = v
-        # else throw new Error "Variable '#{k}' not found!"
+        this[k] = v
     else
       k = keyOrVariables
       v = valueOrNothing
-      
       if v isnt undefined
-        if key = map[k] then assigns[key] = v
-        else assigns[k] = v
-        # else if k in realNames then assigns[k] = v
-        # else throw new Error "Variable '#{k}' not found!"
-    assigns
+        this[k] = v
   
   texture: (name, tex, context) ->
     @set name, tex

@@ -1,8 +1,8 @@
 #= require "jax/material/illumination_layer"
 
 class Jax.Material.PhongSpecular extends Jax.Material.IlluminationLayer
-  constructor: (options, material) ->
-    super options, material
+  constructor: (options) ->
+    super options
     @meshDataMap =
       vertices: 'VERTEX_POSITION'
       normals: 'VERTEX_NORMAL'
@@ -20,7 +20,7 @@ class Jax.Material.PhongSpecular extends Jax.Material.IlluminationLayer
 
     vars.ModelViewMatrix = context.matrix_stack.getModelViewMatrix()
     vars.NormalMatrix = context.matrix_stack.getNormalMatrix()
-    vars.MaterialShininess = @material.shininess
-    vars.MaterialSpecularIntensity = @material.intensity.specular
-    vars.MaterialSpecularColor = @material.color.specular
+    vars.MaterialShininess = @shininess
+    vars.MaterialSpecularIntensity = @intensity
+    vars.MaterialSpecularColor = @color
     mesh.data.set vars, @meshDataMap

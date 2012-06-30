@@ -3,6 +3,22 @@ describe "Jax.Material", ->
   
   afterEach -> delete Jax.Material.TestLayer
   
+  describe "with class-wide layers", ->
+    TestMat = null
+    beforeEach ->
+      TestMat = class TestMat extends Jax.Material
+        @addLayer type: "Position"
+    
+    it "should share shader instances between instances", ->
+      expect(new TestMat().shader).toBe new TestMat().shader
+      
+    it "should not taint Jax.Material", ->
+      expect(Jax.Material.getLayers()).toBeEmpty()
+      
+    it "should not add layers more than once", ->
+      expect(new TestMat().layers.length).toEqual 1
+      expect(new TestMat().layers.length).toEqual 1
+  
   it "should not re-bind attribute arrays which are not overwritten between objects", ->
     # when for example obj A binds its normals, but obj B does not,
     # then it should not try to create a vertex attrib pointer using

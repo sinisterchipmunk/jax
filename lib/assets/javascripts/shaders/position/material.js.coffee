@@ -1,6 +1,6 @@
 class Jax.Material.Position extends Jax.Material.Layer
-  constructor: (options, material) ->
-    super options, material
+  constructor: (options) ->
+    super options
     @meshMap = vertices: 'VERTEX_POSITION'
     
   setVariables: (context, mesh, model, vars) ->

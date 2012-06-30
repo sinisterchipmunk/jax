@@ -1,7 +1,8 @@
 class Jax.Material.ShadowMap extends Jax.Material.Layer
-  constructor: (options, material) ->
-    super options, material
+  constructor: (options) ->
+    @pcf = true
     @meshMap = vertices: 'VERTEX_POSITION'
+    super options
   
   numPasses: (context) -> context.world.lights.length + 1
   
@@ -25,7 +26,7 @@ class Jax.Material.ShadowMap extends Jax.Material.Layer
     if vars['SHADOWMAP_ENABLED']
       vars['ParaboloidNear'] = light.shadowmap.paraboloidNear || 1
       vars['ParaboloidFar']  = light.shadowmap.paraboloidFar  || 200
-      vars['SHADOWMAP_PCF_ENABLED'] = !(@material.pcf is false)
+      vars['SHADOWMAP_PCF_ENABLED'] = @pcf
       vars['SHADOWMAP_MATRIX'] = light.shadowmap.shadowMatrix
       vars['SHADOWMAP_WIDTH'] = light.shadowmap.width
       vars['SHADOWMAP_HEIGHT'] = light.shadowmap.height

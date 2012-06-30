@@ -1,8 +1,8 @@
 #= require "jax/material/illumination_layer"
 
 class Jax.Material.LambertDiffuse extends Jax.Material.IlluminationLayer
-  constructor: (options, material) ->
-    super options, material
+  constructor: (options) ->
+    super options
     @meshDataMap =
       vertices: 'VERTEX_POSITION'
       normals:  'VERTEX_NORMAL'
@@ -19,7 +19,7 @@ class Jax.Material.LambertDiffuse extends Jax.Material.IlluminationLayer
     vars['EyeSpaceLightPosition'] = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
 
     vars.NormalMatrix = context.matrix_stack.getNormalMatrix()
-    vars.MaterialDiffuseIntensity = @material.intensity.diffuse
-    vars.MaterialDiffuseColor = @material.color.diffuse
+    vars.MaterialDiffuseIntensity = @intensity
+    vars.MaterialDiffuseColor = @color
     vars.ModelViewMatrix = context.matrix_stack.getModelViewMatrix()
     mesh.data.set vars, @meshDataMap

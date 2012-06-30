@@ -1,7 +1,6 @@
 class Jax.Material.Attenuation extends Jax.Material.Layer
-  constructor: (options, material) ->
-    super options, material
-    @varMap = {}
+  constructor: (options) ->
+    super options
     
   numPasses: (context) -> context.world.lights.length + 1
     
