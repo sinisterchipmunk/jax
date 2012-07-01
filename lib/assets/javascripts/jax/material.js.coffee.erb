@@ -198,7 +198,8 @@ class Jax.Material
       else
         # last-ditch effort to find custom materials
         unless Klass = Jax.Material[data.type] and Klass.__isMaterial
-          console.log "#{name}: Material type #{data.type} is invalid. Please note that its meaning changed in Jax v3.0; it should be one of 'Surface', 'Legacy', 'Wire', 'Halo', 'Custom'."
+          console.log "#{name}: Material type #{data.type} is invalid. Please note that its meaning "+ \
+                      "changed in Jax v3.0; it should be one of 'Surface', 'Legacy', 'Wire', 'Custom'."
           console.log "Type of material #{name} is defaulting to 'Legacy'."
           Klass = Jax.Material.Legacy
     throw new Error "#{name}: Material type #{data.type} is not yet implemented." unless Klass
