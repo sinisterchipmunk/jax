@@ -10,6 +10,10 @@ class Jax.Material.Layer.Wire extends Jax.Material.Layer
   Jax.Mesh.Data.endpoints.p3verts = 3
   
   constructor: (options) ->
+    @_dataMap =
+      vertices: 'position'
+      p2verts: 'p1_3d'
+      p3verts: 'p2_3d'
     @_winScale = [0, 0]
     # wire color is currently inferred from frag color, and fill
     # color is currently hard-coded to 0;
@@ -106,10 +110,7 @@ class Jax.Material.Layer.Wire extends Jax.Material.Layer
       mesh.data = data
   
   setVariables: (context, mesh, model, vars, pass) ->
-    mesh.data.set vars,
-      vertices: 'position'
-      p2verts: 'p1_3d'
-      p3verts: 'p2_3d'
+    mesh.data.set vars, @_dataMap
     [@_winScale[0], @_winScale[1]] = [context.canvas.width/2, context.canvas.height/2]
     vars.WIN_SCALE = @_winScale
     vars.MVP = context.matrix_stack.getModelViewProjectionMatrix()
