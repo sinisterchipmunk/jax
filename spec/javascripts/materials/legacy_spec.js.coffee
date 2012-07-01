@@ -9,9 +9,9 @@ describe "Jax.Material.Legacy", ->
       
     it "should not override each others' settings", ->
       matr.render @context, new Jax.Mesh.Quad, new Jax.Model
-      color1 = matr.findLayer(Jax.Material.LambertDiffuse).color
+      color1 = matr.findLayer(Jax.Material.Layer.LambertDiffuse).color
       mat2.render @context, new Jax.Mesh.Quad, new Jax.Model
-      color2 = mat2.findLayer(Jax.Material.LambertDiffuse).color
+      color2 = mat2.findLayer(Jax.Material.Layer.LambertDiffuse).color
       expect(color1.toVec4()).not.toEqualVector color2.toVec4()
   
   describe 'setting variables', ->
@@ -21,31 +21,31 @@ describe "Jax.Material.Legacy", ->
       beforeEach -> matr.color = '#f00'
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
         
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).color.toVec4()).toEqualVector [1, 0, 0, 1]
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).color.toVec4()).toEqualVector [1, 0, 0, 1]
 
     describe "color as an object", ->
       beforeEach -> matr.color = ambient: '#f00', diffuse: '#0f0', specular: '#00f'
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
 
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).color.toVec4()).toEqualVector [0, 1, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).color.toVec4()).toEqualVector [0, 1, 0, 1]
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).color.toVec4()).toEqualVector [0, 0, 1, 1]
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).color.toVec4()).toEqualVector [0, 0, 1, 1]
         
     describe 'color as a property', ->
       beforeEach ->
@@ -54,46 +54,46 @@ describe "Jax.Material.Legacy", ->
         matr.color.specular = '#00f'
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).color.toVec4()).toEqualVector [1, 0, 0, 1]
 
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).color.toVec4()).toEqualVector [0, 1, 0, 1]
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).color.toVec4()).toEqualVector [0, 1, 0, 1]
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).color.toVec4()).toEqualVector [0, 0, 1, 1]
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).color.toVec4()).toEqualVector [0, 0, 1, 1]
 
     describe 'intensity as a number', ->
       beforeEach -> matr.intensity = 5.0
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).intensity).toEqual 5
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).intensity).toEqual 5
         
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).intensity).toEqual 5
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).intensity).toEqual 5
 
     describe "intensity as an object", ->
       beforeEach -> matr.intensity = ambient: 5, diffuse: 6, specular: 7
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).intensity).toEqual 5
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).intensity).toEqual 5
 
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).intensity).toEqual 6
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).intensity).toEqual 6
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).intensity).toEqual 7
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).intensity).toEqual 7
         
     describe 'intensity as a property', ->
       beforeEach ->
@@ -102,16 +102,16 @@ describe "Jax.Material.Legacy", ->
         matr.intensity.specular = 7
       
       it "should delegate to world ambient", ->
-        expect(matr.findLayer(Jax.Material.WorldAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.WorldAmbient).intensity).toEqual 5
         
       it "should delegate to light ambient", ->
-        expect(matr.findLayer(Jax.Material.LightAmbient).intensity).toEqual 5
+        expect(matr.findLayer(Jax.Material.Layer.LightAmbient).intensity).toEqual 5
 
       it "should delegate to diffuse", ->
-        expect(matr.findLayer(Jax.Material.LambertDiffuse).intensity).toEqual 6
+        expect(matr.findLayer(Jax.Material.Layer.LambertDiffuse).intensity).toEqual 6
 
       it "should delegate to specular", ->
-        expect(matr.findLayer(Jax.Material.PhongSpecular).intensity).toEqual 7
+        expect(matr.findLayer(Jax.Material.Layer.PhongSpecular).intensity).toEqual 7
   
   run = (pass) ->
     setAttribute = (context, variable, value) ->

@@ -1,4 +1,4 @@
-class Jax.Material.NormalMap extends Jax.Material.Layer
+class Jax.Material.Layer.NormalMap extends Jax.Material.Layer
   constructor: (options) ->
     if options instanceof Jax.Texture then @map = options
     else if options?.instance then @map = options.instance

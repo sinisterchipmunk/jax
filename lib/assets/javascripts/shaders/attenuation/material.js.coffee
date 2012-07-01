@@ -1,4 +1,4 @@
-class Jax.Material.Attenuation extends Jax.Material.Layer
+class Jax.Material.Layer.Attenuation extends Jax.Material.Layer
   constructor: (options) ->
     super options
     

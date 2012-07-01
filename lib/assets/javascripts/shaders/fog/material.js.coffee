@@ -2,7 +2,7 @@ Jax.LINEAR = 1
 Jax.EXPONENTIAL = 2
 Jax.EXP2 = 3
 
-class Jax.Material.Fog extends Jax.Material.Layer
+class Jax.Material.Layer.Fog extends Jax.Material.Layer
   constructor: (options) ->
     options or= {}
     @start     = options.start

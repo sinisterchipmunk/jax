@@ -1,4 +1,4 @@
-class Jax.Material.WorldAmbient extends Jax.Material.Layer
+class Jax.Material.Layer.WorldAmbient extends Jax.Material.Layer
   constructor: (options) ->
     @intensity = 1
     super options

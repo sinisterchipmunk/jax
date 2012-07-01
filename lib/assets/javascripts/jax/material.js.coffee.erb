@@ -72,8 +72,17 @@ class Jax.Material
       return options
     
     options = Jax.Util.normalizeOptions options, {}
-    Klass = Jax.Material[options.type]
-    throw new Error "#{@name}: Material layer type #{options.type} could not be found" unless Klass
+    Klass = Jax.Material.Layer[options.type]
+    unless Klass
+      if Jax.Material[options.type]
+        console.log "#{@name}: Material layer type #{options.type} could not be found "+ \
+                    "within namespace Jax.Material.Layer, but an object of the same name "+ \
+                    "was found within namespace Jax.Material. Please note that this is " + \
+                    "deprecated usage, and material layers should appear within namespace "+ \
+                    "Jax.Material.Layer."
+        Klass = Jax.Material[options.type]
+      else
+        throw new Error "#{@name}: Material layer type #{options.type} could not be found"
     options.shader or= Klass.shader || Jax.Util.underscore options.type
     layer = new Klass options
     if layer instanceof Jax.Material

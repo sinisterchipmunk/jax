@@ -1,6 +1,6 @@
 #= require "jax/material/illumination_layer"
 
-class Jax.Material.PhongSpecular extends Jax.Material.IlluminationLayer
+class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
   constructor: (options) ->
     super options
     @meshDataMap =

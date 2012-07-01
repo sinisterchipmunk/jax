@@ -1,4 +1,4 @@
-class Jax.Material.VertexColor extends Jax.Material.Layer
+class Jax.Material.Layer.VertexColor extends Jax.Material.Layer
   constructor: (options) ->
     super options
     @dataMap = colors: 'VERTEX_COLOR'

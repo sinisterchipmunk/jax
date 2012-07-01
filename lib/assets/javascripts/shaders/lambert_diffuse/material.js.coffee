@@ -1,6 +1,6 @@
 #= require "jax/material/illumination_layer"
 
-class Jax.Material.LambertDiffuse extends Jax.Material.IlluminationLayer
+class Jax.Material.Layer.LambertDiffuse extends Jax.Material.IlluminationLayer
   constructor: (options) ->
     super options
     @meshDataMap =

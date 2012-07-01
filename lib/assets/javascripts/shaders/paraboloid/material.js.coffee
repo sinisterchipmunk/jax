@@ -1,4 +1,4 @@
-class Jax.Material.Paraboloid extends Jax.Material.Layer
+class Jax.Material.Layer.Paraboloid extends Jax.Material.Layer
   constructor: (options) ->
     super options
     @_meshMap =

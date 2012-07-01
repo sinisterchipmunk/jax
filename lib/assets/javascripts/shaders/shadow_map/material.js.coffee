@@ -1,4 +1,4 @@
-class Jax.Material.ShadowMap extends Jax.Material.Layer
+class Jax.Material.Layer.ShadowMap extends Jax.Material.Layer
   constructor: (options) ->
     @pcf = true
     @meshMap = vertices: 'VERTEX_POSITION'

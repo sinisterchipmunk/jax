@@ -1,4 +1,4 @@
-class Jax.Material.GammaCorrection extends Jax.Material.Layer
+class Jax.Material.Layer.GammaCorrection extends Jax.Material.Layer
   constructor: (options) ->
     super options
     
