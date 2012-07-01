@@ -1,4 +1,4 @@
-type: Legacy
+type: Surface
 
 intensity:
   ambient: 1
@@ -9,6 +9,6 @@ shininess: 60
 
 color:
   ambient:  "#0c0c0c"
-  diffuse:  "#888888"
+  diffuse:  "#cccccc"
   specular: "#ffffff"
 
