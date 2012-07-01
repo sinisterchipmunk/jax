@@ -25,8 +25,20 @@ class Jax.Material
         when 'layers'  then @addLayer layer for layer in value
         else @[key] = value
         
+  @__layers: {}
   @__shader: null # these will be instantiated dynamically in order not to taint subclasses
-  @getLayers: -> @__layers or= []
+  @getLayers: ->
+    return Jax.Material.__layers[this.name] if Jax.Material.__layers[this.name]
+    array = []
+    parent = this.__super__
+    while parent
+      parentLayers = parent.constructor.getLayers()
+      for layer in parentLayers
+        array.push layer
+      parent = parent.constructor.parent
+    Jax.Material.__layers[this.name] = array
+    # alert this.__super__.constructor.name
+     # or= [] #@__layers or= []
   @addLayer: (options) -> @getLayers().push options
 
   @define 'vertex', get: -> @shader.vertex
