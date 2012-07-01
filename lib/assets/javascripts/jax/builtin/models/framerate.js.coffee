@@ -46,7 +46,11 @@ class Jax.Framerate extends Jax.Model
   constructor: (options = {}) ->
     options.width or= 128
     options.height or= 64
-    options.position or= [options.width / 2, options.height / 2, -1]
+    # Instead of disabling depth tests, we'll just position it in ortho
+    # right in front of the camera. This way it still registers a depth
+    # value, and other objects aren't (usually) rendered in front of it,
+    # which means we don't need to control the render order as strictly.
+    options.position or= [options.width / 2, options.height / 2, -0.1001]
     options.castShadow or= false
     options.receiveShadow or= false
     options.illuminated or= false
@@ -164,8 +168,6 @@ class Jax.Framerate extends Jax.Model
     mat4.set @ortho, stack.getProjectionMatrix()
     stack.loadViewMatrix @identity
     stack.multModelMatrix @camera.getTransformationMatrix()
-    context.gl.disable GL_DEPTH_TEST
     @mesh.render context, this, material
-    context.gl.enable GL_DEPTH_TEST
     stack.pop()
     

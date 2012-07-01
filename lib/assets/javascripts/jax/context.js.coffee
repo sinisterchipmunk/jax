@@ -121,7 +121,7 @@ class Jax.Context
       @_timeToUpdate = (@_timeToUpdate || 0) * @framerateSampleRatio \
                      +  timeToUpdateThisFrame * (1 - @framerateSampleRatio)
       # update rate = seconds / time
-      @_updatesPerSecond = @_timeToUpdate * 0.001
+      @_updatesPerSecond = 1 / (@_timeToUpdate * 0.001)
     
     # in order to avoid recalculating the above for updates, we'll
     # return the timechange to be used in subsequent updates.
@@ -142,7 +142,7 @@ class Jax.Context
     
     # frames per second = 1 second divided by time to render;
     # time is currently in ms so 1sec = 1000ms
-    @_framesPerSecond = @_timeToRender * 0.001
+    @_framesPerSecond = 1 / (@_timeToRender * 0.001)
     @_lastRenderStart = currentRenderStart
     
   
