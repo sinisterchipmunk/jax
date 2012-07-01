@@ -14,6 +14,19 @@ class FloatBuffer
 class Jax.Mesh.Data
   @include Jax.EventEmitter
   
+  ###
+  Contains extra data points that will be allocated, and the number
+  of elements per vertex that will be allocated.
+  
+  Example: A property called 'moreVertices' with a value of 3 will,
+  for a mesh with 9 vertices, allocate an additional buffer with 27
+  components.
+  
+  Elements allocated in this way are not populated with data because
+  Jax.Mesh.Data can't know what data belongs in the endpoint.
+  ###
+  @endpoints: {}
+  
   # Returns the smallest unsigned int typed array that can hold
   # the specified number of vertices. Smaller arrays are generally faster.
   chooseIndexArrayFormat = (length) ->
@@ -27,15 +40,23 @@ class Jax.Mesh.Data
   # Returns the calculated length of the ArrayBuffer in bytes for the specified
   # number of vertices and its vertex index buffer.
   calcByteLength = (numVerts, numIndices, indexFormat) ->
-    numVerts * 9 * Float32Array.BYTES_PER_ELEMENT + # vertices, normals, bitangents
-    numVerts * 2 * Float32Array.BYTES_PER_ELEMENT + # textures
-    numVerts * 8 * Float32Array.BYTES_PER_ELEMENT + # colors, tangents
-    numIndices * indexFormat.BYTES_PER_ELEMENT      # indices
+    sizePerVertex = 0
+    for name, size of Jax.Mesh.Data.endpoints
+      sizePerVertex += size
+    sizePerVertex * numVerts * Float32Array.BYTES_PER_ELEMENT + \
+    numVerts * 9 * Float32Array.BYTES_PER_ELEMENT + \ # vertices, normals, bitangents
+    numVerts * 2 * Float32Array.BYTES_PER_ELEMENT + \ # textures
+    numVerts * 8 * Float32Array.BYTES_PER_ELEMENT + \ # colors, tangents
+    numIndices * indexFormat.BYTES_PER_ELEMENT        # indices
   
   constructor: (vertices = [], colors = [], textures = [], normals = [], \
                 indices = [], tangents = [], bitangents = []) ->
+    if typeof(vertices) is 'number' then vertices = new Array vertices
     throw new Error "Vertex data length must be given in multiples of 3" if vertices % 3
     # build up indices if none were given
+    @_offsets = {}
+    @_buffers = {}
+    @_wrappers = {}
     @allocateBuffers vertices.length, indices.length || vertices.length / 3
     (indices.push i for i in [0...@length]) if indices.length == 0
     @assignVertexData vertices, colors, textures, normals, tangents, bitangents
@@ -168,38 +189,25 @@ class Jax.Mesh.Data
     @bind @_context unless @_bound
 
     for key, target of mapping
-      if vars.set
-        # TODO phase out vars.set in favor of direct assignment
-        switch key
-          when 'vertices' then vars.set target, @vertexWrapper
-          when 'colors'   then vars.set target, @colorWrapper
-          when 'textures' then vars.set target, @textureCoordsWrapper
-          when 'normals'
-            @recalculateNormals() if @shouldRecalculateNormals()
-            vars.set target, @normalWrapper
-          when 'tangents'
-            @recalculateTangents() if @shouldRecalculateTangents()
-            vars.set target, @tangentWrapper
-          when 'bitangents'
-            @recalculateTangents() if @shouldRecalculateBitangents()
-            vars.set target, @bitangentWrapper
-          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals', 'tangents', 'bitangents'"
-      else
-        switch key
-          when 'vertices' then vars[target] = @vertexWrapper
-          when 'colors'   then vars[target] = @colorWrapper
-          when 'textures' then vars[target] = @textureCoordsWrapper
-          when 'normals'
-            @recalculateNormals() if @shouldRecalculateNormals()
-            vars[target] = @normalWrapper
-          when 'tangents'
-            @recalculateTangents() if @shouldRecalculateTangents()
-            vars[target] = @tangentWrapper
-          when 'bitangents'
-            @recalculateBitangents() if @shouldRecalculateBitangents()
-            vars[target] = @bitangentWrapper
-          else throw new Error "Mapping key must be one of 'vertices', 'colors', 'textures', 'normals', 'tangents', 'bitangents'"
-          
+      switch key
+        when 'vertices' then vars[target] = @vertexWrapper
+        when 'colors'   then vars[target] = @colorWrapper
+        when 'textures' then vars[target] = @textureCoordsWrapper
+        when 'normals'
+          @recalculateNormals() if @shouldRecalculateNormals()
+          vars[target] = @normalWrapper
+        when 'tangents'
+          @recalculateTangents() if @shouldRecalculateTangents()
+          vars[target] = @tangentWrapper
+        when 'bitangents'
+          @recalculateBitangents() if @shouldRecalculateBitangents()
+          vars[target] = @bitangentWrapper
+        else
+          if @_wrappers[key] then vars[target] = @_wrappers[key]
+          else
+            throw new Error "Mapping key must be one of 'vertices', 'colors', " + \
+                            "'textures', 'normals', 'tangents', 'bitangents' (got: #{key})"
+        
   ###
   Requests this data set's normals to be recalculated. Note that this does not directly
   perform the recalculation. Instead, it fires a `shouldRecalculateNormals` event, so
@@ -273,7 +281,19 @@ class Jax.Mesh.Data
     @bitangentBufferOffset = @tangentBufferOffset + Float32Array.BYTES_PER_ELEMENT * @tangentBuffer.length
     @_bitangentBuffer = new Float32Array @_array_buffer, @bitangentBufferOffset, @length * 3
     @bitangentWrapper = new FloatBuffer @_bitangentBuffer, 3
-    @indexBufferOffset = @bitangentBufferOffset + Float32Array.BYTES_PER_ELEMENT * @bitangentBuffer.length
+    
+    offset = @bitangentBufferOffset + Float32Array.BYTES_PER_ELEMENT * @bitangentBuffer.length
+    getterFactory = (name) -> -> @_buffers[name]
+    for name, size of Jax.Mesh.Data.endpoints
+      buffer = new Float32Array @_array_buffer, offset, @length * size
+      wrapper = new FloatBuffer buffer, size
+      @_offsets[name] = offset
+      @_buffers[name] = buffer
+      @_wrappers[name] = wrapper
+      offset += buffer.length * Float32Array.BYTES_PER_ELEMENT
+      Object.defineProperty this, name, get: getterFactory name
+    
+    @indexBufferOffset = offset
     @indexBuffer = new @indexFormat @_array_buffer, @indexBufferOffset, numIndices
 
   tmpvec3 = vec3.create()

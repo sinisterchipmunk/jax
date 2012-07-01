@@ -48,6 +48,7 @@ class Mesh
       @_data
     set: (d) ->
       @invalidate()
+      @_initialized = true # keep validation from rebuilding; user can still rebuild explicitly
       @_data.dispose() if @_data
       @_data = d
       @_data.addEventListener 'colorChanged', => @fireEvent 'colorChanged'
@@ -138,8 +139,12 @@ class Mesh
   ###
   Marks the mesh as "out of date", forcing it to refresh its vertex information based on the current
   state of its internal buffers the next time any of its data is used.
+  
+  If `forceRebuild` is true, the current mesh will be discarded and rebuilt (by invoking `#init`)
+  the next time the mesh is validated. Otherwise, the current mesh will be reused.
   ###
-  invalidate: ->
+  invalidate: (forceRebuild = false) ->
+    @_initialized = false if forceRebuild
     @_valid = false
     
   ###
@@ -171,6 +176,7 @@ class Mesh
     @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices, tangents, bitangents
     @_data.color = @_color
     @fireEvent 'rebuilt'
+    @_initialized = true # keep validation from rebuilding; user can still rebuild explicitly
     this
   
   ###
@@ -265,6 +271,7 @@ class Mesh
   dispose: ->
     @_data.dispose() if @_data
     @_submesh.dispose() if @_submesh
+    @_initialized = false
     @invalidate()
     
 class Mesh.Deprecated extends Mesh
