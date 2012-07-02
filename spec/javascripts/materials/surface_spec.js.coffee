@@ -1,11 +1,11 @@
-describe "Jax.Material.Legacy", ->
+describe "Jax.Material.Surface", ->
   sim = model = material = matr = null
   
   describe "multiple instances", ->
     mat2 = null
     beforeEach ->
-      matr = new Jax.Material.Legacy color: '#f00'
-      mat2 = new Jax.Material.Legacy color: '#0f0'
+      matr = new Jax.Material.Surface color: '#f00'
+      mat2 = new Jax.Material.Surface color: '#0f0'
       
     it "should not override each others' settings", ->
       matr.render @context, new Jax.Mesh.Quad, new Jax.Model
@@ -15,7 +15,7 @@ describe "Jax.Material.Legacy", ->
       expect(color1.toVec4()).not.toEqualVector color2.toVec4()
   
   describe 'setting variables', ->
-    beforeEach -> matr = new Jax.Material.Legacy
+    beforeEach -> matr = new Jax.Material.Surface
     
     describe 'color as a value', ->
       beforeEach -> matr.color = '#f00'
@@ -125,11 +125,11 @@ describe "Jax.Material.Legacy", ->
             ary.push value[i]
           value = ary
         sim.state.variables[name].value = value
-      else console.log "Warning: no variable `#{name}` which was set by Jax.Material.Legacy"
+      else console.log "Warning: no variable `#{name}` which was set by Jax.Material.Surface"
     setUniform = (context, variable, value) ->
       name = variable.name
       if sim.state.variables[name] then sim.state.variables[name].value = value
-      else console.log "Warning: no variable `#{name}` which was set by Jax.Material.Legacy"
+      else console.log "Warning: no variable `#{name}` which was set by Jax.Material.Surface"
     spyOn(material.shader, 'setUniform').andCallFake setUniform
     spyOn(material.shader, 'setAttribute').andCallFake setAttribute
 
@@ -142,7 +142,7 @@ describe "Jax.Material.Legacy", ->
     sim.start()
   
   beforeEach ->
-    material = new Jax.Material.Legacy
+    material = new Jax.Material.Surface
       shininess: 60
       color:
         diffuse: [0, 1, 0, 1]
