@@ -13,8 +13,10 @@ Description:
 DESC
 
       def route_jax_mount_point
-        if File.file? 'config/routes.rb'
-          route %{mount Jax::Engine => "/jax" unless Rails.env == "production"}
+        in_root do
+          if File.file? 'config/routes.rb'
+            route %{mount Jax::Engine => "/jax" unless Rails.env == "production"}
+          end
         end
       end
       

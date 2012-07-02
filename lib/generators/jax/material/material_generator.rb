@@ -6,7 +6,7 @@ module Jax
       class_option :append, :default => false, :type => :boolean,
                    :desc => "if it already exists, append shaders to the end of this material"
       class_option :skip_lighting, :default => false, :type => :boolean,
-                   :desc => "do not add the 'Lighting' shader to this material"
+                   :desc => "do not add diffuse or specular lighting to this material"
                    
       def self.desc(description = nil)
         # TODO This can be removed under future versions of Rails, which use ERB for Usage out of the box.
@@ -44,9 +44,15 @@ module Jax
         end
       end
       
-      def prepend_lighting_shader
-        unless options[:skip_lighting] or shader_selected?('lighting') or File.file?(relative_path)
-          @shaders.unshift 'lighting'
+      def prepend_lighting_shaders
+        unless options[:skip_lighting] or File.file?(relative_path)
+          unless shader_selected?('lambert_diffuse')
+            @shaders.unshift 'lambert_diffuse'
+          end
+          
+          unless shader_selected?('phong_specular')
+            @shaders.unshift 'phong_specular'
+          end
         end
       end
       

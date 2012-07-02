@@ -28,6 +28,11 @@ module Jax
         create_file "config/routes.rb" do |f|
           f.puts "Rails.application.routes.draw do\nend"
         end
+        
+        # copy manifest file, required for all Jax applications as of v3.0
+        create_file "app/assets/jax/jax.js" do |f|
+          f.puts File.read(File.expand_path('../../../templates/manifest.js.erb', File.dirname(__FILE__)))
+        end
 
         Jax.reset_config!
       end

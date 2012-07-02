@@ -40,6 +40,7 @@ describe 'bin/jax' do
         f.puts "require 'rails/all'"
         f.puts "class TmpApp < Rails::Application"
         f.puts "  config.active_support.deprecation = :log"
+        f.puts "  config.root = File.expand_path('../..', __FILE__)"
         f.puts "end"
       end
       File.open "config/environment.rb", "w" do |f|
