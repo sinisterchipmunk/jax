@@ -13,11 +13,13 @@ Description:
 DESC
 
       def route_jax_mount_point
-        route %{mount Jax::Engine => "/jax" unless Rails.env == "production"}
+        if File.file? 'config/routes.rb'
+          route %{mount Jax::Engine => "/jax" unless Rails.env == "production"}
+        end
       end
       
       def create_example_html
-        copy_file 'run_webgl.html.erb', 'public/jax_example.html'
+        copy_file 'example_page.html', 'public/jax_example.html'
       end
       
       def create_jax_application_controller
@@ -26,6 +28,10 @@ DESC
 
       def create_jax_application_helper
         coffee_template_with_fallback "application_helper.js", 'app/assets/jax/helpers/application_helper.js'
+      end
+
+      def create_jax_manifest_file
+        coffee_template_with_fallback "manifest.js", 'app/assets/jax/jax.js'
       end
     end
   end
