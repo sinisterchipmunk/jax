@@ -106,4 +106,22 @@ class Jax.Light extends Jax.Model
 # For legacy compatibility
 # TODO remove these
 Jax.Scene or= {}
-Jax.Scene.LightSource = Jax.Light
+class Jax.Scene.LightSource extends Jax.Light
+  notice = ->
+    console.log 'Please note that Jax.LightSource has been deprecated; it is now just Jax.Light.'
+    console.log '(You should also rename `app/assets/jax/resources/light_sources` to ' + \
+                '`app/assets/jax/resources/lights`.)'
+    
+  constructor: (options) ->
+    notice()
+    super options
+    
+  @find: ->
+    notice()
+    Jax.Light.find arguments...
+    
+  @addResources: ->
+    notice()
+    Jax.Light.addResources arguments...
+
+Jax.getGlobal().LightSource = Jax.LightSource = Jax.Scene.LightSource
