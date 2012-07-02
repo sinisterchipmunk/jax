@@ -42,7 +42,9 @@ class Jax.Input
   attach: (eventType, callback) ->
     listeners = @getReceiverEventListeners(eventType)
     unless listeners.interface
-      listeners.interface = (evt) => @processEvent eventType, evt
+      listeners.interface = (evt) => 
+        evt.preventDefault()
+        @processEvent eventType, evt
       @receiver.addEventListener eventType, listeners.interface
     listeners.push callback
     
