@@ -9,7 +9,7 @@ describe "Jax.Material", ->
       TestMat = class TestMat extends Jax.Material
         @addLayer type: "Position"
     
-    it "should share shader instances between instances", ->
+    it "should share shaders between instances", ->
       expect(new TestMat().shader).toBe new TestMat().shader
       
     it "should not taint Jax.Material", ->
