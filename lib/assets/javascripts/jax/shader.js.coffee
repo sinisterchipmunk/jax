@@ -24,21 +24,21 @@ class Parser
     
   findFunctions: ->
     functions = []
-    rx = /(\w+)[\s\t\n]+(\w+)[\s\t\n]*\([\s\t\n]*[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*{/
+    rx = /(shared[\s\t\n]+|)(\w+)[\s\t\n]+(\w+)[\s\t\n]*\([\s\t\n]*[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*{/
     src = @src
     while match = rx.exec src
       offsetStart = match.index
       offsetEnd = match.index + match[0].length
-      signature = match[3]
+      signature = match[4]
       offsetEnd += Jax.Util.scan(src[offsetEnd..-1], '}', '{').length + 1
       func = src[offsetStart...offsetEnd]
       src = src[0...offsetStart] + src[offsetEnd..-1]
       functions.push
-        shared: false
+        shared: !!match[1]
         signature: signature
         full: func
-        type: match[1]
-        name: match[2]
+        type: match[2]
+        name: match[3]
     functions
   
   constructor: (src) ->
@@ -93,16 +93,23 @@ class Parser
     # functions
     mangles = @findFunctions()
     for mangle in mangles
-      mangledName = mangle.name + mangler
+      if mangle.shared
+        mangledName = mangle.name
+      else
+        mangledName = mangle.name + mangler
       mangledSignature = mangle.signature.replace mangle.name, mangledName
       mangledFunc = mangle.full.replace mangle.signature, mangledSignature
+      mangledFunc = mangledFunc.replace /shared[\s\t\n]+/, ''
       src = src.replace mangle.full, mangledFunc
+      continue if mangle.shared
       while match = new RegExp("(^|\\W)#{mangle.name}(\\W|$)").exec src
         src = src.replace match[0], match[1] + mangledName + match[2]
     
     src
 
 class Jax.Shader
+  @include Jax.EventEmitter
+  
   constructor: (@name = "generic") ->
     @sources = []
     @main = new Main()
@@ -216,4 +223,5 @@ class Jax.Shader
   append: (src) ->
     mangler = @sources.length
     @sources.push parser = new Parser(src)
+    @fireEvent 'changed'
     parser.map mangler

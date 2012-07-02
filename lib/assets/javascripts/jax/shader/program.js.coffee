@@ -26,12 +26,29 @@ class Jax.Shader.Program
           errors.splice errno-1, 1
           errno = 0
     log
+    
+  getInfo: (gl, shaderType) ->
+    # TODO it'd be really cool if this tracked the number of each
+    # that are actually in use, and then made available the difference, so
+    # that a shader could alter its source code depending on the number
+    # of uniforms/varyings/etc available to be used.
+    shaderType: shaderType
+    maxVertexAttribs: gl.getParameter GL_MAX_VERTEX_ATTRIBS
+    maxVertexUniformVectors: gl.getParameter GL_MAX_VERTEX_UNIFORM_VECTORS
+    maxVaryingVectors: gl.getParameter GL_MAX_VARYING_VECTORS
+    maxCombinedTextureImageUnits: gl.getParameter GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+    maxVertexTextureImageUnits: gl.getParameter GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
+    maxFragmentTextureImageUnits: gl.getParameter GL_MAX_TEXTURE_IMAGE_UNITS
+    maxFragmentUniformVectors: gl.getParameter GL_MAX_FRAGMENT_UNIFORM_VECTORS
+    shadingLanguageVersion: gl.getParameter GL_SHADING_LANGUAGE_VERSION
+    gl: gl
 
-  compileShader: (gl, jaxShader, glShader) ->
-    gl.shaderSource glShader, jaxShader.toString()
+  compileShader: (gl, jaxShader, glShader, type) ->
+    source = new EJS(text: jaxShader.toString()).render @getInfo gl, type
+    gl.shaderSource glShader, source
     gl.compileShader glShader
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
-      backtrace = @buildBacktrace gl, glShader, jaxShader.toLines()
+      backtrace = @buildBacktrace gl, glShader, source.split(/\n/)
       throw new Jax.Shader.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
       
   ensureDefaultWriters: (vertex, fragment) ->
@@ -48,7 +65,9 @@ class Jax.Shader.Program
     @_variables = {}
     @shaders = []
     @vertex = new Jax.Shader "#{@name}-v"
+    @vertex.addEventListener 'changed', => @invalidate()
     @fragment = new Jax.Shader "#{@name}-f"
+    @fragment.addEventListener 'changed', => @invalidate()
     @ensureDefaultWriters @vertex, @fragment
     
   loadDescriptor: (context) ->
@@ -97,13 +116,13 @@ class Jax.Shader.Program
       else
         descriptor.vertex = glShader.vertex = gl.createShader GL_VERTEX_SHADER
         descriptor.vertex._guid = guid++
-        @compileShader gl, @vertex, glShader.vertex
+        @compileShader gl, @vertex, glShader.vertex, 'vertex'
       if descriptor.fragment
         glShader.fragment = descriptor.fragment
       else
         descriptor.fragment = glShader.fragment = gl.createShader GL_FRAGMENT_SHADER
         descriptor.fragment._guid = guid++
-        @compileShader gl, @fragment, glShader.fragment
+        @compileShader gl, @fragment, glShader.fragment, 'fragment'
       gl.attachShader glShader.program, glShader.vertex
       gl.attachShader glShader.program, glShader.fragment
       gl.linkProgram glShader.program
@@ -121,6 +140,20 @@ class Jax.Shader.Program
   bind: (context) ->
     @compile context unless @isCompiled context
     context.gl.useProgram @glShader(context).program
+    
+  ###
+  If called, the next time this program is bound (via `#bind`),
+  it will be recompiled. This affects all contexts, such that if
+  two different contexts are using this program, the program
+  will be recompiled once for each context.
+  
+  This method is called automatically when either the program's
+  associated vertex or fragment shader is changed.
+  ###
+  invalidate: ->
+    for k, v of @_isCompiled
+      @_isCompiled[k] = false
+    this
   
   ###
   Returns all possible information about the named uniform.

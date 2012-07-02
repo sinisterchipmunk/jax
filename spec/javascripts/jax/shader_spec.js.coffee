@@ -1,4 +1,4 @@
-describe "Jax.Shader2", ->
+describe "Jax.Shader", ->
   shader = log = null
   beforeEach ->
     log = false
@@ -13,6 +13,16 @@ describe "Jax.Shader2", ->
     it 'should produce the same results each time', ->
       shader.append 'void main(void) { gl_Position = vec4(1); }'
       expect(shader.toString()).toEqual shader.toString()
+      
+  describe "shared functions", ->
+    beforeEach ->
+      shader.append 'shared void x() { }'
+      
+    it 'should not be mangled', ->
+      expect(shader.toString()).toMatch /void x\(/
+      
+    it 'should not leave the "shared" keyword', ->
+      expect(shader.toString()).not.toMatch /shared/
   
   describe 'append', ->
     map = null

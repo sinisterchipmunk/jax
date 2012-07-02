@@ -3,6 +3,21 @@ describe "Jax.Shader.Program", ->
   beforeEach ->
     program = new Jax.Shader.Program
     
+  describe "after having been compiled", ->
+    beforeEach -> program.compile @context
+    
+    it "should compile again if its fragment source changes", ->
+      spyOn program, 'compile'
+      program.fragment.append '//'
+      program.bind @context
+      expect(program.compile).toHaveBeenCalled()
+    
+    it "should compile again if its vertex source changes", ->
+      spyOn program, 'compile'
+      program.vertex.append '//'
+      program.bind @context
+      expect(program.compile).toHaveBeenCalled()
+
   describe "compiling two different programs with identical sources", ->
     program2 = null
     beforeEach ->
