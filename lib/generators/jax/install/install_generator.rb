@@ -33,6 +33,17 @@ DESC
       def create_jax_manifest_file
         coffee_template_with_fallback "manifest.js", 'app/assets/jax/jax.js'
       end
+      
+      def clear_rails_cache
+        # Installs can include changes to how resources are compiled,
+        # and since the files themselves don't change, their cached
+        # copies may become invalid.
+        remove_dir 'tmp/cache'
+      end
+      
+      def talk_about_restarting
+        say "If the development server is running, please restart it now."
+      end
     end
   end
 end
