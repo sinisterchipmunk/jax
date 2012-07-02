@@ -23,7 +23,6 @@ module Jax
             end
           end
           
-          return if check_for_common_commands
           ruby @rails_or_jax, *ARGV
         end
 
@@ -33,20 +32,6 @@ module Jax
         end
         
         friendly_help_message
-      end
-      
-      # if necessary, invoke a command common to both Rails and non-Rails apps
-      # returns true if a command was invoked
-      def check_for_common_commands
-        case ARGV[0].to_s.downcase
-          when 'plugin'
-            require File.expand_path("../config/environment", File.dirname(@rails_or_jax))
-            require 'jax'
-            Jax::PluginManager.start ARGV[1..-1]
-            true
-          else
-            false
-        end
       end
 
       def friendly_help_message

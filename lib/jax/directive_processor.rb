@@ -48,11 +48,6 @@ module Jax
         end
       end
       
-      # order files so they appear in order: plugin files, then app files.
-      plugins_path = 'vendor/plugins'
-      numerize = proc { |a| a[plugins_path] ? 0 : 1 }
-      files.sort! { |a, b| numerize.call(a[0]) <=> numerize.call(b[0]) }
-
       # require files, now that they are in order
       files.each do |(path, logical_path)|
         process_require_directive path

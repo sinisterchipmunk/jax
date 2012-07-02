@@ -1,21 +1,6 @@
 module Jax
   class Configuration
     attr_accessor :webgl_start
-    attr_writer   :default_plugin_repository_url
-    attr_writer   :plugin_repository_url
-
-    def default_plugin_repository_url
-      "http://plugins.jaxgl.com/"
-    end
-
-    def plugin_repository_url
-      @plugin_repository_url ||=
-        config_file[:plugin_repository_url] ||
-        ENV['JAX_PLUGIN_REPOSITORY_URL']    ||
-        default_plugin_repository_url
-
-      @plugin_repository_url.dup # so that it can't be edited in-place
-    end
 
     def specs
       @specs ||= begin

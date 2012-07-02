@@ -70,11 +70,6 @@ describe 'bin/jax' do
       end
     end
     
-    it "should invoke plugin manager" do
-      @args.push "plugin"
-      subject.should =~ /jax plugin install/
-    end
-      
     it "should revoke generators with destroy" do
       @args.push "destroy", "controller", "welcome"
       subject.should     match(/remove/)
@@ -124,11 +119,6 @@ describe 'bin/jax' do
       end
     end
     
-    it "should invoke plugin manager" do
-      @args.push "plugin"
-      subject.should =~ /jax plugin install/
-    end
-      
     it "should revoke generators with destroy" do
       @args.push "destroy", "controller", "welcome"
       subject.should     match(/remove/)
@@ -159,11 +149,6 @@ describe 'bin/jax' do
       end
     end
     
-    it "should not invoke plugin manager" do
-      @args.push "plugin"
-      subject_with_rescue.should_not =~ /jax plugin install/
-    end
-      
     it "should output a friendly help message" do
       subject_with_rescue.should =~ /Not in a Jax or Rails application\./
     end
