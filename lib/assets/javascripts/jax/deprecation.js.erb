@@ -108,22 +108,22 @@ if (Jax.Light) {
   Jax.deprecate(Jax.Light, 'getPosition', 'position');
 }
 
-if (Jax.Mesh.Base) {
-  Jax.deprecate(Jax.Mesh.Base, 'getVertexBuffer', 'data.vertexBuffer');
-  Jax.deprecate(Jax.Mesh.Base, 'getNormalBuffer', 'data.normalBuffer');
-  Jax.deprecate(Jax.Mesh.Base, 'getColorBuffer', 'data.colorBuffer');
-  Jax.deprecate(Jax.Mesh.Base, 'getTextureCoordsBuffer', 'data.textureCoordsBuffer');
-}
+if (Jax.Mesh) {
+  if (Jax.Mesh.Base) {
+    Jax.deprecate(Jax.Mesh.Base, 'getVertexBuffer', 'data.set(vars, {vertices: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Base, 'getNormalBuffer', 'data.set(vars, {normals: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Base, 'getColorBuffer', 'data.set(vars, {colors: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Base, 'getTextureCoordsBuffer', 'data.set(vars, {texture: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Base, 'getTangentBuffer', 'data.set(vars, {tangents: "shaderVariableName"})');
+  }
 
-if (Jax.Mesh.Triangles) {
-  Jax.deprecate(Jax.Mesh.Triangles, 'getVertexBuffer', 'data.vertexBuffer');
-  Jax.deprecate(Jax.Mesh.Triangles, 'getNormalBuffer', 'data.normalBuffer');
-  Jax.deprecate(Jax.Mesh.Triangles, 'getColorBuffer', 'data.colorBuffer');
-  Jax.deprecate(Jax.Mesh.Triangles, 'getTextureCoordsBuffer', 'data.textureCoordsBuffer');
-}
-
-if (Jax.Material.ShaderVariableMap) {
-  Jax.deprecate(Jax.Material.ShaderVariableMap, 'texture', 'set');
+  if (Jax.Mesh.Triangles) {
+    Jax.deprecate(Jax.Mesh.Triangles, 'getVertexBuffer', 'data.set(vars, {vertices: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Triangles, 'getNormalBuffer', 'data.set(vars, {normals: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Triangles, 'getColorBuffer', 'data.set(vars, {colors: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Triangles, 'getTextureCoordsBuffer', 'data.set(vars, {texture: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Triangles, 'getTangentBuffer', 'data.set(vars, {tangents: "shaderVariableName"})');
+  }
 }
 
 if (Jax.View) {
