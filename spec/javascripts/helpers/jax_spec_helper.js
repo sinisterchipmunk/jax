@@ -1,5 +1,12 @@
 beforeEach(function() {
   this.addMatchers({
+    toHaveBeenCalledWithIsh: function(ish) {
+      for (var i = 0; i < this.actual.calls.length; i++)
+        if (Math.equalish(this.actual.calls[i].args, ish))
+          return true;
+      return false;
+    },
+    
     toBeDisposed: function() {
       return this.actual.isDisposed();
     },

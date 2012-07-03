@@ -46,7 +46,7 @@ describe("Jax.Controller", function() {
       SPEC_CONTEXT.startRendering();
       SPEC_CONTEXT.startUpdating();
       jasmine.Clock.tick(1000);
-      expect(instance.update).toHaveBeenCalledWith(0.016);
+      expect(instance.update).toHaveBeenCalledWithIsh([0.016]);
       SPEC_CONTEXT.stopUpdating();
     });
   });
