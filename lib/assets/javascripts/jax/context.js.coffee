@@ -21,6 +21,7 @@ class Jax.Context
     @_isUpdating  = false
     @_renderHandle = @_updateHandle = null
     @_framesPerSecond = @_updatesPerSecond = 0
+    @_renderStartTime = null
     
     @_errorFunc = (error, url, line) =>
       if @controller and @controller.error
@@ -45,7 +46,10 @@ class Jax.Context
       if @isUpdating() then @requestUpdateFrame()
       
     @_renderFunc = (time) =>
-      @uptime = time
+      # deal with time in seconds, not ms
+      time *= 0.001
+      @_renderStartTime = time if @_renderStartTime is null
+      @uptime = time - @_renderStartTime
       if @_calculateFrameRate then @refreshFPS()
       @render()
       if @isRendering() then @requestRenderFrame()
@@ -121,7 +125,7 @@ class Jax.Context
       @_timeToUpdate = (@_timeToUpdate || 0) * @framerateSampleRatio \
                      +  timeToUpdateThisFrame * (1 - @framerateSampleRatio)
       # update rate = seconds / time
-      @_updatesPerSecond = 1 / (@_timeToUpdate * 0.001)
+      @_updatesPerSecond = 1 / @_timeToUpdate
     
     # in order to avoid recalculating the above for updates, we'll
     # return the timechange to be used in subsequent updates.
@@ -130,7 +134,7 @@ class Jax.Context
     
     # clamp update rate to 250ms so that it doesn't spike when
     # resuming from a paused state
-    Math.min timechange * 0.001, 0.25
+    Math.min timechange, 0.25
     
   refreshFPS: ->
     currentRenderStart = @uptime
@@ -141,8 +145,7 @@ class Jax.Context
                    +  timeToRenderThisFrame * (1 - @framerateSampleRatio)
     
     # frames per second = 1 second divided by time to render;
-    # time is currently in ms so 1sec = 1000ms
-    @_framesPerSecond = 1 / (@_timeToRender * 0.001)
+    @_framesPerSecond = 1 / @_timeToRender
     @_lastRenderStart = currentRenderStart
     
   
@@ -164,6 +167,7 @@ class Jax.Context
   stopRendering: ->
     return unless @isRendering()
     @abortRenderFrame() if @_renderHandle isnt null
+    @_renderStartTime = null
     @_isRendering = false
     
   restart: ->

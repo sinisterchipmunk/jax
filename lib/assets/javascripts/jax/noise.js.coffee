@@ -108,7 +108,7 @@ class Jax.Noise
   # Returns the same uniforms delegator that was specified to begin with.
   bind: (context, uniforms) ->
     @prepare context unless @isPrepared context
-    uniforms.texture 'gradTexture', @grad, context
+    uniforms.gradTexture = @grad
     
   # Jax.Noise#isPrepared(context) -> Boolean
   #
