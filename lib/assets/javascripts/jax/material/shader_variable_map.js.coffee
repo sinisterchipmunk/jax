@@ -11,6 +11,14 @@ variables.
 ###
 class Jax.Material.ShaderVariableMap
   set: (keyOrVariables, valueOrNothing) ->
+    unless @alreadyWarned
+      @alreadyWarned = true
+      console.log "`vars.set` and `vars.texture` are both deprecated. Instead, " + \
+                  "you should just set variable values directly on the `vars` " + \
+                  "object. For example, to set a shader variable named `color` " + \
+                  "to the value [1, 1, 1, 1], use the syntax: " + \
+                  "vars.color = [1, 1, 1, 1]`"
+    
     if valueOrNothing is undefined
       for k, v of keyOrVariables
         continue if v is undefined
@@ -23,4 +31,8 @@ class Jax.Material.ShaderVariableMap
   
   texture: (name, tex, context) ->
     @set name, tex
-    
+
+  # make sure `set` and `texture` don't get nulled out between passes
+  @define 'set', enumerable: false
+  @define 'texture', enumerable: false
+  
