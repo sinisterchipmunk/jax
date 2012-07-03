@@ -8,7 +8,9 @@ void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
     cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
-      NormalizedEyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
+      vec3 normal = vEyeSpaceSurfaceNormal;
+      import(VertexNormal, normal = normalize(normal + VertexNormal));
+      NormalizedEyeSpaceSurfaceNormal = normalize(normal);
     }
   
     vec3 L;
