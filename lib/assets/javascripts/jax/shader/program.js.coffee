@@ -8,8 +8,6 @@ class Jax.Shader.CompileError extends Jax.Error
     @message = message
 
 class Jax.Shader.Program
-  guid = 0
-  
   buildBacktrace: (gl, shader, source) ->
     log = gl.getShaderInfoLog(shader)?.split(/\n/) || []
     rx = /\d+:(\d+):(.*)/
@@ -58,7 +56,7 @@ class Jax.Shader.Program
       fragment.main.push "gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);"
       
   constructor: (@name = "generic") ->
-    @_guid or= guid++
+    @_guid or= Jax.guid()
     @_discovered = {}
     @_isCompiled = {}
     @_glShaders = {}
@@ -72,9 +70,16 @@ class Jax.Shader.Program
     
   loadDescriptor: (context) ->
     descriptors = context._shaderDescriptors or= {}
-    vhash = Jax.Util.hash @vertex.toString()
-    fhash = Jax.Util.hash @fragment.toString()
-    phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
+    # Went to GUIDs because hashes were too slow with big programs (example: noise).
+    # Keeping the basic structure here because browsers might get faster, also,
+    # Web Workers might work for speeding up shader prep work.
+    # See also spec/javascripts/jax/shader/program_spec.js and the disabled tests there.
+    vhash = @vertex.id
+    fhash = @fragment.id
+    phash = @_guid
+    # vhash = Jax.Util.hash @vertex.toString()
+    # fhash = Jax.Util.hash @fragment.toString()
+    # phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
     descriptor = {}
     descriptor.vertex   = descriptors[vhash]
     descriptor.fragment = descriptors[fhash]
@@ -83,9 +88,12 @@ class Jax.Shader.Program
     
   saveDescriptor: (context, descriptor) ->
     descriptors = context._shaderDescriptors or= {}
-    vhash = Jax.Util.hash @vertex.toString()
-    fhash = Jax.Util.hash @fragment.toString()
-    phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
+    vhash = @vertex.id
+    fhash = @fragment.id
+    phash = @_guid
+    # vhash = Jax.Util.hash @vertex.toString()
+    # fhash = Jax.Util.hash @fragment.toString()
+    # phash = Jax.Util.hash(@vertex.toString() + @fragment.toString())
     descriptors[vhash] = descriptor.vertex
     descriptors[fhash] = descriptor.fragment
     descriptors[phash] = descriptor.program
@@ -110,18 +118,18 @@ class Jax.Shader.Program
       # guid's on shader objects make them easier to debug,
       # this should have no effect on runtime
       descriptor.program = glShader.program = gl.createProgram()
-      descriptor.program._guid = guid++
+      descriptor.program._guid = Jax.guid()
       if descriptor.vertex
         glShader.vertex = descriptor.vertex
       else
         descriptor.vertex = glShader.vertex = gl.createShader GL_VERTEX_SHADER
-        descriptor.vertex._guid = guid++
+        descriptor.vertex._guid = Jax.guid()
         @compileShader gl, @vertex, glShader.vertex, 'vertex'
       if descriptor.fragment
         glShader.fragment = descriptor.fragment
       else
         descriptor.fragment = glShader.fragment = gl.createShader GL_FRAGMENT_SHADER
-        descriptor.fragment._guid = guid++
+        descriptor.fragment._guid = Jax.guid()
         @compileShader gl, @fragment, glShader.fragment, 'fragment'
       gl.attachShader glShader.program, glShader.vertex
       gl.attachShader glShader.program, glShader.fragment

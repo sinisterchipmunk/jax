@@ -68,6 +68,11 @@ var Jax = {
   click_speed: 0.2,
 };
 
+(function() {
+  var guid = 0;
+  Jax.guid = function() { return guid++; };
+})();
+
 <% if Rails.env == "production" %>
   Jax.environment = Jax.PRODUCTION;
 <% end %>

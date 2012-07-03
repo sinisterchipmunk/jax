@@ -1,10 +1,6 @@
 #= require_self
 #= require_tree './shader'
 
-class Main extends Array
-  toString: ->
-    "void main(void) {\n  #{@join '\n  '}\n}"
-    
 class Parser
   findVariables: ->
     variables = []
@@ -111,8 +107,9 @@ class Jax.Shader
   @include Jax.EventEmitter
   
   constructor: (@name = "generic") ->
+    @id = Jax.guid()
     @sources = []
-    @main = new Main()
+    @main = new Array()
     
   processExportsAndImports: (code) ->
     exports = []
@@ -176,7 +173,7 @@ class Jax.Shader
     @toString().split('\n')
     
   toString: ->
-    main = new Main
+    main = new Array()
     main.push line for line in @main
     
     result = ""
@@ -185,7 +182,7 @@ class Jax.Shader
       result += "\n"
       if mangledMain = src.getMangledMain i
         main.push mangledMain.mangledName + "();"
-    body = @processExportsAndImports result + main.toString()
+    body = @processExportsAndImports result + "void main(void) {\n  #{main.join '\n  '}\n}"
 
     # caches
     caches = {}

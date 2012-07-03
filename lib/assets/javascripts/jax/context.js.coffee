@@ -4,7 +4,6 @@
 
 class Jax.Context
   @include Jax.EventEmitter
-  guid = 0
   
   constructor: (@canvas, options) ->
     # Normalize single-argument form
@@ -56,7 +55,7 @@ class Jax.Context
       
     window.addEventListener 'error', @_errorFunc
 
-    @id = guid++
+    @id = Jax.guid()
     @world = new Jax.World this
     @uptime = 0
     @matrix_stack = new Jax.MatrixStack()

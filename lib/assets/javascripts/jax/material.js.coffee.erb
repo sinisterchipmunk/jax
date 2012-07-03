@@ -67,11 +67,10 @@ class Jax.Material
   of the material can have specular lighting added to it without tainting
   the shader of any other instance.
   ###
-  localID = 0
   localizeShader: ->
     return if @_localizedShader
     @_localizedShader = true
-    @shader = new Jax.Shader.Program @shader.name+"-localized-"+localID++
+    @shader = new Jax.Shader.Program @shader.name+"-localized-"+Jax.guid()
     [layers, @layers] = [@layers, []]
     for layer in layers
       @addLayer layer
