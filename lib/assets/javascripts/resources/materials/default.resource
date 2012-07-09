@@ -8,7 +8,7 @@ intensity:
 shininess: 60
 
 color:
-  ambient:  "#0c0c0c"
+  ambient:  "#ffffff"
   diffuse:  "#cccccc"
   specular: "#ffffff"
 
