@@ -186,6 +186,7 @@ class Jax.Mesh.Data
   ###
   set: (vars, mapping) ->
     throw new Error "Jax context for this pass is not set" unless @_context
+    throw new Error "Expected two arguments, mapping is undefined" unless mapping isnt undefined
     @bind @_context unless @_bound
 
     for key, target of mapping
