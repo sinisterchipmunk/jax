@@ -9,8 +9,11 @@ void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
     cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
-      vec3 normal = vEyeSpaceSurfaceNormal;
-      import(VertexNormal, normal = normalize(normal + VertexNormal));
+      bool useVertexNormal = true;
+      import(UseVertexNormal, useVertexNormal = UseVertexNormal);
+      vec3 normal = vec3(0.0, 0.0, 0.0);
+      if (useVertexNormal) normal = vEyeSpaceSurfaceNormal;
+      import(Normal, normal = normal + Normal);
       NormalizedEyeSpaceSurfaceNormal = normalize(normal);
     }
   
@@ -32,7 +35,9 @@ void main(void) {
       vec3 R = reflect(L, NormalizedEyeSpaceSurfaceNormal);
       vec3 C = MaterialSpecularColor.rgb * LightSpecularColor.rgb;
       vec3 E = normalize(vEyeSpaceSurfacePosition);
-      gl_FragColor += vec4(C * SpotAttenuation * MaterialSpecularIntensity * pow(max(dot(R, E), 0.0), MaterialShininess), 1.0);
+      float specularIntensity = MaterialSpecularIntensity;
+      import(SpecularIntensity, specularIntensity *= SpecularIntensity);
+      gl_FragColor += vec4(C * SpotAttenuation * specularIntensity * pow(clamp(dot(R, E), 0.0, 1.0), MaterialShininess), 1.0);
     }
   }
 }

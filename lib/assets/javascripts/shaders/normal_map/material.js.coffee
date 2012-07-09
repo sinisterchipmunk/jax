@@ -1,11 +1,17 @@
-class Jax.Material.Layer.NormalMap extends Jax.Material.Layer
-  constructor: (options) ->
-    if options instanceof Jax.Texture then @map = options
-    else if options?.instance then @map = options.instance
-    else @map = new Jax.Texture options
+#= require 'shaders/texture/material'
 
-    super {shader: "normal_map"}
-    
+class Jax.Material.Layer.NormalMap extends Jax.Material.Layer.Texture
+  constructor: (options) ->
+    @specularChannel = !!(options && (options.specularChannel || options.texture.specularChannel))
+    super options
+    @dataMap.tangents = 'VERTEX_TANGENT'
+    @dataMap.normals = 'VERTEX_NORMAL'
+    @dataMap.vertices = 'VERTEX_POSITION'
+
   setVariables: (context, mesh, model, vars, pass) ->
-    vars.NormalMap = @map
-    vars.VERTEX_TANGENT = mesh.getTangentBuffer()
+    super context, mesh, model, vars, pass
+    vars.NormalMatrix = context.matrix_stack.getNormalMatrix()
+    vars.UseSpecularChannel = @specularChannel
+    # don't skip this pass!
+    true
+    

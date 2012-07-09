@@ -94,3 +94,13 @@ class Jax.Material.Surface extends Jax.Material.Custom
     options.shininess = 60     if options.shininess is undefined
     options.pcf       = true   if options.pcf       is undefined
     super options, name
+
+    if options
+      if options.textures
+        for texture in options.textures
+          @addLayer type: 'Texture', texture: texture
+      if options.normalMaps
+        for map in options.normalMaps
+          # Normal maps must come before diffuse or specular shaders so that they
+          # can perturb the normal before it's used to generate colors.
+          @insertLayer 0, type: 'NormalMap', texture: map

@@ -11,11 +11,11 @@ class Jax.Material.Layer.LambertDiffuse extends Jax.Material.IlluminationLayer
     
   illuminate: (context, mesh, model, vars, light) ->
     vars['LightDiffuseColor'] = light.color.diffuse
-    vars['EyeSpaceLightDirection'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-    vars['LightType'] = light.type
     vars['LightSpotExponent'] = light.spotExponent
     vars['LightSpotInnerCos'] = light.innerSpotAngleCos
     vars['LightSpotOuterCos'] = light.outerSpotAngleCos
+    vars['LightType'] = light.type
+    vars['EyeSpaceLightDirection'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
     vars['EyeSpaceLightPosition'] = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos
 
     vars.NormalMatrix = context.matrix_stack.getNormalMatrix()

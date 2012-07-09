@@ -10,7 +10,7 @@ class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
     @eyePos = vec3.create()
     
   illuminate: (context, mesh, model, vars, light) ->
-    vars['LightSpecularColor'] = light.color.diffuse
+    vars['LightSpecularColor'] = light.color.specular
     vars['EyeSpaceLightDirection'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
     vars['LightType'] = light.type
     vars['LightSpotExponent'] = light.spotExponent

@@ -8,8 +8,11 @@ void main(void) {
   // no output on ambient pass
   if (PASS != 0) {
     cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
-      vec3 normal = vEyeSpaceSurfaceNormal;
-      import(VertexNormal, normal = normalize(normal + VertexNormal));
+      bool useVertexNormal = true;
+      import(UseVertexNormal, useVertexNormal = UseVertexNormal);
+      vec3 normal = vec3(0.0, 0.0, 0.0);
+      if (useVertexNormal) normal = vEyeSpaceSurfaceNormal;
+      import(Normal, normal = normal + Normal);
       NormalizedEyeSpaceSurfaceNormal = normalize(normal);
     }
   
@@ -37,7 +40,7 @@ void main(void) {
     vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
               MaterialDiffuseColor.a * MaterialDiffuseIntensity;
 
-    float lambert = dot(NormalizedEyeSpaceSurfaceNormal, L);
+    float lambert = max(dot(NormalizedEyeSpaceSurfaceNormal, L), 0.0);
     gl_FragColor += vec4(lambert * C * SpotAttenuation, 1.0);
   }
 }

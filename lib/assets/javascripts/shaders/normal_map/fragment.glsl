@@ -1,36 +1,29 @@
 void main() {
-  // ambient was applied by the basic shader; applying it again will simply brighten some fragments
-  // beyond their proper ambient value. So, we really need to apply the bump shader ONLY to diffuse+specular.
-
-  if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%>) {
-    vec4 ambient = import(AMBIENT, vec4(1)),
-         diffuse = import(DIFFUSE, vec4(1)),
-         specular = import(SPECULAR, vec4(1));
-
-    vec3 nLightDir = normalize(vLightDir);
-    vec3 nEyeDir = normalize(vEyeDir);
-    vec4 color = texture2D(NormalMap, vTexCoords);
-    vec3 map = //nMatrix * 
-               normalize(color.xyz * 2.0 - 1.0);
-             
-    float litColor = max(dot(map, nLightDir), 0.0) * vAttenuation;
-
-    // specular
-    vec3 reflectDir = reflect(nLightDir, map);
-    float spec = max(dot(nEyeDir, reflectDir), 0.0);
-    spec = pow(spec, materialShininess);
-
-    // Treat alpha in the normal map as a specular map; if it's unused it will be 1 and this
-    // won't matter.
-    spec *= color.a;
+  vec4 rgba = texture2D(Texture, vTexCoords *
+                vec2(TextureScaleX, TextureScaleY));
+  vec3 bump = normalize(rgba.xyz * 2.0 - 1.0);
   
-    diffuse *= litColor;
-    specular *= spec;
-
-    gl_FragColor = ambient + diffuse + specular;
-
-    export(vec4, AMBIENT, ambient);
-    export(vec4, DIFFUSE, diffuse);
-    export(vec4, SPECULAR, specular);
-  }
+  vec3 t = normalize(vT);
+  vec3 n = normalize(vN);
+  vec3 b = normalize(vB);
+  
+  // inverse
+  // float r0 = t.x, r1 = b.x, r2 = n.x,
+  //       r3 = t.y, r4 = b.y, r5 = n.y,
+  //       r6 = t.z, r7 = b.z, r8 = b.z;
+  
+  float r0 = t.x, r1 = t.y, r2 = t.z,
+        r3 = b.x, r4 = b.y, r5 = b.z,
+        r6 = n.x, r7 = n.y, r8 = n.z;
+  mat3 tangentMatrix = mat3(r0, r1, r2, r3, r4, r5, r6, r7, r8);
+  
+  bump = normalize(tangentMatrix * bump);
+  // vertex normal is already encoded in the tangent matrix
+  export(bool, UseVertexNormal, false);
+  export(vec3, Normal, bump);
+  
+  // Alpha channel may contain a specular map
+  float specular = 1.0;
+  if (UseSpecularChannel) specular = rgba.a;
+  export(float, SpecularIntensity, specular);
 }
