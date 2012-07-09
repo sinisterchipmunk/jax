@@ -17,7 +17,7 @@ class Jax.Material
       for layer in _layers
         layers.push @addLayer layer, false
       _layers.splice 0, _layers.length, layers...
-        
+      
     @assigns = {}
     options = Jax.Util.normalizeOptions options, {}
     for key, value of options
@@ -75,13 +75,13 @@ class Jax.Material
     for layer in layers
       @addLayer layer
     true
-  
-  addLayer: (options, localize = true) ->
+    
+  insertLayer: (index, options, localize = true) ->
     @localizeShader() if localize
     if typeof options is 'string' then options = { type: options }
     if options instanceof Jax.Material.Layer
-      options.attachTo this
-      @layers.push options
+      options.attachTo this, index
+      @layers.splice index, 0, options
       return options
     
     options = Jax.Util.normalizeOptions options, {}
@@ -102,9 +102,12 @@ class Jax.Material
       throw new Error """
         #{@name}: Custom material layers now inherit from Jax.Material.Layer instead of Jax.Material.
       """
-    layer.attachTo this
-    @layers.push layer
+    layer.attachTo this, index
+    @layers.splice index, 0, layer
     layer
+  
+  addLayer: (options, localize = true) ->
+    @insertLayer @layers.length, options, localize
     
   clearAssigns: ->
     assigns = @assigns

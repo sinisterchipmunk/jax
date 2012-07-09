@@ -68,7 +68,18 @@ class Jax.Shader.Program
     @fragment.addEventListener 'changed', => @invalidate()
     @ensureDefaultWriters @vertex, @fragment
     
+  insert: (vsrc, fsrc, index) ->
+    mangler = Jax.guid()
+    map = {}
+    vmap = @vertex.insert   vsrc, mangler, index
+    fmap = @fragment.insert fsrc, mangler, index
+    map[k] = v for k, v of fmap
+    map[k] = v for k, v of vmap
+    map
+    
   loadDescriptor: (context) ->
+    return {}
+    
     descriptors = context._shaderDescriptors or= {}
     # Went to GUIDs because hashes were too slow with big programs (example: noise).
     # Keeping the basic structure here because browsers might get faster, also,

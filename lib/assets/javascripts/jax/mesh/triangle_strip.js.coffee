@@ -15,4 +15,5 @@ class Jax.Mesh.TriangleStrip extends Jax.Mesh.Base
     triangleOrder.splice 0, triangleOrder.length
     for i in [2...numIndices] by 2
       triangleOrder.push indices[i-2], indices[i-1], indices[i  ]
-      triangleOrder.push indices[i  ], indices[i-1], indices[i+1]
+      if i < numIndices - 1
+        triangleOrder.push indices[i  ], indices[i-1], indices[i+1]

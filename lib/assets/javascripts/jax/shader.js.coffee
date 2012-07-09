@@ -37,18 +37,17 @@ class Parser
         name: match[3]
     functions
   
-  constructor: (src) ->
-    @src = src
+  constructor: (@src, @mangler) ->
     
-  getMangledMain: (mangler) ->
+  getMangledMain: () ->
     mangles = @findFunctions()
     for mangle in mangles
       if mangle.name == 'main'
-        mangle.mangledName = mangle.name + mangler
+        mangle.mangledName = mangle.name + @mangler
         return mangle
     null
     
-  map: (mangler) ->
+  map: () ->
     map = {}
     mangles = @findVariables()
     for mangle in mangles
@@ -56,10 +55,10 @@ class Parser
         if mangle.shared
           map[name] = name
         else
-          map[name] = name + mangler
+          map[name] = name + @mangler
     map
     
-  mangle: (mangler, currentSrc) ->
+  mangle: (currentSrc) ->
     src = @src
     # variables
     mangles = @findVariables()
@@ -70,7 +69,7 @@ class Parser
           continue if new RegExp("#{name}(,|;)").test currentSrc
           mangledNames.push name
         else
-          mangledNames.push name + mangler
+          mangledNames.push name + @mangler
       if mangledNames.length > 0
         mangledNames = mangledNames.join ', '
         variable = [mangle.qualifier, mangle.type, mangledNames].join ' '
@@ -82,7 +81,7 @@ class Parser
       # references
       continue if mangle.shared
       for name in mangle.names
-        mangledName = name + mangler
+        mangledName = name + @mangler
         while match = new RegExp("(^|\\W)#{name}(\\W|$)").exec src
           src = src.replace match[0], match[1] + mangledName + match[2]
           
@@ -92,7 +91,7 @@ class Parser
       if mangle.shared
         mangledName = mangle.name
       else
-        mangledName = mangle.name + mangler
+        mangledName = mangle.name + @mangler
       mangledSignature = mangle.signature.replace mangle.name, mangledName
       mangledFunc = mangle.full.replace mangle.signature, mangledSignature
       mangledFunc = mangledFunc.replace /shared[\s\t\n]+/, ''
@@ -178,9 +177,9 @@ class Jax.Shader
     
     result = ""
     for src, i in @sources
-      result += src.mangle i, result
+      result += src.mangle result
       result += "\n"
-      if mangledMain = src.getMangledMain i
+      if mangledMain = src.getMangledMain()
         main.push mangledMain.mangledName + "();"
     body = @processExportsAndImports result + "void main(void) {\n  #{main.join '\n  '}\n}"
 
@@ -217,8 +216,10 @@ class Jax.Shader
       "precision mediump float;\n\n" + body
     else body
     
-  append: (src) ->
-    mangler = @sources.length
-    @sources.push parser = new Parser(src)
+  insert: (src, mangler, index) ->
+    @sources.splice index, 0, parser = new Parser src, mangler
     @fireEvent 'changed'
-    parser.map mangler
+    parser.map()
+    
+  append: (src, mangler) ->
+    @insert src, mangler, @sources.length

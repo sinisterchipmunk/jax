@@ -11,22 +11,27 @@ class Jax.Material.Layer
     if options
       if options.shader and (src = Jax.shader_data options.shader) and (src.fragment || src.vertex)
         @_shaderSource = src
-      else if (src = this.__proto__.constructor.shaderSource) isnt undefined
-        @_shaderSource = src
       else if (src = options) and (src.fragment || src.vertex)
         @_shaderSource = src
       # handle other options
       for k, v of options
         @[k] = v
+        
+    unless @_shaderSource
+      if (src = this.__proto__.constructor.shaderSource) isnt undefined
+        @_shaderSource = src
+      else if (src = Jax.shader_data Jax.Util.underscore @__proto__.constructor.name) and \
+              (src.fragment || src.vertex)
+        @_shaderSource = src
+        
     @attachTo material if material
   
-  attachTo: (material) ->
+  attachTo: (material, insertionIndex) ->
     map = {}
     if @_shaderSource
-      fmap = material.fragment.append shaderSource @_shaderSource, 'fragment'
-      vmap = material.vertex.append   shaderSource @_shaderSource, 'vertex'
-      map[k] = v for k, v of fmap
-      map[k] = v for k, v of vmap
+      vertex = shaderSource @_shaderSource, 'vertex'
+      fragment = shaderSource @_shaderSource, 'fragment'
+      map = material.shader.insert vertex, fragment, insertionIndex
     @variableMap = map
 
   numPasses: (context) -> 1
