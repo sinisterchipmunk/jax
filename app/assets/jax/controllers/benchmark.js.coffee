@@ -85,7 +85,7 @@ Jax.Controller.create "benchmark",
             mesh: new Jax.Mesh.Sphere
               radius: 0.25
               color: [1, 1, 1, 1]
-              material: new Jax.Material.Legacy
+              material: new Jax.Material.Surface
                 intensity:
                   diffuse: 1.25
                 color:

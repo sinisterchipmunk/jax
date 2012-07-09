@@ -40,7 +40,7 @@ Jax.Controller.create "oz3d",
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
     
-    @light_mat = new Jax.Material.Legacy
+    @light_mat = new Jax.Material.Surface
       shininess: 0
       intensity:
         ambient: 100
@@ -57,17 +57,17 @@ Jax.Controller.create "oz3d",
     @context.activeCamera.position = [-15, 20, 25]
     @context.activeCamera.direction = [ 0.55, -0.5, -1]
     
-    @floor_mat = new Jax.Material.Legacy
+    @floor_mat = new Jax.Material.Surface
       shininess: 60
       color:
         diffuse: [0.4, 0.9, 0.4, 1]
         specular: [0.4, 0.4, 0.4, 1]
-    @torus_mat = new Jax.Material.Legacy
+    @torus_mat = new Jax.Material.Surface
       shininess: 60
       color:
         diffuse: [1.0, 0.5, 0.5, 1]
         specular: [0.6, 0.6, 0.6, 1]
-    @sphere_mat = new Jax.Material.Legacy
+    @sphere_mat = new Jax.Material.Surface
       shininess: 60
       color:
         diffuse: [0.5, 0.5, 0.9, 1]
