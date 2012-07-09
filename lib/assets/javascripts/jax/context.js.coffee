@@ -257,6 +257,7 @@ class Jax.Context
   unloadScene: ->
     @world.dispose()
     @world.cameras = 1
+    @world.cameras[0].reset()
     @setupCamera()
     delete @_player # TODO remove this line when deprecated `player` is removed!
     
