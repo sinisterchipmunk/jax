@@ -1,7 +1,17 @@
-describe("Tangent space", function() {
+describe("Jax.Mesh.Tangents", function() {
   var mesh;
   it("should work with spheres", function() {
     expect(new Jax.Mesh.Sphere().data.tangentBuffer).not.toBeEmpty();
+  });
+  
+  describe("with a sphere mesh", function() {
+    it("should not produce NaN results", function() {
+      mesh = new Jax.Mesh.Sphere();
+      mesh.validate();
+      for (var i = 0; i < mesh.data.tangentBuffer.length; i++) {
+        expect(mesh.data.tangentBuffer[i]).not.toBeNaN();
+      }
+    });
   });
   
   describe("with a triangle strip", function() {

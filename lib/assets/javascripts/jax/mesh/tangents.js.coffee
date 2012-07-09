@@ -72,7 +72,11 @@ Jax.Mesh.Tangents =
       s2 = w3[0] - w1[0]
       t1 = w2[1] - w1[1]
       t2 = w3[1] - w1[1]
+      
       r = 1 / (s1 * t2 - s2 * t1)
+      # this will happen with degenerate triangles, no big deal since
+      # those tris are not seen anyway
+      if r == (1 / 0) then r = 0
       sdir[0] = (t2 * x1 - t1 * x2) * r
       sdir[1] = (t2 * y1 - t1 * y2) * r
       sdir[2] = (t2 * z1 - t1 * z2) * r

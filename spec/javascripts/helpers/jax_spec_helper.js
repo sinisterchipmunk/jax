@@ -1,5 +1,9 @@
 beforeEach(function() {
   this.addMatchers({
+    toBeNaN: function() {
+      return isNaN(this.actual);
+    },
+    
     toHaveBeenCalledWithIsh: function(ish) {
       for (var i = 0; i < this.actual.calls.length; i++)
         if (Math.equalish(this.actual.calls[i].args, ish))
