@@ -98,6 +98,13 @@ describe 'Jax.Context', ->
     it 'should make context accessible to views', ->
       @context.redirectTo 'two/index'
       expect(@context.view.context).toBe @context
+      
+    describe 'scene unloading', ->
+      it 'should reset the camera', ->
+        @context.redirectTo 'two'
+        @context.activeCamera.position = [1,1,1]
+        @context.unloadScene()
+        expect(@context.activeCamera.position).toEqualVector [0,0,0]
 
     describe 'to the index action in the same controller', ->
       it "should reload the scene as a special case", ->
