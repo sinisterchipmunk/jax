@@ -24,5 +24,6 @@ Jax.Renderer.register class Jax.Renderer.WebGL
     @viewport()
     
   viewport: ->
-    @context.viewport 0, 0, @context.canvas.width, @context.canvas.height
-    
+    canvasWidth  = @context.canvas.clientWidth  || @context.canvas.width
+    canvasHeight = @context.canvas.clientHeight || @context.canvas.height
+    @context.viewport 0, 0, canvasWidth, canvasHeight

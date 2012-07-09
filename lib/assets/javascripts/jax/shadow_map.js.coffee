@@ -98,9 +98,7 @@ class Jax.ShadowMap
       
     # restore viewport
     gl.clearColor.apply gl, clearColor
-    canvasWidth  = context.canvas.clientWidth  || context.canvas.width
-    canvasHeight = context.canvas.clientHeight || context.canvas.height
-    gl.viewport 0, 0, canvasWidth, canvasHeight
+    context.viewport()
     gl.polygonOffset 0, 0
     gl.disable GL_POLYGON_OFFSET_FILL
     gl.cullFace GL_BACK
