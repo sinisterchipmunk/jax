@@ -23,6 +23,7 @@
 #= require "jax/builtin/meshes/sphere"
 #= require "jax/builtin/meshes/teapot"
 #= require "jax/builtin/meshes/torus"
+#= require "jax/builtin/meshes/cone"
 #= require "jax/builtin/models/framerate"
 
 # Support for Jax shaders and materials
