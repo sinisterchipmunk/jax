@@ -1,24 +1,17 @@
-# ambient component multiplied with the light source's ambient component
-ambient:
-  red:   1.0
-  green: 1.0
-  blue:  1.0
-  alpha: 1.0
+# Valid types include: Surface; Wire; Halo; Custom
+type: Surface
 
-# diffuse component multiplied with the light source's diffuse component
-diffuse:
-  red:   1.0
-  green: 1.0
-  blue:  1.0
-  alpha: 1.0
+# Colors are given in red, green, blue hex. They can also accept
+# an optional alpha hex, which is used for transparency.
+color:
+  diffuse:  "#ffffff"
+  specular: "#ffffff"
 
-# specular component multiplied with the light source's specular component
-specular:
-  red:   1.0
-  green: 1.0
-  blue:  1.0
-  alpha: 1.0
+# Intensity multipliers so you can scale up or down the individual
+# color components as it interacts with light.
+intensity:
+  ambient: 1
+  diffuse: 1
+  specular: 1
 
-shininess: 30
-
-layers:
+shininess: 60

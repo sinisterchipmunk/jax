@@ -34,26 +34,12 @@ describe("Jax.Model", function() {
     
   describe("without any custom methods", function() {
     beforeEach(function() {
-      model = Jax.Model.create({
-        initialize: function($super, data) { $super(Jax.Util.normalizeOptions(data, {mesh:new Jax.Mesh.Quad()})); }
-      });
+      model = Jax.Model.create({ after_initialize: function() { this.mesh = new Jax.Mesh.Quad(); } });
     });
     
     describe("instantiated", function() {
       beforeEach(function() { model = new model(); });
       
-      describe("that is not a shadowcaster", function() {
-        beforeEach(function() { model.shadow_caster = false; });
-        it("should still be lit", function() { expect(model).toBeIlluminated(); });
-      });
-
-      describe("that is not lit", function() {
-        beforeEach(function() { model.lit = false; });
-        it("should not be rendered in illumination pass", function() {
-          expect(model).not.toBeIlluminated();
-        });
-      });
-
       it("should render properly", function() {
         model.render(SPEC_CONTEXT);
       });

@@ -10,6 +10,20 @@ describe("Jax.Util", function() {
     });
   });
   
+  describe("scan", function() {
+    it("should process single-line comments", function() {
+      expect(Jax.Util.scan("\n// )\n)")).toEqual("\n// )\n");
+    });
+    
+    it("should process multi-line comments", function() {
+      expect(Jax.Util.scan("\n/*\n)\n*/\n)")).toEqual("\n/*\n)\n*/\n");
+    });
+    
+    it("should not choke on division", function() {
+      expect(Jax.Util.scan("\n 1 / 2)")).toEqual("\n 1 / 2");
+    });
+  });
+  
   describe("vectorize", function() {
     var data;
     
@@ -218,7 +232,7 @@ describe("Jax.Util", function() {
       beforeEach(function() { normalized = Jax.Util.normalizeOptions({p:{"x":20,"y":40,"z":60}}, {p:[1,2,3]}); });
       it("should merge both into a gen object", function() {
         expect(Object.isArray(normalized.p)).toBeFalsy();
-
+  
         expect(normalized.p.x).toEqual(20);
         expect(normalized.p.y).toEqual(40);
         expect(normalized.p.z).toEqual(60);
@@ -249,7 +263,7 @@ describe("Jax.Util", function() {
       
       it("should be an instance of that klass", function() {
         expect(normalized.k.klass).not.toBeUndefined();
-        expect(normalized.k).toBeKindOf(normalized.k.klass);
+        expect(normalized.k).toBeInstanceOf(normalized.k.klass);
       });
     });
     

@@ -32,8 +32,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'fakeweb',        '~> 1.3'
   s.add_development_dependency 'ansi'
   s.add_development_dependency 'cucumber-rails', '~> 1'
-  
   s.add_development_dependency 'rocco'
+  s.add_development_dependency 'jshintrb'
+  s.add_development_dependency 'shader-script'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'

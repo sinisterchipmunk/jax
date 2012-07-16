@@ -3,6 +3,17 @@
 * Consolidated noise algorithm to use a single texture buffer instead of 3 separate
   buffers with no loss in performance, special thanks to Stefan Gustavson.
 
+* Resolved #52: Made it possible to invoke `rails g jax:install` with just `jax install`
+
+* Resolved #42: Deprecated WebGL wrapper methods, since they're no longer helpful
+
+* Previous versions of Jax used a temporary WebGL context during initialization; this
+  has now been removed in favor of lazily loading the relevant data.
+
+* Removed Jax.render_speed and corrected some small render bugs
+
+* Fixed framerate calculation
+  
 
 
 * 2.0.8 *

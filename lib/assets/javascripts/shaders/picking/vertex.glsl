@@ -1,10 +1,4 @@
-shared attribute vec4 VERTEX_POSITION;
-
-shared uniform mat4 mvMatrix, pMatrix;
-
 void main(void) {
-  gl_Position = pMatrix * mvMatrix * VERTEX_POSITION;
-  
   /*
     Note that the agorithm here must be followed exactly on the JS side in order
     to reconstitute the index when it is read.
@@ -20,5 +14,5 @@ void main(void) {
   
   float d = 1.0 / 255.0;
   float f = floor(INDEX / 256.0);
-  vColor = vec4(f * d, (INDEX - 256.0 * f) * d, 1.0, 1.0);
+  vPickingColor = vec4(f * d, (INDEX - 256.0 * f) * d, 1.0, 1.0);
 }

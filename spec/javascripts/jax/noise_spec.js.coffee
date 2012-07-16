@@ -16,7 +16,7 @@ describe "Jax.Noise", ->
     it "should bind to a uniform delegator and be prepared", ->
       # is this too brittle?
       noise.bind SPEC_CONTEXT, uniforms
-      expect(uniforms.texture).toHaveBeenCalledWith 'gradTexture', noise.grad, SPEC_CONTEXT
+      expect(uniforms.gradTexture).toBe noise.grad
       expect(noise.isPrepared SPEC_CONTEXT).toBeTruthy()
 
   describe "initialized old-style, with a context", ->
@@ -32,5 +32,5 @@ describe "Jax.Noise", ->
     it "should bind to a uniform delegator and be prepared", ->
       # is this too brittle?
       noise.bind(SPEC_CONTEXT, uniforms);
-      expect(uniforms.texture).toHaveBeenCalledWith 'gradTexture', noise.grad, SPEC_CONTEXT
+      expect(uniforms.gradTexture).toBe noise.grad
       expect(noise.isPrepared SPEC_CONTEXT).toBeTruthy()

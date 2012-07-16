@@ -12,7 +12,7 @@
  * implementation.
  **/
  
-<%if (shader_type != 'vertex' || Jax.Shader.max_vertex_textures > 0) {%>
+<% if (shaderType != 'vertex' || maxVertexTextureImageUnits > 0) { %>
   /*
    * Author: Stefan Gustavson (stegu@itn.liu.se) 2004, 2005, 2012
    * Stefan's original implementation: http://www.itn.liu.se/~stegu/simplexnoise/
@@ -71,7 +71,7 @@
    * lookup to possibly gain some speed, but it's not the main part of the
    * algorithm, and the texture bandwidth is pretty choked up as it is.
    */
-  float fade(float t) {
+  shared float fade(float t) {
     // return t*t*(3.0-2.0*t); // Old fade, yields discontinuous second derivative
     return t*t*t*(t*(t*6.0-15.0)+10.0); // Improved fade, yields C2-continuous noise
   }
@@ -80,7 +80,7 @@
    * Efficient simplex indexing functions by Bill Licea-Kane, ATI. Thanks!
    * (This was originally implemented as a 1D texture lookup. Nice to avoid that.)
    */
-  void simplex( const in vec3 P, out vec3 offset1, out vec3 offset2 )
+  shared void simplex( const in vec3 P, out vec3 offset1, out vec3 offset2 )
   {
     vec3 offset0;
  
@@ -105,7 +105,7 @@
     // offset1 contains 1 in the single channel that was 1
   }
 
-  void simplex( const in vec4 P, out vec4 offset1, out vec4 offset2, out vec4 offset3 )
+  shared void simplex( const in vec4 P, out vec4 offset1, out vec4 offset2, out vec4 offset3 )
   {
     vec4 offset0;
  
@@ -132,7 +132,7 @@
   /*
    * 2D classic Perlin noise. Fast, but less useful than 3D noise.
    */
-  float noise(vec2 P)
+  shared float noise(vec2 P)
   {
     vec2 Pi = ONE*floor(P)+ONEHALF; // Integer part, scaled and offset for texture lookup
     vec2 Pf = fract(P);             // Fractional part for interpolation
@@ -167,7 +167,7 @@
   /*
    * 3D classic noise. Slower, but a lot more useful than 2D noise.
    */
-  float noise(vec3 P)
+  shared float noise(vec3 P)
   {
     vec3 Pi = ONE*floor(P)+ONEHALF; // Integer part, scaled so +1 moves one texel
                                     // and offset 1/2 texel to sample texel centers
@@ -231,7 +231,7 @@
    * 16 dot products, 4 mix operations and a lot of additions and multiplications.
    * Needless to say, it's not super fast. But it's not dead slow either.
    */
-  float noise(vec4 P)
+  shared float noise(vec4 P)
   {
     vec4 Pi = ONE*floor(P)+ONEHALF; // Integer part, scaled so +1 moves one texel
                                     // and offset 1/2 texel to sample texel centers
@@ -350,7 +350,7 @@
   /*
    * 2D simplex noise. Somewhat slower but much better looking than classic noise.
    */
-  float snoise(vec2 P) {
+  shared float snoise(vec2 P) {
 
   // Skew and unskew factors are a bit hairy for 2D, so define them as constants
   // This is (sqrt(3.0)-1.0)/2.0
@@ -414,7 +414,7 @@
   /*
    * 3D simplex noise. Comparable in speed to classic noise, better looking.
    */
-  float snoise(vec3 P) {
+  shared float snoise(vec3 P) {
 
   // The skewing and unskewing factors are much simpler for the 3D case
   #define F3 0.333333333333
@@ -496,7 +496,7 @@
    * 4D simplex noise. A lot faster than classic 4D noise, and better looking.
    */
 
-  float snoise(vec4 P) {
+  shared float snoise(vec4 P) {
 
   // The skewing and unskewing factors are hairy again for the 4D case
   // This is (sqrt(5.0)-1.0)/4.0
@@ -611,32 +611,32 @@
 // Distributed under the MIT License. See LICENSE file.
 %>
 
-vec4 permute(vec4 x)
+shared vec4 permute(vec4 x)
 {
   return mod(((x*34.0)+1.0)*x, 289.0);
 }
 
-vec3 permute(vec3 x)
+shared vec3 permute(vec3 x)
 {
   return mod(((x*34.0)+1.0)*x, 289.0);
 }
 
-float permute(float x)
+shared float permute(float x)
 {
   return floor(mod(((x*34.0)+1.0)*x, 289.0));
 }
 
-vec4 taylorInvSqrt(vec4 r)
+shared vec4 taylorInvSqrt(vec4 r)
 {
   return 1.79284291400159 - 0.85373472095314 * r;
 }
 
-float taylorInvSqrt(float r)
+shared float taylorInvSqrt(float r)
 {
   return 1.79284291400159 - 0.85373472095314 * r;
 }
 
-vec4 grad4(float j, vec4 ip)
+shared vec4 grad4(float j, vec4 ip)
 {
   const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);
   vec4 p,s;
@@ -649,20 +649,20 @@ vec4 grad4(float j, vec4 ip)
   return p;
 }
 
-vec4 fade(vec4 t) {
+shared vec4 fade(vec4 t) {
   return t*t*t*(t*(t*6.0-15.0)+10.0);
 }
 
-vec3 fade(vec3 t) {
+shared vec3 fade(vec3 t) {
   return t*t*t*(t*(t*6.0-15.0)+10.0);
 }
 
-vec2 fade(vec2 t) {
+shared vec2 fade(vec2 t) {
   return t*t*t*(t*(t*6.0-15.0)+10.0);
 }
 
 // Classic Perlin noise
-float cnoise(vec2 P)
+shared float cnoise(vec2 P)
 {
   vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
   vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
@@ -702,7 +702,7 @@ float cnoise(vec2 P)
 }
 
 // Classic Perlin noise, periodic variant
-float pnoise(vec2 P, vec2 rep)
+shared float pnoise(vec2 P, vec2 rep)
 {
   vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
   vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
@@ -743,7 +743,7 @@ float pnoise(vec2 P, vec2 rep)
 }
 
 // Classic Perlin noise
-float cnoise(vec3 P)
+shared float cnoise(vec3 P)
 {
   vec3 Pi0 = floor(P); // Integer part for indexing
   vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
@@ -813,7 +813,7 @@ float cnoise(vec3 P)
 }
 
 // Classic Perlin noise, periodic variant
-float pnoise(vec3 P, vec3 rep)
+shared float pnoise(vec3 P, vec3 rep)
 {
   vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
   vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
@@ -883,7 +883,7 @@ float pnoise(vec3 P, vec3 rep)
 }
 
 // Classic Perlin noise
-float cnoise(vec4 P)
+shared float cnoise(vec4 P)
 {
   vec4 Pi0 = floor(P); // Integer part for indexing
   vec4 Pi1 = Pi0 + 1.0; // Integer part + 1
@@ -1018,7 +1018,7 @@ float cnoise(vec4 P)
 }
 
 // Classic Perlin noise, periodic version
-float cnoise(vec4 P, vec4 rep)
+shared float cnoise(vec4 P, vec4 rep)
 {
   vec4 Pi0 = mod(floor(P), rep); // Integer part modulo rep
   vec4 Pi1 = mod(Pi0 + 1.0, rep); // Integer part + 1 mod rep
@@ -1150,7 +1150,7 @@ float cnoise(vec4 P, vec4 rep)
   return 2.2 * n_xyzw;
 }
 
-float snoise(vec2 v)
+shared float snoise(vec2 v)
   {
   const vec4 C = vec4(0.211324865405187, // (3.0-sqrt(3.0))/6.0
                       0.366025403784439, // 0.5*(sqrt(3.0)-1.0)
@@ -1199,7 +1199,7 @@ float snoise(vec2 v)
   return 130.0 * dot(m, g);
 }
 
-float snoise(vec3 v)
+shared float snoise(vec3 v)
 {
   const vec2 C = vec2(1.0/6.0, 1.0/3.0) ;
   const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
@@ -1274,7 +1274,7 @@ float snoise(vec3 v)
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
-float snoise(vec4 v)
+shared float snoise(vec4 v)
 {
   const vec4 C = vec4( 0.138196601125011, // (5 - sqrt(5))/20 G4
                         0.276393202250021, // 2 * G4

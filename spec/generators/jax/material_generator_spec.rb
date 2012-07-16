@@ -24,9 +24,10 @@ describe 'jax:material' do
     
     with_args "--append" do
       describe "with a missing file" do
-        it "should add default lighting layer" do
+        it "should add default lighting layers" do
           subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
-            content.should =~ /Lighting/
+            content.should =~ /LambertDiffuse/
+            content.should =~ /PhongSpecular/
           }
         end
       end
@@ -40,6 +41,8 @@ describe 'jax:material' do
         it "should not add default lighting layer" do
           subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
             content.should_not =~ /Lighting/
+            content.should_not =~ /LambertDiffuse/
+            content.should_not =~ /PhongSpecular/
           }
         end
       end

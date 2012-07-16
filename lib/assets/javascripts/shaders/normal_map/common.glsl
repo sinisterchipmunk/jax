@@ -1,12 +1,12 @@
-//= require "shaders/functions/lights"
-
-uniform sampler2D NormalMap;
-
-shared uniform mat4 mvMatrix, pMatrix, vMatrix;
-shared uniform mat3 nMatrix;
+uniform sampler2D Texture;
+uniform float TextureScaleX, TextureScaleY;
+uniform bool UseSpecularChannel;
 
 shared varying vec2 vTexCoords;
 
-varying vec3 vEyeDir;
-varying vec3 vLightDir;
-varying float vAttenuation;
+shared uniform mat3 NormalMatrix;
+shared uniform int PASS;
+
+varying mat3 vTangentMatrix;
+
+varying vec3 vN, vT, vB;

@@ -16,10 +16,15 @@ module Jax
     end
     
     config.before_configuration do
-      config.action_view.javascript_expansions[:jax] ||= [ 'jax', 'jax/application' ]
+      config.action_view.javascript_expansions[:jax] ||= [ 'jax' ]
     end
     
     initializer 'jax.engine' do |app|
+      # exclude Jax assets in the gem directory, as these are used for general testing.
+      # it wouldn't actually hurt anything if these were present, but best to avoid
+      # confusion.
+      app.config.assets.paths.delete File.expand_path('../../app/assets/jax', File.dirname(__FILE__))
+      
       app.config.assets.paths.unshift File.join(app.root, "app/assets/jax")
       app.config.assets.paths.unshift File.join(app.root, "lib/assets/jax")
       app.config.assets.paths.unshift File.join(app.root, "vendor/assets/jax")

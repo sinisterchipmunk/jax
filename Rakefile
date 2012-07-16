@@ -48,6 +48,37 @@ task :redoc do
   Rake::Task['doc'].invoke
 end
 
+require "jshintrb/jshinttask"
+desc "Run static code analysis"
+Jshintrb::JshintTask.new :jshint => :compile do |t|
+  t.pattern = 'tmp/jax.js'
+  # t.options = :defaults
+  t.options = {
+    :bitwise => false,
+    :curly => false,
+    :eqeqeq => false,
+    :forin => false,
+    :immed => true,
+    :latedef => true,
+    :newcap => true,
+    :noarg => true,
+    :noempty => false,
+    :nonew => true,
+    :plusplus => false,
+    :regexp => false,
+    :undef => true,
+    :strict => true,
+    :trailing => true,
+    :boss => true,
+    :es5 => true,
+    :evil => false,
+    :browser => true,
+    :devel => true,
+
+    # :predef => [ 'module', 'global', 'Float32Array', 'Int32Array', 'define' ]
+  }
+end
+
 require File.join(File.dirname(__FILE__), "lib/jax")
 JAX_ROOT = File.dirname(__FILE__)
 
@@ -125,9 +156,14 @@ desc "Start the Jax dev server"
 task :server do
   require 'jax'
   require 'jax/rails/application'
+  require 'shader-script'
   # moved public into spec to a) emphasize that it's for testing and b) avoid
   # conflicting with normal 'public' dirs in current or future Rails versions.
   Jax::Rails::Application.config.paths['public'] = "spec/fixtures/public"
+  Jax::Rails::Application.initializer 'jax.testenv' do |app|
+    # add back in the path to gem assets, see Jax::Engine for details
+    app.config.assets.paths.push File.expand_path('app/assets/jax', File.dirname(__FILE__))
+  end
   Jax::Rails::Application.initialize!
   server = Jax::Server.new *(ENV['quiet'] ? ["--quiet"] : [])
   server.start

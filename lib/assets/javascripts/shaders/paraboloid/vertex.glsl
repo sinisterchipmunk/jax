@@ -1,27 +1,11 @@
+//= require "shaders/functions/paraboloid"
+
 shared attribute vec4 VERTEX_POSITION;
                 
 void main(void) {
-  /*
-    we do our own projection to form the paraboloid, so we
-    can ignore the projection matrix entirely.
-   */
-  vec4 pos = mvMatrix * VERTEX_POSITION;
-
-  pos = vec4(pos.xyz / pos.w, pos.w);
-
-  pos.z *= DP_DIRECTION;
-
-  float L = length(pos.xyz);
-  pos /= L;
-  vClip = pos.z;
-
-  pos.z += 1.0;
-  pos.x /= pos.z;
-  pos.y /= pos.z;
-  pos.z = (L - DP_SHADOW_NEAR) / (DP_SHADOW_FAR - DP_SHADOW_NEAR);
-  pos.w = 1.0;
-
-  vPos = pos;
-  export(vec4, Position, pos);
-  gl_Position = pos;
+  vec4 position = ModelView * VERTEX_POSITION;
+  position /= position.w;
+  position.z *= Direction;
+  mapToParaboloid(position, Near, Far);
+  gl_Position = position;
 }

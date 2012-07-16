@@ -12,7 +12,7 @@ class Jax::ResourceFile < Tilt::Template
   
   def evaluate(scope, locals, &block)
     @context = scope
-    "#{class_name}.addResources(#{to_json});"
+    "(typeof #{class_name} === 'undefined' ? Jax.#{class_name} : #{class_name}).addResources(#{to_json});"
   end
   
   def class_name

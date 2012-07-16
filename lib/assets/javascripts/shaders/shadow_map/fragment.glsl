@@ -1,67 +1,100 @@
 //= require "shaders/functions/depth_map"
+//= require "shaders/functions/paraboloid"
 
-float dp_lookup() {
-  float map_depth, depth;
-  vec4 rgba_depth;
-      
-  if (vDP0.w > 0.0) {
-    rgba_depth = texture2D(SHADOWMAP0, vDP0.xy);
-    depth = vDP1.w;//P0.z;
-  } else {
-    rgba_depth = texture2D(SHADOWMAP1, vDP1.xy);
-    depth = vDP1.w;//P1.z;
-  }
-      
-      
-  map_depth = unpack_depth(rgba_depth);
-      
-  if (map_depth + 0.00005 < depth) return 0.0;
-  else return 1.0;
-}
-      
-float pcf_lookup(float s, vec2 offset) {
-  /*
-    s is the projected depth of the current vShadowCoord relative to the shadow's camera. This represents
-    a *potentially* shadowed surface about to be drawn.
-    
-    d is the actual depth stored within the SHADOWMAP texture (representing the visible surface).
+vec4 shadowCoord;
+
+/*
+  Since we set the clear color to transparent while rendering the
+  shadowmap, no depth recorded in texture means nothing blocked the
+  light.
   
-    if the surface to be drawn is further back than the light-visible surface, then the surface is
-    shadowed because it has a greater depth. Less-or-equal depth means it's either in front of, or it *is*
-    the light-visible surface.
-  */
-  vec2 texcoord = (vShadowCoord.xy/vShadowCoord.w)+offset;
-  vec4 rgba_depth = texture2D(SHADOWMAP0, texcoord);
+  This is what allows us to do testing beyond the view frustum
+  of the shadow matrix, so at the cost of a branching operation it's
+  much more accurate when some objects such as the floor are
+  excluded from casting shadows.
+*/
+
+float dp_lookup(vec2 offset, sampler2D shadowmap) {
+  vec4 rgba_depth = texture2D(shadowmap, shadowCoord.xy * 0.5 + 0.5 + offset);
+  float shadowDepth = unpack_depth(rgba_depth);
+  if (shadowDepth == 0.0) return 1.0;
+  if (shadowDepth - shadowCoord.z > -0.005)
+    return 1.0;
+  else
+    return 0.0;
+}
+      
+float depth_lookup(vec2 offset, sampler2D shadowmap) {
+  vec4 rgba_depth = texture2D(shadowmap, shadowCoord.xy + offset);
   float d = unpack_depth(rgba_depth);
-  return (s - d > 0.00002) ? 0.0 : 1.0;
+  if (d == 0.0) return 1.0;
+  if (shadowCoord.z - d > 0.00002)
+    return 0.0;
+  else
+    return 1.0;
 }
 
-void main(inout vec4 ambient, inout vec4 diffuse, inout vec4 specular) {
-//ambient = vec4(0);
-  if (PASS_TYPE != <%=Jax.Scene.AMBIENT_PASS%> && SHADOWMAP_ENABLED) {
-    float visibility = 1.0;
-    float s = vShadowCoord.z / vShadowCoord.w;
-    if (LIGHT_TYPE == <%=Jax.POINT_LIGHT%>) {
-      visibility = dp_lookup();
-    } else {
-      vec2 offset = vec2(0.0, 0.0);
-      if (!SHADOWMAP_PCF_ENABLED)
-        visibility = pcf_lookup(s, offset);
-      else {
-        // do PCF filtering
-        float dx, dy;
-        visibility = 0.0;
-        for (float dx = -1.5; dx <= 1.5; dx += 1.0)
-          for (float dy = -1.5; dy <= 1.5; dy += 1.0) {
-            offset.x = dx/2048.0;
-            offset.y = dy/2048.0;
-            visibility += pcf_lookup(s, offset);
+void main() {
+  /* if (a && b) is broken on some hardware, use if (all(bvec)) instead */
+  if (PASS != 0) {
+    float visibility, dx, dy;
+    bool front;
+
+    if (SHADOWMAP_ENABLED) {
+      shadowCoord = vShadowCoord / vShadowCoord.w;
+      visibility = 0.0;
+      dx = 1.0 / SHADOWMAP_WIDTH;
+      dy = 1.0 / SHADOWMAP_HEIGHT;
+      front = false;
+
+      // for PCF, nested loops break on some ATI cards, so the loop must be unrolled
+      // explicitly. Luckily we have EJS....
+
+      if (IsDualParaboloid) {
+        if (shadowCoord.z > 0.0) front = true;
+        else shadowCoord.z *= -1.0;
+        mapToParaboloid(shadowCoord, ParaboloidNear, ParaboloidFar);
+        shadowCoord.z = shadowCoord.z * 0.5 + 0.5;
+        
+        if (front) {
+          if (SHADOWMAP_PCF_ENABLED) {
+            <% for (var x = -1.5; x <= 1.5; x += 1.5) { %>
+              <% for (var y = -1.5; y <= 1.5; y += 1.5) { %>
+                visibility += dp_lookup(vec2(<%= x.toFixed(6) %> * dx, <%= y.toFixed(6) %> * dy), SHADOWMAP0);
+              <% } %>
+            <% } %>
+            visibility /= 9.0;
+          } else {
+            visibility += dp_lookup(vec2(0.0, 0.0), SHADOWMAP0);
           }
-        visibility /= 16.0;
+        } else {
+          if (SHADOWMAP_PCF_ENABLED) {
+            <% for (var x = -1.5; x <= 1.5; x += 1.5) { %>
+              <% for (var y = -1.5; y <= 1.5; y += 1.5) { %>
+                visibility += dp_lookup(vec2(<%= x.toFixed(6) %> * dx, <%= y.toFixed(6) %> * dy), SHADOWMAP1);
+              <% } %>
+            <% } %>
+            visibility /= 9.0;
+          } else {
+            visibility += dp_lookup(vec2(0.0, 0.0), SHADOWMAP1);
+          }
+        }
+      } else {
+        if (SHADOWMAP_PCF_ENABLED) {
+          <% for (var x = -1.5; x <= 1.5; x += 1.5) { %>
+            <% for (var y = -1.5; y <= 1.5; y += 1.5) { %>
+              visibility += depth_lookup(vec2(<%= x.toFixed(6) %> * dx, <%= y.toFixed(6) %> * dy), SHADOWMAP0);
+            <% } %>
+          <% } %>
+          visibility /= 9.0;
+        } else {
+          visibility += depth_lookup(vec2(0.0, 0.0), SHADOWMAP0);
+        }
       }
+    } else {
+      visibility = 1.0;
     }
 
-    diffuse *= visibility;
-    specular *= visibility;
+    export(float, AttenuationMultiplier, visibility);
   }
 }

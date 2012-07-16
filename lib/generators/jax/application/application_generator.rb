@@ -10,6 +10,11 @@ module Jax
         directory "app", file_name
       end
       
+      def create_jax_manifest_file
+        coffee_template_with_fallback "manifest.js",
+          File.join(file_name, 'app/assets/jax/jax.js')
+      end
+      
       def create_jax_application_controller
         coffee_template_with_fallback "application_controller.js",
           File.join(file_name, 'app/assets/jax/controllers/application_controller.js')

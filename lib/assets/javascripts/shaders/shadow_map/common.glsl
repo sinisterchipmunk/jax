@@ -1,15 +1,14 @@
-//= require "shaders/functions/lights"
+//= require "shaders/lib/lights"
 
-shared uniform mat4 mMatrix;
+shared uniform int PASS;
+shared uniform mat4 mMatrix, pMatrix;
 
-uniform bool SHADOWMAP_ENABLED;
-uniform sampler2D SHADOWMAP0, SHADOWMAP1;
-uniform mat4 SHADOWMAP_MATRIX;
-uniform bool SHADOWMAP_PCF_ENABLED;
-uniform float DP_SHADOW_NEAR, DP_SHADOW_FAR;
+shared uniform bool IsDualParaboloid;
+shared uniform bool SHADOWMAP_ENABLED;
+shared uniform sampler2D SHADOWMAP0, SHADOWMAP1;
+shared uniform mat4 SHADOWMAP_MATRIX;
+shared uniform bool SHADOWMAP_PCF_ENABLED;
+shared uniform float ParaboloidNear, ParaboloidFar;
+shared uniform float SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT;
 
-varying vec4 vShadowCoord;
-
-varying vec4 vDP0, vDP1;
-//varying float vDPz, vDPDepth;
-
+shared varying vec4 vShadowCoord;
