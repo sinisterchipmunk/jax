@@ -13,7 +13,7 @@ class Jax.Mesh.Cone extends Jax.Mesh.TriangleFan
     textures.push 0, 0
     delta = Math.PI * 2 / @sides
     
-    for side in [0..@sides]
+    for side in [0..-@sides]
       x = Math.cos(side * delta)
       z = Math.sin(side * delta)
       vertices.push x * @radius, -@height / 2, z * @radius
