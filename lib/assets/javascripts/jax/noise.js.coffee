@@ -1,4 +1,4 @@
-#= require 'jax/webgl/texture'
+#= require 'jax/core/texture'
 
 # class Jax.Noise
 # Constructs several textures to be used in vertex shaders involving Perlin noise.

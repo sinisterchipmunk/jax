@@ -1,52 +1,54 @@
-/* Pull in Jax.Context, which is the fundamental interface for using Jax. */
-//= require "jax/context"
+/*
+This file pulls in your Jax application and any files (such as
+Jax itself) that it depends upon. You can tweak this file as
+needed. By default, the entire Jax framework gets included.
 
-/* Load renderers. Jax will try to use renderers in the order they appear
-   here. */
-//= require "jax/renderers/webgl"
+Pull in `Jax.Context`, which is the fundamental interface
+for using Jax.
+*= require "jax/context"
 
-/* Support for input devices. Don't bother loading this if your scene does not
-   process input from the user, or if you're handling that yourself. */
-//= require "jax/input"
+Load renderers. Jax will try to use renderers in the order they
+appear here.
+*= require "jax/renderers/webgl"
 
-/* Perlin noise support */
-//= require "jax/noise"
+Support for input devices. Don't bother loading this
+if your scene does not process input from the user,
+or if you're handling that yourself.
+*= require "jax/input"
 
-/* Support for built-in models and mesh types */
-//= require "jax/builtin/meshes/cube"
-//= require "jax/builtin/meshes/line_cube"
-//= require "jax/builtin/meshes/plane"
-//= require "jax/builtin/meshes/ply"
-//= require "jax/builtin/meshes/quad"
-//= require "jax/builtin/meshes/sphere"
-//= require "jax/builtin/meshes/teapot"
-//= require "jax/builtin/meshes/torus"
-//= require "jax/builtin/models/framerate"
+Support for Perlin noise within fragment and vertex shaders
+*= require "jax/noise"
 
-/* Support for Jax shaders and materials: without these, you'll need to
-   manually pass a `material` object into the render sequence. */
-//= require "jax/shader"
-//= require "jax/material"
+Support for built-in models and meshes.
+*= require "jax/builtin/all"
 
-/* The default Jax scene manager. Without it, you'll need to manage the scene
-   directly. */
-//= require "jax/world"
+Support for Jax shaders and materials.
+Without these, you'll need to manually pass a `material`
+object into the render sequence.
+*= require "jax/shader"
+*= require "jax/material"
 
-/* Light and shadow constructs. Without these, you'll be unable to make use of
-   the default diffuse, specular and shadow map shaders. */
-//= require "jax/light"
-//= require "jax/shadow_map"
+The default Jax scene manager. Without it, you'll need
+to manage the scene directly.
+*= require "jax/world"
 
-/* TODO require these files from elsewhere so these lines can be removed */
-//= require "jax/webgl/core"
-//= require "jax/camera"
+Light and shadow constructs. Without these, you'll be unable
+to make use of the default diffuse, specular and shadow map
+shaders.
+*= require "jax/light"
+*= require "jax/shadow_map"
 
-/* Your own files. If you remove this line, you'll have Jax but no Jax
-   application. */
-//= require_tree '.'
+Your own files. If you remove this line, you'll have Jax
+but no Jax application.
+*= require_tree '.'
 
-/* Pull in all shaders and resources. */
-//= require 'jax/shaders_and_resources'
+Pull in all shaders and resources.
+*= require 'jax/shaders_and_resources'
 
-/* Deprecation notices. These should come _last_ in the load order. */
-//= require 'jax/deprecation'
+Deprecation warnings. These should come _last_ in the load
+order. If your application is **not** giving you any deprecation
+warnings in development mode, it's safe to remove the notices
+from a production application.
+*= require 'jax/deprecation'
+
+*/

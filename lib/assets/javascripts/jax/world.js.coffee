@@ -1,4 +1,5 @@
 #= require "jax/core"
+#= require "jax/camera"
 #= require "jax/partition/octree"
 
 ###
@@ -382,5 +383,6 @@ class Jax.World
     for light in @lights.splice(0)
       @removeLight light
       light.dispose @context
+    @ambientColor = new Jax.Color 0.05, 0.05, 0.05, 1
     @fireEvent 'disposed'
     true

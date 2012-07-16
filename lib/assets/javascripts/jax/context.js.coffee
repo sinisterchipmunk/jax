@@ -1,6 +1,5 @@
 #= require 'jax/core'
 #= require 'jax/renderer'
-#= require 'jax/webgl'
 
 class Jax.Context
   @include Jax.EventEmitter

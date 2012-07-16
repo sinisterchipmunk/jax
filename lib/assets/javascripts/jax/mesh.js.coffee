@@ -1,7 +1,7 @@
 #= require 'jax/core/coffee_patterns'
 #= require 'jax/color'
 #= require 'jax/core/event_emitter'
-#= require 'jax/webgl/core/buffer'
+#= require 'jax/core/buffer'
 #= require_self
 #= require_tree './mesh'
 
