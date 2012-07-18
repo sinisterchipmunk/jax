@@ -7,6 +7,7 @@ Gemfile.lock
 dist
 doc/generated
 doc/api
+doc/assets/jax.js
 .*.pdoc.yaml
 .hg
 tmp/
