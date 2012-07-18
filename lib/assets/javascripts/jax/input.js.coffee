@@ -4,7 +4,7 @@
 class Jax.Input
   @include Jax.EventEmitter
   
-  constructor: (@receiver) ->
+  constructor: (@receiver, @options = {}) ->
     @_listeners = {}
     @receiver.getEventListeners = (type) => @getReceiverEventListeners type
     

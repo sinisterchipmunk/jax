@@ -4,14 +4,19 @@ class Jax.Input.Keyboard extends Jax.Input
     release: 'keyup'
     type:    'keypress'
     
-  constructor: (element) ->
-    super element
-    # make sure the element can accept key events
+  constructor: (element, options) ->
+    super element, options
+    shouldFocus = false
     if @receiver.getAttribute('tabindex') is null
+      shouldFocus = true
       @receiver.setAttribute 'tabindex', '0'
-      @receiver.focus()
-    # add a mouse listener to capture focus when mouse moves over
-    @receiver.addEventListener 'mouseover', @_captureFocus = (e) -> this.focus()
+    if options?.focus
+      # make sure the element can accept key events
+      if shouldFocus
+        @receiver.focus()
+      # add a mouse listener to capture focus when mouse moves over
+      @receiver.addEventListener 'mouseover', @_captureFocus = (e) ->
+        this.focus()
 
   trigger: (type, evt = {}) ->
     event = document.createEvent 'KeyboardEvent'

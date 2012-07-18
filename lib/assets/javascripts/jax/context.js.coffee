@@ -62,7 +62,7 @@ class Jax.Context
     @updateSpeed = 33
     
     @setupCamera()
-    @setupInputDevices()
+    @setupInputDevices options?.focus
     @setupRenderer options
     @startUpdating()
     @redirectTo options.root if options?.root
@@ -218,11 +218,17 @@ class Jax.Context
   ###
   Initializes input devices such as keyboard and mouse. These are tied
   to the @canvas, so if that is unavailable, nothing happens.
+  
+  If `focusCanvas` is true, and keyboard input is used, the canvas will be
+  given a tab index and programmatically focused. This can be passed as an
+  initialization option to `Jax.Context`.
   ###
-  setupInputDevices: ->
+  setupInputDevices: (focusCanvas = false) ->
     if @canvas
-      @mouse    = new Jax.Input.Mouse    @canvas if Jax.Input?.Mouse
-      @keyboard = new Jax.Input.Keyboard @canvas if Jax.Input?.Keyboard
+      if Jax.Input?.Mouse
+        @mouse    = new Jax.Input.Mouse    @canvas
+      if Jax.Input?.Keyboard
+        @keyboard = new Jax.Input.Keyboard @canvas, focus: focusCanvas
     
   redirectTo: (path) ->
     @unregisterListeners()
