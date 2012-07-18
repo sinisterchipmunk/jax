@@ -6,6 +6,29 @@ describe("Jax.Geometry.Triangle", function() {
       beforeEach(function() {
         tri = new Jax.Geometry.Triangle([0,0,0], [-1,0,0], [0,1,0]);
       });
+
+      it("should be CCW", function() {
+        expect(tri).toBeCounterClockwise();
+      });
+
+      it("should not be CW", function() {
+        expect(tri).not.toBeClockwise();
+      });
+
+      describe("with a matrix representing a look backward", function() {
+        var mat;
+        beforeEach(function() {
+          mat = new Jax.Camera({direction: [0, 0, 1]}).getTransformationMatrix();
+        });
+
+        it("should not be CCW", function() {
+          expect(tri).not.toBeCounterClockwise(mat);
+        });
+
+        it("should be CW", function() {
+          expect(tri).toBeClockwise(mat);
+        });
+      });
     
       describe("with triangle", function() {
         // more complete tritri tests found in tritri_spec.js

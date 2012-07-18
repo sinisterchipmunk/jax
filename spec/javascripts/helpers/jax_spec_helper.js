@@ -1,5 +1,13 @@
 beforeEach(function() {
   this.addMatchers({
+    toBeCounterClockwise: function(xform) {
+      return !this.actual.isClockwise(xform);
+    },
+
+    toBeClockwise: function(xform) {
+      return  this.actual.isClockwise(xform);
+    },
+
     toBeNaN: function() {
       return isNaN(this.actual);
     },
