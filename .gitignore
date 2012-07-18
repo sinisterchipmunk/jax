@@ -5,6 +5,8 @@ Gemfile.lock
 **/*/pkg/*
 .idea
 dist
+doc/generated
+doc/api
 .*.pdoc.yaml
 .hg
 tmp/
