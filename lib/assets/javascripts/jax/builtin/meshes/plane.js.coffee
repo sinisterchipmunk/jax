@@ -14,6 +14,9 @@ Options:
           Defaults to `segments`.
   * segments: a value to use for any of the other segment count
   *       options if they are unspecified. Defaults to 20.
+  * fn: a function accepting x and z coordinates, which is expected
+          to return a Y coordinate. By default, Y is always 0, producing
+          a flat plane.
   
 Examples:
 
@@ -25,6 +28,7 @@ Examples:
 ###
 class Jax.Mesh.Plane extends Jax.Mesh.TriangleStrip
   constructor: (options) ->
+    @fn = (x, z) -> 0
     @size = options?.size || 500
     @segments = options?.segments || 20
     @width = @depth = @size
@@ -32,24 +36,31 @@ class Jax.Mesh.Plane extends Jax.Mesh.TriangleStrip
     super options
     
   init: (verts, colors, texes, norms) ->
+    # we don't calculate normals here so that Jax can auto calculate
+    # them later, ensuring that they are correct for custom Y values
+    
+    plot = {}
     [w, d, xs, zs] = [@width, @depth, @xSegments, @zSegments]
     [xUnit, zUnit] = [w / xs, d / zs]
     
-    for x in [1...xs]
+    for x in [1...xs] by 2
       for z in [0...zs]
         vx = xUnit * x - w / 2
         vz = zUnit * z - d / 2
-        verts.push vx, vz, 0
-        verts.push vx - xUnit, vz, 0
-        norms.push 0, 0, -1, 0, 0, -1
+        vy1 = plot["#{x};#{z}"] or= @fn x, z
+        vy2 = plot["#{x-1};#{z}"] or= @fn x - 1, z
+        verts.push vx, vz, vy1
+        verts.push vx - xUnit, vz, vy2
         texes.push x / (xs-1), z / (zs-1)
         texes.push (x-1) / (xs-1), z / (zs-1)
-        
+      
+      x++
       for z in [(zs-1)..0]
         vx = xUnit * x - w / 2
         vz = zUnit * z - d / 2
-        verts.push vx-xUnit, vz, 0
-        verts.push vx, vz, 0
-        norms.push 0, 0, -1, 0, 0, -1
+        vy1 = plot["#{x};#{z}"] or= @fn x, z
+        vy2 = plot["#{x-1};#{z}"] or= @fn x - 1, z
+        verts.push vx - xUnit, vz, vy2
+        verts.push vx, vz, vy1
         texes.push (x-1) / (xs-1), z / (zs-1)
         texes.push x / (xs-1), z / (zs-1)
