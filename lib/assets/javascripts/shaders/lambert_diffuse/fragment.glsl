@@ -41,6 +41,8 @@ void main(void) {
               MaterialDiffuseColor.a * MaterialDiffuseIntensity;
 
     float lambert = max(dot(NormalizedEyeSpaceSurfaceNormal, L), 0.0);
-    gl_FragColor += vec4(lambert * C * SpotAttenuation, 1.0);
+    vec4 color = vec4(lambert * C * SpotAttenuation, 1.0);
+    import(VertexColor, color *= VertexColor);
+    gl_FragColor += color;
   }
 }
