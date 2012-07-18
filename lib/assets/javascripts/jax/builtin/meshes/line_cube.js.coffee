@@ -1,5 +1,10 @@
 class Jax.Mesh.LineCube extends Jax.Mesh.Lines
-  constructor: (@halfSize = 0.5, @offset = [0,0,0]) -> super()
+  constructor: (@halfSize = 0.5, @offset = [0,0,0]) ->
+    if typeof @halfSize isnt 'number'
+      super @halfSize
+      @halfSize = @size / 2
+    else
+      super()
   
   init: (vertices, colors, normals, textures, indices) ->
     halfSize = @halfSize
