@@ -11,9 +11,9 @@ namespace :doc do
   end
 
   Rocco::Task.new :build_docs, 'doc/generated', 'doc/input/**/*.{js,coffee,rb,erb,glsl}', {
-    language: 'coffee-script',
-    stylesheet: File.expand_path('../../templates/rocco.css', File.dirname(__FILE__)),
-    template_file: File.expand_path('../../templates/rocco_layout.mustache.html', File.dirname(__FILE__))
+    :language => 'coffee-script',
+    :stylesheet => File.expand_path('../../templates/rocco.css', File.dirname(__FILE__)),
+    :template_file => File.expand_path('../../templates/rocco_layout.mustache.html', File.dirname(__FILE__))
   }
 
   task :clobber do
