@@ -125,7 +125,7 @@ The Ajax call will be a GET request by default. You can change this by passing t
 @world.addObject new Jax.Model
   position: [0, -1, 0]
   mesh: new Jax.Mesh.PLY
-    path: '../../../assets/bun_zipper_res3.ply'
+    path: '/assets/bun_zipper_res3.ply'
     method: 'GET'
     size: 2
   update: (tc) -> @camera.yaw tc * 0.5
@@ -157,7 +157,7 @@ Increasing the number of slices and stacks will produce a more perfect sphere, a
 
 <canvas />
 
-The [Utah Teapot](http://en.wikipedia.org/wiki/Utah_teapot), useful for testing surfaces and environment.
+The [Utah Teapot](http://en.wikipedia.org/wiki/Utah_teapot), useful for testing surfaces and environment maps.
 
 `size` controls the size of the teapot (in units) and defaults to 1.0.
 ###

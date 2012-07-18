@@ -8,7 +8,7 @@ task :server do
   Jax::Rails::Application.config.paths['public'] = "spec/fixtures/public"
   Jax::Rails::Application.initializer 'jax.testenv' do |app|
     # add back in the path to gem assets, see Jax::Engine for details
-    app.config.assets.paths.push File.expand_path('app/assets/jax', File.dirname(__FILE__))
+    app.config.assets.paths.push File.expand_path('../../app/assets/jax', File.dirname(__FILE__))
   end
   Jax::Rails::Application.initialize!
   server = Jax::Server.new *(ENV['quiet'] ? ["--quiet"] : [])
