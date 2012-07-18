@@ -6,6 +6,11 @@ body {
   color: #252519;
   margin: 0; padding: 0;
 }
+canvas {
+  width: 150px;
+  height: 100px;
+  float: left;
+}
 a {
   color: #261a3b;
 }
@@ -31,14 +36,17 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 1px solid #e5e5ee;
   z-index: -1;
 }
+.indent {
+  padding-left: 10px;
+}
 #jump_to, #jump_page {
   background: white;
   -webkit-box-shadow: 0 0 25px #777; -moz-box-shadow: 0 0 25px #777;
   -webkit-border-bottom-left-radius: 5px; -moz-border-radius-bottomleft: 5px;
   font: 10px Arial;
-  text-transform: uppercase;
+/*  text-transform: uppercase;*/
   cursor: pointer;
-  text-align: right;
+/*  text-align: right;*/
 }
 #jump_to, #jump_wrapper {
   position: fixed;
@@ -109,6 +117,11 @@ table td {
         td.docs:hover .pilcrow {
           opacity: 1;
         }
+  tr.section td {
+    padding-top: 2em;
+    padding-bottom: 2em;
+    border-bottom: 1px dashed #9cc;
+  }
   td.code, th.code {
     padding: 14px 15px 16px 25px;
     width: 100%;

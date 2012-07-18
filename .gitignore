@@ -5,7 +5,6 @@ Gemfile.lock
 **/*/pkg/*
 .idea
 dist
-doc
 .*.pdoc.yaml
 .hg
 tmp/
@@ -14,3 +13,5 @@ guides/output
 _lib
 _spec
 .rbx
+*old_spec*
+*ssao*
