@@ -2,11 +2,12 @@ namespace :guides do
   # gen docs first because we're going to include a direct link to the JS API
   task :generate do
     rm_rf "guides/output"
-    if !ENV["SKIP_API"]
-      Rake::Task['doc'].invoke
-      mkdir_p "guides/output"
-      cp_r "doc/lib", "guides/output/lib"
-    end
+    # FIXME API docs skipped until they are working again
+    # if !ENV["SKIP_API"]
+    #   Rake::Task['doc'].invoke
+    #   mkdir_p "guides/output"
+    #   cp_r "doc/lib", "guides/output/lib"
+    # end
     ENV["WARN_BROKEN_LINKS"] = "1" # authors can't disable this
     ruby "guides/jax_guides.rb"
   end
