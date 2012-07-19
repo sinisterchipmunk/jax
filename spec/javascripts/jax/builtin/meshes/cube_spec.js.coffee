@@ -79,7 +79,7 @@ describe "Jax.Mesh.Cube", ->
     
   describe "when a side has been changed", ->
     it "should update its vertices", ->
+      expect(cube.bounds.width).not.toEqual 10.5 # sanity check
       cube.rebuild();
       cube.left.camera.position = [10, 0, 0];
-      expect(cube.data.vertexBuffer).toIncludishSubset([10, 0.5, 0.5]);
-      
+      expect(cube.bounds.width).toEqual 10.5
