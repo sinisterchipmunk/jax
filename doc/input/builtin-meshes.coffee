@@ -130,6 +130,8 @@ PLY is a model format from Stanford, designed to hold data from 3D scanners. Jax
 The mesh will be scaled to a size of `size` GL units. The default size is 1.0.
 
 The Ajax call will be a GET request by default. You can change this by passing the `method` option.
+
+**NOTE:** Loading PLY files requires `DataView`, which is not implemented in Firefox until version 15. As of this writing, the latest release version is 14, so you'll need to use a nightly build, or use Chrome.
 ###
 @world.addObject new Jax.Model
   position: [0, -1, 0]
