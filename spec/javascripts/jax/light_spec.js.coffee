@@ -33,7 +33,7 @@ describe "Jax.Light", ->
     expect(light.color.ambient.toVec4()).toEqual [1,1,1,1]
     expect(light.color.diffuse.toVec4()).toEqual [2,2,2,2]
     expect(light.color.specular.toVec4()).toEqual [3,3,3,3]
-  
+
   describe "a generic instance", ->
     beforeEach -> light = new Jax.Light
     
@@ -45,3 +45,15 @@ describe "Jax.Light", ->
     it "should have a specular color", -> expect(light.color.specular).toBeDefined()
     it "should have an energy", -> expect(light.energy).toBeDefined()
 
+    it "should set ambient color from string", ->    
+      light.color.ambient = '#123'
+      expect(light.color.ambient).toEqual Jax.Color.parse('#123')
+
+    it "should set diffuse color from string", ->    
+      light.color.diffuse = '#123'
+      expect(light.color.diffuse).toEqual Jax.Color.parse('#123')
+
+    it "should set specular color from string", ->    
+      light.color.specular = '#123'
+      expect(light.color.specular).toEqual Jax.Color.parse('#123')
+      
