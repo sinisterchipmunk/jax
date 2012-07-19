@@ -20,9 +20,9 @@ In each of the following examples, this code is evaluated as part of the scene s
 
 
 ###
-## Jax.Mesh.Quad
+## [Jax.Mesh.Quad](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/quad.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/quad.png' />
 
 A Quad is a simple, unassuming square. It is made up of only two triangles, both of which face the same direction. A Quad is visible when facing towards you, but invisible when facing away, unless you call `@context.gl.disable GL_CULL_FACE`.
 ###
@@ -34,9 +34,9 @@ A Quad is a simple, unassuming square. It is made up of only two triangles, both
   
 
 ###
-## Jax.Mesh.Cone
+## [Jax.Mesh.Cone](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/cone.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/cone.png' />
 
 A Cone is a cylindrical object that ends in a point. `Jax.Mesh.Cone` accepts a `sides` option representing the number of sides to the cone; 3 or 4 will produce a 3-sided or 4-sided pyramid, while more sides will produce an ever more cylindrical result. Cones with fewer than 3 sides will raise an error.
 ###
@@ -61,9 +61,9 @@ A Cone is a cylindrical object that ends in a point. `Jax.Mesh.Cone` accepts a `
 
 
 ###
-## Jax.Mesh.Cube
+## [Jax.Mesh.Cube](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/cube.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/cube.png' />
 
 A Cube is a set of six Quads which together form a closed box.
 ###
@@ -81,9 +81,9 @@ cube.mesh.top.color = '#ff0'
 cube.mesh.bottom.color = '#0ff'
 
 ###
-## Jax.Mesh.LineCube
+## [Jax.Mesh.LineCube](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/line_cube.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/line-cube.png' />
 
 A simplified Cube, in which only the 12 lines forming its edges are rendered, and the interior of each face is not filled. Essentially, this is a wireframe cube.
 ###
@@ -95,9 +95,9 @@ cube = @world.addObject new Jax.Model
   update: (tc) -> @camera.rotate tc * 0.5, axis
 
 ###
-## Jax.Mesh.Plane
+## [Jax.Mesh.Plane](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/plane.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/plane.png' />
 
 Similar to a Quad, a Plane is essentially a giant square shape. The major difference is that a Plane is made up of any number of segments, and therefore normally consists of many more triangles than a Quad, allowing its shape to be distorted -- for example, in generating terrain.
 
@@ -121,9 +121,9 @@ Other options include `width` and `depth`, which override `size`; and `xSegments
   
   
 ###
-## Jax.Mesh.PLY
+## [Jax.Mesh.PLY](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/ply.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/ply.png' />
 
 PLY is a model format from Stanford, designed to hold data from 3D scanners. Jax uses Ajax to load and parse PLY files, which can be in either binary or ASCII format.
 
@@ -141,9 +141,9 @@ The Ajax call will be a GET request by default. You can change this by passing t
 
 
 ###
-## Jax.Mesh.Sphere
+## [Jax.Mesh.Sphere](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/sphere.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/uvsphere.png' />
 
 A sphere created from a linear set of slices and stacks. This type of sphere is sometimes referred to as a UV Sphere, and has a tendency to cluster vertices together at the poles.
 
@@ -152,9 +152,9 @@ Options include `radius` which determines size and defaults to 0.5; and `slices`
 Increasing the number of slices and stacks will produce a more perfect sphere, at the cost of creating more polygons.
 ###
 @world.addObject new Jax.Model
-  position: [0, 0, -1.5]
+  position: [0, 0, -2]
   mesh: new Jax.Mesh.Sphere
-    radius: 1.5
+    radius: 1.25
     slices: 16
     stacks: 16
     color: '#0ff'
@@ -162,16 +162,16 @@ Increasing the number of slices and stacks will produce a more perfect sphere, a
 
 
 ###
-## Jax.Mesh.Teapot
+## [Jax.Mesh.Teapot](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/teapot.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/teapot.png' />
 
 The [Utah Teapot](http://en.wikipedia.org/wiki/Utah_teapot), useful for testing surfaces and environment maps.
 
 `size` controls the size of the teapot (in units) and defaults to 1.0.
 ###
 @world.addObject new Jax.Model
-  position: [0, 0, -1]
+  position: [0, 0, -2]
   mesh: new Jax.Mesh.Teapot
     size: 2
     color: '#ff0'
@@ -179,9 +179,9 @@ The [Utah Teapot](http://en.wikipedia.org/wiki/Utah_teapot), useful for testing 
 
 
 ###
-## Jax.Mesh.Torus
+## [Jax.Mesh.Torus](https://github.com/sinisterchipmunk/jax/tree/master/lib/assets/javascripts/jax/builtin/meshes/torus.js.coffee)
 
-<canvas />
+<canvas data-screenshot='/assets/screenshots/builtin-meshes/torus.png' />
 
 A ring or donut-shaped object.
 

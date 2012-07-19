@@ -33,6 +33,7 @@ class Jax.Context
       if result is true
         # non-fatal, restart rendering and updating
         @restart()
+        error.preventDefault?()
         true
       else
         @stopRendering()
@@ -62,9 +63,9 @@ class Jax.Context
     @framerateSampleRatio = 0.9
     @updateSpeed = 33
     
+    @setupRenderer options
     @setupCamera()
     @setupInputDevices options.focus
-    @setupRenderer options
     @startUpdating()
     @redirectTo options.root if options.root
     
@@ -251,7 +252,7 @@ class Jax.Context
       @setupView @view if @view
     
     @registerListeners()
-    @startRendering()
+    @startRendering() if @renderer
     @startUpdating()
     @controller
     
