@@ -13,6 +13,7 @@ class Jax.Context
         delete options.canvas
     if typeof(@canvas) is 'string'
       @canvas = document.getElementById(@canvas)
+    options or= {}
 
     @_isDisposed  = false
     @_isRendering = false
@@ -62,10 +63,10 @@ class Jax.Context
     @updateSpeed = 33
     
     @setupCamera()
-    @setupInputDevices options?.focus
+    @setupInputDevices options.focus
     @setupRenderer options
     @startUpdating()
-    @redirectTo options.root if options?.root
+    @redirectTo options.root if options.root
     
   @getter 'player', ->
     console.log new Error("Jax.Context#player is deprecated; it only contained `camera`, " + \
@@ -223,7 +224,7 @@ class Jax.Context
   given a tab index and programmatically focused. This can be passed as an
   initialization option to `Jax.Context`.
   ###
-  setupInputDevices: (focusCanvas = false) ->
+  setupInputDevices: (focusCanvas = true) ->
     if @canvas
       if Jax.Input?.Mouse
         @mouse    = new Jax.Input.Mouse    @canvas
