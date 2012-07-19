@@ -97,7 +97,7 @@ $(document).ready(function() {
         setup.call(jax.controller);
         example.call(jax.controller);
       } catch(error) {
-        console.log(error.stack);
+        console.log(error.stack || error);
       }
     });
   });
