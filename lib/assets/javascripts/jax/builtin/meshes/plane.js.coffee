@@ -35,32 +35,33 @@ class Jax.Mesh.Plane extends Jax.Mesh.TriangleStrip
     @xSegments = @zSegments = @segments
     super options
     
-  init: (verts, colors, texes, norms) ->
+  init: (verts, colors, texes, norms, indices) ->
     # we don't calculate normals here so that Jax can auto calculate
     # them later, ensuring that they are correct for custom Y values
-    
-    plot = {}
+    hashes = {}
     [w, d, xs, zs] = [@width, @depth, @xSegments, @zSegments]
     [xUnit, zUnit] = [w / xs, d / zs]
-    
-    for x in [1...xs] by 2
-      for z in [0...zs]
+
+    hash = (x, z) =>
+      key = "#{x};#{z}"
+      if hashes[key] isnt undefined then return hashes[key]
+      else
         vx = xUnit * x - w / 2
         vz = zUnit * z - d / 2
-        vy1 = plot["#{x};#{z}"] or= @fn x, z
-        vy2 = plot["#{x-1};#{z}"] or= @fn x - 1, z
-        verts.push vx, vz, vy1
-        verts.push vx - xUnit, vz, vy2
+        vy = @fn x, z
+        index = verts.length / 3
+        verts.push vx, vz, vy
         texes.push x / (xs-1), z / (zs-1)
-        texes.push (x-1) / (xs-1), z / (zs-1)
+        hashes[key] = index
+
+    for x in [1...xs] by 2
+      for z in [0...zs]
+        indices.push hash x    , z
+        indices.push hash x - 1, z
       
       x++
       for z in [(zs-1)..0]
-        vx = xUnit * x - w / 2
-        vz = zUnit * z - d / 2
-        vy1 = plot["#{x};#{z}"] or= @fn x, z
-        vy2 = plot["#{x-1};#{z}"] or= @fn x - 1, z
-        verts.push vx - xUnit, vz, vy2
-        verts.push vx, vz, vy1
-        texes.push (x-1) / (xs-1), z / (zs-1)
-        texes.push x / (xs-1), z / (zs-1)
+        indices.push hash x - 1, z
+        indices.push hash x    , z
+
+    true # don't return an array, it's faster this way
