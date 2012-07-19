@@ -13,6 +13,8 @@ void main(void) {
       vec3 normal = vec3(0.0, 0.0, 0.0);
       if (useVertexNormal) normal = vEyeSpaceSurfaceNormal;
       import(Normal, normal = normal + Normal);
+      // handle double sided lighting, when cull face isn't BACK
+      if (!gl_FrontFacing) normal = -normal;
       NormalizedEyeSpaceSurfaceNormal = normalize(normal);
     }
   
