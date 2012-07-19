@@ -4,10 +4,27 @@ describe("Jax.Texture", function() {
   
   /* after_loading_it calls spec only when texture is ready */
   var after_loading_it = function(desc, testFunc) { 
-    return jasmine.getEnv().it(desc, function() { 
-      waitsFor(function() { if (tex.ready()) { testFunc(); return true; } return false; }, 1000); 
-    }); 
+    describe("after loading", function() {
+      return jasmine.getEnv().it(desc, function() { 
+        waitsFor(function() { if (tex.ready()) { testFunc(); return true; } return false; }, 1000); 
+      }); 
+    });
   };
+
+  describe("with a path", function() {
+    beforeEach(function() { tex = new Jax.Texture(_img); });
+
+    after_loading_it("should return texture data", function() {
+      expect(tex.getData()).not.toBeNull();
+    });
+
+    describe("before loading", function() {
+      it("should return null", function() {
+        tex.ready = function() { return false; };
+        expect(tex.getData()).toBeNull();
+      });
+    });
+  });
   
   describe("using strings instead of enums", function() {
     // which is what happens when loaded from a resource
