@@ -6,10 +6,15 @@ In each of the following examples, this code is evaluated as part of the scene s
 @context.gl.disable GL_CULL_FACE
 @activeCamera.position = [0, 0, 3]
 @world.ambientColor = '#000'
-@world.addLight new Jax.Light.Point
+@light = @world.addLight new Jax.Light.Point
   position: [0, 0, 2]
   shadows: false
+  attenuation:
+    constant: 0
+    linear: 0.25
+    quadratic: 0
   color:
+    ambient: '#000'
     specular: '#000'
     diffuse: '#fff'
 
@@ -35,12 +40,13 @@ A Quad is a simple, unassuming square. It is made up of only two triangles, both
 
 A Cone is a cylindrical object that ends in a point. `Jax.Mesh.Cone` accepts a `sides` option representing the number of sides to the cone; 3 or 4 will produce a 3-sided or 4-sided pyramid, while more sides will produce an ever more cylindrical result. Cones with fewer than 3 sides will raise an error.
 ###
+@light.position = [0, 0.75, 2]
 @world.addObject new Jax.Model
   position: [-1.25, 0, -1]
   mesh: new Jax.Mesh.Cone
     radius: 1
     height: 1.5
-    color: '#00f'
+    color: '#0f0'
     sides: 4
   update: (tc) -> @camera.yaw tc * 0.5
   
@@ -100,15 +106,18 @@ Passing `fn` allows you to control the height (Y) value at any given (X, Z) coor
 Other options include `width` and `depth`, which override `size`; and `xSegments` and `zSegments`, which override `segments`.
 ###
 @activeCamera.lookAt [0, 0, 0], [3, 3, 3]
-plot = {}
+@light.color.ambient = '#724'
+@light.position = [0, 2, 1.5]
+@light.attenuation.linear = 0.5
+
 @world.addObject new Jax.Model
   direction: [0, 1, 0]
   mesh: new Jax.Mesh.Plane
     size: 3
     segments: 10
-    color: '#a0f'
-    fn: (x, z) -> Math.random() * 0.5
-  update: (tc) -> @camera.rotate tc * 0.5, [1, 0.75, 0.5]
+    color: '#0f0'
+    fn: (x, z) -> Math.random() * 0.25
+  update: (tc) -> @camera.rotateWorld tc * 0.5, [0, 1, 0]
   
   
 ###
