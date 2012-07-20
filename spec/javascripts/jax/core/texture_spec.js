@@ -6,7 +6,13 @@ describe("Jax.Texture", function() {
   var after_loading_it = function(desc, testFunc) { 
     describe("after loading", function() {
       return jasmine.getEnv().it(desc, function() { 
-        waitsFor(function() { if (tex.ready()) { testFunc(); return true; } return false; }, 1000); 
+        waitsFor(function() {
+          if (tex.ready()) {
+            testFunc.call(this);
+            return true;
+          }
+          return false;
+        }, 1000);
       }); 
     });
   };
@@ -16,6 +22,20 @@ describe("Jax.Texture", function() {
 
     after_loading_it("should return texture data", function() {
       expect(tex.getData()).not.toBeNull();
+    });
+
+    after_loading_it("should be renderable to", function() {
+      // FIXME I really don't know how to test this.
+      var self = this;
+      var model = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [0, 0, -1]});
+      spyOn(self.context.gl, 'bindFramebuffer').andCallThrough();
+      spyOn(model, 'render').andCallThrough();
+      tex.renderTo(this.context, function(fb) {
+        expect(fb).toBeInstanceOf(Jax.Framebuffer);
+        model.render(self.context);
+      });
+      expect(self.context.gl.bindFramebuffer).toHaveBeenCalled();
+      expect(model.render).toHaveBeenCalled();
     });
 
     describe("before loading", function() {
