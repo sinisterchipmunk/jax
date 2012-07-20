@@ -1,5 +1,5 @@
 describe "Jax.Material.Surface", ->
-  sim = model = material = matr = null
+  sim = model = material = matr = log = null
   
   describe "multiple instances", ->
     mat2 = null
@@ -136,9 +136,10 @@ describe "Jax.Material.Surface", ->
     SPEC_CONTEXT.prepare()
     model.pushMatrices SPEC_CONTEXT
     return false unless material.preparePass SPEC_CONTEXT, model.mesh, model, pass
-    console.log "Run shader with: ", sim.state.variables
+    console.log "Run shader with: ", sim.state.variables if log
     Jax.getGlobal().SPEC_MATERIAL = material # to give console a handle to the most recent failing matr
     Jax.getGlobal().SPEC_SIMULATOR = sim
+    sim.state.scope.definitions.gl_FrontFacing.value = true
     sim.start()
   
   beforeEach ->
@@ -155,7 +156,7 @@ describe "Jax.Material.Surface", ->
     model = @world.addObject new Jax.Model
       position: [0.5, -0.5, -5]
       mesh: new Jax.Mesh.Quad(
-        color: [0.75, 0, 0, 1]
+        color: [0.75, 0.75, 0.75, 1]
         material: material
       )
     model.mesh.validate()
@@ -170,17 +171,18 @@ describe "Jax.Material.Surface", ->
     describe "on unlit pass", ->
       it "should combine vertex color, ambient color, and material ambient intensity", ->
         run 0
-        expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0, 0, 1]
+        expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
       
   describe "with 1 directional light", ->
     light = null
-    beforeEach -> light = @world.addLight new Jax.Light.Directional
-      shadows: false
-      direction: [0, -1, 0]
-      color:
-        ambient:  [0,0,0,1]
-        diffuse:  [1,1,1,1]
-        specular: [1,1,1,1]
+    beforeEach ->
+      light = @world.addLight new Jax.Light.Directional
+        shadows: false
+        direction: [0, -1, 0]
+        color:
+          ambient:  [0,0,0,1]
+          diffuse:  [1,1,1,1]
+          specular: [1,1,1,1]
   
     describe "facing directly toward the surface", ->
       beforeEach -> light.direction = [0, 0, -1]
@@ -191,12 +193,12 @@ describe "Jax.Material.Surface", ->
         describe "on unlit pass", ->
           it "should combine vertex color, ambient color, and material ambient intensity", ->
             run 0
-            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0, 0, 1]
+            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
     
         describe "on lighting pass", ->
           it "should receive maximum diffuse color", ->
             run 1
-            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 1, 0, 1]
+            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 0.75, 0, 1]
             
         describe "with camera parallel to light", ->
           beforeEach -> @context.activeCamera.direction = [0, -1, 0]
@@ -204,7 +206,7 @@ describe "Jax.Material.Surface", ->
           describe "on lighting pass", ->
             it "should receive maximum diffuse", ->
               run 1
-              expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 1, 0, 1]
+              expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 0.75, 0, 1]
   
         describe "with camera parallel to light 2", ->
           beforeEach ->
@@ -222,7 +224,7 @@ describe "Jax.Material.Surface", ->
         describe "on unlit pass", ->
           it "should combine vertex color, ambient color, and material ambient intensity", ->
             run 0
-            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0, 0, 1]
+            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
   
         describe "on lighting pass", ->
           it "should receive maximum specular color", ->
@@ -238,7 +240,7 @@ describe "Jax.Material.Surface", ->
         describe "on unlit pass", ->
           it "should combine vertex color, ambient color, and material ambient intensity", ->
             run 0
-            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0, 0, 1]
+            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
 
         describe "on lighting pass", ->
           it "should receive no color", ->
@@ -251,7 +253,7 @@ describe "Jax.Material.Surface", ->
         describe "on unlit pass", ->
           it "should combine vertex color, ambient color, and material ambient intensity", ->
             run 0
-            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0, 0, 1]
+            expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
 
         describe "on lighting pass", ->
           it "should receive no color", ->

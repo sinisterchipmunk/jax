@@ -1,11 +1,15 @@
 describe "Jax.Material", ->
   matr = null
+  guid = Jax.guid
   
-  afterEach -> delete Jax.Material.Layer.TestLayer
+  afterEach ->
+    Jax.guid = guid
+    delete Jax.Material.Layer.TestLayer
   
   describe "with an instance layer with un-shared properties", ->
     TestMat = null
     beforeEach ->
+      spyOn(Jax, 'guid').andReturn 0
       class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
         @shaderSource: { fragment: 'uniform float time; void main(void) { float x = time; }' }
         setVariables: (c, m, o, v, p) -> v.time = 1.5
@@ -18,11 +22,13 @@ describe "Jax.Material", ->
     it 'should set the property appropriately', ->
       mat = new TestMat()
       mat.render(@context, new Jax.Mesh.Quad, new Jax.Model)
-      expect(mat.assigns.time0).toEqual 1.5
+      expect(mat.assigns["time0"]).toEqual 1.5
   
   describe "with class-wide layers", ->
     TestMat = null
     beforeEach ->
+      fakeGUID = 0
+      spyOn(Jax, 'guid').andCallFake -> fakeGUID++
       TestMat = class TestMat extends Jax.Material
         @addLayer type: "Position"
     
@@ -43,9 +49,10 @@ describe "Jax.Material", ->
         mat.localizeShader()
       
       it 'should allow layers to be added', ->
+        str = mat.shader.fragment.toString()
         mat.addLayer type: 'VertexColor'
         mat.addLayer type: 'VertexColor'
-        expect(mat.shader.fragment.toString()).toMatch /main2/
+        expect(mat.shader.fragment.toString()).not.toEqual str
   
   it "should not re-bind attribute arrays which are not overwritten between objects", ->
     # when for example obj A binds its normals, but obj B does not,

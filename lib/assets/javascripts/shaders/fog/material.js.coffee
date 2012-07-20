@@ -11,7 +11,7 @@ class Jax.Material.Layer.Fog extends Jax.Material.Layer
     @algorithm = options.algorithm || Jax.EXP2
     @color     = options.color     || Jax.Color.parse '#fff'
     @color     = Jax.Util.colorize @color
-    @_positionMap = position: 'VERTEX_POSITION'
+    @_positionMap = vertices: 'VERTEX_POSITION'
     super options
     
     switch @algorithm
@@ -32,5 +32,5 @@ class Jax.Material.Layer.Fog extends Jax.Material.Layer
     vars.Density = @density
     vars.FogColor = @color
     vars.ModelViewProjectionMatrix = context.matrix_stack.getModelViewProjectionMatrix()
-    mesh.data.set @_positionMap
+    mesh.data.set vars, @_positionMap
     

@@ -2,7 +2,8 @@
 
 class Jax.Material.Layer.NormalMap extends Jax.Material.Layer.Texture
   constructor: (options) ->
-    @specularChannel = !!(options && (options.specularChannel || options.texture.specularChannel))
+    @specularChannel = !!(options && (options.specularChannel || \
+                         (options.texture && options.texture.specularChannel)))
     super options
     @dataMap.tangents = 'VERTEX_TANGENT'
     @dataMap.normals = 'VERTEX_NORMAL'

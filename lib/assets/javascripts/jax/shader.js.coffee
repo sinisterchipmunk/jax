@@ -221,5 +221,5 @@ class Jax.Shader
     @fireEvent 'changed'
     parser.map()
     
-  append: (src, mangler) ->
+  append: (src, mangler = Jax.guid()) ->
     @insert src, mangler, @sources.length

@@ -30,7 +30,7 @@ describe "Jax.Shader", ->
       map = shader.append 'uniform float one; shared uniform float two;'
     
     it 'should return a name mangling map', ->
-      expect(map.one).toEqual 'one0'
+      expect(map.one).not.toEqual 'one'
       expect(map.two).toEqual 'two'
   
   describe "an empty addition", ->
@@ -62,7 +62,8 @@ describe "Jax.Shader", ->
       expect(variable 'three').not.toBeUndefined()
   
   describe 'with multiple un-shared uniforms declared at once', ->
-    beforeEach -> shader.append 'uniform float one, two, three;'
+    beforeEach ->
+      shader.append 'uniform float one, two, three;', 0
 
     it 'should mangle them all', ->
       expect(variable 'one0').not.toBeUndefined()
@@ -93,7 +94,7 @@ describe "Jax.Shader", ->
       expect(simval 'y').toEqual 1
   
   describe 'with an appendage with a main', ->
-    beforeEach -> shader.append 'float x; void main(void) { x = 1.0; }'
+    beforeEach -> shader.append 'float x; void main(void) { x = 1.0; }', 0
     
     it "should mangle the main", ->
       expect(shader.toString()).toMatch /void main0/
@@ -141,7 +142,7 @@ describe "Jax.Shader", ->
     describe "referencing a shared attribute", ->
       s = null
       beforeEach ->
-        shader.append 'shared attribute float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'shared attribute float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x.value = 2.0
@@ -153,7 +154,7 @@ describe "Jax.Shader", ->
     describe "referencing a shared uniform", ->
       s = null
       beforeEach ->
-        shader.append 'shared uniform float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'shared uniform float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x.value = 2.0
@@ -165,7 +166,7 @@ describe "Jax.Shader", ->
     describe "referencing a shared varying", ->
       s = null
       beforeEach ->
-        shader.append 'shared varying float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'shared varying float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x.value = 2.0
@@ -176,19 +177,19 @@ describe "Jax.Shader", ->
 
   describe "un-shared", ->
     describe "injecting an un-shared attribute", ->
-      beforeEach -> shader.append "attribute vec3 x;"
+      beforeEach -> shader.append "attribute vec3 x;", 0
     
       it "should mangle the name", ->
         expect(variable 'x0').not.toBeUndefined()
       
     describe "injecting an un-shared uniform", ->
-      beforeEach -> shader.append "uniform vec3 x;"
+      beforeEach -> shader.append "uniform vec3 x;", 0
 
       it "should mangle the name", ->
         expect(variable 'x0').not.toBeUndefined()
 
     describe "injecting an un-shared varying", ->
-      beforeEach -> shader.append "varying vec3 x;"
+      beforeEach -> shader.append "varying vec3 x;", 0
 
       it "should mangle the name", ->
         expect(variable 'x0').not.toBeUndefined()
@@ -196,7 +197,7 @@ describe "Jax.Shader", ->
     describe "referencing an un-shared attribute", ->
       s = null
       beforeEach ->
-        shader.append 'attribute float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'attribute float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x0.value = 2.0
@@ -208,7 +209,7 @@ describe "Jax.Shader", ->
     describe "referencing an un-shared uniform", ->
       s = null
       beforeEach ->
-        shader.append 'uniform float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'uniform float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x0.value = 2.0
@@ -220,7 +221,7 @@ describe "Jax.Shader", ->
     describe "referencing an un-shared varying", ->
       s = null
       beforeEach ->
-        shader.append 'varying float x; void t(void) { float y = x + 1.0; }'
+        shader.append 'varying float x; void t(void) { float y = x + 1.0; }', 0
         shader.main.push 't0();'
         s = new ShaderScript.Simulator vertex: shader.toString()
         s.state.variables.x0.value = 2.0
