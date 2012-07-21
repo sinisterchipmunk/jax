@@ -12,8 +12,8 @@ class Jax.Light.Color
     set: (c) -> @_specular = Jax.Color.parse c
 
   constructor: (defaults) ->
-    @diffuse  = new Jax.Color 0.7, 0.7, 0.7, 1
-    @specular = new Jax.Color 1.0, 1.0, 1.0, 1
+    @diffuse  = new Jax.Color 0.0, 0.0, 0.0, 1
+    @specular = new Jax.Color 0.0, 0.0, 0.0, 1
     @ambient  = new Jax.Color 0.0, 0.0, 0.0, 1
 
     if defaults

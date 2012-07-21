@@ -13,6 +13,7 @@ Jax.Controller.create "lighting",
       castShadow: false
       
     @spot = @world.addLight new Jax.Light.Spot
+      shadows: true
       position: [0, 0, 30]
       direction: [0, 0, -1]
       attenuation:
@@ -27,6 +28,7 @@ Jax.Controller.create "lighting",
         diffuse: [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
     @point = @world.addLight new Jax.Light.Point
+      shadows: true
       attenuation:
         constant: 0
         linear: 0
@@ -38,6 +40,7 @@ Jax.Controller.create "lighting",
       position: [-20, 0, 0]
       direction: [20, 0, -25]
     @directional = @world.addLight new Jax.Light.Directional
+      shadows: true
       direction: [-1, -1, -1]
       attenuation:
         constant: 1
