@@ -10,6 +10,9 @@ namespace :doc do
     File.open(File.expand_path('../../doc/assets/jax.js', dir), "w") { |f| f.print src }
   end
 
+  # preserve single-line comments in source code
+  Rocco::CommentStyles::COMMENT_STYLES['coffee-script'][:single] = nil
+
   Rocco::Task.new :build_docs, 'doc/generated', 'doc/input/**/*.{js,coffee,rb,erb,glsl}', {
     :language => 'coffee-script',
     :stylesheet => File.expand_path('../../templates/rocco.css', File.dirname(__FILE__)),
@@ -19,6 +22,16 @@ namespace :doc do
   task :clobber do
     FileUtils.rm_rf File.expand_path("../../doc/generated", File.dirname(__FILE__))
     Rake::Task['doc'].invoke
+  end
+
+  desc "publish docs to docs.jaxgl.com"
+  task :publish => :doc do
+    require 'rake/contrib/sshpublisher'
+    mkdir_p 'pkg'
+    `tar -czf pkg/docs.gz doc/generated doc/assets`
+    Rake::SshFilePublisher.new("jaxgl.com", "~/docs/public", "pkg", "docs.gz").upload
+    `ssh jaxgl.com 'cd ~/docs/public/ && tar -xvzf docs.gz && \
+     cp -rf doc/generated/doc/input/* . && cp -rf doc/assets ./assets && rm -rf doc*'`
   end
 end
 
