@@ -22,6 +22,12 @@ describe("Jax.Camera", function() {
       expect(frustum.cube([0, 0, 0], 10, 10, 10)).toBe(Jax.Frustum.INTERSECT);
     });
   });
+
+  it("should not fail to set direction after disabling fixed yaw", function() {
+    camera.setFixedYawAxis(false);
+    camera.direction = [-1, 0, 0];
+    expect(camera.direction).toEqualVector([-1, 0, 0]);
+  });
   
   it("should initialize camera when given position and direction", function() {
     camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});

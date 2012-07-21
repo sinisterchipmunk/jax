@@ -45,14 +45,15 @@ class Jax.Camera
       @_viewVector
     set: (dir) ->
       vec = vec3.set dir, _dirVec
-      vec3.scale vec, -1
       vec3.normalize vec
       if @_fixedYaw
+        # FIXME why am I negating? Can't remember...
+        vec3.negate vec
         right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
         up    = vec3.normalize vec3.cross vec, right, _dirUpVec
         quat4.fromAxes vec, right, up, @rotation
       else
-        rotquat = vec3.toQuatRotation @direction, vec, _dirQuat
+        rotquat = vec3.rotationTo @direction, vec, _dirQuat
         quat4.multiply rotquat, @rotation, @rotation
       quat4.normalize @rotation
       @invalidate()
