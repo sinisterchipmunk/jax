@@ -2,7 +2,7 @@
  * @fileoverview gl-matrix - High performance matrix and vector operations for WebGL
  * @author Brandon Jones
  * @author Colin MacKenzie IV
- * @version 1.3.2
+ * @version 1.3.7
  */
 
 /*
@@ -47,6 +47,9 @@
     }
 }(this, function (root) {
     "use strict";
+
+    // Tweak to your liking
+    var FLOAT_EPSILON = 0.000001;
 
     var glMath = {};
     (function() {
@@ -130,6 +133,25 @@
     };
 
     /**
+     * Creates a new instance of a vec3, initializing it with the given arguments
+     *
+     * @param {number} x X value
+     * @param {number} y Y value
+     * @param {number} z Z value
+
+     * @returns {vec3} New vec3
+     */
+    vec3.createFrom = function (x, y, z) {
+        var dest = new MatrixArray(3);
+
+        dest[0] = x;
+        dest[1] = y;
+        dest[2] = z;
+
+        return dest;
+    };
+
+    /**
      * Copies the values of one vec3 to another
      *
      * @param {vec3} vec vec3 containing values to copy
@@ -143,6 +165,22 @@
         dest[2] = vec[2];
 
         return dest;
+    };
+
+    /**
+     * Compares two vectors for equality within a certain margin of error
+     *
+     * @param {vec3} a First vector
+     * @param {vec3} b Second vector
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    vec3.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON
+        );
     };
 
     /**
@@ -322,6 +360,18 @@
     };
 
     /**
+     * Caclulates the squared length of a vec3
+     *
+     * @param {vec3} vec vec3 to calculate squared length of
+     *
+     * @returns {number} Squared Length of vec
+     */
+    vec3.squaredLength = function (vec) {
+        var x = vec[0], y = vec[1], z = vec[2];
+        return x * x + y * y + z * z;
+    };
+
+    /**
      * Caclulates the dot product of two vec3s
      *
      * @param {vec3} vec First operand
@@ -444,10 +494,11 @@
         return dest;
     };
 
-    var xUnitVec3 = vec3.create([1,0,0]);
-    var yUnitVec3 = vec3.create([0,1,0]);
-    var zUnitVec3 = vec3.create([0,0,1]);
+    var xUnitVec3 = vec3.createFrom(1,0,0);
+    var yUnitVec3 = vec3.createFrom(0,1,0);
+    var zUnitVec3 = vec3.createFrom(0,0,1);
 
+    var tmpvec3 = vec3.create();
     /**
      * Generates a quaternion of rotation between two given normalized vectors
      *
@@ -459,19 +510,19 @@
      */
     vec3.rotationTo = function (a, b, dest) {
         if (!dest) { dest = quat4.create(); }
-
+        
         var d = vec3.dot(a, b);
-        var axis = vec3.create();
+        var axis = tmpvec3;
         if (d >= 1.0) {
             quat4.set(identityQuat4, dest);
         } else if (d < (0.000001 - 1.0)) {
             vec3.cross(xUnitVec3, a, axis);
-            if (axis.length < 0.000001)
+            if (vec3.length(axis) < 0.000001)
                 vec3.cross(yUnitVec3, a, axis);
-            if (axis.length < 0.000001)
+            if (vec3.length(axis) < 0.000001)
                 vec3.cross(zUnitVec3, a, axis);
             vec3.normalize(axis);
-            quat4.fromAxisAngle(axis, Math.PI, dest);
+            quat4.fromAngleAxis(Math.PI, axis, dest);
         } else {
             var s = Math.sqrt((1.0 + d) * 2.0);
             var sInv = 1.0 / s;
@@ -532,6 +583,37 @@
             dest[6] = dest[7] =
             dest[8] = 0;
         }
+
+        return dest;
+    };
+
+    /**
+     * Creates a new instance of a mat3, initializing it with the given arguments
+     *
+     * @param {number} m00
+     * @param {number} m01
+     * @param {number} m02
+     * @param {number} m10
+     * @param {number} m11
+     * @param {number} m12
+     * @param {number} m20
+     * @param {number} m21
+     * @param {number} m22
+
+     * @returns {mat3} New mat3
+     */
+    mat3.createFrom = function (m00, m01, m02, m10, m11, m12, m20, m21, m22) {
+        var dest = new MatrixArray(9);
+
+        dest[0] = m00;
+        dest[1] = m01;
+        dest[2] = m02;
+        dest[3] = m10;
+        dest[4] = m11;
+        dest[5] = m12;
+        dest[6] = m20;
+        dest[7] = m21;
+        dest[8] = m22;
 
         return dest;
     };
@@ -683,6 +765,28 @@
     };
 
     /**
+     * Compares two matrices for equality within a certain margin of error
+     *
+     * @param {mat3} a First matrix
+     * @param {mat3} b Second matrix
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    mat3.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON &&
+            Math.abs(a[3] - b[3]) < FLOAT_EPSILON &&
+            Math.abs(a[4] - b[4]) < FLOAT_EPSILON &&
+            Math.abs(a[5] - b[5]) < FLOAT_EPSILON &&
+            Math.abs(a[6] - b[6]) < FLOAT_EPSILON &&
+            Math.abs(a[7] - b[7]) < FLOAT_EPSILON &&
+            Math.abs(a[8] - b[8]) < FLOAT_EPSILON
+        );
+    };
+
+    /**
      * Sets a mat3 to an identity matrix
      *
      * @param {mat3} dest mat3 to set
@@ -826,6 +930,51 @@
     };
 
     /**
+     * Creates a new instance of a mat4, initializing it with the given arguments
+     *
+     * @param {number} m00
+     * @param {number} m01
+     * @param {number} m02
+     * @param {number} m03
+     * @param {number} m10
+     * @param {number} m11
+     * @param {number} m12
+     * @param {number} m13
+     * @param {number} m20
+     * @param {number} m21
+     * @param {number} m22
+     * @param {number} m23
+     * @param {number} m30
+     * @param {number} m31
+     * @param {number} m32
+     * @param {number} m33
+
+     * @returns {mat4} New mat4
+     */
+    mat4.createFrom = function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+        var dest = new MatrixArray(16);
+
+        dest[0] = m00;
+        dest[1] = m01;
+        dest[2] = m02;
+        dest[3] = m03;
+        dest[4] = m10;
+        dest[5] = m11;
+        dest[6] = m12;
+        dest[7] = m13;
+        dest[8] = m20;
+        dest[9] = m21;
+        dest[10] = m22;
+        dest[11] = m23;
+        dest[12] = m30;
+        dest[13] = m31;
+        dest[14] = m32;
+        dest[15] = m33;
+
+        return dest;
+    };
+
+    /**
      * Copies the values of one mat4 to another
      *
      * @param {mat4} mat mat4 containing values to copy
@@ -851,6 +1000,35 @@
         dest[14] = mat[14];
         dest[15] = mat[15];
         return dest;
+    };
+
+    /**
+     * Compares two matrices for equality within a certain margin of error
+     *
+     * @param {mat4} a First matrix
+     * @param {mat4} b Second matrix
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    mat4.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON &&
+            Math.abs(a[3] - b[3]) < FLOAT_EPSILON &&
+            Math.abs(a[4] - b[4]) < FLOAT_EPSILON &&
+            Math.abs(a[5] - b[5]) < FLOAT_EPSILON &&
+            Math.abs(a[6] - b[6]) < FLOAT_EPSILON &&
+            Math.abs(a[7] - b[7]) < FLOAT_EPSILON &&
+            Math.abs(a[8] - b[8]) < FLOAT_EPSILON &&
+            Math.abs(a[9] - b[9]) < FLOAT_EPSILON &&
+            Math.abs(a[10] - b[10]) < FLOAT_EPSILON &&
+            Math.abs(a[11] - b[11]) < FLOAT_EPSILON &&
+            Math.abs(a[12] - b[12]) < FLOAT_EPSILON &&
+            Math.abs(a[13] - b[13]) < FLOAT_EPSILON &&
+            Math.abs(a[14] - b[14]) < FLOAT_EPSILON &&
+            Math.abs(a[15] - b[15]) < FLOAT_EPSILON
+        );
     };
 
     /**
@@ -1118,32 +1296,44 @@
         if (!dest) { dest = mat; }
 
         // Cache the matrix values (makes for huge speed increases!)
-        var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3],
-            a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7],
-            a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11],
-            a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15],
+        var a00 = mat[ 0], a01 = mat[ 1], a02 = mat[ 2], a03 = mat[3];
+        var a10 = mat[ 4], a11 = mat[ 5], a12 = mat[ 6], a13 = mat[7];
+        var a20 = mat[ 8], a21 = mat[ 9], a22 = mat[10], a23 = mat[11];
+        var a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
 
-            b00 = mat2[0], b01 = mat2[1], b02 = mat2[2], b03 = mat2[3],
-            b10 = mat2[4], b11 = mat2[5], b12 = mat2[6], b13 = mat2[7],
-            b20 = mat2[8], b21 = mat2[9], b22 = mat2[10], b23 = mat2[11],
-            b30 = mat2[12], b31 = mat2[13], b32 = mat2[14], b33 = mat2[15];
+        // Cache only the current line of the second matrix
+        var b0  = mat2[0], b1 = mat2[1], b2 = mat2[2], b3 = mat2[3];  
+        dest[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+        dest[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+        dest[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+        dest[3] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
 
-        dest[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
-        dest[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
-        dest[2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
-        dest[3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
-        dest[4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
-        dest[5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
-        dest[6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
-        dest[7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
-        dest[8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
-        dest[9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
-        dest[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
-        dest[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
-        dest[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
-        dest[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
-        dest[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
-        dest[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+        b0 = mat2[4];
+        b1 = mat2[5];
+        b2 = mat2[6];
+        b3 = mat2[7];
+        dest[4] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+        dest[5] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+        dest[6] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+        dest[7] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+
+        b0 = mat2[8];
+        b1 = mat2[9];
+        b2 = mat2[10];
+        b3 = mat2[11];
+        dest[8] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+        dest[9] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+        dest[10] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+        dest[11] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+
+        b0 = mat2[12];
+        b1 = mat2[13];
+        b2 = mat2[14];
+        b3 = mat2[15];
+        dest[12] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+        dest[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+        dest[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+        dest[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
 
         return dest;
     };
@@ -1766,7 +1956,30 @@
             dest[1] = quat[1];
             dest[2] = quat[2];
             dest[3] = quat[3];
+        } else {
+            dest[0] = dest[1] = dest[2] = dest[3] = 0;
         }
+
+        return dest;
+    };
+
+    /**
+     * Creates a new instance of a quat4, initializing it with the given arguments
+     *
+     * @param {number} x X value
+     * @param {number} y Y value
+     * @param {number} z Z value
+     * @param {number} w W value
+
+     * @returns {quat4} New quat4
+     */
+    quat4.createFrom = function (x, y, z, w) {
+        var dest = new MatrixArray(4);
+
+        dest[0] = x;
+        dest[1] = y;
+        dest[2] = z;
+        dest[3] = w;
 
         return dest;
     };
@@ -1786,6 +1999,23 @@
         dest[3] = quat[3];
 
         return dest;
+    };
+
+    /**
+     * Compares two quaternions for equality within a certain margin of error
+     *
+     * @param {quat4} a First vector
+     * @param {quat4} b Second vector
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    quat4.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON &&
+            Math.abs(a[3] - b[3]) < FLOAT_EPSILON
+        );
     };
 
     /**
@@ -2375,15 +2605,33 @@
      * @returns {vec2} a new 2D vector
      */
     vec2.create = function(vec) {
-      var dest = new MatrixArray(2);
-      if (vec) {
-        dest[0] = vec[0];
-        dest[1] = vec[1];
-      } else {
-        dest[0] = 0;
-        dest[1] = 0;
-      }
-      return dest;
+        var dest = new MatrixArray(2);
+
+        if (vec) {
+            dest[0] = vec[0];
+            dest[1] = vec[1];
+        } else {
+            dest[0] = 0;
+            dest[1] = 0;
+        }
+        return dest;
+    };
+
+    /**
+     * Creates a new instance of a vec2, initializing it with the given arguments
+     *
+     * @param {number} x X value
+     * @param {number} y Y value
+
+     * @returns {vec2} New vec2
+     */
+    vec2.createFrom = function (x, y) {
+        var dest = new MatrixArray(2);
+
+        dest[0] = x;
+        dest[1] = y;
+
+        return dest;
     };
     
     /**
@@ -2396,10 +2644,10 @@
      * @returns {vec2} dest
      */
     vec2.add = function(vecA, vecB, dest) {
-      if (!dest) dest = vecB;
-      dest[0] = vecA[0] + vecB[0];
-      dest[1] = vecA[1] + vecB[1];
-      return dest;
+        if (!dest) dest = vecB;
+        dest[0] = vecA[0] + vecB[0];
+        dest[1] = vecA[1] + vecB[1];
+        return dest;
     };
     
     /**
@@ -2412,10 +2660,10 @@
      * @returns {vec2} dest
      */
     vec2.subtract = function(vecA, vecB, dest) {
-      if (!dest) dest = vecB;
-      dest[0] = vecA[0] - vecB[0];
-      dest[1] = vecA[1] - vecB[1];
-      return dest;
+        if (!dest) dest = vecB;
+        dest[0] = vecA[0] - vecB[0];
+        dest[1] = vecA[1] - vecB[1];
+        return dest;
     };
     
     /**
@@ -2428,10 +2676,10 @@
      * @returns {vec2} dest
      */
     vec2.multiply = function(vecA, vecB, dest) {
-      if (!dest) dest = vecB;
-      dest[0] = vecA[0] * vecB[0];
-      dest[1] = vecA[1] * vecB[1];
-      return dest;
+        if (!dest) dest = vecB;
+        dest[0] = vecA[0] * vecB[0];
+        dest[1] = vecA[1] * vecB[1];
+        return dest;
     };
     
     /**
@@ -2444,10 +2692,10 @@
      * @returns {vec2} dest
      */
     vec2.divide = function(vecA, vecB, dest) {
-      if (!dest) dest = vecB;
-      dest[0] = vecA[0] / vecB[0];
-      dest[1] = vecA[1] / vecB[1];
-      return dest;
+        if (!dest) dest = vecB;
+        dest[0] = vecA[0] / vecB[0];
+        dest[1] = vecA[1] / vecB[1];
+        return dest;
     };
     
     /**
@@ -2463,10 +2711,10 @@
      * @returns {vec2} dest
      */
     vec2.scale = function(vecA, scalar, dest) {
-      if (!dest) dest = vecA;
-      dest[0] = vecA[0] * scalar;
-      dest[1] = vecA[1] * scalar;
-      return dest;
+        if (!dest) dest = vecA;
+        dest[0] = vecA[0] * scalar;
+        dest[1] = vecA[1] * scalar;
+        return dest;
     };
 
     /**
@@ -2499,6 +2747,21 @@
     };
 
     /**
+     * Compares two vectors for equality within a certain margin of error
+     *
+     * @param {vec2} a First vector
+     * @param {vec2} b Second vector
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    vec2.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON
+        );
+    };
+
+    /**
      * Negates the components of a vec2
      *
      * @param {vec2} vec vec2 to negate
@@ -2525,11 +2788,11 @@
         if (!dest) { dest = vec; }
         var mag = vec[0] * vec[0] + vec[1] * vec[1];
         if (mag > 0) {
-          mag = Math.sqrt(mag);
-          dest[0] = vec[0] / mag;
-          dest[1] = vec[1] / mag;
+            mag = Math.sqrt(mag);
+            dest[0] = vec[0] / mag;
+            dest[1] = vec[1] / mag;
         } else {
-          dest[0] = dest[1] = 0;
+            dest[0] = dest[1] = 0;
         }
         return dest;
     };
@@ -2544,7 +2807,7 @@
      *    var crossResult = vec3.create();
      *    vec2.cross([1, 2], [3, 4], crossResult);
      *    //=> [0, 0, -2]
-     *    
+     *
      *    vec2.cross([1, 2], [3, 4]);
      *    //=> -2
      *
@@ -2557,11 +2820,11 @@
      *
      */
     vec2.cross = function (vecA, vecB, dest) {
-      var z = vecA[0] * vecB[1] - vecA[1] * vecB[0];
-      if (!dest) return z;
-      dest[0] = dest[1] = 0;
-      dest[2] = z;
-      return dest;
+        var z = vecA[0] * vecB[1] - vecA[1] * vecB[0];
+        if (!dest) return z;
+        dest[0] = dest[1] = 0;
+        dest[2] = z;
+        return dest;
     };
     
     /**
@@ -2577,10 +2840,22 @@
     };
 
     /**
+     * Caclulates the squared length of a vec2
+     *
+     * @param {vec2} vec vec2 to calculate squared length of
+     *
+     * @returns {Number} Squared Length of vec
+     */
+    vec2.squaredLength = function (vec) {
+      var x = vec[0], y = vec[1];
+      return x * x + y * y;
+    };
+
+    /**
      * Caclulates the dot product of two vec2s
      *
-     * @param {vec3} vecA First operand
-     * @param {vec3} vecB Second operand
+     * @param {vec2} vecA First operand
+     * @param {vec2} vecB Second operand
      *
      * @returns {Number} Dot product of vecA and vecB
      */
@@ -2659,16 +2934,38 @@
      * @returns {mat2} a new matrix
      */
     mat2.create = function(src) {
-      var dest = new MatrixArray(4);
-      if (src) {
-        dest[0] = src[0];
-        dest[1] = src[1];
-        dest[2] = src[2];
-        dest[3] = src[3];
-      } else {
-        dest[0] = dest[1] = dest[2] = dest[3] = 0;
-      }
-      return dest;
+        var dest = new MatrixArray(4);
+        
+        if (src) {
+            dest[0] = src[0];
+            dest[1] = src[1];
+            dest[2] = src[2];
+            dest[3] = src[3];
+        } else {
+            dest[0] = dest[1] = dest[2] = dest[3] = 0;
+        }
+        return dest;
+    };
+
+    /**
+     * Creates a new instance of a mat2, initializing it with the given arguments
+     *
+     * @param {number} m00
+     * @param {number} m01
+     * @param {number} m10
+     * @param {number} m11
+
+     * @returns {mat2} New mat2
+     */
+    mat2.createFrom = function (m00, m01, m10, m11) {
+        var dest = new MatrixArray(4);
+
+        dest[0] = m00;
+        dest[1] = m01;
+        dest[2] = m10;
+        dest[3] = m11;
+
+        return dest;
     };
     
     /**
@@ -2685,6 +2982,23 @@
         dest[2] = mat[2];
         dest[3] = mat[3];
         return dest;
+    };
+
+    /**
+     * Compares two matrices for equality within a certain margin of error
+     *
+     * @param {mat2} a First matrix
+     * @param {mat2} b Second matrix
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    mat2.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON &&
+            Math.abs(a[3] - b[3]) < FLOAT_EPSILON
+        );
     };
 
     /**
@@ -2872,19 +3186,41 @@
      * @returns {vec4} a new 2D vector
      */
     vec4.create = function(vec) {
-      var dest = new MatrixArray(4);
-      if (vec) {
-        dest[0] = vec[0];
-        dest[1] = vec[1];
-        dest[2] = vec[2];
-        dest[3] = vec[3];
-      } else {
-        dest[0] = 0;
-        dest[1] = 0;
-        dest[2] = 0;
-        dest[3] = 0;
-      }
-      return dest;
+        var dest = new MatrixArray(4);
+        
+        if (vec) {
+            dest[0] = vec[0];
+            dest[1] = vec[1];
+            dest[2] = vec[2];
+            dest[3] = vec[3];
+        } else {
+            dest[0] = 0;
+            dest[1] = 0;
+            dest[2] = 0;
+            dest[3] = 0;
+        }
+        return dest;
+    };
+
+    /**
+     * Creates a new instance of a vec4, initializing it with the given arguments
+     *
+     * @param {number} x X value
+     * @param {number} y Y value
+     * @param {number} z Z value
+     * @param {number} w W value
+
+     * @returns {vec4} New vec4
+     */
+    vec4.createFrom = function (x, y, z, w) {
+        var dest = new MatrixArray(4);
+
+        dest[0] = x;
+        dest[1] = y;
+        dest[2] = z;
+        dest[3] = w;
+
+        return dest;
     };
     
     /**
@@ -2997,6 +3333,23 @@
     };
 
     /**
+     * Compares two vectors for equality within a certain margin of error
+     *
+     * @param {vec4} a First vector
+     * @param {vec4} b Second vector
+     *
+     * @returns {Boolean} True if a is equivalent to b
+     */
+    vec4.equal = function (a, b) {
+        return a === b || (
+            Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
+            Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&
+            Math.abs(a[2] - b[2]) < FLOAT_EPSILON &&
+            Math.abs(a[3] - b[3]) < FLOAT_EPSILON
+        );
+    };
+
+    /**
      * Negates the components of a vec4
      *
      * @param {vec4} vec vec4 to negate
@@ -3011,6 +3364,30 @@
         dest[2] = -vec[2];
         dest[3] = -vec[3];
         return dest;
+    };
+
+    /**
+     * Caclulates the length of a vec2
+     *
+     * @param {vec2} vec vec2 to calculate length of
+     *
+     * @returns {Number} Length of vec
+     */
+    vec4.length = function (vec) {
+      var x = vec[0], y = vec[1], z = vec[2], w = vec[3];
+      return Math.sqrt(x * x + y * y + z * z + w * w);
+    };
+
+    /**
+     * Caclulates the squared length of a vec4
+     *
+     * @param {vec4} vec vec4 to calculate squared length of
+     *
+     * @returns {Number} Squared Length of vec
+     */
+    vec4.squaredLength = function (vec) {
+      var x = vec[0], y = vec[1], z = vec[2], w = vec[3];
+      return x * x + y * y + z * z + w * w;
     };
 
     /**
