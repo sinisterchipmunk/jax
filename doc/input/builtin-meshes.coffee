@@ -1,4 +1,6 @@
 ###
+If WebGL is enabled, the thumbnails to the left of each description will be directly generated, in realtime, by the code snippets to the right -- so you can rest assured that that the examples are accurate. (If WebGL is not enabled, you'll have to take my word for it.)
+
 ## Setup
 
 In each of the following examples, this code is evaluated as part of the scene set-up. This code is only used to help set up the scene, and isn't specific to any one example.
@@ -187,7 +189,7 @@ The [Utah Teapot](http://en.wikipedia.org/wiki/Utah_teapot), useful for testing 
 
 A ring or donut-shaped object.
 
-A torus takes two radii, an `innerRadius` which represents the size of the hole, and an `outerRadius` which represents the distance of the outer edge of the torus from its center. They default to `0.6` and `1.8`, respectively.
+A torus takes two radii, an `innerRadius` which represents the size of the tube, and an `outerRadius` which represents the distance from the center of the tube to the center of the torus. They default to `0.6` and `1.8`, respectively.
 
 The torus can also take `sides` and `rings`, which default to `64` and `128`. These control the resolution of the torus. The higher these numbers, the smoother the torus will be, but the increase in polygon count will be more taxing on devices which must render it.
 ###
