@@ -58,7 +58,7 @@ describe("Jax.Controller", function() {
     });
     
     it("should produce the view named after the controller and action names", function() {
-      instance.fireAction("index");
+      instance.fireAction("index", this.context);
       expect(instance.view_key).toEqual("welcome/index");
     });
     

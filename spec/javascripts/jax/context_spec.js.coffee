@@ -22,6 +22,13 @@ describe 'Jax.Context', ->
   it 'should not be rendering', -> expect(@context).not.toBeRendering()
   it 'should keep a handle to the canvas', ->
     expect(@context.canvas).toBe document.getElementById('spec-canvas')
+
+  it "should apply projection to new cameras if they don't have one", ->
+    @context.redirectTo new Jax.Controller() # controller required
+    @context.render() # control
+    @context.activeCamera = new Jax.Camera
+    @context.render() # should setup projection
+    expect(@context.activeCamera.projection).toBeDefined()
   
   it 'should find canvas by id', ->
     c = new Jax.Context @context.canvas.getAttribute 'id'

@@ -90,11 +90,14 @@ class Jax.Context
   by #render automatically. Returns the stack itself.
   ###
   reloadMatrices: ->
+    camera = @activeCamera
+    @setupCamera() unless camera.projection
+
     @matrix_stack.reset() # reset depth
     @matrix_stack.loadModelMatrix mat4.IDENTITY
     # we use the inverse xform to go from WORLD to LOCAL instead of the opposite.
-    @matrix_stack.loadViewMatrix @activeCamera.getInverseTransformationMatrix()
-    @matrix_stack.loadProjectionMatrix @activeCamera.getProjectionMatrix()
+    @matrix_stack.loadViewMatrix camera.getInverseTransformationMatrix()
+    @matrix_stack.loadProjectionMatrix camera.getProjectionMatrix()
     @matrix_stack
   
   update: (timechange) ->
@@ -237,19 +240,26 @@ class Jax.Context
     @stopUpdating()
     @stopRendering()
     
-    descriptor = Jax.routes.recognizeRoute path
-    if descriptor.action != 'index' && @controller && @controller instanceof descriptor.controller
-      # already within the routed controller, just redirect to a different
-      # view, or fire an action and stay with the same view
-      @controller.fireAction descriptor.action
-      if Jax.views.exists @controller.view_key
-        @view = Jax.views.find @controller.view_key
-        @setupView @view
-    else
+    if path instanceof Jax.Controller
       @unloadScene()
-      @controller = Jax.routes.dispatch path, this
-      @view = Jax.views.find @controller.view_key
+      @controller = path
+      @controller.fireAction 'index', this
+      @view = @controller.view
       @setupView @view if @view
+    else
+      descriptor = Jax.routes.recognizeRoute path
+      if descriptor.action != 'index' && @controller && @controller instanceof descriptor.controller
+        # already within the routed controller, just redirect to a different
+        # view, or fire an action and stay with the same view
+        @controller.fireAction descriptor.action, this
+        if Jax.views.exists @controller.view_key
+          @view = @controller.view
+          @setupView @view
+      else
+        @unloadScene()
+        @controller = Jax.routes.dispatch path, this
+        @view = @controller.view
+        @setupView @view if @view
     
     @registerListeners()
     @startRendering() if @renderer
@@ -270,7 +280,7 @@ class Jax.Context
     
   setupCamera: ->
     if @world and @canvas
-      @world.cameras[0].perspective
+      @activeCamera.perspective
         width:  @canvas.clientWidth  || @canvas.width
         height: @canvas.clientHeight || @canvas.height
     
