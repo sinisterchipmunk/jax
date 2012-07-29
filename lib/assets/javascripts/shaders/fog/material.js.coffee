@@ -3,6 +3,10 @@ Jax.EXPONENTIAL = 2
 Jax.EXP2 = 3
 
 class Jax.Material.Layer.Fog extends Jax.Material.Layer
+  @define 'color',
+    get: -> @_color
+    set: (c) -> @_color = Jax.Color.parse c
+    
   constructor: (options) ->
     options or= {}
     @start     = options.start
