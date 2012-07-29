@@ -2,6 +2,7 @@
 
 class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
   constructor: (options) ->
+    @intensity = 1
     super options
     @meshDataMap =
       vertices: 'VERTEX_POSITION'
