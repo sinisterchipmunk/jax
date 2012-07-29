@@ -6,8 +6,16 @@
 // additively with a prior ambient pass.
 
 void main(void) {
-  // no output on ambient pass
-  if (PASS != 0) {
+  // instead of `a && b`, use `all(bvec*)` for compatibility with ATI cards
+  bvec2 enabled = bvec2(
+    // no output on ambient pass
+    PASS != 0,
+
+    // if MaterialShininess == 0.0, then the specular formula will be 
+    // fubarred so instead, it should be skipped entirely.
+    MaterialShininess > 0.0
+  );
+  if (all(enabled)) {
     cache(vec3, NormalizedEyeSpaceSurfaceNormal) {
       bool useVertexNormal = true;
       import(UseVertexNormal, useVertexNormal = UseVertexNormal);
