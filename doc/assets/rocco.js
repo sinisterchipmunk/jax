@@ -25,7 +25,6 @@ $(document).ready(function() {
   // prepare setup function to be called before each example
   var setup = "";
   $('tr#section-Setup').each(function(i, tr) { setup += exampleCode(tr); });
-  setup = new Function(setup);
   
   $('tr.section').each(function(i, tr) {
     var label = $(tr).attr('id').replace('section-', 'jax_');
@@ -92,9 +91,8 @@ $(document).ready(function() {
       jax.redirectTo("example");
       
       // execute setup and example code
-      var example = new Function(exampleCode(tr));
+      var example = new Function(setup + exampleCode(tr));
       try {
-        setup.call(jax.controller);
         example.call(jax.controller);
       } catch(error) {
         console.log(error.stack || error);
