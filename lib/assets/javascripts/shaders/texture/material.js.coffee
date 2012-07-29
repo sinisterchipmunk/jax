@@ -5,7 +5,7 @@ class Jax.Material.Layer.Texture extends Jax.Material.Layer
     else if options then texture = options
     texture = new Jax.Texture texture unless texture instanceof Jax.Texture
     
-    super()
+    super shader: options?.shader
     @texture = texture
     @dataMap = textures: 'VERTEX_TEXCOORDS'
     
