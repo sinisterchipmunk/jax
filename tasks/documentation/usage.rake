@@ -31,7 +31,7 @@ namespace :doc do
     `tar -czf pkg/docs.gz doc/generated doc/assets`
     Rake::SshFilePublisher.new("jaxgl.com", "~/docs/public", "pkg", "docs.gz").upload
     `ssh jaxgl.com 'cd ~/docs/public/ && tar -xvzf docs.gz && \
-     cp -rf doc/generated/doc/input/* . && cp -rf doc/assets ./assets && rm -rf doc*'`
+     cp -rf doc/generated/doc/input/* . && rm -rf ./assets && cp -rf doc/assets ./assets && rm -rf doc*'`
   end
 end
 
