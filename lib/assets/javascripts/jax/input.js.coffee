@@ -9,6 +9,8 @@ class Jax.Input
     @receiver.getEventListeners = (type) => @getReceiverEventListeners type
     
   getReceiverEventListeners: (type) -> @_listeners[type] or= []
+
+  isListening: (type) -> !!@getReceiverEventListeners(type).length
   
   ###
   Subclasses can override this method if they need to maintain themselves
@@ -46,7 +48,7 @@ class Jax.Input
         evt.preventDefault()
         @processEvent eventType, evt
       @receiver.addEventListener eventType, listeners.interface
-    listeners.push callback
+    listeners.push callback unless callback in listeners
     
   ###
   Removes all event listeners from the input receiver.

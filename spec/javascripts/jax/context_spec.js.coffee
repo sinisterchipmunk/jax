@@ -306,6 +306,13 @@ describe 'Jax.Context', ->
         key_released: (e) ->
         key_typed: (e) ->
       @context.redirectTo 'test'
+
+    it "should not produce more than one call to mouse_clicked", ->
+      c = 0
+      @context.controller.mouse_clicked = -> c++
+      @context.mouse.trigger 'mousedown'
+      @context.mouse.trigger 'mouseup'
+      expect(c).toEqual 1
         
     describe "after disposing the context", ->
       beforeEach -> @context.dispose()
