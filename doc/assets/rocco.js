@@ -84,7 +84,23 @@ $(document).ready(function() {
       
       // create a controller to contain example code
       Jax.Controller.create("example", {
-        index: function() { }
+        index: function() { },
+        /*
+          Event placeholders, to be overridden later. These are required 
+          because if they aren't present then Jax will try to optimize away 
+          the appropriate event listeners to boost performance.
+         */
+        mouse_clicked:  function() { },
+        mouse_dragged:  function() { },
+        mouse_pressed:  function() { },
+        mouse_moved:    function() { },
+        mouse_entered:  function() { },
+        mouse_exited:   function() { },
+        mouse_released: function() { },
+        mouse_over:     function() { },
+        key_pressed:    function() { },
+        key_released:   function() { },
+        key_typed:      function() { }
       });
       
       // redirect to the controller to set up the scene

@@ -8,6 +8,7 @@
   mesh: new Jax.Mesh.Quad
   position: [0, 0, -2]
 
+
 ###
 ## A Rotating Cube
 
@@ -21,6 +22,7 @@ A cube that is rotating at a speed of 1/2 radian per second
   position: [0, 0, -2]
   update: (tc) ->
     @camera.yaw tc * 0.5
+
 
 ###
 ## Perlin Noise
