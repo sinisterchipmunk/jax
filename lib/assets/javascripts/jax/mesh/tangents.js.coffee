@@ -4,6 +4,8 @@ tangentBufs =
   sdir: vec3.create(), tdir: vec3.create(), n: vec3.create(), t: vec3.create(),
   tan: vec3.create(),
 
+itertri = new Jax.Geometry.Triangle()
+
 ###
 Adds methods for calculating tangents for triangle-based meshes. The mesh
 is expected to maintain a `triangleOrder` property, which must be an array
@@ -11,6 +13,38 @@ of vertex indices whose length is divisible by 3, with each group of 3
 indices representing a triangle.
 ###
 Jax.Mesh.Tangents =
+  ###
+  Iterates through each triangle of this mesh, calling the given callback.
+  If the callback explicitly returns `false`, then iteration is aborted.
+  Returns the number of triangles processed.
+
+  Warning: only a single instance of `Jax.Geometry.Triangle` is used by this
+  method. It is NOT safe to maintain an ongoing reference to the yielded
+  triangle!
+  ###
+  eachTriangle: (callback) ->
+    vbuf = @data.vertexBuffer
+    triangleOrder = @triangleOrder
+    triangleOrderLength = triangleOrder.length
+    numTris = 0
+    for a in [0...triangleOrderLength] by 3
+      numTris += 1
+      [i1, i2, i3] = [triangleOrder[a], triangleOrder[a+1], triangleOrder[a+2]]
+      i1x = i1 * 3
+      i1y = i1x * 3 + 1
+      i1z = i1x * 3 + 2
+      i2x = i2 * 3
+      i2y = i2x * 3 + 1
+      i2z = i2x * 3 + 2
+      i3x = i3 * 3
+      i3y = i3x * 3 + 1
+      i3z = i3x * 3 + 2
+      itertri.setComponents vbuf[i1x], vbuf[i1y], vbuf[i1z],
+                            vbuf[i2x], vbuf[i2y], vbuf[i2z],
+                            vbuf[i3x], vbuf[i3y], vbuf[i3z]
+      return numTris if callback(itertri) is false
+    numTris
+
   recalculateBitangents: ->
     data = @data
     @recalculateTangents() if data.shouldRecalculateTangents()
