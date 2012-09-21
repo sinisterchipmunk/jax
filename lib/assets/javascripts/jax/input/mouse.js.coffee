@@ -21,35 +21,21 @@ class Jax.Input.Mouse extends Jax.Input
     @_clickCount = {}
     @_buttonState = {}
     
-  cumOffset = [0, 0]
-  
-  ###
-  Returns the cumulative offset, in pixels, of the @receiver, from the
-  top left of the page, in the form of an array of [left, top]. The array
-  is reused every time this method is called, so it should not be cached.
-  ###
-  getCumulativeOffset: ->
-    [x, y] = [0, 0]
-    ele = @receiver
-    while ele
-      x += (ele.offsetLeft || 0) + 1
-      y += (ele.offsetTop  || 0) + 1
-      ele = ele.offsetParent
-    cumOffset[0] = x
-    cumOffset[1] = y
-    return cumOffset
-
   trigger: (type, evt = {}) ->
     event = document.createEvent 'MouseEvents'
-    event.initMouseEvent type, true, true, window, 1, \ # type, bubbles, cancelable, windowObject, detail
-                         evt.screenX, evt.screenY,    \ # screenX, screenY
-                         evt.clientX, evt.clientY,    \ # clientX, clientY
-                         false, false, false, false,  \ # ctrlKey, altKey, shiftKey, metaKey
-                         evt.button, null               # button, relatedTarget
+    event.initMouseEvent type, true,               \ # type, bubbles, 
+                         true,                     \ # cancelable,
+                         window,                   \ # windowObject
+                         1,                        \ # detail
+                         evt.screenX, evt.screenY, \ # screenX, screenY
+                         evt.clientX, evt.clientY, \ # clientX, clientY
+                         false, false,             \ # ctrlKey, altKey
+                         false, false,             \ # shiftKey, metaKey
+                         evt.button, null            # button, relatedTarget
     @receiver.dispatchEvent event
     
   processEvent: (type, evt) ->
-    @normalizeEvent evt
+    evt = @normalizeEvent evt
     super type, evt
     
   ###
@@ -67,19 +53,15 @@ class Jax.Input.Mouse extends Jax.Input
   Returns the normalized event.
   ###
   normalizeEvent: (evt) ->
-    # Calculate pageX/Y if missing and clientX/Y available
-    if evt.pageX is undefined and evt.clientX isnt null
-      eventDocument = evt.target.ownerDocument || document
-      doc = eventDocument.documentElement
-      body = eventDocument.body
-      evt.pageX = evt.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc && doc.clientLeft || body && body.clientLeft || 0)
-      evt.pageY = evt.clientY + (doc && doc.scrollTop  || body && body.scrollTop  || 0) - (doc && doc.clientTop  || body && body.clientTop  || 0)
-      
-    buf = @getCumulativeOffset()
-    [evt.x, evt.y] = [evt.pageX - buf[0], evt.pageY - buf[1]]
-    if @receiver.width || @receiver.height
-      evt.x *= @receiver.width  / @receiver.clientWidth
-      evt.y *= @receiver.height / @receiver.clientHeight
+    rect = @receiver.getBoundingClientRect()
+    root = document.documentElement
+    evt =
+      base: evt
+      button: evt.button
+      x: evt.clientX - rect.left - root.scrollLeft
+      y: evt.clientY - rect.top  - root.scrollTop
+    evt.x *= @receiver.width / rect.width
+    evt.y *= @receiver.height/ rect.height
     if @_lastx is undefined
       evt.diffx = evt.diffy = 0
     else

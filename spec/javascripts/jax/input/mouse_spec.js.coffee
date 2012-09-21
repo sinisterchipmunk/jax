@@ -13,20 +13,19 @@ describe "Jax.Input.Mouse", ->
     target = voffset = LEFT = TOP = null
     beforeEach ->
       LEFT = 202
-      TOP = 202 + voffset
-      voffset = -((document.scrollTop  || document.body.scrollTop  || 0) - (document.clientTop  || document.body.clientTop  || 0))
-      mouse = new Jax.Input.Mouse target =
-        width: 300
-        height: 300
-        clientWidth: 600
-        clientHeight: 600
-        offsetTop: 100
-        offsetLeft: 100
-        addEventListener: ->
-        removeEventListener: ->
-        offsetParent:
-          offsetTop: 100
-          offsetLeft: 100
+      TOP = 252
+      target = document.createElement('canvas')
+      target.width = 150
+      target.height = 100
+      target.style.width = '150px'
+      target.style.height = '100px'
+      target.style.position = 'absolute'
+      target.style.left = '202px'
+      target.style.top = '252px'
+      document.body.appendChild target
+      mouse = new Jax.Input.Mouse target
+    afterEach ->
+      document.body.removeChild target
           
     it "should create `x` and `y` properties local to the canvas", ->
       mouse.listen 'move', (e) -> evt = e
@@ -206,8 +205,11 @@ describe "Jax.Input.Mouse", ->
       mouse.trigger 'mousedown', button: 0
       mouse.trigger 'mousedown', button: 1
       mouse.trigger 'mouseup', button: 0
-      _e = evt
-      mouse.trigger 'mouseup', button: 0
+      button0evt = evt
+      mouse.trigger 'mouseup', button: 1
+      button1evt = evt
       
-      expect(evt.clickCount).toEqual 1
-      expect(_e.clickCount).toEqual 1
+      expect(button0evt.clickCount).toEqual 1
+      expect(button1evt.clickCount).toEqual 1
+
+
