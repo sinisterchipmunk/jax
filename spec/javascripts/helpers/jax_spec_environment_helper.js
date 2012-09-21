@@ -1,5 +1,3 @@
-var jsApiReporter;
-
 (function() {
   var _origEmitObject = jasmine.StringPrettyPrinter.prototype.emitObject;
   jasmine.StringPrettyPrinter.prototype.emitObject = function(obj) {
@@ -30,23 +28,6 @@ jasmine.isArray_ = function(value) {
   return jasmine.isA_("Array", value) || jasmine.isA_("Float32Array", value);
 };
 
-function setupJaxTestEnvironment() {
-  var jasmineEnv = jasmine.getEnv();
-
-  jsApiReporter = new jasmine.JsApiReporter();
-  var trivialReporter = new jasmine.TrivialReporter();
-  jasmineEnv.addReporter(jsApiReporter);
-  jasmineEnv.addReporter(trivialReporter);
-
-  jasmineEnv.specFilter = function(spec) {
-    return trivialReporter.specFilter(spec);
-  };
-
-  setupJaxSpecContext();
-
-  jasmineEnv.execute();
-}
-
 function setupJaxSpecContext() {
   /*
     Create a canvas element and add it to the document. 
@@ -75,4 +56,15 @@ function setupJaxSpecContext() {
 if (typeof(global) != 'undefined') {
   global.setupJaxTestEnvironment = setupJaxTestEnvironment;
   global.setupJaxSpecContext = setupJaxSpecContext;
+}
+
+if (typeof(window) != 'undefined') {
+  var oldOnload = null;
+  if (window.onload) {
+    oldOnload = window.onload;
+  }
+  window.onload = function() {
+    setupJaxSpecContext();
+    oldOnload();
+  };
 }

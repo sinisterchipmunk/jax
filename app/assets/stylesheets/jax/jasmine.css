@@ -1,5 +1,3 @@
-/*= require "jasmine.css" */
-
 /* uses monospace and pre so that shader error traces are more readable */
 .resultMessage.fail {
   font-family: monospace;
@@ -13,4 +11,11 @@
 
 .jasmine_reporter .banner {
   border: 1px solid #bbb;
+}
+
+html, body { height: 100%; overflow:auto; }
+
+iframe {
+  width: 100%;
+  height: 80%;
 }

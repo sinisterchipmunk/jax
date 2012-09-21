@@ -1,6 +1,7 @@
 require 'rails'
 require 'jquery/rails'
 require 'jax/engine'
+require 'jasmine'
 
 module Jax
   autoload :Commands,           "jax/commands"
@@ -8,6 +9,7 @@ module Jax
   autoload :DirectiveProcessor, "jax/directive_processor"
   autoload :Generators,         "generators/jax/all"
   autoload :HelperMethods,      "jax/helper_methods"
+  autoload :Jasmine,            "jax/jasmine"
   autoload :ResourceFile,       "jax/resource_file"
   autoload :Server,             "jax/server"
   autoload :Shader,             "jax/shader"
