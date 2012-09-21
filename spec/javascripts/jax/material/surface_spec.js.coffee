@@ -183,7 +183,7 @@ describe "Jax.Material.Surface", ->
           ambient:  [0,0,0,1]
           diffuse:  [1,1,1,1]
           specular: [1,1,1,1]
-  
+
     describe "facing directly toward the surface", ->
       beforeEach -> light.direction = [0, 0, -1]
   
@@ -196,6 +196,12 @@ describe "Jax.Material.Surface", ->
             expect(sim.state.variables.gl_FragColor.value).toEqualVector [0.01875, 0.01875, 0.01875, 1]
     
         describe "on lighting pass", ->
+          describe "with light disabled", ->
+            beforeEach -> light.enabled = false
+
+            it "should skip the pass", ->
+              expect(run 1).toBeFalse()
+
           it "should receive maximum diffuse color", ->
             run 1
             expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 0.75, 0, 1]

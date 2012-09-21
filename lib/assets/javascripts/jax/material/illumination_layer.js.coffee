@@ -24,7 +24,7 @@ class Jax.Material.IlluminationLayer extends Jax.Material.Layer
     vars.PASS = pass
     return unless pass
     light = context.world.lights[pass-1]
-    return false unless light.isInRange model
+    return false unless light.enabled and light.isInRange model
     return @illuminate context, mesh, model, vars, light
     
   ###
