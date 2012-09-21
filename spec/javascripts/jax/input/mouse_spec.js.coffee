@@ -17,8 +17,8 @@ describe "Jax.Input.Mouse", ->
       target = document.createElement('canvas')
       target.width = 150
       target.height = 100
-      target.style.width = '150px'
-      target.style.height = '100px'
+      target.style.width = '300px'
+      target.style.height = '200px'
       target.style.position = 'absolute'
       target.style.left = '202px'
       target.style.top = '252px'
