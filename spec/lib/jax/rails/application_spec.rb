@@ -16,8 +16,8 @@ describe "Jax::Rails::Application" do
   end
   
   it "should include Jax spec helpers in jasmine" do
-    get '/jasmine'
-    last_response.body.should match(/src="\/spec\/jax_spec_environment_helper\.js"/)
+    get '/jasmine/'
+    last_response.body.should match(/jax_spec_environment_helper\.js/)
     last_response.should be_ok
   end
 end

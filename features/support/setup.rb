@@ -9,7 +9,7 @@ Before("@rails") do
   FileUtils.rm_rf File.join($cucumber_root, "tmp/rails-cukes").to_s
   setup_rails_environment
   create_directory "app/assets/jax/shaders"
-  create_directory "vendor/plugins/mine/app/assets/jax"
+  # create_directory "vendor/plugins/mine/app/assets/jax"
   route "mount Jax::Engine => '/'"
 
   # boot the app, failing silently if it's already booted
