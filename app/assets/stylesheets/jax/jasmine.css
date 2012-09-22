@@ -15,7 +15,9 @@
 
 html, body { height: 100%; overflow:auto; }
 
+#content { height: 80%; }
+
 iframe {
   width: 100%;
-  height: 80%;
+  height: 100%;
 }
