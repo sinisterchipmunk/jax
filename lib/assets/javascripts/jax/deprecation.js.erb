@@ -105,6 +105,12 @@ if (Jax.World) {
 
 if (Jax.Light) {
   Jax.deprecate(Jax.Light, 'getPosition', 'position');
+  Jax.deprecate(Jax.Light, 'castShadows', 'shadows');
+}
+
+if (Jax.Model) {
+  Jax.deprecate(Jax.Model, 'lit', 'illuminated');
+  Jax.deprecate(Jax.Model, 'shadow_caster', 'castShadow and receiveShadow');
 }
 
 if (Jax.Mesh) {
@@ -114,6 +120,7 @@ if (Jax.Mesh) {
     Jax.deprecate(Jax.Mesh.Base, 'getColorBuffer', 'data.set(vars, {colors: "shaderVariableName"})');
     Jax.deprecate(Jax.Mesh.Base, 'getTextureCoordsBuffer', 'data.set(vars, {texture: "shaderVariableName"})');
     Jax.deprecate(Jax.Mesh.Base, 'getTangentBuffer', 'data.set(vars, {tangents: "shaderVariableName"})');
+    Jax.deprecate(Jax.Mesh.Base, 'getTriangles', 'eachTriangle(callback)');
   }
 
   if (Jax.Mesh.Triangles) {
