@@ -26,20 +26,19 @@
           if (src === undefined) throw new Error(message);
         }
         prop = prop[0]
-        if (_value = src[prop]) {
-          if (Jax.deprecate.level > 0) console.log(new Error(message).stack);
-          else console.log(message);
-          if (_value instanceof Function)
-            return _value.apply(this, arguments);
-          else {
-            if (setter)
-              if (arguments.length > 1)
-                return src[prop] = arguments;
-              else
-                return src[prop] = arguments[0];
+        _value = src[prop]
+        if (Jax.deprecate.level > 0) console.log(new Error(message).stack);
+        else console.log(message);
+        if (_value instanceof Function)
+          return _value.apply(this, arguments);
+        else {
+          if (setter)
+            if (arguments.length > 1)
+              return src[prop] = arguments;
             else
-              return _value;
-          }
+              return src[prop] = arguments[0];
+          else
+            return _value;
         }
       } else {
         throw new Error(message);
