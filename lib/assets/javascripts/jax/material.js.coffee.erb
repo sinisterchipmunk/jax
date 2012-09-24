@@ -201,7 +201,7 @@ class Jax.Material
       when 'WIRE'    then Klass = Jax.Material.Wire
       else
         # last-ditch effort to find custom materials
-        unless Klass = Jax.Material[data.type] and Klass.__isMaterial
+        unless (Klass = Jax.Material[data.type]) and Klass.__isMaterial
           console.log "#{name}: Material type #{data.type} is invalid. Please note that its meaning "+ \
                       "changed in Jax v3.0; it should be one of 'Surface', 'Legacy', 'Wire', 'Custom'."
           console.log "Type of material #{name} is defaulting to 'Legacy'."
