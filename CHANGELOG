@@ -1,19 +1,270 @@
-* 2.1.0 (Not Released) *
+* 3.0.0 RC1 *
 
-* Consolidated noise algorithm to use a single texture buffer instead of 3 separate
-  buffers with no loss in performance, special thanks to Stefan Gustavson.
+General:
 
-* Resolved #52: Made it possible to invoke `rails g jax:install` with just `jax install`
+  * Resolved #52: Made it possible to invoke `rails g jax:install` with just 
+    `jax install`
 
-* Resolved #42: Deprecated WebGL wrapper methods, since they're no longer helpful
+  * Resolved #42: Deprecated WebGL wrapper methods, since they're no longer 
+    helpful
 
-* Previous versions of Jax used a temporary WebGL context during initialization; this
-  has now been removed in favor of lazily loading the relevant data.
+  * Previous versions of Jax used a temporary WebGL context during 
+    initialization; this has now been removed in favor of lazily loading the 
+    relevant data.
 
-* Removed Jax.render_speed and corrected some small render bugs
+  * Removed Jax.render_speed and corrected some small render bugs
 
-* Fixed framerate calculation
+  * Fixed framerate calculation
+
+
+Model Loaders:
+  * Added support for all forms of Stanford's PLY model format: ASCII,
+    binary-big-endian, and binary-little-endian.
+
+
+Context:
+
+  * Contexts can now be initialized without a `canvas` element. They can
+    also be initialized without WebGL support.
+  * `Context#player` has been deprecated. It only had one property anyways:
+    `camera`, which has been moved into `Context#activeCamera`.
+  * `Context#activeCamera` has been added. Note that this is not a
+    stand-alone instance of Jax.Camera: it is instead just a reference into
+    `Jax.World#cameras[0]`.
+    
+    Note: the active camera will be reverted back to `Jax.World#cameras[0]`
+    whenever a new controller is loaded.
+  * Context now caps the update interval to 250ms between frames. This 
+    prevents the models from performing massive update steps, which led to 
+    errors if the context was suspended e.g. by browsing within a different 
+    tab.
+
+    
+World:
+  * Added an `ambientColor` property, which allows you to control the level 
+    and color of ambient lighting in the virtual world. The default is
+    `[0.05, 0.05, 0.05, 1]`, or "nearly-black". To alter this, you can
+    assign the color in the traditional array notation, or you can use hex 
+    codes. The following two examples are equivalent:
+
+        @world.ambientColor = [1, 1, 1, 1] # red, green, blue, alpha
+        @world.ambientColor = "#fff"       # 1-byte red, green, blue
+        @world.ambientColor = "#ffff"      # 1-byte red, green, blue, alpha
+        @world.ambientColor = "#ffffff"    # 2-byte red, green, blue
+        @world.ambientColor = "#ffffffff"  # 2-byte red, green, blue, alpha
+        
+    Note that in the case of ambient color and light colors, the alpha 
+    channel is not used for transparency, but rather as a scale: it is 
+    multiplied against the red, green and blue channels.
+    
+  * A new `cameras` property has been added. It is an array that is 
+    guaranteed to contain at least 1 instance of `Jax.Camera`. This allows 
+    you to easily manage as many cameras as your world requires. To cause 
+    the viewer to "look" through any particular camera, just assign it to
+    `Jax.Context#activeCamera`. Example:
+    
+        @context.activeCamera = @world.cameras[0]
+        # this will create 2 additional cameras, without altering the 
+        # existing one(s)
+        @world.cameras = 3
+        @context.activeCamera = @world.cameras[1]
+        
+  * Split Jax.World#pickRegionalIndices into two phases, so that custom 
+    picking implementations can still use Jax.World#parsePickData to process 
+    pick data.
+    
+  * A global octree is now implemented to improve performance in large or 
+    complicated scenes. You can set the `cull` attribute of a model or mesh 
+    to `false` to prevent it being added to the octree. In that case, it's 
+    rendered in the previous brute-force method. You can also pass
+    `addToOctree: false` to Jax.World#addObject for the same effect:
+    
+        @world.addObject myObject, addToOctree: false
+
+    
+Models:
+  * Models with `castShadow` set to `false` will not cast a shadow.
+  - Models with `receiveShadow` set to `false` will not receive shadows cast 
+    by other models.
+
+
+Meshes:
+  * More than 65535 vertices are now supported. There is no longer any 
+    arbitrary limit on vertex or index count, except for client capabilities.
+  * Improved data storage and management and streamlined binding of general 
+    mesh data to GL contexts, resulting in a massive performance improvement.
+  * Exposed mesh tangents and bitangents to the `init` method, allowing you 
+    to pre-calculate them. If you use normal maps, doing this will 
+    drastically improve load times because tangents take a long time to 
+    calculate. The full signature is now:
+      init: (vertices, colors, textureCoords,
+             normals, vertexIndices, tangents, bitangents)
+  * Tangent calculations have now been optimized somewhat, so models which 
+    require them should load a bit faster.
+  * If a mesh builder omits normals, tangents or bitangents, then they will 
+    be automatically calculated, but only when they are actually needed by a 
+    shader. They can also be explicitly recalculated at any time by calling 
+    Jax.Mesh#recalculateNormals, Jax.Mesh#recalculateTangents, or
+    Jax.Mesh#recalculateBitangents -- but these are expensive operations and 
+    should be avoided where possible.
+  * The `bounds` property of every mesh now includes a `radius` representing 
+    the distance of the furthest vertex from the mesh's origin.
+
+
+Materials:
+  * Materials still consist of "layers". However, each layer executes in a 
+    stand-alone environment, and does not have access to the variables 
+    defined by another layer. This ensures greater compatability and 
+    improves speed by excluding unnecessary iterations. Instance variables in
+    any given layer are assigned by the material itself; if the material 
+    instance doesn't know how to set instance variables, it will be up to 
+    the code that actually uses the material to set appropriate variables.
+  * Materials can now directly control how many render passes are required
+    to complete them.
+  * Materials can now return `false` from a `setVariables` call, which will 
+    cause the pass not to be rendered. For example, if a light source is 
+    disabled, the layer can return `false` to signify that the render pass 
+    should be skipped.
+  * Previously, to set the value of a shader variable, you would call (for 
+    example):
+
+        vars.set DiffuseColor: @material.color.diffuse
+
+    This syntax encouraged arbitrary creation of useless objects, which must 
+    then be garbage-collected, slowing down the JavaScript runtime. With the 
+    new syntax, you can assign variable values directly to `vars` like so:
+
+        vars.DiffuseColor = @material.color.diffuse
+
+    This has resulted in much smoother performance.
+  * Shadow maps have been added to the default materials, so that all 
+    objects will cast and receive shadows by default. However, this does not 
+    apply to materials created in Jax v2.x.
+  * You can set the `pcf` option on any material to `false` to disable PCF  
+    filtering of shadow maps. This improves rendering speed somewhat, at the 
+    cost of more pixelated results.
+  * Materials can now define a `prepare` method which will be called prior 
+    to doing any rendering. This way materials can maintain state between 
+    frames, such as updating a framebuffer.
+    
+
+Lights:
+  * During illumination, diffuse and specular layers will cause a rendering 
+    pass to be skipped entirely if the corresponding light is too far away 
+    to have an effect on the scene.
+    
+
+Shadows:
+  * Shadow maps now test which objects will be illuminated, and omit those 
+    that are too far, resulting in faster render times.
+  * Shadow maps now actively maintain their own frustums based on the size 
+    of the scene and the effective range of the light source, producing the 
+    best possible quality of shadow.
+  * Shadow maps now perform 3x3 PCF filtering for a better quality shadow. 
+    This can be disabled by setting the `pcf` option in the corresponding 
+    material to `false`.
+  * Jax.ShadowMap#isIlluminated can tell you whether an object is in light 
+    or shadow (but this is an expensive operation).
   
+
+Shaders:
+  Precompile directives:
+    * export(type, name, expr)
+      * executes the expression and exports it, making it available to be 
+        imported by another shader. See `import` for examples.
+      
+    * import(name, expr)
+      * consecutively evaluates `expr` in the context of each variable 
+        exported with the given name. Example:
+        
+          float y = 0.0;
+          export(float, x, 1.0);
+          export(float, x, 2.0);
+          import(x, y += x);
+          // y == 3.0
+          
+        Note: if no values were previously exported with a particular name, 
+        then the corresponding `import` directive will be ignored and the 
+        value of `y` remains unchanged.
+          
+    * cache(type, name) { block }
+      * Declares a global variable with the given type and name, and then 
+        evaluates the attached block of code only if no other block has been 
+        evaluated in the past. Example:
+        
+          cache(float, x) { x = 5.0;  } // x == 5.0
+          cache(float, x) { x = 10.0; } // x == 5.0
+          
+        Caching is helpful when you need to perform some operation that 
+        another shader may need to perform again, such as renormalizing a 
+        vertex normal. In trivial cases, the compiler may optimize 
+        redundancy away, but this is compiler-specific, while the `cache`  
+        directive will work across all compilers and does not care how 
+        complicated the block of code becomes.
+        
+        Note: you should not use `cache` within branches such as if-
+        conditions unless you can guarantee that all shaders which use the 
+        cached variable will also operate under identical conditions.
+   
+
+Perlin noise:
+  * Consolidated noise algorithm to use a single texture buffer instead of 3 
+    separate texture buffers with no loss in performance, special thanks to 
+    Stefan Gustavson.
+
+
+Default material library:
+
+  REMOVALS:
+    * the "Basic" layer has been removed and its functionality is now split 
+      into 2 other layers: "Position" and "VertexColor".
+    * the "Lighting" layer has been removed. It was not correct, anyway. 
+      Lighting is now correctly calculated using the Lambertian diffuse 
+      algorithm and the Phong specular algorithm, producing highly accurate 
+      results, and attenuated in a separate layer.
+
+  ADDITIONS:
+    * Added the "Position" layer, which sets the vertex position according 
+      to the current ModelViewProjection matrix.
+    * Added the "VertexColor" layer, which sets the vertex colors according 
+      to the mesh vertex color attributes, which default to opaque white.
+    * Added the "WorldAmbient" layer, which multiplies the color by the 
+      current world ambient color, influenced by the material's ambient 
+      intensity
+    * Added the "LightAmbient" layer, which applies the ambient component of 
+      individual light sources.
+    * Added the "LambertDiffuse" layer, which applies the diffuse color on 
+      illumination (non-ambient) passes.
+    * Added the "PhongSpecular" layer, which applies specular highlights on 
+      illumination (non-ambient) passes.
+    * Added the "Attenuation" layer, which applies lighting attenuation on 
+      illumination (non-ambient) passes.
+    * Added the "GammaCorrection" layer. This layer is not used by default, 
+      but can be used as a post-processing step to greatly improve the 
+      lighting of the scene. Note that it may not play nicely with textures 
+      if the textures are already gamma-correct. (If you pulled textures off 
+      of Google or used a digital camera to take pictures, and didn't take 
+      steps to linearize the textures, then they are likely already gamma-
+      correct.)
+    * Added the "ClampColor" layer, which just clamps gl_FragColor to the 
+      range [0, 1].
+    * Added a nice single-pass wireframe layer. Just add the layer to your 
+      material and you're done!
+    * Extracted the paraboloid calculations from the "Paraboloid" layer and 
+      placed them in `shaders/functions/paraboloid.glsl`. The function 
+      `mapToParaboloid` can be used to project any vertex into a paraboloid, 
+      making it easier to do parabolic environment mapping.
+    
+    
+Specs:
+  * Unit tests previously relied on a global `SPEC_CONTEXT` object 
+    representing an automatic instantiation of `Jax.Context`. Now, `@context`
+    and `@world` have both been exposed to each spec. Note that for 
+    compatibility's sake, `SPEC_CONTEXT` is still available, and represents 
+    the same object as `@context`. The `SPEC_CONTEXT` object has not been 
+    deprecated, but it will be in the near future, so developers are
+    encouraged to test against `@context` instead.
+      
 
 
 * 2.0.8 *
