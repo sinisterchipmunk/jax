@@ -6,14 +6,19 @@ class Jax.Context
   
   constructor: (@canvas, options) ->
     # Normalize single-argument form
-    if arguments.length is 1
+    if @canvas and arguments.length is 1
       unless @canvas instanceof HTMLElement or (typeof @canvas) is "string"
         options = @canvas
         @canvas = options.canvas
         delete options.canvas
     if typeof(@canvas) is 'string'
-      @canvas = document.getElementById(@canvas)
+      canvas = document.getElementById(@canvas)
+      unless canvas
+        throw new Error "Could not locate canvas element with ID '#{@canvas}'"
+      @canvas = canvas
     options or= {}
+    if !@canvas and @canvas isnt undefined
+      throw new Error "Received `#{@canvas}` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one."
 
     @_isDisposed  = false
     @_isRendering = false

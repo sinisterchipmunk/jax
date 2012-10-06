@@ -23,6 +23,14 @@ describe 'Jax.Context', ->
   it 'should keep a handle to the canvas', ->
     expect(@context.canvas).toBe document.getElementById('spec-canvas')
 
+  describe "given a canvas ID that cannot be resolved", ->
+    it "should raise an error", ->
+      expect(-> new Jax.Context "nonexistent").toThrow("Could not locate canvas element with ID 'nonexistent'")
+
+  describe "given a falsy but not undefined canvas", ->
+    it "should raise an error", ->
+      expect(-> new Jax.Context null).toThrow("Received `null` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one.")
+
   it "should apply projection to new cameras if they don't have one", ->
     @context.redirectTo new Jax.Controller() # controller required
     @context.render() # control
@@ -247,7 +255,7 @@ describe 'Jax.Context', ->
     TestController = null
     beforeEach ->
       TestController = Jax.Controller.create 'test', {}
-      @context = new Jax.Context null, root: 'test'
+      @context = new Jax.Context @context.canvas, root: 'test'
       
     it "redirect there immediately", ->
       expect(@context.controller).toBeInstanceOf TestController
