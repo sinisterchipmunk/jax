@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe 'jax:material' do
+  before_generation do
+    FileUtils.mkdir_p "app/assets/jax/resources/materials"
+  end
+
   context "with an existing material manifest" do
     before :each do
       FileUtils.mkdir_p ::Rails.application.root.join("app/assets/jax/shaders/brick").to_s
@@ -34,7 +38,6 @@ describe 'jax:material' do
       
       describe "with a pre-existing file" do
         before_generation do
-          FileUtils.mkdir_p "app/assets/jax/resources/materials"
           FileUtils.touch "app/assets/jax/resources/materials/brick.resource"
         end
       
@@ -48,17 +51,24 @@ describe 'jax:material' do
       end
     end
     
-    with_args "normalMap", "--append" do
-      before_generation do
-        FileUtils.mkdir_p "app/assets/jax/resources/materials"
-        File.open("app/assets/jax/resources/materials/brick.resource", "w") { |f| f.puts '###' }
-      end
-      
-      it "should add normalmap without replacing original copy" do
+    with_args "normalMap" do
+      it "should add a normal map layer" do
         subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
-          content.lines.first.strip.should == '###'
-          content.should =~ /type: NormalMap/
+          YAML.load(content)['layers'].should include_layer('NormalMap')
         }
+      end
+
+      with_args "--append" do
+        before_generation do
+          File.open("app/assets/jax/resources/materials/brick.resource", "w") { |f| f.puts '###' }
+        end
+        
+        it "should add normalmap without replacing original copy" do
+          subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
+            content.lines.first.strip.should == '###'
+            content.should =~ /- type: NormalMap/
+          }
+        end
       end
     end
   end

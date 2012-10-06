@@ -21,6 +21,7 @@ Jax::Rails::Application.initialize!
 ::Rails::Generators.options[:rails][:orm] = "test"
 
 require 'jax/testing/rails_environment'
+require 'jax/testing/rspec_matchers'
 
 # Bypass rescue_action stuff in rails. This borrowed from rspec-rails.
 class ActionController::Base
@@ -54,6 +55,7 @@ FakeWeb.register_uri(:post, "http://plugins.jaxgl.com/plugins", :response => fix
 
 RSpec.configure do |c|
   c.include Jax::Testing::RailsEnvironment
+  c.include Jax::Testing::Matchers
   c.include Rack::Test::Methods, :example_group => { :file_path => Regexp.compile(/jax[\\\/]rails/) }
   c.include FixturesHelper
   
