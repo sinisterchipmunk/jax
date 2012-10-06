@@ -5,7 +5,9 @@ module Jax::Testing::Matchers
     end
 
     def matches?(actual)
-      !actual.select { |h| h['type'] == @layer_name }.empty?
+      raise "Expected a hash, got #{actual.inspect}" unless actual.kind_of?(Hash)
+      raise "No layers found in #{actual.inspect}" unless actual['layers']
+      !actual['layers'].select { |l| l['type'] == @layer_name }.empty?
     end
   end
 

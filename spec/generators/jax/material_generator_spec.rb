@@ -54,19 +54,18 @@ describe 'jax:material' do
     with_args "normalMap" do
       it "should add a normal map layer" do
         subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
-          YAML.load(content)['layers'].should include_layer('NormalMap')
+          YAML.load(content).should include_layer('NormalMap')
         }
       end
 
       with_args "--append" do
         before_generation do
-          File.open("app/assets/jax/resources/materials/brick.resource", "w") { |f| f.puts '###' }
+          File.open("app/assets/jax/resources/materials/brick.resource", "w") { |f| f.puts 'layers:' }
         end
         
-        it "should add normalmap without replacing original copy" do
+        it "should add normalmap without replacing original file" do
           subject.should generate("app/assets/jax/resources/materials/brick.resource") { |content|
-            content.lines.first.strip.should == '###'
-            content.should =~ /- type: NormalMap/
+            YAML.load(content).should include_layer('NormalMap')
           }
         end
       end
