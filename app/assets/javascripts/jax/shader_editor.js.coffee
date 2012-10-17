@@ -10,12 +10,13 @@ setup_preview = ->
     mouse_dragged: (m) ->
       @object.camera.pitch m.diffy * -0.01
       @object.camera.yaw   m.diffx *  0.01
-    update: -> @object.mesh.material = @material
+    update: ->
+      @object.mesh.material = @material if @material
   
   canvas = $("#preview")[0]
   canvas.context = new Jax.Context canvas, root:"jax_suite"
 
-controller = -> $("#preview")[0].context.current_controller
+controller = -> $("#preview")[0].context.controller
 
 material = (name) ->
   div link(name, ->

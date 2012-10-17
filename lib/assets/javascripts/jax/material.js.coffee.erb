@@ -188,6 +188,8 @@ class Jax.Material
   @instances: {}
   @resources: {}
   @__isMaterial: true
+
+  @all: -> name for name of Jax.Material.resources
   
   @find: (name) ->
     return Jax.Material.instances[name] if Jax.Material.instances[name]
