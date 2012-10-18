@@ -67,14 +67,14 @@ Jax.Controller.create "benchmark",
     position[1] = 0
     position[2] = Math.sin(@_rotation) * radius
     
-    @context.player.camera.lookAt origin, position
+    @context.activeCamera.lookAt origin, position
     
   benchmark_complete: ->
     max = MAX
     k = 0
     
     @world.addLight new Jax.Light.Directional
-    @player.camera.position = [0, 0, 10]
+    @activeCamera.position = [0, 0, 10]
     
     for i in [0..max]
       for j in [0..max]

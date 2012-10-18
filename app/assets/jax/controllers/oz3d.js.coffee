@@ -32,6 +32,7 @@ Jax.Controller.create "oz3d",
     @world.ambientColor = [0.1, 0.1, 0.1, 1]
     @lightType = 1
     @lightOptions =
+      shadows: true
       attenuation:
         linear: 0.25
       position: [0, 15, 10]
@@ -51,7 +52,7 @@ Jax.Controller.create "oz3d",
       illuminated: false
       mesh: new Jax.Mesh.Sphere(radius: 0.2, material: @light_mat)
     @lighto.camera.lookAt [0,0,-3]
-    @lightOptions.direction = @lighto.camera.getViewVector()
+    @lightOptions.direction = @lighto.camera.direction
     @light = @world.addLight new Jax.Light.Directional @lightOptions
     
     @context.activeCamera.position = [-15, 20, 25]
