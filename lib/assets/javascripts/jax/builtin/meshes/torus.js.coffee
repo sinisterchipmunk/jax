@@ -18,8 +18,8 @@ class Jax.Mesh.Torus extends Jax.Mesh.TriangleStrip
   constructor: (options) ->
     @innerRadius = 0.6
     @outerRadius = 1.8
-    @sides = 64
-    @rings = 128
+    @sides = 16
+    @rings = 32
     super options
   
   init: (vertices, colors, texes, normals) ->
