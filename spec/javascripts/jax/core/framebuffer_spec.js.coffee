@@ -2,6 +2,11 @@ describe 'Jax.Framebuffer', ->
   buf = null
   
   describe 'when OES_depth_texture is available', ->
+    ###
+    These tests will probably be removed entirely because they presume
+    the depth texture should be used in place of a depth buffer, which is
+    just wrong. See core/framebuffer.js for details.
+
     beforeEach ->
       ext = @context.gl.getExtension 'WEBKIT_WEBGL_depth_texture' || \
             @context.gl.getExtension 'MOZ_WEBGL_depth_texture'    || \
@@ -20,6 +25,7 @@ describe 'Jax.Framebuffer', ->
       buf.bind @context
       [w, h] = [buf.options.width, buf.options.height]
       expect(@context.gl.texImage2D).toHaveBeenCalledWith(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, null)
+    ###
   
   it "should return the first texture if index not given (issue #30)", ->
     # https://github.com/sinisterchipmunk/jax/issues/30
