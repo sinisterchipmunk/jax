@@ -267,6 +267,47 @@ Specs:
       
 
 
+* 2.0.12 *
+
+* "Fix" accuracy of Jax.uptime
+  Please see:
+  https://github.com/sinisterchipmunk/jax/commit/bf225524edb1a1cc9c7c42a3214b0b5b40aa2069
+
+
+
+* 2.0.11 *
+
+* Use a different shader import name
+
+  Jax generates GLSL macros to prevent importing one shader
+  into another more than once.
+  
+  Apparently, use of double underscores ("__") in macro names
+  is reserved in GLSL, even though it seems to work on most
+  hardware.
+  
+  An upcoming release of Chrome has a rewritten ANGLE shader
+  preprocessor which now enforces this rule, so it's time to
+  fix Jax -- before the new Chrome goes mainstream.
+  
+  Firefox will be receiving this update shortly, as well, and
+  it applies to all operating systems (not just Windows), so
+  this is a big problem -- but thankfully, an easy fix.
+
+
+
+* 2.0.10 *
+
+* Resolved an issue with picking where depth testing has failed. Picking would
+  previously return the wrong object.
+  
+
+
+* 2.0.9 *
+
+* Resolved issue #59: Jax.Mesh.Cube should update its data when any of its faces change
+
+
 * 2.0.8 *
 
 * Resolved issue #55: bin/jax should not fail within spaced paths
