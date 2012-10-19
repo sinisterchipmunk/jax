@@ -45,17 +45,15 @@ class Jax.Context
         @stopUpdating()
         false
     
-    @_updateFunc = =>
-      timechange = @refreshUPS()
-      @update timechange
-      if @isUpdating() then @requestUpdateFrame()
-      
     @_renderFunc = (time) =>
       # deal with time in seconds, not ms
       time *= 0.001
       @_renderStartTime = time if @_renderStartTime is null
       @uptime = time - @_renderStartTime
       if @_calculateFrameRate then @refreshFPS()
+      if @isUpdating()
+        timechange = @refreshUPS()
+        @update timechange
       @render()
       if @isRendering() then @requestRenderFrame()
       
@@ -160,7 +158,6 @@ class Jax.Context
   startUpdating: ->
     return if @isUpdating() or @isDisposed()
     @_isUpdating = true
-    @requestUpdateFrame()
     
   startRendering: ->
     return if @isRendering() or @isDisposed()
@@ -169,7 +166,6 @@ class Jax.Context
     
   stopUpdating: ->
     return unless @isUpdating()
-    @abortUpdateFrame()
     @_isUpdating = false
 
   stopRendering: ->
@@ -184,16 +180,6 @@ class Jax.Context
     @startRendering()
     @startUpdating()
     
-  requestUpdateFrame: ->
-    currTime = new Date().getTime()
-    timeToCall = Math.max 0, @updateSpeed - (currTime - (@_requestUpdateLastTime || 0))
-    @_updateHandle = setTimeout @_updateFunc, timeToCall
-    @_requestUpdateLastTime = currTime + timeToCall
-    
-  abortUpdateFrame: ->
-    clearTimeout @_updateHandle if @_updateHandle isnt null
-    @_updateHandle = null
-  
   requestRenderFrame: ->
     if Jax.useRequestAnimFrame and @useRequestAnimFrame
       @_requestedAnimFrame = true
