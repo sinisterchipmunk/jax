@@ -160,7 +160,7 @@ describe("Jax.World", function() {
     beforeEach(function() {
       var width = SPEC_CONTEXT.canvas.width,
           height = SPEC_CONTEXT.canvas.height;
-      at = { left: 0, right: width-1, top: height-1, bottom: 0,
+      at = { left: 0, right: width-1, top: 0, bottom: height-1,
              center_x: parseInt(width/2), center_y: parseInt(height/2) };
 
       // put some objects in the world for picking

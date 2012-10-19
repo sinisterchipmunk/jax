@@ -300,10 +300,12 @@ class Jax.World
   The array of objects is returned.
   ###
   pickRegionalIndices: (x1, y1, x2, y2, ary = []) ->
+    # TODO remove the need for max's, min's, and flipping of Y
     [x, y] = [Math.min(x1, x2),     Math.min(y1, y2)    ]
     [w, h] = [Math.max(x1, x2) - x, Math.max(y1, y2) - y]
     ary.length = 0
     context = @context
+    y = @context.canvas.height - (y + h)
     data = pickDataBuffers[hashify x, y, w, h] or= new Uint8Array(w*h*4)
     pickBuffer = @getPickBuffer()
     pickBuffer.bind context
