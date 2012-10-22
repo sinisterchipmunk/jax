@@ -58,10 +58,11 @@ class Jax.Input.Mouse extends Jax.Input
     evt =
       base: evt
       button: evt.button
-      x: evt.clientX - rect.left - root.scrollLeft
-      y: evt.clientY - rect.top  - root.scrollTop
+      x: evt.clientX - rect.left
+      y: evt.clientY - rect.top
     evt.x *= @receiver.width / rect.width
     evt.y *= @receiver.height/ rect.height
+    console.log evt
     if @_lastx is undefined
       evt.diffx = evt.diffy = 0
     else
