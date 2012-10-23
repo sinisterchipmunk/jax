@@ -6,6 +6,7 @@ controller = (name) ->
   div link name, ->
     window.jax or= new Jax.Context "webgl"
     window.jax.redirectTo name
+    document.getElementsByTagName("canvas")[0].focus()
     false
   
 $(document).ready ->
