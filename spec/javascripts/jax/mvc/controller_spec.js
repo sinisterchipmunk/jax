@@ -26,7 +26,7 @@ describe("Jax.Controller", function() {
     
     it("should override the default view", function() {
       Jax.Controller.create("FooBars", {});
-      expect(Jax.views.find("foo_bars/index").view_func).toBe(view);
+      expect(Jax.views.find("foo_bars/index")).toBe(view);
     });
   });
   

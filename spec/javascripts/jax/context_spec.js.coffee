@@ -35,7 +35,7 @@ describe 'Jax.Context', ->
     div = null
     clicked = indexed = null
     beforeEach ->
-      clicked = indexed = viewed = false
+      clicked = indexed = false
       div = document.createElement 'div'
       document.body.appendChild div
       Jax.Controller.create "welcome",
@@ -133,17 +133,17 @@ describe 'Jax.Context', ->
         
     it 'should render views when it has them', ->
       @context.redirectTo 'two/index'
-      spyOn @context.view, 'render'
+      spyOn @context.controller, 'view'
       jasmine.Clock.tick 1000
-      expect(@context.view.render).toHaveBeenCalled()
+      expect(@context.controller.view).toHaveBeenCalled()
       
     it 'should make world accessible to views', ->
       @context.redirectTo 'two/index'
-      expect(@context.view.world).toBe @context.world
+      expect(@context.controller.world).toBe @context.world
       
     it 'should make context accessible to views', ->
       @context.redirectTo 'two/index'
-      expect(@context.view.context).toBe @context
+      expect(@context.controller.context).toBe @context
       
     describe 'scene unloading', ->
       it 'should reset the camera', ->
@@ -166,7 +166,7 @@ describe 'Jax.Context', ->
       originalView = null
       beforeEach ->
         @context.redirectTo 'two'
-        originalView = @context.view
+        originalView = @context.controller.view
       
       describe 'without a view', ->
         beforeEach ->
@@ -176,7 +176,7 @@ describe 'Jax.Context', ->
           expect(@context.world.getObjects()).not.toBeEmpty()
           
         it 'should not change the view', ->
-          expect(@context.view).toBe originalView
+          expect(@context.controller.view).toBe originalView
           
       describe 'with a view', ->
         beforeEach ->
@@ -184,7 +184,7 @@ describe 'Jax.Context', ->
           @context.redirectTo 'two/second'
           
         it "should use the new view", ->
-          expect(@context.view).not.toBe originalView
+          expect(@context.controller.view).not.toBe originalView
           
         it "should not unload the world", ->
           expect(@context.world.getObjects()).not.toBeEmpty()
@@ -193,11 +193,11 @@ describe 'Jax.Context', ->
       originalView = null
       beforeEach ->
         @context.redirectTo 'one'
-        originalView = @context.view
+        originalView = @context.controller.view
         @context.redirectTo 'two'
         
       it "should initialize the new view", ->
-        expect(@context.view).not.toBe originalView
+        expect(@context.controller.view).not.toBe originalView
         
       it "should dispose of the world", ->
         spyOn @context.world, 'dispose'

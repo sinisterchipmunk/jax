@@ -116,8 +116,8 @@ class Jax.Context
     
   render: ->
     @prepare()
-    if @view
-      @view.render()
+    if @controller?.view
+      @controller.view()
     else
       @renderer.clear()
       @world.render()
@@ -236,32 +236,20 @@ class Jax.Context
       @unloadScene()
       @controller = path
       @controller.fireAction 'index', this
-      @view = @controller.view
-      @setupView @view if @view
     else
       descriptor = Jax.routes.recognizeRoute path
       if descriptor.action != 'index' && @controller && @controller instanceof descriptor.controller
         # already within the routed controller, just redirect to a different
         # view, or fire an action and stay with the same view
         @controller.fireAction descriptor.action, this
-        if Jax.views.exists @controller.view_key
-          @view = @controller.view
-          @setupView @view
       else
         @unloadScene()
         @controller = Jax.routes.dispatch path, this
-        @view = @controller.view
-        @setupView @view if @view
     
     @registerListeners()
     @startRendering()
     @startUpdating()
     @controller
-    
-  setupView: (view) ->
-    view.context = this
-    view.world = @world
-    view
     
   unloadScene: ->
     @world.dispose()
