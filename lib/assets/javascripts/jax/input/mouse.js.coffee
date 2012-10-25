@@ -20,8 +20,18 @@ class Jax.Input.Mouse extends Jax.Input
     @_pendingClicks = {}
     @_clickCount = {}
     @_buttonState = {}
-    
+  
+  ###
+  Programmatically triggers an event. Note that because Jax uses
+  `addEventListener`, you can't trigger events using jQuery. Instead,
+  you have to either trigger events through the DOM methods, or use this 
+  method.
+  ###
   trigger: (type, evt = {}) ->
+    if type is 'click'
+      @trigger 'mousedown', evt
+      @trigger 'mouseup',   evt
+      return
     event = document.createEvent 'MouseEvents'
     event.initMouseEvent type, true,               \ # type, bubbles, 
                          true,                     \ # cancelable,

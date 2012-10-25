@@ -158,6 +158,22 @@ describe "Jax.Input.Mouse", ->
   
   describe "with a mouse click handler", ->
     beforeEach -> mouse.listen 'click', (e) -> evt = e
+
+    describe "calling 'trigger' with 'click'", ->
+      ###
+      We do our own internal click detection because standard DOM click 
+      detection produces some undesirable effects. To make the API for
+      programmatically triggering events more intuitive, we'll also perform
+      some translation from 'click' into the 'mousedown'/'mouseup' 
+      combination that Jax is programmed to handle. This way, people who
+      need to programmatically trigger events on a Jax context hopefully
+      won't have to worry about this translation for themselves.
+      ###
+      beforeEach ->
+        mouse.trigger 'click'
+
+      it "should produce a single click", ->
+        expect(evt.clickCount).toEqual 1
     
     it "should not fire if the mouse moves between clicks", ->
       mouse.trigger 'mousedown'
