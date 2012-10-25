@@ -204,12 +204,13 @@ class Jax.Context
   not supplied during initialization, nothing happens.
   ###
   setupRenderer: (options) ->
-    options = Jax.Util.normalizeOptions options,
-      renderers: Jax.Renderer.registeredOrder
     return unless @canvas
-    @renderer = Jax.Renderer.attemptThese @canvas, options.renderers, options
-    # TODO deprecate `gl`, maybe around v3.1ish.
-    @gl = @renderer.context
+    options or= {}
+    renderers = options.renderers || Jax.Renderer.registeredOrder
+    if renderers.length
+      @renderer = Jax.Renderer.attemptThese @canvas, renderers, options
+      # TODO deprecate `gl`, maybe around v3.1ish.
+      @gl = @renderer.context
     
   ###
   Initializes input devices such as keyboard and mouse. These are tied
@@ -253,7 +254,7 @@ class Jax.Context
         @setupView @view if @view
     
     @registerListeners()
-    @startRendering() if @renderer
+    @startRendering()
     @startUpdating()
     @controller
     
@@ -272,8 +273,8 @@ class Jax.Context
   setupCamera: ->
     if @world and @canvas
       @activeCamera.perspective
-        width:  @canvas.clientWidth  || @canvas.width
-        height: @canvas.clientHeight || @canvas.height
+        width:  @canvas.clientWidth  || @canvas.width  || 320
+        height: @canvas.clientHeight || @canvas.height || 200
     
   dispose: ->
     window.removeEventListener 'error', @_errorFunc

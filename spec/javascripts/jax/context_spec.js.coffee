@@ -31,6 +31,37 @@ describe 'Jax.Context', ->
     it "should raise an error", ->
       expect(-> new Jax.Context null).toThrow("Received `null` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one.")
 
+  describe "given a non-canvas target and an empty list of renderers", ->
+    div = null
+    clicked = indexed = null
+    beforeEach ->
+      clicked = indexed = viewed = false
+      div = document.createElement 'div'
+      document.body.appendChild div
+      Jax.Controller.create "welcome",
+        index: -> indexed = true
+        mouse_clicked: -> clicked = true
+      Jax.views.push "welcome/index", -> 
+      @context = new Jax.Context canvas: div, renderers: []
+      @context.redirectTo "welcome/index"
+
+    it "should dispatch events properly", ->
+      @context.mouse.trigger 'click'
+      expect(clicked).toBeTrue()
+
+    it "should fire controller actions", ->
+      expect(indexed).toBeTrue()
+
+    it "should execute views", ->
+      spyOn @context, 'render'
+      jasmine.Clock.tick 1000
+      expect(@context.render).toHaveBeenCalled()
+
+    it "should call update", ->
+      spyOn @context, 'update'
+      jasmine.Clock.tick 1000
+      expect(@context.update).toHaveBeenCalled()
+
   it "should apply projection to new cameras if they don't have one", ->
     @context.redirectTo new Jax.Controller() # controller required
     @context.render() # control
