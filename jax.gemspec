@@ -43,10 +43,10 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "jax"
 
   # Don't include stuff used to build & document jax, otherwise the gem will get huge
-  useless_files = `git ls-files -- public/* guides/*`.split("\n")
+  useless_files = `git ls-files -- public guides doc`.split("\n")
   
   s.files         = `git ls-files`.split("\n") - useless_files
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n") - useless_files
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.test_files    = `git ls-files -- spec features`.split("\n") - useless_files
+  s.executables   = `git ls-files -- bin`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 end

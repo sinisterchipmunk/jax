@@ -138,7 +138,7 @@ The Ajax call will be a GET request by default. You can change this by passing t
 @world.addObject new Jax.Model
   position: [0, -1, 0]
   mesh: new Jax.Mesh.PLY
-    path: '/assets/bun_zipper_res3.ply'
+    path: '/assets/models/bun_zipper_res3.ply'
     method: 'GET'
     size: 2
   update: (tc) -> @camera.yaw tc * 0.5
