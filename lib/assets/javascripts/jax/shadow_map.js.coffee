@@ -82,7 +82,8 @@ class Jax.ShadowMap
     clearColor = gl.getParameter GL_COLOR_CLEAR_VALUE
     fbo.bind context, =>
       fbo.viewport context
-      gl.clearColor.apply gl, @clearColor
+      cc = @clearColor
+      gl.clearColor cc[0], cc[1], cc[2], cc[3]
       gl.clear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
       gl.disable GL_BLEND
       # Push the depth values back so that they don't cause self-shadowing artifacts
@@ -97,7 +98,7 @@ class Jax.ShadowMap
         gl.readPixels 0, 0, @width, @height, GL_RGBA, GL_UNSIGNED_BYTE, @illuminationData
       
     # restore viewport
-    gl.clearColor.apply gl, clearColor
+    gl.clearColor clearColor[0], clearColor[1], clearColor[2], clearColor[3]
     context.viewport()
     gl.polygonOffset 0, 0
     gl.disable GL_POLYGON_OFFSET_FILL

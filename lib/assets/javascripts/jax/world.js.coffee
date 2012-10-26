@@ -237,7 +237,7 @@ class Jax.World
     if object.castShadow isnt false
       # immediately invalidate shadow maps so that this object doesn't
       # not have a shadow
-      @invalidateShadowMaps.apply object
+      @invalidateShadowMaps.call object
       object.addEventListener 'transformed', @invalidateShadowMaps
     object
   
@@ -263,7 +263,7 @@ class Jax.World
     objectArray.splice objectArray.indexOf(obj), 1
     # invalidate shadow maps if necessary so that the object's shadow gets
     # removed
-    @invalidateShadowMaps.apply obj
+    @invalidateShadowMaps.call obj
     obj.removeEventListener 'transformed', @invalidateShadowMaps
     obj.removeEventListener 'transformed', @updateOctree
     if node = @octree.find(obj)
