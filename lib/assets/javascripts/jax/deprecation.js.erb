@@ -182,6 +182,8 @@ if (Jax.Framebuffer) {
 }
 
 if (Jax.Context) {
+  Jax.deprecate(Jax.Context, 'getUpdatesPerSecond');
+  Jax.deprecate(Jax.Context, 'disableUpdateSpeedCalculations');
   Jax.deprecate(Jax.Context, 'loadModelMatrix', 'matrix_stack.loadModelMatrix');
   Jax.deprecate(Jax.Context, 'loadViewMatrix', 'matrix_stack.loadViewMatrix');
   Jax.deprecate(Jax.Context, 'loadProjectionMatrix', 'matrix_stack.loadProjectionMatrix');

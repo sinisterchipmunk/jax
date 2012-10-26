@@ -1,6 +1,6 @@
 ###
 
-A visual frames/updates per second counter that can be added to the world like any other
+A visual frames per second counter that can be added to the world like any other
 model:
 
     @world.addObject new Jax.Framerate
@@ -96,17 +96,13 @@ class Jax.Framerate extends Jax.Model
     
   render: (context, material) ->
     @fps = context.getFramesPerSecond()
-    @ups = context.getUpdatesPerSecond()
     fps_pcnt = @fps / @max_fps
-    ups_pcnt = @ups / @max_ups
     
     if fps_pcnt == Number.POSITIVE_INFINITY then fps_pcnt = 1000
-    if ups_pcnt == Number.POSITIVE_INFINITY then ups_pcnt = 1000
     
     if @current == @_max_queue_size
       for i in [0..@current]
         @fps_points[i] = @fps_points[i+1]
-        @ups_points[i] = @ups_points[i+1]
     else @current++
     
     if @ema
@@ -116,12 +112,9 @@ class Jax.Framerate extends Jax.Model
         uema = 0
       else
         fema = @fps_points[@current-1]
-        uema = @ups_points[@current-1]
       @fps_points[@current] = (fps_pcnt * @ema_exponent) + (fema * (1 - @ema_exponent))
-      @ups_points[@current] = (ups_pcnt * @ema_exponent) + (uema * (1 - @ema_exponent))
     else
       @fps_points[@current] = fps_pcnt
-      @ups_points[@current] = ups_pcnt
     
     # clear the graph
     @ctx.clearRect 0, 0, @width, @height
@@ -139,15 +132,10 @@ class Jax.Framerate extends Jax.Model
       # FPS or FPS EMA
       @ctx.strokeStyle = "red"
       drawPath @ctx, @fps_points, @height, @current
-      # UPS or UPS EMA
-      @ctx.strokeStyle = "blue"
-      drawPath @ctx, @ups_points, @height, @current
       
       @ctx.textBaseline = "bottom"
       @ctx.fillStyle = "red"
       @ctx.fillText "#{Math.round @fps} FPS", @_fps_label_left, @height, @_max_data_width
-      @ctx.fillStyle = "blue"
-      @ctx.fillText "#{Math.round @ups} UPS", @_ups_label_left, @height, @_max_data_width
     else
       @ctx.fillStyle = "rgba(0, 0, 0, 1)"
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20

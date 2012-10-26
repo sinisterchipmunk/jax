@@ -20,11 +20,14 @@ class Jax.Context
     if !@canvas and @canvas isnt undefined
       throw new Error "Received `#{@canvas}` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one."
 
+    # clamp update rate to 250ms so that it doesn't spike when
+    # resuming from a paused state
+    @clampTimechange = 0.25
     @_isDisposed  = false
     @_isRendering = false
     @_isUpdating  = false
     @_renderHandle = @_updateHandle = null
-    @_framesPerSecond = @_updatesPerSecond = 0
+    @_framesPerSecond = 0
     @_renderStartTime = null
     
     @_errorFunc = (error, url, line) =>
@@ -48,11 +51,13 @@ class Jax.Context
     @_renderFunc = (time) =>
       # deal with time in seconds, not ms
       time *= 0.001
-      @_renderStartTime = time if @_renderStartTime is null
-      @uptime = time - @_renderStartTime
-      if @_calculateFrameRate then @refreshFPS()
+      renderStartTime = @_renderStartTime or= time
+      @_lastUptime = @uptime || renderStartTime
+      @uptime = time - renderStartTime
+
+      if @_calculateFrameRate then @calculateFramerate()
       if @isUpdating()
-        timechange = @refreshUPS()
+        timechange = @getTimePassed()
         @update timechange
       @render()
       if @isRendering() then @requestRenderFrame()
@@ -64,7 +69,6 @@ class Jax.Context
     @uptime = 0
     @matrix_stack = new Jax.MatrixStack()
     @framerateSampleRatio = 0.9
-    @updateSpeed = 33
     
     @setupRenderer options
     @setupCamera()
@@ -122,35 +126,26 @@ class Jax.Context
       @renderer.clear()
       @world.render()
     
-  refreshUPS: ->
-    currentUpdateStart = @uptime
-    @_lastUpdateStart or= currentUpdateStart
-    timeToUpdateThisFrame = currentUpdateStart - @_lastUpdateStart
+  getTimePassed: ->
+    uptime = @uptime
+    timechange = uptime - @_lastUptime
+
+    if clampValue = @clampTimechange
+      Math.min timechange, clampValue
+    else
+      timechange
     
-    if @_calculateUpdateRate
-      @_timeToUpdate = (@_timeToUpdate || 0) * @framerateSampleRatio \
-                     +  timeToUpdateThisFrame * (1 - @framerateSampleRatio)
-      # update rate = seconds / time
-      @_updatesPerSecond = 1 / @_timeToUpdate
-    
-    # in order to avoid recalculating the above for updates, we'll
-    # return the timechange to be used in subsequent updates.
-    timechange = currentUpdateStart - @_lastUpdateStart
-    @_lastUpdateStart = currentUpdateStart
-    
-    # clamp update rate to 250ms so that it doesn't spike when
-    # resuming from a paused state
-    Math.min timechange, 0.25
-    
-  refreshFPS: ->
-    currentRenderStart = @uptime
-    @_lastRenderStart or= @uptime
+  calculateFramerate: ->
+    uptime = @uptime
+    currentRenderStart = uptime
+    sampleRatio = @framerateSampleRatio
+    @_lastRenderStart or= uptime
     timeToRenderThisFrame = currentRenderStart - @_lastRenderStart
     
-    @_timeToRender = (@_timeToRender || 0) * @framerateSampleRatio \
-                   +  timeToRenderThisFrame * (1 - @framerateSampleRatio)
+    @_timeToRender = (@_timeToRender || 0) * sampleRatio \
+                   +  timeToRenderThisFrame * (1 - sampleRatio)
     
-    # frames per second = 1 second divided by time to render;
+    # frames per second = 1 second divided by time to render
     @_framesPerSecond = 1 / @_timeToRender
     @_lastRenderStart = currentRenderStart
     
@@ -304,16 +299,9 @@ class Jax.Context
     @mouse.stopListening()    if @mouse
     @keyboard.stopListening() if @keyboard
 
-  getUpdatesPerSecond: ->
-    @_calculateUpdateRate = true
-    return @_updatesPerSecond
-    
   getFramesPerSecond: ->
     @_calculateFrameRate = true
     return @_framesPerSecond
-    
-  disableUpdateSpeedCalculations: ->
-    @_calculateUpdateRate = false
     
   disableFrameSpeedCalculations: ->
     @_calculateFrameRate = false

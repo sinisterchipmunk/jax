@@ -13,8 +13,6 @@ describe 'Jax.Context', ->
     expect(@context.matrix_stack).toBeInstanceOf Jax.MatrixStack
   it 'should init framerate to 0', -> 
     expect(@context.getFramesPerSecond()).toEqual 0
-  it 'should init update rate to 0', -> 
-    expect(@context.getUpdatesPerSecond()).toEqual 0
   it 'should have a default framerate sample ratio', -> 
     expect(@context.framerateSampleRatio).toBeDefined()
   it 'should not be disposed', -> expect(@context).not.toBeDisposed()
