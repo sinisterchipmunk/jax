@@ -60,6 +60,7 @@ class Jax.Input
         @receiver.removeEventListener type, listeners.interface
         listeners.length = 0
         delete listeners.interface
+    @removeAllEventListeners()
 
   ###
   Starts listening for a specific event type. The callback is optional and

@@ -29,6 +29,33 @@ describe 'Jax.Context', ->
     it "should raise an error", ->
       expect(-> new Jax.Context null).toThrow("Received `null` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one.")
 
+  describe "redirecting to a controller that listens to mouse clicks", ->
+    beforeEach ->
+      Jax.Controller.create "one",
+        mouse_clicked: -> 
+        index: -> 
+
+      Jax.Controller.create "two",
+        index: ->
+
+      @context.redirectTo "one"
+
+    describe "twice", ->
+      beforeEach -> @context.redirectTo "one"
+
+      it "should not call the listener twice", ->
+        count = 0
+        @context.controller.mouse_clicked = -> count++
+        @context.mouse.trigger "click"
+        expect(count).toEqual 1
+
+      describe "and then to a controller that does not", ->
+        beforeEach ->
+          @context.redirectTo "two"
+
+        it "should not raise an error when the event is fired", ->
+          expect(=> @context.mouse.trigger("click")).not.toThrow()
+
   describe "given a non-canvas target and an empty list of renderers", ->
     div = null
     clicked = indexed = null
