@@ -1,3 +1,64 @@
+* 3.0.0 RC2 *
+
+  * Resolved #71: Jax.Input now removes event listeners from _itself_ when it
+    is instructed to stop listening to events.
+
+  * The update interval has been removed and updates now execute at the start
+    of each frame. Updates-per-second are no longer calculated when requested
+    and requesting them will raise a deprecation error. Use
+    `Jax.Context#getFramesPerSecond` for both frames and updates per second.
+
+  * Minor internal optimizations by removing calls to `apply` where possible.
+
+  * Gem size drastically reduced by omitting the Jax documentation from the
+    package.
+
+  * The `Jax.View` class has been removed. It used to wrap around the view
+    functions. Now the view functions belong directly to their controllers,
+    producing better performance in the form of less function call overhead
+    per frame, and allowing you to access all instance variables that belong
+    to your controller without having to jump through hacky hoops.
+
+  * `Jax.Context` now gracefully handles empty renderer lists. The following
+    code will behave as expected:
+
+        new Jax.Context({canvas: canvasElement, renderers: []});
+
+    The result is a context which instantiates controllers and receives input
+    as usual, but does not render any result to the canvas element. Also, the
+    `canvas` option may now be any element in the DOM, and is not restricted
+    purely to `<canvas>` elements. This allows you to register Jax event
+    listeners to any element in the DOM.
+
+  * `Jax.Input.Mouse` can now programmatically perform "click" events like 
+    so:
+
+        context.mouse.trigger("click");
+        context.mouse.trigger("click", {button: 1});
+
+    This is **not** equivalent to a DOM click, but rather simulates a 
+    "mousedown" event followed immediately by a "mouseup" event. (Jax 
+    performs its own "click" detection, which is not new functionality.)
+
+  * When a controller is selected from the controller list in the Jax dev
+    suite, the canvas element will be programmatically given focus, allowing
+    it to receive keyboard events immediately.
+
+  * Fixed mouse coordinates, which were previously calculated incorrectly,
+    resulting in unusable data in certain scenarios.
+
+  * Made the update duration cap configurable. You can disable it entirely by
+    setting `Jax.Context#clampTimechange` to any non-truthy value (`0`, 
+    `false`, `null`, etc). The value defaults to `0.25`, or 250 ms.
+
+  * Lowered the default resolution of `Jax.Mesh.Torus`, which was previously 
+    producing WebGL warnings. Oops.
+
+  * Resolved #66: Fixed some bugs in the material generator which were 
+    causing it to produce invalid material files.
+
+
+
 * 3.0.0 RC1 *
 
 General:
