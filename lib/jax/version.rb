@@ -3,7 +3,7 @@ module Jax
     MAJOR = 3
     MINOR = 0
     PATCH = 0
-    BUILD = "rc1"
+    BUILD = "rc2"
     STRING = BUILD ? [MAJOR, MINOR, PATCH, BUILD].join(".") : [MAJOR, MINOR, PATCH].join(".")
   end
   
