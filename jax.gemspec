@@ -16,10 +16,9 @@ Gem::Specification.new do |s|
     seamlessly with Ruby on Rails to build dynamic WebGL applications.
   }
 
-  s.add_dependency 'rails',          '~> 3'
-  s.add_dependency 'jquery-rails',   '>= 1'
+  s.add_dependency 'rails',          '>= 3.1'
+  s.add_dependency 'jquery-rails'
   s.add_dependency 'jasmine-rails'
-  s.add_dependency 'rest-client',    '~> 1'
   
   s.add_development_dependency 'rspec',          '~> 2'
   s.add_development_dependency 'coffee-rails',   '~> 3'
