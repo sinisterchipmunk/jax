@@ -1,72 +1,21 @@
-# load 'jasmine/tasks/jasmine.rake'
+require 'jasmine/headless'
+require 'jax/rails/application'
+require 'jasmine/dependencies'
+
+Jasmine::Headless::Task.new do |t|
+  t.colors = true
+end
 
 desc "Run jasmine specs in browser"
 task :jasmine do
-  begin
-    server = nil
-    result = {}
-    th = Thread.new do
-      ENV['quiet'] = '1'
-      Rake::Task['server'].execute
-    end
-  
-    require 'selenium-webdriver'
-    driver = Selenium::WebDriver.for :firefox
-    driver.navigate.to "http://localhost:3000/jasmine"
-    
-    puts driver.title if ENV["DEBUG"]
-    if driver.title =~ /Exception/ # Rails exception occurred
-      puts driver.page_source
-      raise "Rails error occurred requesting jasmine specs"
-    end
-  
-    execjs = proc do |js|
-      puts "eval js: #{js}" if ENV['DEBUG']
-      result = driver.execute_script js
-      puts "     =>  #{result.inspect}" if ENV['DEBUG']
-      result
-    end
-
-    until execjs.call("return jsApiReporter && jsApiReporter.finished") == true
-      sleep 0.1
-    end
-  
-    result = execjs.call(<<-end_code)
-    var result = jsApiReporter.results();
-    var failures = new Array();
-    var results = { };
-    for (var i in result) {
-      for (var j = 0; j < result[i].messages.length; j++) {
-        var msg = result[i].messages[j];
-        msg.toString = msg.toString();
-        msg.passed = msg.passed();
-        if (!msg.passed)
-          failures.push(msg);
-      }
-      results[result[i].result] = results[result[i].result] || 0;
-      results[result[i].result]++;
-    }
-    return { results: results, failure_messages: failures };
-    end_code
-  ensure
-    driver.quit if driver and driver.respond_to?(:quit)
-    # server.stop if server
+  require 'jasmine'
+  require 'rspec'
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new(:jasmine_continuous_integration_runner) do |t|
+    t.rspec_opts = ["--colour", "--format", ENV['JASMINE_SPEC_FORMAT'] || "progress"]
+    t.verbose = true
+    t.rspec_opts += ["-r #{File.expand_path '../../spec/support/bootstrap', File.dirname(__FILE__)}"]
+    t.pattern = [File.expand_path("./run_specs.rb", File.dirname(__FILE__))]
   end
-  
-  passed = result["results"]["passed"].to_i
-  failed = result["results"]["failed"].to_i
-  total = passed + failed
-  green, red = "\e[32m", "\e[31m"
-  color = failed > 0 ? red : green
-  puts "#{color}#{total} jasmine specs: #{passed} passed, #{failed} failed\e[0m"
-  unless (failure_messages = result["failure_messages"]).empty?
-    failure_messages.each do |message|
-      puts message["message"]
-      puts
-      puts message["trace"]["stack"].split(/\n/).collect { |line|
-        line['@'] ? line.sub(/^.*\@/, '') : line }.reject { |line|
-        line['/jasmine.js?'] }.join("\n")
-    end
-    raise "jasmine specs failed"
-  end
+  Rake::Task["jasmine_continuous_integration_runner"].invoke
 end

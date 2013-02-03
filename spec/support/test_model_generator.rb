@@ -3,6 +3,8 @@
 # AR can't find a database. Ultimately, this keeps Jax loosely coupled to AR, so that other ORMs can
 # be used.
 
+require 'rails/generators'
+
 module Test
   module Generators
     class ModelGenerator < ::Rails::Generators::NamedBase
