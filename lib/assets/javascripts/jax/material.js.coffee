@@ -160,7 +160,7 @@ class Jax.Material
     return true
     
   drawBuffers: (context, mesh, pass = 0) ->
-    unless <%= Rails.env.production? %> or @_alreadyWarned
+    unless Jax.environment is Jax.PRODUCTION or @_alreadyWarned
       # in development mode, check that all variables are assigned, and warn if not.
       # Only do this once (per material).
       @_alreadyWarned = true
