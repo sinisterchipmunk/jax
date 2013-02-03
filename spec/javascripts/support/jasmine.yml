@@ -1,6 +1,5 @@
 src_files:
  - "application.js"
- - "jax.js"
 
 stylesheets:
 
