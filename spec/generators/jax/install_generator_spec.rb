@@ -9,6 +9,10 @@ describe 'jax:install' do
   it "should mount Jax::Engine in routes" do
     subject.should generate(:route)
   end
+
+  it 'should generate Jax jasmine helpers' do
+    subject.should generate("spec/javascripts/helpers/jax_helpers.js.coffee")
+  end
   
   it "should generate Coffee manifest" do
     subject.should generate("app/assets/jax/jax.js.coffee")

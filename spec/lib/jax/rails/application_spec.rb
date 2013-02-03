@@ -15,9 +15,9 @@ describe "Jax::Rails::Application" do
     last_response.should be_ok
   end
   
-  it "should include Jax spec helpers in jasmine" do
+  it "should mount Jasmine at /jasmine" do
     get '/jasmine/'
-    last_response.body.should match(/jax_spec_environment_helper\.js/)
+    last_response.body.should match(/jasmineEnv/)
     last_response.should be_ok
   end
 end

@@ -17,3 +17,5 @@ _spec
 .rbx
 *old_spec*
 *ssao*
+.jhw-cache
+log

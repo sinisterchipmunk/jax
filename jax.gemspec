@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails',          '~> 3'
   s.add_dependency 'jquery-rails',   '>= 1'
-  s.add_dependency 'jasmine',        '~> 1'
+  s.add_dependency 'jasmine-rails'
   s.add_dependency 'rest-client',    '~> 1'
   
   s.add_development_dependency 'rspec',          '~> 2'

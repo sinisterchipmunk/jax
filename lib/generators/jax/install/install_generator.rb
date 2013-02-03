@@ -35,6 +35,10 @@ DESC
       def create_jax_manifest_file
         coffee_template_with_fallback "manifest.js", 'app/assets/jax/jax.js'
       end
+
+      def create_jax_jasmine_helpers
+        coffee_template_with_fallback 'jasmine/jax_helpers.js', 'spec/javascripts/helpers/jax_helpers.js'
+      end
       
       def clear_rails_cache
         # Installs can include changes to how resources are compiled,

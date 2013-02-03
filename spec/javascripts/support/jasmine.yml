@@ -1,0 +1,18 @@
+src_files:
+ - "application.js"
+
+stylesheets:
+
+helpers:
+  - "helpers/**/*"
+
+spec_files:
+  - "**/*[Ss]pec.*"
+
+src_dir: "app/assets/javascripts"
+
+spec_dir: spec/javascripts
+
+asset_paths:
+ - "app/assets/jax"
+ - "vendor/assets/javascripts"

@@ -1,3 +1,4 @@
+@rails
 Feature: Shaders
   
   Scenario: Detect new shaders without reloading app
