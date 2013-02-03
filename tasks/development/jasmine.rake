@@ -1,6 +1,4 @@
 require 'jasmine/headless'
-require 'jax/rails/application'
-require 'jasmine/dependencies'
 
 Jasmine::Headless::Task.new do |t|
   t.colors = true
