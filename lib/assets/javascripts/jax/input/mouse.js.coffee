@@ -101,7 +101,7 @@ class Jax.Input.Mouse extends Jax.Input
         super 'over'
         super 'exit'
         @addEventListener 'enter', callback if callback
-      when 'move', 'click', 'wheel'
+      when 'move', 'click'
         super 'move'
         super 'press'
         super 'release'
