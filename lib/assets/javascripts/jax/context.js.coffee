@@ -284,6 +284,8 @@ class Jax.Context
         @controller.mouse_exited   evt
       if @controller.mouse_dragged  then @mouse.listen 'drag',       (evt) =>
         @controller.mouse_dragged  evt
+      if @controller.mouse_rolled   then @mouse.listen 'wheel',      (evt) =>
+        @controller.mouse_rolled   evt
       if @controller.mouse_over     then @mouse.listen 'over',       (evt) =>
         @controller.mouse_over     evt
     if @keyboard
