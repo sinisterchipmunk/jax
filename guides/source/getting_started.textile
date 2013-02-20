@@ -88,6 +88,8 @@ Usually, run this as the root user:
 
 This will install Jax and a number of other Ruby Gems that it relies upon.
 
+If you encounter an error during install, such as @cannot load such file -- mkmf@, you probably need to install the @ruby-dev@ package.
+
 h4. Creating the Dungeon Application
 
 Now that Jax is installed, we can go ahead and generate the Dungeon application. Start a terminal or command prompt, switch to a directory you have permission to write to, and enter the following command:
