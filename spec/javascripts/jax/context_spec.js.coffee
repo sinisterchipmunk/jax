@@ -354,7 +354,17 @@ describe 'Jax.Context', ->
       spyOn @context.controller, 'mouse_pressed'
       @context.mouse.trigger 'mousedown'
       expect(@context.controller.mouse_pressed).toHaveBeenCalled()
-      
+
+  describe "at a controller with a mouse_rolled listener", ->
+    beforeEach ->
+      Jax.Controller.create 'test', mouse_rolled: (e) ->
+      @context.redirectTo 'test'
+
+    it "should fire the callback", ->
+      spyOn @context.controller, 'mouse_rolled'
+      @context.mouse.trigger 'mousewheel'
+      expect(@context.controller.mouse_rolled).toHaveBeenCalled()
+
   describe "at a controller with every possible callback", ->
     beforeEach ->
       Jax.Controller.create 'test',
@@ -363,6 +373,7 @@ describe 'Jax.Context', ->
         mouse_released: (e) ->
         mouse_moved: (e) ->
         mouse_dragged: (e) ->
+        mouse_rolled: (e) ->
         mouse_entered: (e) ->
         mouse_exited: (e) ->
         mouse_over: (e) ->
