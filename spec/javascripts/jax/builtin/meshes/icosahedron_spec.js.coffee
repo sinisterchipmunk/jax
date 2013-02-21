@@ -9,17 +9,31 @@ describe "Jax.Mesh.Icosahedron", ->
 
   describe "its faces", ->
 
-    it "should have 20 faces", ->
+    it "should be 20", ->
       #fixme
+
+    it "should be equilateral triangles", ->
+      #fixme
+
+    it "should organize in centrally symmetric pairs", ->
+      #fixme
+
 
   describe "its vertices", ->
 
-    it "should have 12 vertices", ->
+    it "should be 12", ->
+      #fixme
+
+    it "should all have the same length", ->
+      #fixme
+
+    it "should organize in diametrally opposite pairs", ->
       #fixme
 
 
+
   it "should build successfully", ->
-    icosa.init verts, colors, texes, norms
+    icosa.init verts, colors, texes, norms # not sure
 
   it "should rebuild successfully", ->
     for i in [0..10] # why 10 times specifically ?

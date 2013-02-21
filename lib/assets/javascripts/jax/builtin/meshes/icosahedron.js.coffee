@@ -16,7 +16,6 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
 
   g = ( 1 + Math.sqrt( 5 ) ) / 2 # golden ratio
 
-
   u = 2/11
   v = 1/3
 
@@ -80,8 +79,10 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
         texes.push uv[0] * u
         texes.push uv[1] * v
 
-    # fixme
-#    norms.push v for v in icosahedron.normals
-#    indices.push v for v in icosahedron.indices
+    #this.recalculateNormals # or, cached version
+    #norms.push v for v in icosahedron.normals
+
+    # fixme what is this?
+    #indices.push v for v in icosahedron.indices
 
     true # don't return an array, it's faster
