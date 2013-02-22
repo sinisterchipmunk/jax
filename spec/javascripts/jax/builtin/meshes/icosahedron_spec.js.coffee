@@ -1,4 +1,43 @@
 
+getIcosahedronVerticesAsVectors = (icosahedron) ->
+
+  vertices = []
+  i = 0
+  v = [];
+
+  for f in icosahedron.data.vertexWrapper.buffer
+
+    v.push f
+    i++
+
+    if i > 2
+      vertices.push( vec3.create v )
+      i = 0
+      v = []
+
+  vertices
+
+
+unique = (objAry) -> # fixme
+  results = []
+
+  valMatch = (seen, obj) ->
+    for other in seen
+      match = true
+      for key, val of obj
+        match = false unless other[key] == val
+      return true if match
+    false
+
+  objAry.forEach (item) ->
+    unless valMatch(results, item)
+      results.push(item)
+
+  results
+
+
+###################################
+
 describe "Jax.Mesh.Icosahedron", ->
   icosa = null
   verts = colors = texes = norms = null
@@ -6,7 +45,6 @@ describe "Jax.Mesh.Icosahedron", ->
   beforeEach ->
     [verts, colors, texes, norms] = [[], [], [], []]
     icosa = new Jax.Mesh.Icosahedron()
-
 
   it "should build successfully", ->
     icosa.init verts, colors, texes, norms
@@ -20,8 +58,9 @@ describe "Jax.Mesh.Icosahedron", ->
 
   describe "its faces", ->
 
-    beforeEach ->
-      icosa.rebuild()
+    #beforeEach ->
+      #icosa.rebuild()
+
 
     # Is there a (high-level) way of getting the faces ?
     # Is it the model's job ?
@@ -38,11 +77,21 @@ describe "Jax.Mesh.Icosahedron", ->
 
   describe "its vertices", ->
 
-    it "should be 12", ->
-      expect(icosa.data.vertexBuffer.length).toBe(12*3);
+    vertices = null;
 
-    it "should all have the same length", ->
-      #fixme: can i haz vertices as Vector3's ? If not, why not ? Perf ? Maybe it's the model's job too ?
+    beforeEach ->
+      vertices = getIcosahedronVerticesAsVectors icosa
+
+    it "should be 12", ->
+      console.log 'vertices', vertices
+      expect(vertices.length).toBe(60) # 20 faces, 3 vertices each
+      # test that the 60 vertices are actually 12
+#      uniqueVertices = unique vertices
+#      expect(uniqueVertices.length).toBe(12)
+
+    it "should all have the size of the icosahedron as length", ->
+      for v in vertices
+        expect(vec3.length(v)).toBeCloseTo(icosa.size)
 
     it "should organize in diametrally opposite pairs", ->
       #fixme

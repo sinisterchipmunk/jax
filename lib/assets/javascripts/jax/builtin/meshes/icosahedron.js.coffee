@@ -19,13 +19,13 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
   u = 2/11
   v = 1/3
 
-  icosahedron = [
-    vertices = [
+  icosahedron = {
+    vertices : [
       [ -1,  g,  0 ], [  1,  g,  0 ], [ -1, -g,  0 ], [  1, -g,  0 ],
       [  0, -1,  g ], [  0,  1,  g ], [  0, -1, -g ], [  0,  1, -g ],
       [  g,  0, -1 ], [  g,  0,  1 ], [ -g,  0, -1 ], [ -g,  0,  1 ],
     ],
-    faces = [ # storing vertices' ids
+    faces : [ # storing vertices' ids
       [  0, 11,  5 ], [  0,  5,  1 ], [  0,  1,  7 ], [  7,  1,  8 ],
       [  8,  6,  7 ], [ 10,  7,  6 ], [  0,  7, 10 ], [  0, 10, 11 ],
       [ 11, 10,  2 ], [  6,  2, 10 ], [  3,  2,  6 ], [  3,  6,  8 ],
@@ -33,7 +33,7 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
       [  5, 11,  4 ], [  4,  9,  5 ], [  1,  5,  9 ], [  9,  8,  1 ],
     ],
     # UVs for each base face, matching http://upload.wikimedia.org/wikipedia/commons/d/dd/Icosahedron_flat.svg
-    facesUVs = [
+    facesUVs : [
       [ [   1,   1 ], [ 1/2,   0 ], [   0,   1 ] ],
       [ [   1,   1 ], [   0,   1 ], [ 1/2,   2 ] ],
       [ [   1,   1 ], [ 1/2,   2 ], [ 3/2,   2 ] ],
@@ -59,7 +59,7 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
       [ [11/2,   2 ], [   5,   1 ], [ 9/2,   2 ] ],
       [ [ 9/2,   2 ], [   5,   3 ], [11/2,   2 ] ],
     ]
-  ]
+  }
 
   constructor: (options = {}) ->
     @size = 1
@@ -82,7 +82,7 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
     #this.recalculateNormals # or, cached version
     #norms.push v for v in icosahedron.normals
 
-    # fixme what is this?
+    # not needed
     #indices.push v for v in icosahedron.indices
 
     true # don't return an array, it's faster
