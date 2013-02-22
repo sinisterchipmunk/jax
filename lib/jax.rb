@@ -1,3 +1,6 @@
+# Fix for #74 - make Jax work on ruby 1.8.7
+require 'active_support/core_ext/kernel/singleton_class'
+
 require 'rails'
 require 'jquery/rails'
 require 'jax/engine'
