@@ -100,7 +100,17 @@ describe "Jax.Mesh.Icosahedron", ->
         expect(vec3.length(v)).toBeCloseTo(icosa.size)
 
     it "should organize in diametrally opposite pairs", ->
-      #fixme
+      dest = vec3.create()
+      zero = vec3.create()
+      for v1 in uniqueVertices
+        found = false
+        for v2 in uniqueVertices
+          vec3.add v1, v2, dest
+          if vec3.equal dest, zero
+            found = true
+            break
+        expect(found).toBeTrue()
+
 
 
 
