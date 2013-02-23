@@ -1,37 +1,46 @@
 
-getIcosahedronVerticesAsVectors = (icosahedron) ->
+###
+Costly, for testing
 
-  vertices = []
+@param  {Jax.Mesh}
+@return {Array} of 3D vectors
+###
+getMeshVerticesAsVectors = (mesh) ->
+  [vertices, vector] = [ [], [] ]
   i = 0
-  v = [];
 
-  for f in icosahedron.data.vertexWrapper.buffer
+  for coordinate in mesh.data.vertexWrapper.buffer # or mesh.data.vertexBuffer ?
 
-    v.push f
+    vector.push coordinate
     i++
 
     if i > 2
-      vertices.push( vec3.create v )
-      i = 0
-      v = []
+      vertices.push( vec3.create vector )
+      vector.length = i =0
 
   vertices
 
 
-unique = (objAry) -> # fixme
+###
+Returns an array containing the elements of iterable, without any doubles
+Todo: make results of the same type as iterable
+
+@param {Array|Object} iterable
+@return {Array}
+###
+unique = (iterable) ->
   results = []
 
-  valMatch = (seen, obj) ->
-    for other in seen
+  contains = (haystack, needle) ->
+    for straw in haystack
       match = true
-      for key, val of obj
-        match = false unless other[key] == val
+      for value, key in needle
+        match = false unless straw[key] == value
       return true if match
     false
 
-  objAry.forEach (item) ->
-    unless valMatch(results, item)
-      results.push(item)
+  for item in iterable
+    results.push(item) unless contains(results, item)
 
   results
 
@@ -62,9 +71,6 @@ describe "Jax.Mesh.Icosahedron", ->
       #icosa.rebuild()
 
 
-    # Is there a (high-level) way of getting the faces ?
-    # Is it the model's job ?
-
     it "should be 20", ->
       #fixme
 
@@ -77,17 +83,17 @@ describe "Jax.Mesh.Icosahedron", ->
 
   describe "its vertices", ->
 
-    vertices = null;
+    vertices = uniqueVertices = null;
 
     beforeEach ->
-      vertices = getIcosahedronVerticesAsVectors icosa
+      vertices = getMeshVerticesAsVectors icosa
+      uniqueVertices = unique vertices
 
-    it "should be 12", ->
-      console.log 'vertices', vertices
-      expect(vertices.length).toBe(60) # 20 faces, 3 vertices each
-      # test that the 60 vertices are actually 12
-#      uniqueVertices = unique vertices
-#      expect(uniqueVertices.length).toBe(12)
+    it "should be 60 overall (20 faces, 3 vertices each)", ->
+      expect(vertices.length).toBe(60)
+
+    it "should regroup in 12 unique vertices", ->
+      expect(uniqueVertices.length).toBe(12)
 
     it "should all have the size of the icosahedron as length", ->
       for v in vertices
