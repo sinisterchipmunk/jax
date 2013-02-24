@@ -16,9 +16,37 @@ getMeshVerticesAsVectors = (mesh) ->
 
     if i > 2
       vertices.push( vec3.create vector )
-      vector.length = i =0
+      vector.length = i = 0
 
   vertices
+
+
+getMeshFacesAsTriangles = (mesh) ->
+  faces = []
+  face = []
+  vertices = getMeshVerticesAsVectors mesh
+  i = 0
+
+  for vertice in vertices
+
+    face.push vertice
+    i++
+
+    if i > 2
+      faces.push( new Jax.Geometry.Triangle(face[0], face[1], face[2]) )
+      face.length = i = 0
+
+  faces
+
+###
+@return {Boolean}
+###
+Jax.Geometry.Triangle.prototype.isEquilateral = () ->
+  distA = vec3.dist this.center, this.a
+  distB = vec3.dist this.center, this.b
+  distC = vec3.dist this.center, this.c
+
+  Math.equalish(distA, distB) && Math.equalish(distB, distC)
 
 
 ###
@@ -67,15 +95,18 @@ describe "Jax.Mesh.Icosahedron", ->
 
   describe "its faces", ->
 
-    #beforeEach ->
-      #icosa.rebuild()
+    faces = null
+
+    beforeEach ->
+      faces = getMeshFacesAsTriangles icosa
 
 
     it "should be 20", ->
-      #fixme
+      expect(faces.length).toBe(20)
 
     it "should be equilateral triangles", ->
-      #fixme
+      for face in faces
+        expect(face.isEquilateral()).toBeTrue()
 
     it "should organize in centrally symmetric pairs", ->
       #fixme
