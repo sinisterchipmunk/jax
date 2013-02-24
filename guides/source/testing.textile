@@ -6,14 +6,14 @@ endprologue.
 
 h3. Testing your Application
 
-This should be pretty straightforward, see the "getting started guide":getting_started.html#Write_Some_Tests
+This should be pretty straightforward, see the "getting started guide":getting_started.html#write-some-tests
 
 h3. Testing JAX itself
 
 # Clone "the repository":https://github.com/sinisterchipmunk/jax
 # Run @rake install@
 # Run @rake server@
-# Visit the "jasmine test suite":http://localhost:3000
+# Visit the "local jasmine test suite":http://localhost:3000
 
 Jasmine specs are hosted in @spec/javascripts/@.
 
