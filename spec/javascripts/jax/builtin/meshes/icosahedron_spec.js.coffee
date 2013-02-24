@@ -39,27 +39,25 @@ Equilateral :
   - its sides are of the same length
   - its vertices are at the same distance of the center
 
-Maybe this should not rely on the center being computed ?
-
 @return {Boolean}
 ###
 Jax.Geometry.Triangle.prototype.isEquilateral = () ->
-  distA = vec3.dist @center, @a
-  distB = vec3.dist @center, @b
-  distC = vec3.dist @center, @c
+  distA = vec3.dist @a, @b
+  distB = vec3.dist @b, @c
+  distC = vec3.dist @c, @a
 
   Math.equalish(distA, distB) && Math.equalish(distB, distC)
 
+###################################
 
 ###
-Returns an array containing the elements of iterable,
+Returns an array containing the elements of passed array,
 but without any duplicates
-Todo: make results of the same type as iterable
 
-@param {Array|Object} iterable
+@param {Array} array with duplicates
 @return {Array}
 ###
-unique = (iterable) ->
+trim_duplicates = (array) ->
   results = []
 
   contains = (haystack, needle) ->
@@ -70,15 +68,15 @@ unique = (iterable) ->
       return true if match
     false
 
-  for item in iterable
+  for item in array
     results.push(item) unless contains(results, item)
 
   results
 
-
 ###################################
 
 describe "Jax.Mesh.Icosahedron", ->
+
   icosa = null
   verts = colors = texes = norms = null
   
@@ -132,7 +130,7 @@ describe "Jax.Mesh.Icosahedron", ->
 
     beforeEach ->
       vertices = icosa.getVerticesAsVectors()
-      uniqueVertices = unique vertices
+      uniqueVertices = trim_duplicates vertices
 
     it "should be 60 overall (20 faces, 3 vertices each)", ->
       expect(vertices.length).toBe(60)
