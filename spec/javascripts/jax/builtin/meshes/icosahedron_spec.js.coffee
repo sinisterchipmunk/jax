@@ -1,30 +1,34 @@
 
 ###
-Costly, for testing
+Costly high level accessor
 
-@param  {Jax.Mesh}
 @return {Array} of 3D vectors
 ###
-getMeshVerticesAsVectors = (mesh) ->
-  [vertices, vector] = [ [], [] ]
+Jax.Mesh.Base.prototype.getVerticesAsVectors = () ->
+  [vertices, vector] = [[], []]
   i = 0
 
-  for coordinate in mesh.data.vertexWrapper.buffer # or mesh.data.vertexBuffer ?
+  for coordinate in @data.vertexWrapper.buffer # or maybe @data.vertexBuffer ?
 
     vector.push coordinate
     i++
 
     if i > 2
-      vertices.push( vec3.create vector )
+      vertices.push(vec3.create vector)
       vector.length = i = 0
 
   vertices
 
 
-getMeshFacesAsTriangles = (mesh) ->
-  faces = []
-  face = []
-  vertices = getMeshVerticesAsVectors mesh
+###
+Costly high level accessor
+Should be rewritten without using @getVerticesAsVectors (perfs!)
+
+@return {Array} of Jax.Geometry.Triangle
+###
+Jax.Mesh.Triangles.prototype.getFacesAsTriangles = () ->
+  [faces, face ] = [[], []]
+  vertices = @getVerticesAsVectors()
   i = 0
 
   for vertice in vertices
@@ -33,24 +37,33 @@ getMeshFacesAsTriangles = (mesh) ->
     i++
 
     if i > 2
-      faces.push( new Jax.Geometry.Triangle(face[0], face[1], face[2]) )
+      faces.push(new Jax.Geometry.Triangle(face[0], face[1], face[2]))
       face.length = i = 0
 
   faces
 
+
 ###
+Is this triangle equilateral ?
+Equilateral :
+  - its sides are of the same length
+  - its vertices are at the same distance of the center
+
+Maybe this should not rely on the center being computed ?
+
 @return {Boolean}
 ###
 Jax.Geometry.Triangle.prototype.isEquilateral = () ->
-  distA = vec3.dist this.center, this.a
-  distB = vec3.dist this.center, this.b
-  distC = vec3.dist this.center, this.c
+  distA = vec3.dist @center, @a
+  distB = vec3.dist @center, @b
+  distC = vec3.dist @center, @c
 
   Math.equalish(distA, distB) && Math.equalish(distB, distC)
 
 
 ###
-Returns an array containing the elements of iterable, without any doubles
+Returns an array containing the elements of iterable,
+but without any duplicates
 Todo: make results of the same type as iterable
 
 @param {Array|Object} iterable
@@ -92,24 +105,35 @@ describe "Jax.Mesh.Icosahedron", ->
       icosa.rebuild()
       expect(icosa.data.vertexBuffer.length).toBeGreaterThan(0)
 
+  it "should render successfully", ->
+    icosa.render SPEC_CONTEXT # or @context ?
+
 
   describe "its faces", ->
 
     faces = null
 
     beforeEach ->
-      faces = getMeshFacesAsTriangles icosa
-
+      faces = icosa.getFacesAsTriangles()
 
     it "should be 20", ->
       expect(faces.length).toBe(20)
 
     it "should be equilateral triangles", ->
-      for face in faces
-        expect(face.isEquilateral()).toBeTrue()
+      for triangle in faces
+        expect(triangle.isEquilateral()).toBeTrue()
 
     it "should organize in centrally symmetric pairs", ->
-      #fixme
+      dest = vec3.create()
+      zero = vec3.create()
+      for t1 in faces
+        found = false
+        for t2 in faces
+          vec3.add t1.center, t2.center, dest
+          if vec3.equal dest, zero
+            found = true
+            break
+        expect(found).toBeTrue()
 
 
   describe "its vertices", ->
@@ -117,7 +141,7 @@ describe "Jax.Mesh.Icosahedron", ->
     vertices = uniqueVertices = null;
 
     beforeEach ->
-      vertices = getMeshVerticesAsVectors icosa
+      vertices = icosa.getVerticesAsVectors()
       uniqueVertices = unique vertices
 
     it "should be 60 overall (20 faces, 3 vertices each)", ->
@@ -143,33 +167,11 @@ describe "Jax.Mesh.Icosahedron", ->
         expect(found).toBeTrue()
 
 
+  describe "its colors", ->
 
-
-
-  it "should default all colors to white", ->
-    for ofs in [0...icosa.data.colorBuffer.length] by 4
-      expect(icosa.data.colorBuffer[ofs+0]).toEqual 1
-      expect(icosa.data.colorBuffer[ofs+1]).toEqual 1
-      expect(icosa.data.colorBuffer[ofs+2]).toEqual 1
-      expect(icosa.data.colorBuffer[ofs+3]).toEqual 1
-
-  it "should allow altering of face color prior to build", ->
-    #fixme
-#    cube.left.color = "#ff0000ff"
-#    colors = cube.data.colorBuffer;
-#    expect(colors).toIncludeSubset([1, 0, 0, 1]);
-
-  it "should allow altering of face color after build", ->
-    #fixme
-#    cube.validate();
-#    cube.left.color = "#ff0000ff"
-#    colors = cube.data.colorBuffer;
-#    expect(colors).toIncludeSubset([1, 0, 0, 1]);
-
-  describe "when a side has been changed", ->
-    it "should update its vertices", ->
-      #fixme
-#      expect(cube.bounds.width).not.toEqual 10.5 # sanity check
-#      cube.rebuild();
-#      cube.left.camera.position = [10, 0, 0];
-#      expect(cube.bounds.width).toEqual 10.5
+    it "should default to white", ->
+      for ofs in [0...icosa.data.colorBuffer.length] by 4
+        expect(icosa.data.colorBuffer[ofs+0]).toEqual 1
+        expect(icosa.data.colorBuffer[ofs+1]).toEqual 1
+        expect(icosa.data.colorBuffer[ofs+2]).toEqual 1
+        expect(icosa.data.colorBuffer[ofs+3]).toEqual 1
