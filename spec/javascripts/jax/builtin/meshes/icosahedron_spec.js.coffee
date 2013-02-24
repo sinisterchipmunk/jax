@@ -1,44 +1,34 @@
 
 ###
-Costly high level accessor
+Costly high level vertices accessor
 
 @return {Array} of 3D vectors
 ###
 Jax.Mesh.Base.prototype.getVerticesAsVectors = () ->
-  [vertices, vector] = [[], []]
-  i = 0
+  vertices = []
+  data = @data.vertexBuffer
 
-  for coordinate in @data.vertexWrapper.buffer # or maybe @data.vertexBuffer ?
-
-    vector.push coordinate
-    i++
-
-    if i > 2
-      vertices.push(vec3.create vector)
-      vector.length = i = 0
+  for i in [0...data.length] by 3 # data.length is _ref'd by coffee
+    vertices.push(vec3.create [data[i],data[i+1],data[i+2]])
 
   vertices
 
 
 ###
-Costly high level accessor
-Should be rewritten without using @getVerticesAsVectors (perfs!)
+Costly high level faces accessor
 
 @return {Array} of Jax.Geometry.Triangle
 ###
 Jax.Mesh.Triangles.prototype.getFacesAsTriangles = () ->
-  [faces, face ] = [[], []]
-  vertices = @getVerticesAsVectors()
-  i = 0
+  faces = []
+  data = @data.vertexBuffer
 
-  for vertice in vertices
-
-    face.push vertice
-    i++
-
-    if i > 2
-      faces.push(new Jax.Geometry.Triangle(face[0], face[1], face[2]))
-      face.length = i = 0
+  for i in [0...data.length] by 9
+    faces.push(new Jax.Geometry.Triangle(
+      [data[i+0],data[i+1],data[i+2]],
+      [data[i+3],data[i+4],data[i+5]],
+      [data[i+6],data[i+7],data[i+8]]
+    ))
 
   faces
 
