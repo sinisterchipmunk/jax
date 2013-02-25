@@ -1,8 +1,6 @@
 ###
 An Icosahedron mesh, which is a regular polyhedron with 20 equilateral triangles as sides
 
-¡ WORK IN PROGRESS !
-
 Options:
 
 * size : the size of the icosahedron in units. Defaults to 1.0.
@@ -25,7 +23,7 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
       [  0, -1,  g ], [  0,  1,  g ], [  0, -1, -g ], [  0,  1, -g ],
       [  g,  0, -1 ], [  g,  0,  1 ], [ -g,  0, -1 ], [ -g,  0,  1 ],
     ],
-    faces : [ # storing vertices' ids
+    faces : [ # storing vertices' indexes
       [  0, 11,  5 ], [  0,  5,  1 ], [  0,  1,  7 ], [  7,  1,  8 ],
       [  8,  6,  7 ], [ 10,  7,  6 ], [  0,  7, 10 ], [  0, 10, 11 ],
       [ 11, 10,  2 ], [  6,  2, 10 ], [  3,  2,  6 ], [  3,  6,  8 ],
@@ -65,24 +63,25 @@ class Jax.Mesh.Icosahedron extends Jax.Mesh.Triangles
     @size = 1
     super options
 
-  init: (verts, colors, texes, norms, indices) ->
+  init: (vertices, colors, textureCoords, normals, vertexIndices, tangents, bitangents) ->
 
-    scale = @size / ( Math.sqrt( ( 5 + Math.sqrt(5) ) / 2 ) ) # normalize vertices
+    vertL = ( Math.sqrt( ( 5 + Math.sqrt(5) ) / 2 ) ) # length of the icosahedron.vertices
+    scale = @size / vertL # normalize vertices on mesh size
 
+    # Vertices & vertices' normals
     for face in icosahedron.faces
       for vIndex in face
         for vCoord in icosahedron.vertices[vIndex]
-          verts.push scale * vCoord
+          vertices.push vCoord * scale
+          normals.push vCoord / vertL
 
+    # UVs
     for faceUVs in icosahedron.facesUVs
       for uv in faceUVs
-        texes.push uv[0] * u
-        texes.push uv[1] * v
+        textureCoords.push uv[0] * u
+        textureCoords.push uv[1] * v
 
-    #this.recalculateNormals # or, cached version
-    #norms.push v for v in icosahedron.normals
-
-    # not needed
-    #indices.push v for v in icosahedron.indices
+    # Tangents todo
+    # Bitangents todo
 
     true # don't return an array, it's faster
