@@ -4,6 +4,7 @@ class Jax.Input.Mouse extends Jax.Input
     release: 'mouseup'
     move:    'mousemove'
     over:    'mouseover'
+    wheel:   'mousewheel'
     exit:    'mouseout'
     
   ###
@@ -139,7 +140,10 @@ class Jax.Input.Mouse extends Jax.Input
     unless @_entered
       @_entered = true
       @fireEvent 'enter', e
-    
+
+  wheel: (e) ->
+    @fireEvent 'wheel', e
+
   exit: (e) ->
     @_entered = false
     # when mouse leaves canvas, stop 'dragging'
