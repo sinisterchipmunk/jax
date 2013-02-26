@@ -6,7 +6,7 @@ Options:
 * size : the size of the geode in units. Defaults to 1.0.
 * complexity : the number of times each face is divided into 4 triangles. Defaults to 0.
 
-@todo: think! name `complexity` differently ? detail ? level ? depth ?
+@todo: think! name `complexity` differently ? detail ? level ? depth ? divisions ? subdivisions ?
 
 Example:
 
@@ -71,9 +71,7 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
     size = @size
 
-    _vA = vec3.create()
-    _vB = vec3.create()
-    _vC = vec3.create()
+    _vA = vec3.create() ; _vB = vec3.create() ; _vC = vec3.create()
     recursiveInit = (vA, vB, vC, detail) ->
       if detail < 1
         vec3.normalize(vA, _vA)
@@ -90,10 +88,10 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         midBC = vec3.scale( vec3.add(vB, vC, vec3.create()), 1/2 )
         midCA = vec3.scale( vec3.add(vC, vA, vec3.create()), 1/2 )
 
-        recursiveInit vA, midAB, midCA, detail
-        recursiveInit midAB, vB, midBC, detail
-        recursiveInit midCA, midBC, vC, detail
-        recursiveInit midAB, midBC, midCA, detail
+        recursiveInit vA, midAB, midCA, detail # top
+        recursiveInit midAB, vB, midBC, detail # left
+        recursiveInit midCA, midBC, vC, detail # right
+        recursiveInit midAB, midBC, midCA, detail # center
       true
 
     # Vertices & vertices' normals
@@ -105,64 +103,24 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         @complexity
       )
 
-    # precision problems
-#    vertL = ( Math.sqrt( ( 5 + Math.sqrt(5) ) / 2 ) ) # length of the icosahedron.vertices
-#    scale = @size / vertL # normalize vertices on mesh size
-#    theta = 0.5535743588970451 # Math.acos(g/vertL)
-#    complexity = @complexity
-#    size = @size
-#    recursiveInit = (vAx, vAy, vAz, vBx, vBy, vBz, vCx, vCy, vCz, detail) ->
-#      if detail < 1
-#        vertices.push vAx*scale, vAy*scale, vAz*scale, vBx*scale, vBy*scale, vBz*scale, vCx*scale, vCy*scale, vCz*scale
-#        normals.push  vAx/vertL, vAy/vertL, vAz/vertL, vBx/vertL, vBy/vertL, vBz/vertL, vCx/vertL, vCy/vertL, vCz/vertL
-#      else
-#        s = 1 / ( 2 * Math.cos( theta / Math.pow(2, complexity - detail) ) )
-#        detail--
-#        # top
-#        recursiveInit(
-#          vAx, vAy, vAz,
-#          (vAx + vBx) * s, (vAy + vBy) * s, (vAz + vBz) * s,
-#          (vAx + vCx) * s, (vAy + vCy) * s, (vAz + vCz) * s,
-#          detail
-#        )
-#        # left
-#        recursiveInit(
-#          (vAx + vBx) * s, (vAy + vBy) * s, (vAz + vBz) * s,
-#          vBx, vBy, vBz,
-#          (vBx + vCx) * s, (vBy + vCy) * s, (vBz + vCz) * s,
-#          detail
-#        )
-#        # right
-#        recursiveInit(
-#          (vAx + vCx) * s, (vAy + vCy) * s, (vAz + vCz) * s,
-#          (vBx + vCx) * s, (vBy + vCy) * s, (vBz + vCz) * s,
-#          vCx, vCy, vCz,
-#          detail
-#        )
-#        # center
-#        recursiveInit(
-#          (vAx + vBx) * s, (vAy + vBy) * s, (vAz + vBz) * s,
-#          (vBx + vCx) * s, (vBy + vCy) * s, (vBz + vCz) * s,
-#          (vAx + vCx) * s, (vAy + vCy) * s, (vAz + vCz) * s,
-#          detail
-#        )
-#      true
+    recursiveInitUV = (uvA, uvB, uvC, detail) ->
+      if detail < 1
+        textureCoords.push uvA[0] * u, uvA[1] * v, uvB[0] * u, uvB[1] * v, uvC[0] * u, uvC[1] * v
+      else
+        detail--
+        midAB = vec2.scale( vec2.add(uvA, uvB, vec2.create()), 1/2 )
+        midBC = vec2.scale( vec2.add(uvB, uvC, vec2.create()), 1/2 )
+        midCA = vec2.scale( vec2.add(uvC, uvA, vec2.create()), 1/2 )
 
-#    for face in icosahedron.faces
-#      recursiveInit(
-#        icosahedron.vertices[face[0]][0], icosahedron.vertices[face[0]][1], icosahedron.vertices[face[0]][2],
-#        icosahedron.vertices[face[1]][0], icosahedron.vertices[face[1]][1], icosahedron.vertices[face[1]][2],
-#        icosahedron.vertices[face[2]][0], icosahedron.vertices[face[2]][1], icosahedron.vertices[face[2]][2],
-#        @complexity
-#      )
+        recursiveInitUV uvA, midAB, midCA, detail # top
+        recursiveInitUV midAB, uvB, midBC, detail # left
+        recursiveInitUV midCA, midBC, uvC, detail # right
+        recursiveInitUV midAB, midBC, midCA, detail # center
+      true
 
-
-
-    # UVs fixme
+    # UVs
     for faceUVs in icosahedron.facesUVs
-      for uv in faceUVs
-        textureCoords.push uv[0] * u
-        textureCoords.push uv[1] * v
+      recursiveInitUV vec2.create(faceUVs[0]), vec2.create(faceUVs[1]), vec2.create(faceUVs[2]), @complexity
 
     # Tangents todo
     # Bitangents todo
