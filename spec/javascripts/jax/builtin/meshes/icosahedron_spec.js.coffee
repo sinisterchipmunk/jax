@@ -4,7 +4,7 @@ Costly high level vertices accessor
 
 @return {Array} of 3D vectors
 ###
-Jax.Mesh.Base.prototype.getVerticesAsVectors = () ->
+Jax.Mesh.Base::getVerticesAsVectors = () ->
   vertices = []
   data = @data.vertexBuffer
 
@@ -19,7 +19,7 @@ Costly high level faces accessor
 
 @return {Array} of Jax.Geometry.Triangle
 ###
-Jax.Mesh.Triangles.prototype.getFacesAsTriangles = () ->
+Jax.Mesh.Triangles::getFacesAsTriangles = () ->
   faces = []
   data = @data.vertexBuffer
 
@@ -41,39 +41,13 @@ Equilateral :
 
 @return {Boolean}
 ###
-Jax.Geometry.Triangle.prototype.isEquilateral = () ->
+Jax.Geometry.Triangle::isEquilateral = () ->
   distA = vec3.dist @a, @b
   distB = vec3.dist @b, @c
   distC = vec3.dist @c, @a
 
   Math.equalish(distA, distB) && Math.equalish(distB, distC)
 
-###################################
-
-###
-Returns an array containing the elements of passed array,
-but without any duplicates
-
-@param {Array} array with duplicates
-@return {Array}
-###
-trim_duplicates = (array) ->
-  results = []
-
-  contains = (haystack, needle) ->
-    for straw in haystack
-      match = true
-      for value, key in needle
-        match = false unless straw[key] == value
-      return true if match
-    false
-
-  for item in array
-    results.push(item) unless contains(results, item)
-
-  results
-
-###################################
 
 describe "Jax.Mesh.Icosahedron", ->
 
@@ -130,7 +104,7 @@ describe "Jax.Mesh.Icosahedron", ->
 
     beforeEach ->
       vertices = icosa.getVerticesAsVectors()
-      uniqueVertices = trim_duplicates vertices
+      uniqueVertices = Jax.Util.trim_duplicates vertices
 
     it "should be 60 overall (20 faces, 3 vertices each)", ->
       expect(vertices.length).toBe(60)

@@ -2,18 +2,20 @@ describe "Jax.Mesh.GeodesicSphere", ->
 
   geode = null
   vertices = colors = textureCoords = vertexNormals = null
-  complexity = 0
+#  complexity = 0
 
   beforeEach ->
     [vertices, colors, textureCoords, vertexNormals] = [[], [], [], []]
 
 
-  for complexity in [0..2] by 1
+  for complexity in [0..3] by 1
 
     describe "For complexity "+complexity, ->
 
+      scopedComplexity = complexity
+
       beforeEach ->
-        geode = new Jax.Mesh.GeodesicSphere({complexity: complexity})
+        geode = new Jax.Mesh.GeodesicSphere({complexity: scopedComplexity})
 
       it "should build successfully", ->
         geode.init vertices, colors, textureCoords, vertexNormals
@@ -38,10 +40,6 @@ describe "Jax.Mesh.GeodesicSphere", ->
 
         it "should be "+(expectedFacesLength), ->
           expect(faces.length).toBe(expectedFacesLength) # tautologging ^-^
-
-        it "should be equilateral triangles", ->
-          for triangle in faces
-            expect(triangle.isEquilateral()).toBeTrue()
 
         it "should organize in centrally symmetric pairs", ->
           dest = vec3.create()
