@@ -1,8 +1,9 @@
+# fixme: require prototype methods defined in icosahedron_spec
+
 describe "Jax.Mesh.GeodesicSphere", ->
 
   geode = null
   vertices = colors = textureCoords = vertexNormals = null
-#  complexity = 0
 
   beforeEach ->
     [vertices, colors, textureCoords, vertexNormals] = [[], [], [], []]

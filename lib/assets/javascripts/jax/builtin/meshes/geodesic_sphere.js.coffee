@@ -69,8 +69,7 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
   init: (vertices, colors, textureCoords, normals, vertexIndices, tangents, bitangents) ->
 
-    vertL = ( Math.sqrt( ( 5 + Math.sqrt(5) ) / 2 ) ) # length of the icosahedron.vertices
-    scale = @size / vertL # normalize vertices on mesh size
+    size = @size
 
     _vA = vec3.create()
     _vB = vec3.create()
@@ -107,6 +106,8 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
       )
 
     # precision problems
+#    vertL = ( Math.sqrt( ( 5 + Math.sqrt(5) ) / 2 ) ) # length of the icosahedron.vertices
+#    scale = @size / vertL # normalize vertices on mesh size
 #    theta = 0.5535743588970451 # Math.acos(g/vertL)
 #    complexity = @complexity
 #    size = @size
