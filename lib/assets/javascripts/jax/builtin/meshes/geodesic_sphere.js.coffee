@@ -122,7 +122,6 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
     for faceUVs in icosahedron.facesUVs
       recursiveInitUV vec2.create(faceUVs[0]), vec2.create(faceUVs[1]), vec2.create(faceUVs[2]), @complexity
 
-    # Tangents todo
-    # Bitangents todo
+    # Tangents & Bitangents : should we pre-compute them ?
 
     true # don't return an array, it's faster

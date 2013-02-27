@@ -104,7 +104,7 @@ describe "Jax.Mesh.Icosahedron", ->
 
     beforeEach ->
       vertices = icosa.getVerticesAsVectors()
-      uniqueVertices = Jax.Util.trim_duplicates vertices
+      uniqueVertices = Jax.Util.trimDuplicates vertices
 
     it "should be 60 overall (20 faces, 3 vertices each)", ->
       expect(vertices.length).toBe(60)

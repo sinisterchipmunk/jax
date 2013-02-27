@@ -9,7 +9,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
     [vertices, colors, textureCoords, vertexNormals] = [[], [], [], []]
 
 
-  for complexity in [0..3] by 1
+  for complexity in [0..4] by 1
 
     describe "For complexity "+complexity, ->
 
@@ -62,7 +62,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
 
         beforeEach ->
           vertices = geode.getVerticesAsVectors()
-          uniqueVertices = Jax.Util.trim_duplicates vertices
+          uniqueVertices = Jax.Util.trimDuplicates vertices
 
         it "should be "+expectedVerticesLength+" overall", ->
           expect(vertices.length).toBe(expectedVerticesLength)
