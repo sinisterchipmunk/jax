@@ -266,10 +266,10 @@ Next, we need the controller to add it to the scene. Edit your controller file a
 <js>
 index: ->
   # ...
-  @world.addLightSource "sun"
+  @world.addLight "sun"
 </js>
 
-Now edit the file the generator created, +app/assets/jax/resources/light_sources/sun.resource+, and change the +direction+ field to look like this:
+Now edit the file the generator created, +app/assets/jax/resources/lights/sun.resource+, and change the +direction+ field to look like this:
 
 <yaml>
 direction:
@@ -302,10 +302,10 @@ Again, add the light source to the scene from the controller +app/assets/jax/con
 <js>
 index ->
   # ...
-  @world.addLightSource "candle"
+  @world.addLight "candle"
 </js>
 
-And again, edit the generated file, +app/assets/jax/resources/light_sources/candle.yml+, and change the +position+ field to look like this:
+And again, edit the generated file, +app/assets/jax/resources/lights/candle.yml+, and change the +position+ field to look like this:
 
 <yaml>
 position:
@@ -361,12 +361,12 @@ Like the others, add this light to the scene in +app/assets/jax/controllers/teap
 <js>
 index: ->
   # ...
-  @world.addLightSource "searchlight"
+  @world.addLight "searchlight"
 </js>
 
 This time, we'll alter the position and direction to shine toward, but not directly upon, the teapot; we'll also alter the color, the angle of the spotlight (that is, the width of the cone), and the spot exponent, which represents how fast light fades out from the center of the cone. With a spot exponent of zero, the spotlight's cone should be quite clearly defined.
 
-The file to edit is +app/assets/jax/resources/light_sources/searchlight.yml+:
+The file to edit is +app/assets/jax/resources/lights/searchlight.yml+:
 
 <yaml>
 position:
@@ -1064,9 +1064,9 @@ addTorches: (world) ->
       for x in [0...row.length]
         # each apostrophe (') represents a light source
         if row[x] == "'"
-          torch = LightSource.find "torch"
+          torch = Light.find "torch"
           torch.camera.setPosition x, 0, z
-          world.addLightSource torch
+          world.addLight torch
 </js>
 
 What this code does is search through the map looking for light sources (denoted by an apostrophe). When it finds one, it instantiates a new point light form the +torch+ resource, sets its position and then adds it to the scene. Since all the walls and floors are offset by half a unit in each direction, the point light will be positioned directly in the middle of the hallway.
@@ -1093,8 +1093,8 @@ $ jax generate light lantern point
 Now, add it to the world via the controller in the +index+ action of +app/assets/jax/controllers/dungeon_controller.js.coffee+:
 
 <js>
-@player.lantern = LightSource.find "lantern"
-@world.addLightSource @player.lantern
+@player.lantern = Light.find "lantern"
+@world.addLight @player.lantern
 </js>
 
 Now that the light source _exists_, we need to make it follow the player around. Since our +update+ method is part of the +UserInputHelper+, we'll want to add a condition to verify that the player actually _has_ a lantern, or else we'll accidentally break our Teapot demo.

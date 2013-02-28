@@ -15,8 +15,8 @@ module Jax
       end
       
       def create_light_source
-        template "light_source.resource.erb",
-          File.join('app/assets/jax/resources/light_sources', "#{file_name}.resource")
+        template "light.resource.erb",
+          File.join('app/assets/jax/resources/lights', "#{file_name}.resource")
       end
     end
   end
