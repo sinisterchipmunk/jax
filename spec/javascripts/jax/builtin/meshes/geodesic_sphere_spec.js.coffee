@@ -9,14 +9,14 @@ describe "Jax.Mesh.GeodesicSphere", ->
     [vertices, colors, textureCoords, vertexNormals] = [[], [], [], []]
 
 
-  for complexity in [0..4] by 1
+  for subdivisions in [0..2] by 1
 
-    describe "For complexity "+complexity, ->
+    describe "With "+subdivisions+" subdivision(s)", ->
 
-      scopedComplexity = complexity
+      _subdivisions = subdivisions
 
       beforeEach ->
-        geode = new Jax.Mesh.GeodesicSphere({complexity: scopedComplexity})
+        geode = new Jax.Mesh.GeodesicSphere({subdivisions: _subdivisions})
 
       it "should build successfully", ->
         geode.init vertices, colors, textureCoords, vertexNormals
@@ -34,7 +34,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
       describe "its faces", ->
 
         faces = null
-        expectedFacesLength = 20 * Math.pow(4,complexity)
+        expectedFacesLength = 20 * Math.pow(4,_subdivisions)
 
         beforeEach ->
           faces = geode.getFacesAsTriangles()
@@ -58,7 +58,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
       describe "its vertices", ->
 
         vertices = uniqueVertices = null
-        expectedVerticesLength = 20 * 3 * Math.pow(4,complexity)
+        expectedVerticesLength = 20 * 3 * Math.pow(4,_subdivisions)
 
         beforeEach ->
           vertices = geode.getVerticesAsVectors()

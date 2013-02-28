@@ -13,5 +13,5 @@ Example:
 class Jax.Mesh.Icosahedron extends Jax.Mesh.GeodesicSphere
 
   constructor: (options = {}) ->
-    options.complexity = 0
+    options.subdivisions = 0
     super options

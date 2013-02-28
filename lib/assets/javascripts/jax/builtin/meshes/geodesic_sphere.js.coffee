@@ -4,23 +4,18 @@ A Geodesic Sphere mesh, which is the fractalization of an icosahedron
 Options:
 
 * size : the size of the geode in units. Defaults to 1.0.
-* complexity : the number of times each face is divided into 4 triangles. Defaults to 0.
-
-@todo: think! name `complexity` differently ? detail ? level ? depth ? divisions ? subdivisions ?
+* subdivisions : the number of times each face is divided into 4 triangles. Defaults to 0.
 
 Example:
 
     new Jax.Mesh.GeodesicSphere
-    new Jax.Mesh.GeodesicSphere size: 2, complexity: 1
+    new Jax.Mesh.GeodesicSphere size: 2, subdivisions: 1
 ###
 class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
   g = ( 1 + Math.sqrt( 5 ) ) / 2 # golden ratio
 
-  u = 2/11
-  v = 1/3
-
-  icosahedron = {
+  icosahedron: {
     vertices : [
       [ -1,  g,  0 ], [  1,  g,  0 ], [ -1, -g,  0 ], [  1, -g,  0 ],
       [  0, -1,  g ], [  0,  1,  g ], [  0, -1, -g ], [  0,  1, -g ],
@@ -34,6 +29,8 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
       [  5, 11,  4 ], [  4,  9,  5 ], [  1,  5,  9 ], [  9,  8,  1 ],
     ],
     # UVs for each base face, matching http://upload.wikimedia.org/wikipedia/commons/d/dd/Icosahedron_flat.svg
+    uvU : 2/11,
+    uvV : 1/3,
     facesUVs : [
       [ [   1,   1 ], [ 1/2,   0 ], [   0,   1 ] ],
       [ [   1,   1 ], [   0,   1 ], [ 1/2,   2 ] ],
@@ -64,12 +61,16 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
   constructor: (options = {}) ->
     @size = 1
-    @complexity = 0
+    @subdivisions = 0
+    if options.subdivisions > 5 then console.warn "Geode subdivisions > 5 is NOT supported ATM. Use at your own risk !"
+    if options.icosahedron then options.icosahedron = Jax.Util.merge(options.icosahedron, @icosahedron)
     super options
 
-  init: (vertices, colors, textureCoords, normals, vertexIndices, tangents, bitangents) ->
+  init: (vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents) ->
 
     size = @size
+
+    # Helpers
 
     _vA = vec3.create() ; _vB = vec3.create() ; _vC = vec3.create()
     recursiveInit = (vA, vB, vC, detail) ->
@@ -77,7 +78,7 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         vec3.normalize(vA, _vA)
         vec3.normalize(vB, _vB)
         vec3.normalize(vC, _vC)
-        normals.push _vA[0], _vA[1], _vA[2], _vB[0], _vB[1], _vB[2], _vC[0], _vC[1], _vC[2]
+        vertexNormals.push _vA[0], _vA[1], _vA[2], _vB[0], _vB[1], _vB[2], _vC[0], _vC[1], _vC[2]
         vec3.scale _vA, size
         vec3.scale _vB, size
         vec3.scale _vC, size
@@ -94,15 +95,8 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         recursiveInit midAB, midBC, midCA, detail # center
       true
 
-    # Vertices & vertices' normals
-    for face in icosahedron.faces
-      recursiveInit(
-        vec3.create(icosahedron.vertices[face[0]]),
-        vec3.create(icosahedron.vertices[face[1]]),
-        vec3.create(icosahedron.vertices[face[2]]),
-        @complexity
-      )
-
+    u = @icosahedron.uvU
+    v = @icosahedron.uvV
     recursiveInitUV = (uvA, uvB, uvC, detail) ->
       if detail < 1
         textureCoords.push uvA[0] * u, uvA[1] * v, uvB[0] * u, uvB[1] * v, uvC[0] * u, uvC[1] * v
@@ -118,10 +112,25 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         recursiveInitUV midAB, midBC, midCA, detail # center
       true
 
-    # UVs
-    for faceUVs in icosahedron.facesUVs
-      recursiveInitUV vec2.create(faceUVs[0]), vec2.create(faceUVs[1]), vec2.create(faceUVs[2]), @complexity
 
-    # Tangents & Bitangents : should we pre-compute them ?
+    # Vertices & Vertices' Normals
+    for face in @icosahedron.faces
+      recursiveInit(
+        vec3.create(@icosahedron.vertices[face[0]]),
+        vec3.create(@icosahedron.vertices[face[1]]),
+        vec3.create(@icosahedron.vertices[face[2]]),
+        @subdivisions
+      )
+
+    # UVs
+    for faceUVs in @icosahedron.facesUVs
+      recursiveInitUV(
+        vec2.create(faceUVs[0]),
+        vec2.create(faceUVs[1]),
+        vec2.create(faceUVs[2]),
+        @subdivisions
+      )
+
+    # VertexIndices, Tangents & Bitangents are lazy-computed
 
     true # don't return an array, it's faster
