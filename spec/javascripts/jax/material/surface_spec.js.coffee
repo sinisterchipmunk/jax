@@ -207,7 +207,7 @@ describe "Jax.Material.Surface", ->
             expect(sim.state.variables.gl_FragColor.value).toEqualVector [0, 0.75, 0, 1]
             
         describe "with camera parallel to light", ->
-          beforeEach -> @context.activeCamera.direction = [0, -1, 0]
+          beforeEach -> @context.activeCamera.direction = [0, 0, -1]
           
           describe "on lighting pass", ->
             it "should receive maximum diffuse", ->

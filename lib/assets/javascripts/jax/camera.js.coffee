@@ -129,11 +129,11 @@ class Jax.Camera
     options or= {}
     throw new Error "Expected a screen width in Jax.Camera#perspective" unless options.width
     throw new Error "Expected a screen height in Jax.Camera#perspective" unless options.height
-    options.fov or= 45
+    options.fov or= 0.785398 # 45 degrees in radians
     options.near or= 0.1
     options.far or= 200
     aspectRatio = options.width / options.height
-    mat4.perspective options.fov, aspectRatio, options.near, options.far, @matrices.p
+    GLMatrix.mat4.perspective @matrices.p, options.fov, aspectRatio, options.near, options.far
     @projection =
       width: options.width
       height: options.height

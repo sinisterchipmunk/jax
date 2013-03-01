@@ -167,7 +167,7 @@ describe("Jax.Camera", function() {
     
     
     var nearest = [ 38.308727, 74.893821, 44.271007 ];
-    var farthest = [-94.170333, -137.355712, 86.261283];
+    var farthest = [-94.170295, -137.355697, 86.258216];
     
     // all that for this:
     expect(camera.unproject(0, 0, 0)).toEqualVector(nearest);
