@@ -1,4 +1,5 @@
 # Demo of a Geodesic Sphere
+# Access demo by cloning and running jax repo in localhost
 Jax.Controller.create "geodes",
   index: ->
 
@@ -32,18 +33,42 @@ Jax.Controller.create "geodes",
 
     @stats = @world.addObject new Jax.Framerate # this is not showing anything but a black square
 
-    @context.activeCamera.position = [0, 0, 11]
-    @context.activeCamera.lookAt [0, 0, 0]
+    @context.activeCamera.position = [0, 3, 13]
+    @context.activeCamera.lookAt [0, 1.5, 0]
 
     @geodes = []
     for n in [0..3] by 1
+
+      # Pulsating Geodes Duals
+      geode = @world.addObject new Jax.Model
+        position: [-3.5+n*2.4, 4.8, 0]
+        mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface, subdivisions: n }
+        update: (timechange) ->
+          @camera.rotate timechange * -1 * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+
+          # pulsate
+          @stellation = @stellation || 0 # not rly, but what else then ?
+          buff = @mesh.data.vertexBuffer # look into using Mesh#vertices
+          for i in [0...buff.length] by 9
+            o = vec3.createFrom(buff[i],buff[i+1],buff[i+2])
+
+            @stellation = (@stellation + timechange * (Math.TAU / 6180) ) % Math.TAU
+            vec3.scale(vec3.normalize(o), @mesh.size * (Math.cos(@stellation)+1))
+
+            buff[i  ] = o[0]
+            buff[i+1] = o[1]
+            buff[i+2] = o[2]
+          @mesh.data.recalculateNormals()
+
+      @geodes.push geode
 
       # Geodes Duals
       geode = @world.addObject new Jax.Model
         position: [-3.5+n*2.4, 2.4, 0]
         mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface, subdivisions: n }
         update: (timechange) ->
-          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+          @camera.rotate timechange * (0.025 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+
       @geodes.push geode
 
       # Wired Geodes
@@ -56,7 +81,10 @@ Jax.Controller.create "geodes",
 
       # Textured Geodes
       # fixme NOT OK : Sometimes (!?!), UVs are Y flipped on the first mesh
-      _grnx = false
+      # Suspects:
+      # image load delay. seems to appear more frequently when cache is empty
+      # js load delay. same reason
+      _grnx = true
       geode = @world.addObject new Jax.Model
         _loaded: false
         position: [-3.5+n*2.4, -2.4, 0]
@@ -69,8 +97,8 @@ Jax.Controller.create "geodes",
               diffuse: [0.6, 0.6, 0.6, 1]
               specular:[1, 0.9, 0.9, 1]
             textures:  [{
-              path: '/textures/icosahedron_mars.jpg',
-              onload: ()-> _grnx = true # testing
+              path: '/textures/icosahedron_mars.jpg'
+              #onload: ()-> _grnx = false # testing
             }]
           })
         }
@@ -78,7 +106,8 @@ Jax.Controller.create "geodes",
           @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
       @geodes.push geode
 
-
+  # Drag to pan
+  # Ctrl + drag Y-wise to zoom
   mouse_dragged: (e) ->
     newPos = @context.activeCamera.position
 
@@ -95,8 +124,9 @@ Jax.Controller.create "geodes",
     return unless @sun
 
     @theta = @theta || 0
-    @theta = (@theta + timechange) % Math.TAU
+    @theta = (@theta + timechange/3) % Math.TAU
 
+    # sun's orbit
     @sun.camera.position = [ Math.cos(@theta)*20, Math.sin(@theta)*20, Math.sin(@theta)*10 ]
 
     fps = @stats.fps

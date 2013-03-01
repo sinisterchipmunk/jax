@@ -13,14 +13,16 @@ Example:
 ###
 class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
-  g = ( 1 + Math.sqrt( 5 ) ) / 2 # golden ratio
+  g = ( 1 + Math.sqrt( 5 ) ) / 2 # golden ratio ~= 1.61803398875
 
+  # This is the resource @icosahedron => move to resource ? Used by child classes too !
   icosahedron: {
     vertices : [
       [ -1,  g,  0 ], [  1,  g,  0 ], [ -1, -g,  0 ], [  1, -g,  0 ],
       [  0, -1,  g ], [  0,  1,  g ], [  0, -1, -g ], [  0,  1, -g ],
       [  g,  0, -1 ], [  g,  0,  1 ], [ -g,  0, -1 ], [ -g,  0,  1 ],
     ],
+    # faces are sorted by (arbitrary) adjacency, should be redone having the 20 and 1 adjacent too, i think it's possible
     faces : [ # storing vertices' indexes
       [  0, 11,  5 ], [  0,  5,  1 ], [  0,  1,  7 ], [  7,  1,  8 ],
       [  8,  6,  7 ], [ 10,  7,  6 ], [  0,  7, 10 ], [  0, 10, 11 ],
@@ -29,6 +31,7 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
       [  5, 11,  4 ], [  4,  9,  5 ], [  1,  5,  9 ], [  9,  8,  1 ],
     ],
     # UVs for each base face, matching http://upload.wikimedia.org/wikipedia/commons/d/dd/Icosahedron_flat.svg
+    # This net subdivides neatly, but I'd like to provide some form of resource file so it can be easily overwritten
     uvU : 2/11,
     uvV : 1/3,
     facesUVs : [
@@ -62,7 +65,7 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
   constructor: (options = {}) ->
     @size = 1
     @subdivisions = 0
-    if options.subdivisions > 5 then console.warn "Geode subdivisions > 5 is NOT supported ATM. Use at your own risk !"
+    if options.subdivisions > 5 then console.warn "Geode subdivided > 5 times is NOT supported ATM. Use at your own risk !"
     if options.icosahedron then options.icosahedron = Jax.Util.merge(options.icosahedron, @icosahedron)
     super options
 
@@ -70,9 +73,15 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
 
     size = @size
 
+    # Benchmarking
+    # Jasmine + git checkout => benchmark branches using any spec file
+    # tests :
+    # icosahedron = @icosahedron
+
     # Helpers
 
     _vA = vec3.create() ; _vB = vec3.create() ; _vC = vec3.create()
+    # Push to vertices and normals or subdivide into 4 new triangles
     recursiveInit = (vA, vB, vC, detail) ->
       if detail < 1
         vec3.normalize(vA, _vA)
@@ -95,8 +104,9 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         recursiveInit midAB, midBC, midCA, detail # center
       true
 
-    u = @icosahedron.uvU
-    v = @icosahedron.uvV
+
+    u = @icosahedron.uvU ; v = @icosahedron.uvV
+    # Push to UVs or subdivide into 4 new triangles
     recursiveInitUV = (uvA, uvB, uvC, detail) ->
       if detail < 1
         textureCoords.push uvA[0] * u, uvA[1] * v, uvB[0] * u, uvB[1] * v, uvC[0] * u, uvC[1] * v

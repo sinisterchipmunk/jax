@@ -1,15 +1,17 @@
 ###
 A Geodesic Sphere Dual mesh
-Its faces are 12 pentagons and the rest are hexagons. Of course, these are made of respectively 5 and 6 triangles.
+Its faces are 12 pentagons and the rest are hexagons.
+Of course, these are made of respectively 5 and 6 triangles,
+almost equilaterals.
 
 With 0 subdivisions, it's a dodecahedron (12 pentagons, 0 hexagon)
 With 1, it looks like a football
 With 2, it looks like a golfball
-With 3 and above, it looks like a Civilization V map
+With 3 and more, it looks like a Civilization V map
 
-Don't use it with more than 4 subdivisions
+Don't use it with more than 3 subdivisions
 
-¡ THIS IS ACHINGLY SLOW !
+¡ THIS SCALES BADLY ! O(4^n) at least
 
 Options:
 
@@ -20,10 +22,15 @@ Example:
 
     new Jax.Mesh.GeodesicSphereDual
     new Jax.Mesh.GeodesicSphereDual size: 2, subdivisions: 1
+
+Demos:
+
+* See geodes.js.coffee
 ###
 class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
   constructor: (options = {}) ->
+    if options.subdivisions > 3 then console.warn "Dual Geode subdivided > 3 times is... -- BOOM -- Your computer just exploded."
     super options
 
   init: (vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents) ->
@@ -35,9 +42,11 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
         if vec3.equal(needleVertex, vertex) then return true
       return false
 
+    # Get +howMuch+ closest vertices to +vertex+ from +vertices+ array
     getClosestVertices = (vertex, vertices, howMuch) ->
       howMuch = Math.min howMuch, vertices.length
 
+      # Higher dot is closer ; A first = -1
       vertices.sort( (vA,vB) ->
         # We don't want the self in the closest
         if vA == vertex then return  1
@@ -50,20 +59,21 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
         closestVertices.push vertices[i]
 
       start = vec3.direction(vertex, closestVertices[0], [])
+      # angle sort along axis +vertex+, trigowise (i think) in vertex/start/cross, angle zero at arbitrary +start+
+      # the maths below work only in the geode context to find closest, beware
       closestVertices.sort (vA,vB) ->
+        # think on a more idiomatic way to do this ?
+        # rays from center vertex to adjacents
         dA = vec3.direction(vertex, vA, [])
         dB = vec3.direction(vertex, vB, [])
-        cA = vec3.cross(start, dA, [])
-        cB = vec3.cross(start, dB, [])
-        dotA = vec3.dot(vertex, cA)
-        dotB = vec3.dot(vertex, cB)
 
-        cosA = vec3.dot(start, dA)
-        cosB = vec3.dot(start, dB)
+        # angle, not oriented
+        a = vec3.dot(start, dA) + 1
+        b = vec3.dot(start, dB) + 1
 
-        a = cosA + 1
-        b = cosB + 1
-
+        # orient trigwise along the full circle
+        dotA = vec3.dot(vertex, vec3.cross(start, dA, []))
+        dotB = vec3.dot(vertex, vec3.cross(start, dB, []))
         if dotA < 0 then a *= -1
         if dotB < 0 then b *= -1
 
@@ -115,6 +125,8 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
         vec3.add medianAltitude, closestVertices[i]
       medianAltitude = vec3.length(medianAltitude) / n
 
+      # i'm doing a lot of these : normalize & scale
+      # what about a vec3.normalizeScaled( vec, scale, dest ) ?
       vec3.normalize vertex
       vec3.scale vertex, medianAltitude
 
@@ -124,6 +136,14 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
         vertices.push closestVertices[(i+1)%n][0], closestVertices[(i+1)%n][1], closestVertices[(i+1)%n][2]
 
 
-    # fixme: UVs !
+    # UVs
+    # Each triangle face is one of two uv triangles, bottom-left or top-right
+    # Proper default mapping is non-trivial
+    # need uv mapping specs, spy and tools before further continuation
+    for i in [0...vertices.length] by 9
+      if i % 2 == 0
+        textureCoords.push 0, 0, 1, 1, 1, 0
+      else
+        textureCoords.push 0, 0, 0, 1, 1, 1
 
     true # don't return an array, it's faster
