@@ -112,7 +112,6 @@ Jax.Controller.create "d20",
       @position = vec3.add spherical2cartesianWithVector(@_trackballCoords), @_trackballTarget
 
     @context.activeCamera.setFixedYawAxis false
-#    @world.addObject new Jax.Camera
 
     @geodes = []
 
@@ -130,22 +129,17 @@ Jax.Controller.create "d20",
             specular:[1, 0.9, 0.9, 1]
           textures:  [{
             path: '/textures/d20_plain_red.png'
-            onload: (img) ->
-              #console.log('load',this,img)
-#              world.addObject geode
           }]
           normalMaps: [{
             path: '/textures/d20_normal.png'
             onload: (img) ->
-              #console.log('load',this,img)
               world.addObject geode
             specularChannel: true
           }]
         })
       }
       update: (timechange) ->
-#        @camera.rotate timechange * (0.23), 1, 0, 0
-
+        @camera.rotate timechange * (0.23), 1, 0, 0
 
 
 
@@ -167,10 +161,6 @@ Jax.Controller.create "d20",
     # warning : `cam.position =` is mandatory, or nothing will move
     cam.position = quat4.multiplyVec3 _quat, cam.position
     # these warns are a mix of @define and js voodoo. I'm all ears for a better usage suggestion !
-
-
-
-
 
 
 
