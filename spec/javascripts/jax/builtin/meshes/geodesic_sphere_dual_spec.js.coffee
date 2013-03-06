@@ -60,31 +60,3 @@ describe "Jax.Mesh.GeodesicSphereDual", ->
 
         it "should be "+(expectedFacesLength), ->
           expect(faces.length).toBe(expectedFacesLength)
-
-
-      describe "its pentagonal faces", ->
-
-        it "should be readable at #pentagons", ->
-          expect(geode.pentagons).not.toBeUndefined()
-
-        it "should be 12 instances of Jax.SubMesh.Pentagon", ->
-          geode.init vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents
-          pentagonsCount = geode.pentagons.length
-          expect(pentagonsCount).toBe(12)
-          for pentagon in geode.pentagons
-            expect(pentagon).toBeInstanceOf(Jax.SubMesh.Pentagon)
-
-
-      describe "its hexagonal faces", ->
-
-        expectedHexagonsCount = 10 * (Math.pow(4,subdivisions) - 1)
-
-        it "should be readable at #hexagons", ->
-          expect(geode.hexagons).not.toBeUndefined()
-
-        it "should be "+expectedHexagonsCount+" instances of Jax.SubMesh.Hexagon", ->
-          geode.init vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents
-          hexagonsCount = geode.hexagons.length
-          expect(hexagonsCount).toBe(expectedHexagonsCount)
-          for hexagon in geode.hexagons
-            expect(hexagon).toBeInstanceOf(Jax.SubMesh.Hexagon)
