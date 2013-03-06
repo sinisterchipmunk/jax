@@ -111,7 +111,7 @@ Jax.Controller.create "d20",
     @context.activeCamera.computeFromTrackballCoords = () ->
       @position = vec3.add spherical2cartesianWithVector(@_trackballCoords), @_trackballTarget
 
-#    @context.activeCamera.setFixedYawAxis false
+    @context.activeCamera.setFixedYawAxis false
 #    @world.addObject new Jax.Camera
 
     @geodes = []
@@ -156,17 +156,21 @@ Jax.Controller.create "d20",
     diffx = e.diffx
     diffy = e.diffy
 
-    if (e.base.ctrlKey)
-      vec3.add cam._trackballCoords, [0, 0, diffy / 50]
+    quatX = quat4.fromAngleAxis(-diffx * Math.TAU / 666, cam.up)
+    quatY = quat4.fromAngleAxis(-diffy * Math.TAU / 666, cam.right)
 
-#    cam.yaw diffx * Math.TAU / 1000
-#    cam.rotate diffy * Math.TAU / 1000, [1,0,0]
+    _quat = quat4.create()
+    quat4.multiply(quatX, quatY, _quat)
 
-    vec3.add cam._trackballCoords, [diffx * -1 * Math.TAU / 1000, 0, 0]
+    # warning : using cam.direction as third parameter here does not yield same (nor expected) result
+    cam.direction = quat4.multiplyVec3 _quat, cam.direction, vec3.create()
+    # warning : `cam.position =` is mandatory, or nothing will move
+    cam.position = quat4.multiplyVec3 _quat, cam.position
+    # these warns are a mix of @define and js voodoo. I'm all ears for a better usage suggestion !
 
-    cam.computeFromTrackballCoords()
 
-    cam.lookAt cam._trackballTarget
+
+
 
 
 
