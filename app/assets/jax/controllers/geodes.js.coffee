@@ -36,7 +36,29 @@ Jax.Controller.create "geodes",
     @context.activeCamera.position = [0, 3, 13]
     @context.activeCamera.lookAt [0, 1.5, 0]
 
-    @geodes = []
+
+    createTexturedGeode = (n, world) ->
+      geode = new Jax.Model
+        _loaded: false
+        position: [-3.5+n*2.4, -2.4, 0]
+        mesh: new Jax.Mesh.GeodesicSphere {
+          subdivisions: n
+          material: new Jax.Material.Surface({
+            shininess: 7
+            color:
+              ambient: [0.6, 0.6, 0.6, 1]
+              diffuse: [0.6, 0.6, 0.6, 1]
+              specular:[1, 0.9, 0.9, 1]
+            textures:  [{
+              path: '/textures/icosahedron_mars.jpg'
+              onload: ()-> world.addObject geode
+            }]
+          })
+        }
+        update: (timechange) ->
+          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+
+
     for n in [0..3] by 1
 
       # Pulsating Geodes Duals
@@ -60,7 +82,6 @@ Jax.Controller.create "geodes",
             buff[i+2] = o[2]
           @mesh.data.recalculateNormals()
 
-      @geodes.push geode
 
       # Geodes Duals
       geode = @world.addObject new Jax.Model
@@ -69,7 +90,6 @@ Jax.Controller.create "geodes",
         update: (timechange) ->
           @camera.rotate timechange * (0.025 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
 
-      @geodes.push geode
 
       # Wired Geodes
       geode = @world.addObject new Jax.Model
@@ -77,34 +97,11 @@ Jax.Controller.create "geodes",
         mesh: new Jax.Mesh.GeodesicSphere { material: new Jax.Material.Wire, subdivisions: n }
         update: (timechange) ->
           @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
-      @geodes.push geode
 
       # Textured Geodes
-      # fixme NOT OK : Sometimes (!?!), UVs are Y flipped on the first mesh
-      # Suspects:
-      # image load delay. seems to appear more frequently when cache is empty
-      # js load delay. same reason
-      _grnx = true
-      geode = @world.addObject new Jax.Model
-        _loaded: false
-        position: [-3.5+n*2.4, -2.4, 0]
-        mesh: new Jax.Mesh.GeodesicSphere {
-          subdivisions: n
-          material: new Jax.Material.Surface({
-            shininess: 7
-            color:
-              ambient: [0.6, 0.6, 0.6, 1]
-              diffuse: [0.6, 0.6, 0.6, 1]
-              specular:[1, 0.9, 0.9, 1]
-            textures:  [{
-              path: '/textures/icosahedron_mars.jpg'
-              #onload: ()-> _grnx = false # testing
-            }]
-          })
-        }
-        update: (timechange) ->
-          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
-      @geodes.push geode
+      # Added to @world AFTER image onload, or uvmapping will RANDOMLY y-flip !
+      world = @world
+      createTexturedGeode(n, @world)
 
   # Drag to pan
   # Ctrl + drag Y-wise to zoom
