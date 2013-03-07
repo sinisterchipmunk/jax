@@ -47,7 +47,7 @@ class Jax.Camera
       vec = vec3.set dir, _dirVec
       vec3.normalize vec
       if @_fixedYaw
-        # FIXME why am I negating? Can't remember...
+        # negating so that right, up, vec is right-handed
         vec3.negate vec
         right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
         up    = vec3.normalize vec3.cross vec, right, _dirUpVec
