@@ -1,4 +1,4 @@
-# fixme: require prototype methods defined in icosahedron_spec
+#= require 'jax/builtin/meshes/geometry_helper'
 
 describe "Jax.Mesh.GeodesicSphereDual", ->
 
