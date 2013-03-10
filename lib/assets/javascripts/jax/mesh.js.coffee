@@ -109,8 +109,8 @@ class Mesh
       recalcNormal[0] = vertices[i]
       recalcNormal[1] = vertices[i+1]
       recalcNormal[2] = vertices[i+2]
-      vec3.subtract recalcNormal, center, recalcNormal
-      vec3.normalize recalcNormal
+      GLMatrix.vec3.subtract recalcNormal, recalcNormal, center
+      GLMatrix.vec3.normalize recalcNormal, recalcNormal
       normals[i  ] = recalcNormal[0]
       normals[i+1] = recalcNormal[1]
       normals[i+2] = recalcNormal[2]

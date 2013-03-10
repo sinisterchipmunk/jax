@@ -78,10 +78,10 @@ class Jax.Light extends Jax.Model
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
-    vec3.normalize mat3.multiplyVec3 matrix, @camera.direction, dest
+    GLMatrix.vec3.normalize dest, GLMatrix.vec3.transformMat3 dest, @camera.direction, matrix
     
   eyePosition: (matrix, dest) ->
-    mat4.multiplyVec3 matrix, @camera.position, dest
+    GLMatrix.vec3.transformMat4 dest, @camera.position, matrix
 
   crMinIntensity = 10.0 / 256.0
   maxEffectiveRange: (rangeIncrement = 1.0) ->
