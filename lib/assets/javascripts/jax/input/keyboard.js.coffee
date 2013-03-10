@@ -20,9 +20,14 @@ class Jax.Input.Keyboard extends Jax.Input
 
   trigger: (type, evt = {}) ->
     event = document.createEvent 'KeyboardEvent'
-    event.initKeyboardEvent type, true, true, null,             \ # type, bubbles, cancelable, viewArg
-                            evt.ctrl, evt.alt, evt.shift,       \ # ctrl, alt, shift
-                            evt.meta, evt.keyCode, evt.charCode   # meta, keyCode, charCode
+    if event.initKeyboardEvent
+      event.initKeyboardEvent type, true, true, null,             \ # type, bubbles, cancelable, viewArg
+                              evt.ctrl, evt.alt, evt.shift,       \ # ctrl, alt, shift
+                              evt.meta, evt.keyCode, evt.charCode   # meta, keyCode, charCode
+    else
+      event.initKeyEvent type, true, true, null,             \ # type, bubbles, cancelable, viewArg
+                         evt.ctrl, evt.alt, evt.shift,       \ # ctrl, alt, shift
+                         evt.meta, evt.keyCode, evt.charCode   # meta, keyCode, charCode
     @receiver.dispatchEvent event
     
   stopListening: ->
