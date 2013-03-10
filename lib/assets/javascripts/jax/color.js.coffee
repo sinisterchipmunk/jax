@@ -24,7 +24,7 @@ parseHexColor = (hex) ->
 
 class Jax.Color
   constructor: (r = 1, g = 1, b = 1, a = 1) ->
-    @_vec = vec4.create(arguments)
+    @_vec = GLMatrix.vec4.clone(arguments)
     @set r, g, b, a
   
   toVec4: -> @_vec
