@@ -3,26 +3,25 @@
 
 class Jax.Camera
   @include Jax.EventEmitter
-  LOCAL_VIEW  = vec3.create [0, 0,-1]
-  LOCAL_RIGHT = vec3.create [1, 0, 0]
-  LOCAL_UP    = vec3.create [0, 1, 0]
+  LOCAL_VIEW  = GLMatrix.vec3.clone [0, 0,-1]
+  LOCAL_RIGHT = GLMatrix.vec3.clone [1, 0, 0]
+  LOCAL_UP    = GLMatrix.vec3.clone [0, 1, 0]
   
   constructor: (options) ->
-    @rotation = quat4.identity()
-    @_position = vec3.create()
+    @rotation = GLMatrix.quat.identity GLMatrix.quat.create()
+    @_position = GLMatrix.vec3.create()
     @matrices =
-      mv:  mat4.identity()
-      imv: mat4.identity()
-      p:   mat4.identity()
-      n:   mat3.identity()
+      mv:  GLMatrix.mat4.identity GLMatrix.mat4.create()
+      imv: GLMatrix.mat4.identity GLMatrix.mat4.create()
+      p:   GLMatrix.mat4.identity GLMatrix.mat4.create()
+      n:   GLMatrix.mat3.identity GLMatrix.mat3.create()
     @reset()
     @setFixedYawAxis true, vec3.UNIT_Y
     
     @_isValid = false
-    @_viewVector = vec3.create()
-    @_upVector   = vec3.create()
-    @_rightVector= vec3.create()
-    
+    @_viewVector = GLMatrix.vec3.create()
+    @_upVector   = GLMatrix.vec3.create()
+    @_rightVector= GLMatrix.vec3.create()
     if options
       @_position = options.position if options.position
       @direction = options.direction if options.direction
@@ -35,27 +34,27 @@ class Jax.Camera
     @_frustum
 
     
-  _dirVec = vec3.create()
-  _dirRightVec = vec3.create()
-  _dirUpVec = vec3.create()
-  _dirQuat = quat4.create()
+  _dirVec = GLMatrix.vec3.create()
+  _dirRightVec = GLMatrix.vec3.create()
+  _dirUpVec = GLMatrix.vec3.create()
+  _dirQuat = GLMatrix.quat.create()
   @define 'direction',
     get: ->
       @validate() unless @isValid()
       @_viewVector
     set: (dir) ->
-      vec = vec3.set dir, _dirVec
-      vec3.normalize vec
+      vec = GLMatrix.vec3.copy _dirVec, dir
+      GLMatrix.vec3.normalize vec, vec
       if @_fixedYaw
         # FIXME why am I negating? Can't remember...
-        vec3.negate vec
-        right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
-        up    = vec3.normalize vec3.cross vec, right, _dirUpVec
-        quat4.fromAxes vec, right, up, @rotation
+        GLMatrix.vec3.negate vec, vec
+        right = GLMatrix.vec3.normalize _dirRightVec, GLMatrix.vec3.cross _dirRightVec, @_fixedYawAxis, vec
+        up    = GLMatrix.vec3.normalize _dirUpVec,    GLMatrix.vec3.cross _dirUpVec,    vec, right
+        GLMatrix.quat.setAxes @rotation, vec, right, up
       else
-        rotquat = vec3.rotationTo @direction, vec, _dirQuat
-        quat4.multiply rotquat, @rotation, @rotation
-      quat4.normalize @rotation
+        rotquat = GLMatrix.rotationTo _dirQuat, @direction, vec
+        GLMatrix.quat.multiply @rotation, rotquat, @rotation
+      GLMatrix.quat.normalize @rotation, @rotation
       @invalidate()
       @fireEvent 'updated'
     
@@ -70,7 +69,7 @@ class Jax.Camera
   @define 'position',
     get: -> @_position
     set: (x) ->
-      vec3.set x, @_position
+      GLMatrix.vec3.copy @_position, x
       # no need to completely invalidate, just force matrices and
       # frustum to update, that way we skip the overhead of
       # recalculating view, right and up vectors, which won't change.
@@ -88,17 +87,17 @@ class Jax.Camera
   recalculateMatrices: ->
     @validate() unless @isValid()
     @_stale = false
-    mat4.fromRotationTranslation @rotation, @position, @matrices.mv
-    mat4.inverse @matrices.mv, @matrices.imv
-    mat4.toInverseMat3 @matrices.mv, @matrices.n
-    mat3.transpose @matrices.n
+    GLMatrix.mat4.fromRotationTranslation @matrices.mv, @rotation, @position
+    GLMatrix.mat4.invert @matrices.imv, @matrices.mv
+    GLMatrix.mat3.fromMat4 @matrices.n, @matrices.imv
+    GLMatrix.mat3.transpose @matrices.n, @matrices.n
     @fireEvent 'matrixUpdated'
   
   validate: () ->
     @_isValid = true
-    @_viewVector  = quat4.multiplyVec3 @rotation, LOCAL_VIEW,  @_viewVector
-    @_rightVector = quat4.multiplyVec3 @rotation, LOCAL_RIGHT, @_rightVector
-    @_upVector    = quat4.multiplyVec3 @rotation, LOCAL_UP,    @_upVector
+    @_viewVector  = GLMatrix.vec3.transformQuat @_viewVector,  LOCAL_VIEW,  @rotation
+    @_rightVector = GLMatrix.vec3.transformQuat @_rightVector, LOCAL_RIGHT, @rotation
+    @_upVector    = GLMatrix.vec3.transformQuat @_upVector,    LOCAL_UP,    @rotation
     
   setFixedYawAxis: (useFixedYaw, axis) ->
     @_fixedYaw = useFixedYaw
@@ -264,7 +263,7 @@ class Jax.Camera
     
     view = vec3.scale @direction, forward
     right = vec3.scale @right, strafe
-    vec3.set @position, dest
+    GLMatrix.vec3.copy dest, @position
     vec3.add view, dest, dest
     vec3.add right, dest, dest
     return dest
