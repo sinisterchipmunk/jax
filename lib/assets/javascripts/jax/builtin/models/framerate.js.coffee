@@ -149,11 +149,11 @@ class Jax.Framerate extends Jax.Model
         bottom: 0
         top: context.canvas.height
       @ortho = @camera.getProjectionMatrix()
-      @identity = mat4.identity()
+      @identity = GLMatrix.mat4.identity GLMatrix.mat4.create()
     
     stack = context.matrix_stack
     stack.push()
-    mat4.set @ortho, stack.getProjectionMatrix()
+    GLMatrix.mat4.copy stack.getProjectionMatrix(), @ortho
     stack.loadViewMatrix @identity
     stack.multModelMatrix @camera.getTransformationMatrix()
     @mesh.render context, this, material
