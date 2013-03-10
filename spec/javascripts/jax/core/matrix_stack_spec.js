@@ -27,7 +27,7 @@ describe("Jax.MatrixStack", function() {
       it("should not be an identity matrix", function() { expect(stack.getViewMatrix()).not.toEqualMatrix(mat4.IDENTITY); });
       
       it("should produce coords relative to eye", function() {
-        var vec = vec3.transformMat4([], [0,0,0], stack.getInverseViewMatrix());
+        var vec = GLMatrix.vec3.transformMat4([], [0,0,0], stack.getInverseViewMatrix());
         expect(vec).toEqualVector([-1,-1,-1]);
       });
     });
