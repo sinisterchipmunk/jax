@@ -1,5 +1,20 @@
-h2. This Guide Not Yet Started
+h2. Testing
 
 Please come back after I've had time to work on this guide a bit.
 
 endprologue.
+
+h3. Testing your Application
+
+This should be pretty straightforward, see the "getting started guide":getting_started.html#write-some-tests
+
+h3. Testing JAX itself
+
+# Clone "the repository":https://github.com/sinisterchipmunk/jax
+# Run @rake install@
+# Run @rake server@
+# Visit the "local jasmine test suite":http://localhost:3000
+
+Jasmine specs are hosted in @spec/javascripts/@.
+
+Happy testing !
