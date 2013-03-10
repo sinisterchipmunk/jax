@@ -78,6 +78,7 @@ class Jax.Light extends Jax.Model
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
+    dest or= GLMatrix.vec3.create()
     GLMatrix.vec3.normalize dest, GLMatrix.vec3.transformMat3 dest, @camera.direction, matrix
     
   eyePosition: (matrix, dest) ->
