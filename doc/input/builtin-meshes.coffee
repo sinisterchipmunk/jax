@@ -69,7 +69,7 @@ A Cone is a cylindrical object that ends in a point. `Jax.Mesh.Cone` accepts a `
 
 A Cube is a set of six Quads which together form a closed box.
 ###
-axis = vec3.create [1, 0.75, 0.5]
+axis = vec3.clone [1, 0.75, 0.5]
 cube = @world.addObject new Jax.Model
   mesh: new Jax.Mesh.Cube
     size: 1
@@ -89,7 +89,7 @@ cube.mesh.bottom.color = '#0ff'
 
 A simplified Cube, in which only the 12 lines forming its edges are rendered, and the interior of each face is not filled. Essentially, this is a wireframe cube.
 ###
-axis = vec3.create [1, 0.75, 0.5]
+axis = vec3.clone [1, 0.75, 0.5]
 cube = @world.addObject new Jax.Model
   mesh: new Jax.Mesh.LineCube
     size: 1
