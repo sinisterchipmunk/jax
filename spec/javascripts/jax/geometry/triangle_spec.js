@@ -51,7 +51,7 @@ describe("Jax.Geometry.Triangle", function() {
         
         it("should not raise errors", function() {
           // TypeError: Object [Line a:[Float32Array: -0.44343942403793335,0.4999999701976776,-0.4434394836425781], b:[Float32Array: 0.5037173628807068,-0.5,0.28691262006759644]] has no method 'contains' with
-          var dist = vec3.create();
+          var dist = GLMatrix.vec3.create();
           var tri1 = new Jax.Geometry.Triangle([0.5,0.5,0.5000000596046448], [-0.5,0.4999999701976776,-0.5000000596046448], [0.5,0.4999999701976776,-0.5000000596046448]);
           var tri2 = new Jax.Geometry.Triangle([0.5037173628807068,0.5,0.28691262006759644], [0.5037173628807068,-0.5,0.28691262006759644], [0.8630872964859009,0.5,-0.6462825536727905]);
           
@@ -85,7 +85,7 @@ describe("Jax.Geometry.Triangle", function() {
     
       describe("with triangle and capture vec3", function() {
         var point;
-        beforeEach(function() { point = vec3.create(); });
+        beforeEach(function() { point = GLMatrix.vec3.create(); });
         
         // more complete tritri tests found in tritri_spec.js
         it("no intersect", function() {
