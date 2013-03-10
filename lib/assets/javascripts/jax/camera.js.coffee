@@ -52,7 +52,7 @@ class Jax.Camera
         up    = GLMatrix.vec3.normalize _dirUpVec,    GLMatrix.vec3.cross _dirUpVec,    vec, right
         GLMatrix.quat.setAxes @rotation, vec, right, up
       else
-        rotquat = GLMatrix.rotationTo _dirQuat, @direction, vec
+        rotquat = GLMatrix.quat.rotationTo _dirQuat, @direction, vec
         GLMatrix.quat.multiply @rotation, rotquat, @rotation
       GLMatrix.quat.normalize @rotation, @rotation
       @invalidate()
@@ -110,7 +110,7 @@ class Jax.Camera
     options.bottom or= -1
     options.far or= 200
     options.near or= 0.1
-    mat4.ortho options.left, options.right, options.bottom, options.top, options.near, options.far, @matrices.p
+    GLMatrix.mat4.ortho @matrices.p, options.left, options.right, options.bottom, options.top, options.near, options.far
     @projection =
       width: options.right - options.left
       height: options.top - options.bottom
@@ -151,7 +151,7 @@ class Jax.Camera
       vec[0] = x
       vec[1] = y
       vec[2] = z
-    @rotateWorld amount, quat4.multiplyVec3 @rotation, vec, vec
+    @rotateWorld amount, GLMatrix.vec3.transformQuat vec, vec, @rotation
   
   rotateWorld: (amount, x, y, z) ->
     if y is undefined then vec = x
@@ -160,9 +160,9 @@ class Jax.Camera
       vec[0] = x
       vec[1] = y
       vec[2] = z
-    rotquat = quat4.fromAngleAxis amount, vec, _rotQuat
-    quat4.normalize rotquat
-    quat4.multiply rotquat, @rotation, @rotation
+    rotquat = GLMatrix.quat.setAxisAngle _rotQuat, vec, amount
+    GLMatrix.quat.normalize rotquat, rotquat
+    GLMatrix.quat.multiply @rotation, rotquat, @rotation
     @invalidate()
     @fireEvent 'updated'
     this
@@ -191,7 +191,7 @@ class Jax.Camera
     if pos then @position = pos
     else pos = @position
     view = @direction
-    @direction = vec3.subtract point, pos, view
+    @direction = GLMatrix.vec3.subtract view, point, pos
     
   getTransformationMatrix: ->
     @recalculateMatrices() if @_stale
@@ -221,9 +221,9 @@ class Jax.Camera
       
       # calculation for inverting a matrix, computing projection x modelview
       # then compute the inverse
-      m = mat4.inverse mm, mat4.create() # WHY do I have to invert first?
-      mat4.multiply pm, m, m
-      return null unless mat4.inverse m, m
+      m = GLMatrix.mat4.invert GLMatrix.mat4.create(), mm # WHY do I have to invert first?
+      GLMatrix.mat4.multiply m, pm, m
+      return null unless GLMatrix.mat4.invert m, m
       
       # Transformation of normalized coordinates between -1 and 1
       inf[0] = (winx - viewport[0]) / viewport[2] * 2 - 1
@@ -233,10 +233,10 @@ class Jax.Camera
       
       # Objects coordinates
       out = inf
-      mat4.multiplyVec4 m, inf, out
+      GLMatrix.vec4.transformMat4 out, inf, m
       return null if out[3] is 0
       
-      result = vec3.create()
+      result = GLMatrix.vec3.create()
       out[3] = 1 / out[3]
       result[0] = out[0] * out[3]
       result[1] = out[1] * out[3]
@@ -252,20 +252,24 @@ class Jax.Camera
   _moveVec = GLMatrix.vec3.create()
   move: (distance, direction) ->
     direction or= @direction
-    vec3.add vec3.scale(direction, distance, _moveVec), @position, @position
+    GLMatrix.vec3.add @position, GLMatrix.vec3.scale(_moveVec, direction, distance), @position
     @invalidate()
     @fireEvent 'updated'
     this
     
+  _projectView = GLMatrix.vec3.create()
+  _projectRight = GLMatrix.vec3.create()
   projectMovement: (forward, strafe, dest) ->
     strafe or= 0
-    dest or= vec3.create()
+    dest or= GLMatrix.vec3.create()
+    view  = _projectView
+    right = _projectRight
     
-    view = vec3.scale @direction, forward
-    right = vec3.scale @right, strafe
+    GLMatrix.vec3.scale view, @direction, forward
+    GLMatrix.vec3.scale right, @right, strafe
     GLMatrix.vec3.copy dest, @position
-    vec3.add view, dest, dest
-    vec3.add right, dest, dest
+    GLMatrix.vec3.add dest, view,  dest
+    GLMatrix.vec3.add dest, right, dest
     return dest
     
   reset: ->

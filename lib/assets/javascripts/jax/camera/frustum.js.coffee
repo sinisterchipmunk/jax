@@ -113,7 +113,7 @@ class Jax.Frustum extends Jax.Model
     vec[1] = y
     vec[2] = z
     vec[3] = 1
-    mat4.multiplyVec4 extractedM, vec
+    GLMatrix.vec4.transformMat4 vec, vec, extractedM
     if vec[3] is 0
       vec[0] = vec[1] = vec[2] = 0
       return vec
@@ -126,11 +126,11 @@ class Jax.Frustum extends Jax.Model
   extents: ->
     return @_extractedExtents if @isValid()
     e = @_extractedExtents or=
-      ntl: vec4.create(), ntr: vec4.create(), nbl: vec4.create(), nbr: vec4.create(),
-      ftl: vec4.create(), ftr: vec4.create(), fbl: vec4.create(), fbr: vec4.create()
+      ntl: GLMatrix.vec4.create(), ntr: GLMatrix.vec4.create(), nbl: GLMatrix.vec4.create(), nbr: GLMatrix.vec4.create(),
+      ftl: GLMatrix.vec4.create(), ftr: GLMatrix.vec4.create(), fbl: GLMatrix.vec4.create(), fbr: GLMatrix.vec4.create()
     m = extractedM
-    mat4.multiply @projection, @modelview, m
-    mat4.inverse m
+    GLMatrix.mat4.multiply m, @projection, @modelview
+    GLMatrix.mat4.invert m, m
     @calcExtent e.ntl, -1,  1, -1; @calcExtent e.ntr,  1,  1, -1
     @calcExtent e.nbl, -1, -1, -1; @calcExtent e.nbr,  1, -1, -1
     @calcExtent e.ftl, -1,  1,  1; @calcExtent e.ftr,  1,  1,  1
