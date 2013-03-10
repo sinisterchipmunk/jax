@@ -59,8 +59,8 @@ Jax.Controller.create "benchmark",
     tc *= 0.5
     @_rotation or= 0
     @_rotation += tc
-    position = @_position or= vec3.create()
-    origin = @_origin or= vec3.create()
+    position = @_position or= GLMatrix.vec3.create()
+    origin = @_origin or= GLMatrix.vec3.create()
     radius = MAX / 2 + 1
     
     position[0] = Math.cos(@_rotation) * radius
