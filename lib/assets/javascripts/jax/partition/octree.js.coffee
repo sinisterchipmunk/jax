@@ -45,7 +45,7 @@ class Jax.Octree
     @nestedObjectCount = 0
     @objects = {}
     @nestedObjects = {}
-    @position = GLMatrix.vec3.create()
+    @position = vec3.create()
     
   @getter 'mesh', ->
     @_mesh or= new Jax.Mesh.LineCube @size, @position
@@ -102,7 +102,7 @@ class Jax.Octree
   subdivide: ->
     @_isSubdivided = true
   
-  chvec = GLMatrix.vec3.create()
+  chvec = vec3.create()
   
   ###
   Returns the child in the appropriate quadrant for the given vector, which
@@ -115,8 +115,8 @@ class Jax.Octree
       child
     else
       child = new Jax.Octree @splitThreshold, @mergeThreshold, @depth + 1, @size * 0.5, this
-      GLMatrix.vec3.scale chvec, chvec, @size * 0.5
-      GLMatrix.vec3.add child.position, chvec, @position
+      vec3.scale chvec, chvec, @size * 0.5
+      vec3.add child.position, chvec, @position
       @children[@quadrant vec] = child
       
   ###
@@ -125,8 +125,8 @@ class Jax.Octree
   ###
   recalculateChildPosition: (child) ->
     @quadrant child.position, chvec
-    GLMatrix.vec3.scale chvec, chvec, @size * 0.5
-    GLMatrix.vec3.add child.position, chvec, @position
+    vec3.scale chvec, chvec, @size * 0.5
+    vec3.add child.position, chvec, @position
   
   ###
   Returns true if this octree can contain the specified object based on its

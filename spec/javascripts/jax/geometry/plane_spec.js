@@ -88,7 +88,7 @@ describe("Jax.Geometry.Plane", function() {
 
     describe("line segment", function() {
       it("store intersection point", function() {
-        var i = GLMatrix.vec3.create();
+        var i = vec3.create();
         p.intersectLineSegment(new Jax.Geometry.Line([0,0,1], [0,0,-1]), i);
         expect(i).toEqualVector([0,0,0]);
       });

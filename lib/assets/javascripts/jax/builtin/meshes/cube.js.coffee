@@ -18,7 +18,7 @@ Example:
 ###
 class Jax.Mesh.Cube extends Jax.Mesh.Triangles
   SIDES = ['front', 'back', 'left', 'right', 'top', 'bottom']
-  _tmpvec3 = GLMatrix.vec3.create()
+  _tmpvec3 = vec3.create()
 
   constructor: (options = {}) ->
     size = options.size or= 1
@@ -96,13 +96,13 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
         _tmpvec3[0] = sdata.vertexBuffer[vofs  ]
         _tmpvec3[1] = sdata.vertexBuffer[vofs+1]
         _tmpvec3[2] = sdata.vertexBuffer[vofs+2]
-        GLMatrix.vec3.transformMat4 _tmpvec3, _tmpvec3, mvmatrix
+        vec3.transformMat4 _tmpvec3, _tmpvec3, mvmatrix
         verts.push -_tmpvec3[0], -_tmpvec3[1], -_tmpvec3[2]
 
         _tmpvec3[0] = sdata.normalBuffer[vofs  ]
         _tmpvec3[1] = sdata.normalBuffer[vofs+1]
         _tmpvec3[2] = sdata.normalBuffer[vofs+2]
-        GLMatrix.vec3.transformMat3 _tmpvec3, _tmpvec3, nmatrix
+        vec3.transformMat3 _tmpvec3, _tmpvec3, nmatrix
         norms.push _tmpvec3[0], _tmpvec3[1], _tmpvec3[2]
 
         for k in [0...4]

@@ -7,8 +7,8 @@ class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
     @meshDataMap =
       vertices: 'VERTEX_POSITION'
       normals: 'VERTEX_NORMAL'
-    @eyeDir = GLMatrix.vec3.create()
-    @eyePos = GLMatrix.vec3.create()
+    @eyeDir = vec3.create()
+    @eyePos = vec3.create()
     
   illuminate: (context, mesh, model, vars, light) ->
     vars['LightSpecularColor'] = light.color.specular

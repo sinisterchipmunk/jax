@@ -1,13 +1,13 @@
 class Jax.ShadowMap.Spot extends Jax.ShadowMap
-  relative = GLMatrix.vec3.create()
+  relative = vec3.create()
 
   setupProjection: (projection, context) ->
     # first, find the most distance object from the light
     mostDistant = 0
     
     for id, obj of context.world.getObjects()
-      GLMatrix.vec3.subtract relative, @light.position, obj.camera.position
-      dist = GLMatrix.vec3.length(relative) + obj.mesh?.bounds.radius
+      vec3.subtract relative, @light.position, obj.camera.position
+      dist = vec3.length(relative) + obj.mesh?.bounds.radius
       if dist > mostDistant then mostDistant = dist
       
     # now use a small fraction of that distance as a range increment for
@@ -23,5 +23,5 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     near = 0.1
     aspect_ratio = @width / @height
 
-    GLMatrix.mat4.perspective projection, fov, aspect_ratio, near, far
+    mat4.perspective projection, fov, aspect_ratio, near, far
     

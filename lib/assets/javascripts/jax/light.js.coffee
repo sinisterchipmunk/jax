@@ -61,14 +61,14 @@ class Jax.Light extends Jax.Model
   more time-consuming calculation performed by
   `Jax.ShadowMap#isIlluminated`.
   ###
-  inRangeVec = GLMatrix.vec3.create()
+  inRangeVec = vec3.create()
   isInRange: (model) ->
     radius = model.mesh?.bounds.radius || 0
     # My first thought was to exit early on 0-radius meshes since they're
     # invisible, but this would be a bad idea because some models contain
     # other models instead of meshes...
     objPos = model.position
-    dist = GLMatrix.vec3.length(GLMatrix.vec3.subtract inRangeVec, objPos, @position) - radius
+    dist = vec3.length(vec3.subtract inRangeVec, objPos, @position) - radius
     range = @maxEffectiveRange()
     return range is -1 or range >= dist
 
@@ -78,11 +78,11 @@ class Jax.Light extends Jax.Model
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
-    dest or= GLMatrix.vec3.create()
-    GLMatrix.vec3.normalize dest, GLMatrix.vec3.transformMat3 dest, @camera.direction, matrix
+    dest or= vec3.create()
+    vec3.normalize dest, vec3.transformMat3 dest, @camera.direction, matrix
     
   eyePosition: (matrix, dest) ->
-    GLMatrix.vec3.transformMat4 dest, @camera.position, matrix
+    vec3.transformMat4 dest, @camera.position, matrix
 
   crMinIntensity = 10.0 / 256.0
   maxEffectiveRange: (rangeIncrement = 1.0) ->

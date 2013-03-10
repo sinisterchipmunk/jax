@@ -22,20 +22,20 @@ describe("Jax.MatrixStack", function() {
     it('should return a proj matrix', function() { expect(stack.getProjectionMatrix()).toBeTruthy(); });
       
     describe("translate", function() {
-      beforeEach(function() { stack.loadViewMatrix(GLMatrix.mat4.translate(GLMatrix.mat4.create(), mat4.IDENTITY, [1,1,1])); });
+      beforeEach(function() { stack.loadViewMatrix(mat4.translate(mat4.create(), mat4.IDENTITY, [1,1,1])); });
       
       it("should not be an identity matrix", function() { expect(stack.getViewMatrix()).not.toEqualMatrix(mat4.IDENTITY); });
       
       it("should produce coords relative to eye", function() {
-        var vec = GLMatrix.vec3.transformMat4([], [0,0,0], stack.getInverseViewMatrix());
+        var vec = vec3.transformMat4([], [0,0,0], stack.getInverseViewMatrix());
         expect(vec).toEqualVector([-1,-1,-1]);
       });
     });
     
     it("should revert when popped", function() {
-      GLMatrix.mat4.copy(stack.getModelMatrix(), [1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4]);
+      mat4.copy(stack.getModelMatrix(), [1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4]);
       stack.pop();
-      expect(stack.getModelMatrix()).toEqualVector(GLMatrix.mat4.identity(GLMatrix.mat4.create()));
+      expect(stack.getModelMatrix()).toEqualVector(mat4.identity(mat4.create()));
     });
   });
 });

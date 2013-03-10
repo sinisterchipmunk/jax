@@ -41,19 +41,19 @@ class Jax.MatrixStack
       inverseProjection: [true]
       modelViewProjection: [true]
     @matrices =
-      model:               [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      inverseModel:        [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      normal:              [GLMatrix.mat3.identity GLMatrix.mat3.create()]
-      modelNormal:         [GLMatrix.mat3.identity GLMatrix.mat3.create()]
-      view:                [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      inverseView:         [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      viewNormal:          [GLMatrix.mat3.identity GLMatrix.mat3.create()]
-      inverseViewNormal:   [GLMatrix.mat3.identity GLMatrix.mat3.create()]
-      modelView:           [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      inverseModelView:    [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      projection:          [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      inverseProjection:   [GLMatrix.mat4.identity GLMatrix.mat4.create()]
-      modelViewProjection: [GLMatrix.mat4.identity GLMatrix.mat4.create()]
+      model:               [mat4.identity mat4.create()]
+      inverseModel:        [mat4.identity mat4.create()]
+      normal:              [mat3.identity mat3.create()]
+      modelNormal:         [mat3.identity mat3.create()]
+      view:                [mat4.identity mat4.create()]
+      inverseView:         [mat4.identity mat4.create()]
+      viewNormal:          [mat3.identity mat3.create()]
+      inverseViewNormal:   [mat3.identity mat3.create()]
+      modelView:           [mat4.identity mat4.create()]
+      inverseModelView:    [mat4.identity mat4.create()]
+      projection:          [mat4.identity mat4.create()]
+      inverseProjection:   [mat4.identity mat4.create()]
+      modelViewProjection: [mat4.identity mat4.create()]
     @reset()
       
   ###
@@ -106,7 +106,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.copy @getModelMatrix(), other
+    mat4.copy @getModelMatrix(), other
     
   ###
   Replaces the current view matrix with the specified one.
@@ -120,7 +120,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.copy @getViewMatrix(), other
+    mat4.copy @getViewMatrix(), other
     
   ###
   Replaces the current projection matrix with the specified one.
@@ -129,7 +129,7 @@ class Jax.MatrixStack
   loadProjectionMatrix: (other) ->
     @valid.inverseProjection[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.copy @getProjectionMatrix(), other
+    mat4.copy @getProjectionMatrix(), other
     
   ###
   Multiplies the current model matrix with the specified one.
@@ -143,7 +143,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.multiply @getModelMatrix(), @getModelMatrix(), other
+    mat4.multiply @getModelMatrix(), @getModelMatrix(), other
   
   ###
   Multiplies the current view matrix with the specified one.
@@ -157,7 +157,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.multiply @getViewMatrix(), @getViewMatrix(), other
+    mat4.multiply @getViewMatrix(), @getViewMatrix(), other
 
   ###
   Multiplies the current projection matrix with the specified one.
@@ -166,7 +166,7 @@ class Jax.MatrixStack
   multProjectionMatrix: (other) ->
     @valid.inverseProjection[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    GLMatrix.mat4.multiply @getProjectionMatrix(), @getProjectionMatrix(), other
+    mat4.multiply @getProjectionMatrix(), @getProjectionMatrix(), other
 
   ###
   The local model transformation matrix. Most models will manipulate this matrix.
@@ -204,7 +204,7 @@ class Jax.MatrixStack
       return @matrices.modelView[@depth]
     else
       @valid.modelView[@depth] = true
-      GLMatrix.mat4.multiply @matrices.modelView[@depth], @getViewMatrix(), @getModelMatrix()
+      mat4.multiply @matrices.modelView[@depth], @getViewMatrix(), @getModelMatrix()
       
   ###
   The opposite of the modelview matrix. Multiplying an eye-space coordinate by this matrix results in an
@@ -215,7 +215,7 @@ class Jax.MatrixStack
       return @matrices.inverseModelView[@depth]
     else
       @valid.inverseModelView[@depth] = true
-      GLMatrix.mat4.invert @matrices.inverseModelView[@depth], @getModelViewMatrix()
+      mat4.invert @matrices.inverseModelView[@depth], @getModelViewMatrix()
 
   ###
   Returns the model, view and projection matrices combined into one. Multiplying a point in
@@ -227,7 +227,7 @@ class Jax.MatrixStack
       return @matrices.modelViewProjection[@depth]
     else
       @valid.modelViewProjection[@depth] = true
-      GLMatrix.mat4.multiply @matrices.modelViewProjection[@depth], @getProjectionMatrix(), @getModelViewMatrix()
+      mat4.multiply @matrices.modelViewProjection[@depth], @getProjectionMatrix(), @getModelViewMatrix()
     
   ###
   The inverse transpose of the modelview matrix. See
@@ -241,7 +241,7 @@ class Jax.MatrixStack
       return @matrices.normal[@depth]
     else
       @valid.normal[@depth] = true
-      GLMatrix.mat3.normalFromMat4 @matrices.normal[@depth], @getModelViewMatrix()
+      mat3.normalFromMat4 @matrices.normal[@depth], @getModelViewMatrix()
 
   ###
   A 3x3 normal matrix. When a directional vector in world space is multiplied by
@@ -252,7 +252,7 @@ class Jax.MatrixStack
       return @matrices.viewNormal[@depth]
     else
       @valid.viewNormal[@depth] = true
-      GLMatrix.mat3.normalFromMat4 @matrices.viewNormal[@depth], @getViewMatrix()
+      mat3.normalFromMat4 @matrices.viewNormal[@depth], @getViewMatrix()
 
   ###
   The opposite of the view matrix. Multiplying a point in eye space against this matrix
@@ -263,7 +263,7 @@ class Jax.MatrixStack
       return @matrices.inverseViewNormal[@depth]
     else
       @valid.inverseViewNormal[@depth] = true
-      GLMatrix.mat3.normalFromMat4 @matrices.inverseViewNormal[@depth], @getInverseViewMatrix()
+      mat3.normalFromMat4 @matrices.inverseViewNormal[@depth], @getInverseViewMatrix()
 
   ###
   A 3x3 normal matrix. When a directional vector in object space is multiplied
@@ -274,7 +274,7 @@ class Jax.MatrixStack
       return @matrices.modelNormal[@depth]
     else
       @valid.modelNormal[@depth] = true
-      GLMatrix.mat3.normalFromMat4 @matrices.modelNormal[@depth], @getModelMatrix()
+      mat3.normalFromMat4 @matrices.modelNormal[@depth], @getModelMatrix()
 
   ###
   The opposite of the local model transformation matrix. Multiplying a point
@@ -286,7 +286,7 @@ class Jax.MatrixStack
       return @matrices.inverseModel[@depth]
     else
       @valid.inverseModel[@depth] = true
-      GLMatrix.mat4.invert @matrices.inverseModel[@depth], @getModelMatrix()
+      mat4.invert @matrices.inverseModel[@depth], @getModelMatrix()
       
   ###
   The opposite of the view matrix. Multiplying a point in eye space by this
@@ -297,7 +297,7 @@ class Jax.MatrixStack
       return @matrices.inverseView[@depth]
     else
       @valid.inverseView[@depth] = true
-      GLMatrix.mat4.invert @matrices.inverseView[@depth], @getViewMatrix()
+      mat4.invert @matrices.inverseView[@depth], @getViewMatrix()
     
   ###
   The opposite of the projection matrix. Multiplying a 4D vector in normalized device coordinates by
@@ -309,4 +309,4 @@ class Jax.MatrixStack
       return @matrices.inverseProjection[@depth]
     else
       @valid.inverseProjection[@depth] = true
-      GLMatrix.mat4.invert @matrices.inverseProjection[@depth], @getProjectionMatrix()
+      mat4.invert @matrices.inverseProjection[@depth], @getProjectionMatrix()

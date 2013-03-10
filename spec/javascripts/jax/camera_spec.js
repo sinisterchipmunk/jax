@@ -116,7 +116,7 @@ describe("Jax.Camera", function() {
   it("should initialize camera when given position and direction", function() {
     camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});
     expect(camera.position).toEqualVector([1,1,1]);
-    expect(camera.direction).toEqualVector(GLMatrix.vec3.normalize([], [2,2,2]));
+    expect(camera.direction).toEqualVector(vec3.normalize([], [2,2,2]));
   });
   
   it("should not change its orientation when looking in its current direction", function() {
@@ -211,7 +211,7 @@ describe("Jax.Camera", function() {
   
   it("should project move and strafe", function() {
     var pos = camera.projectMovement(1, 1);
-    GLMatrix.vec3.subtract(pos, pos, camera.position);
+    vec3.subtract(pos, pos, camera.position);
     expect(pos).toEqualVector([1,0,-1])
   });
   

@@ -4,7 +4,7 @@ Jax.Controller.create "oz3d",
   update: (timechange) ->
     speed = 0.15 * timechange;
     @_rotation = (@_rotation or 0) - speed
-    pos = @_pos = (@_pos or GLMatrix.vec3.create())
+    pos = @_pos = (@_pos or vec3.create())
     radius = Math.sqrt(15*15+25*25)
     pos[0] = Math.sin(@_rotation) * radius
     pos[1] = 20

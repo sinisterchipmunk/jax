@@ -32,12 +32,12 @@ class Jax.Mesh.PLY extends Jax.Mesh.Triangles
     
   init: (vertices, colors, textures, normals, indices) ->
     return unless @parser
-    dist = GLMatrix.vec3.create()
+    dist = vec3.create()
     max = 0
     for vertex in (@parser.vertex || @parser.vertices)
       vertices.push vertex.x, vertex.y, vertex.z
       [dist[0], dist[1], dist[2]] = [vertex.x, vertex.y, vertex.z]
-      len = GLMatrix.vec3.length dist
+      len = vec3.length dist
       max = len if max < len
       if vertex.nx isnt undefined
         normals.push vertex.nx, vertex.ny, vertex.nz

@@ -100,7 +100,7 @@ class Mesh
   
   Returns true.
   ###
-  recalcNormal = GLMatrix.vec3.create()
+  recalcNormal = vec3.create()
   recalculateNormals: ->
     normals = @data.normalBuffer
     vertices = @data.vertexBuffer
@@ -109,8 +109,8 @@ class Mesh
       recalcNormal[0] = vertices[i]
       recalcNormal[1] = vertices[i+1]
       recalcNormal[2] = vertices[i+2]
-      GLMatrix.vec3.subtract recalcNormal, recalcNormal, center
-      GLMatrix.vec3.normalize recalcNormal, recalcNormal
+      vec3.subtract recalcNormal, recalcNormal, center
+      vec3.normalize recalcNormal, recalcNormal
       normals[i  ] = recalcNormal[0]
       normals[i+1] = recalcNormal[1]
       normals[i+2] = recalcNormal[2]
@@ -219,7 +219,7 @@ class Mesh
         (n.push __b for __b in _b) if _b
         (i.push __i - 65535 for __i in _i)
 
-  recalcPosition = GLMatrix.vec3.create()
+  recalcPosition = vec3.create()
   recalculateBounds: ->
     [left, right, top, bottom, front, back] = [@_bounds.left, @_bounds.right, @_bounds.top,
                                                @_bounds.bottom, @_bounds.front, @_bounds.back]
@@ -235,19 +235,19 @@ class Mesh
       # vertex = @data.vertices[index]
       # position = vertex.position
       if i == 0
-        GLMatrix.vec3.copy left,   position
-        GLMatrix.vec3.copy right,  position
-        GLMatrix.vec3.copy top,    position
-        GLMatrix.vec3.copy bottom, position
-        GLMatrix.vec3.copy front,  position
-        GLMatrix.vec3.copy back,   position
+        vec3.copy left,   position
+        vec3.copy right,  position
+        vec3.copy top,    position
+        vec3.copy bottom, position
+        vec3.copy front,  position
+        vec3.copy back,   position
       else
-        if position[0] < left[0]   then GLMatrix.vec3.copy left,   position
-        if position[0] > right[0]  then GLMatrix.vec3.copy right,  position
-        if position[1] < bottom[1] then GLMatrix.vec3.copy bottom, position
-        if position[1] > top[1]    then GLMatrix.vec3.copy top,    position
-        if position[2] < back[2]   then GLMatrix.vec3.copy back,   position
-        if position[2] > front[2]  then GLMatrix.vec3.copy front,  position
+        if position[0] < left[0]   then vec3.copy left,   position
+        if position[0] > right[0]  then vec3.copy right,  position
+        if position[1] < bottom[1] then vec3.copy bottom, position
+        if position[1] > top[1]    then vec3.copy top,    position
+        if position[2] < back[2]   then vec3.copy back,   position
+        if position[2] > front[2]  then vec3.copy front,  position
     width  = right[0] - left[0]
     height = top[1]   - bottom[1]
     depth  = front[2] - back[2]
