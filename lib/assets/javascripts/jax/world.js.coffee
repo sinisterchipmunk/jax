@@ -131,7 +131,7 @@ class Jax.World
   renderOpaques: (material, cull) ->
     numObjectsRendered = 0
     @_sortPosition[0] = @_sortPosition[1] = @_sortPosition[2] = 0
-    mat4.multiplyVec3 @context.matrix_stack.getInverseModelViewMatrix(), @_sortPosition
+    GLMatrix.vec3.transformMat4 @_sortPosition, @_sortPosition, @context.matrix_stack.getInverseModelViewMatrix()
     
     # render objects in octree
     if cull isnt false

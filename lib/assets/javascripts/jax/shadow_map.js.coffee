@@ -3,15 +3,15 @@
 
 class Jax.ShadowMap
   constructor: (@light) ->
-    @_shadowMatrix = mat4.create()
-    @_projectionMatrix = mat4.create()
+    @_shadowMatrix = GLMatrix.mat4.create()
+    @_projectionMatrix = GLMatrix.mat4.create()
     @_isValid = false
     @light.camera.addEventListener 'updated', => @invalidate()
-    @biasMatrix = mat4.identity()
+    @biasMatrix = GLMatrix.mat4.identity GLMatrix.mat4.create()
     @clearColor = [0, 0, 0, 0]
     @cullFace = GL_FRONT
-    mat4.translate @biasMatrix, [0.5, 0.5, 0.5]
-    mat4.scale     @biasMatrix, [0.5, 0.5, 0.5]
+    GLMatrix.mat4.translate @biasMatrix, @biasMatrix, [0.5, 0.5, 0.5]
+    GLMatrix.mat4.scale     @biasMatrix, @biasMatrix, [0.5, 0.5, 0.5]
     
   @getter 'shadowMatrix', ->
     @validate() unless @isValid()
@@ -46,12 +46,12 @@ class Jax.ShadowMap
 
       @setupProjection @_projectionMatrix, context
       # shadowMatrix = bias * projection * modelview
-      mat4.set @light.camera.getInverseTransformationMatrix(), @_shadowMatrix
-      mat4.multiply @_projectionMatrix, @_shadowMatrix, @_shadowMatrix
+      GLMatrix.mat4.copy @_shadowMatrix, @light.camera.getInverseTransformationMatrix()
+      GLMatrix.mat4.multiply @_shadowMatrix, @_projectionMatrix, @_shadowMatrix
       @_isValid = true
       @illuminate context
       # apply bias matrix only after illumination, so that it doesn't skew the illumination
-      mat4.multiply @biasMatrix, @_shadowMatrix, @_shadowMatrix
+      GLMatrix.mat4.multiply @_shadowMatrix, @biasMatrix, @_shadowMatrix
     
   invalidate: -> @_isValid = @_isUpToDate = false
   

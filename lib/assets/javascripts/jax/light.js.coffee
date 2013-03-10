@@ -68,7 +68,7 @@ class Jax.Light extends Jax.Model
     # invisible, but this would be a bad idea because some models contain
     # other models instead of meshes...
     objPos = model.position
-    dist = vec3.length(vec3.subtract objPos, @position, inRangeVec) - radius
+    dist = GLMatrix.vec3.length(GLMatrix.vec3.subtract inRangeVec, objPos, @position) - radius
     range = @maxEffectiveRange()
     return range is -1 or range >= dist
 
