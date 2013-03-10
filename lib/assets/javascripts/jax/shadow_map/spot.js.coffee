@@ -1,5 +1,5 @@
 class Jax.ShadowMap.Spot extends Jax.ShadowMap
-  relative = vec3.create()
+  relative = GLMatrix.vec3.create()
 
   setupProjection: (projection, context) ->
     # first, find the most distance object from the light

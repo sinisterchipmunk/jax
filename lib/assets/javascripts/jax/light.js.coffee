@@ -61,7 +61,7 @@ class Jax.Light extends Jax.Model
   more time-consuming calculation performed by
   `Jax.ShadowMap#isIlluminated`.
   ###
-  inRangeVec = vec3.create()
+  inRangeVec = GLMatrix.vec3.create()
   isInRange: (model) ->
     radius = model.mesh?.bounds.radius || 0
     # My first thought was to exit early on 0-radius meshes since they're

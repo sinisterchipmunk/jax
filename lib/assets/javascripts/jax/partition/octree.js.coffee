@@ -45,7 +45,7 @@ class Jax.Octree
     @nestedObjectCount = 0
     @objects = {}
     @nestedObjects = {}
-    @position = vec3.create()
+    @position = GLMatrix.vec3.create()
     
   @getter 'mesh', ->
     @_mesh or= new Jax.Mesh.LineCube @size, @position
@@ -102,7 +102,7 @@ class Jax.Octree
   subdivide: ->
     @_isSubdivided = true
   
-  chvec = vec3.create()
+  chvec = GLMatrix.vec3.create()
   
   ###
   Returns the child in the appropriate quadrant for the given vector, which

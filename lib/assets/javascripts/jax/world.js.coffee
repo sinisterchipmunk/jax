@@ -18,7 +18,7 @@ class Jax.World
     @ambientColor = new Jax.Color 0.05, 0.05, 0.05, 1
     @_objectsArray = []
     @_renderQueue = []
-    @_sortPosition = vec3.create()
+    @_sortPosition = GLMatrix.vec3.create()
     @_cameras = []
     @cameras = 1
     # these numbers pulled from a hat.
@@ -38,11 +38,11 @@ class Jax.World
     
     # called to reorder transparencies
     # FIXME this is probably the slowest sorting algorithm in history.
-    buf = vec3.create()
+    buf = GLMatrix.vec3.create()
     @_queueSorter = (a, b) ->
       camPos = world._sortPosition
-      len1 = vec3.length(vec3.subtract(a.position, camPos, buf)) - (a.mesh?.bounds.radius || 0)
-      len2 = vec3.length(vec3.subtract(b.position, camPos, buf)) - (b.mesh?.bounds.radius || 0)
+      len1 = GLMatrix.vec3.length(GLMatrix.vec3.subtract(buf, a.position, camPos)) - (a.mesh?.bounds.radius || 0)
+      len2 = GLMatrix.vec3.length(GLMatrix.vec3.subtract(buf, b.position, camPos)) - (b.mesh?.bounds.radius || 0)
       len1 - len2
       
   @define 'ambientColor',

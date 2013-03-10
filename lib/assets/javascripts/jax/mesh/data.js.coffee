@@ -297,7 +297,7 @@ class Jax.Mesh.Data
     @indexBufferOffset = offset
     @indexBuffer = new @indexFormat @_array_buffer, @indexBufferOffset, numIndices
 
-  tmpvec3 = vec3.create()
+  tmpvec3 = GLMatrix.vec3.create()
   
   ###
   Assigns vertex data to the mesh. If color data is omitted, the color of

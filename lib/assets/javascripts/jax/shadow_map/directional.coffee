@@ -1,6 +1,6 @@
 class Jax.ShadowMap.Directional extends Jax.ShadowMap
   
-  center = vec3.create()
+  center = GLMatrix.vec3.create()
   setupProjection: (projection, context) ->
     center[0] = center[1] = center[2] = 0
     count = 0

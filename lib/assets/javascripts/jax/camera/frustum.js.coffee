@@ -47,7 +47,7 @@ class Jax.Frustum extends Jax.Model
     recalculateMeshVertices()
     return mesh
     
-  testVec = vec3.create()
+  testVec = GLMatrix.vec3.create()
   point: (point, y, z) ->
     @validate()
     if y isnt undefined
@@ -106,8 +106,8 @@ class Jax.Frustum extends Jax.Model
     @_isValid = true
     @fireEvent 'updated'
     
-  extractedM = mat4.create()
-  extractedVec = vec3.create()
+  extractedM = GLMatrix.mat4.create()
+  extractedVec = GLMatrix.vec3.create()
   calcExtent: (vec, x, y, z) ->
     vec[0] = x
     vec[1] = y

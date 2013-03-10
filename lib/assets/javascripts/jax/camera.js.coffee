@@ -142,8 +142,8 @@ class Jax.Camera
       type: 'perspective'
     @fireEvent 'matrixUpdated'
     
-  _rotVec = vec3.create()
-  _rotQuat = quat4.create()
+  _rotVec = GLMatrix.vec3.create()
+  _rotQuat = GLMatrix.quat.create()
   rotate: (amount, x, y, z) ->
     if y is undefined then vec = x
     else
@@ -209,7 +209,7 @@ class Jax.Camera
     @recalculateMatrices() if @_stale
     @matrices.p
     
-  _unprojectInf = vec4.create()
+  _unprojectInf = GLMatrix.vec4.create()
   unproject: (winx, winy, winz) ->
     # winz is either 0 (near plane), 1 (far plane) or somewhere in between.
     # if it's not given a value we'll produce coords for both.
@@ -249,7 +249,7 @@ class Jax.Camera
     @move distance, @right
     this
     
-  _moveVec = vec3.create()
+  _moveVec = GLMatrix.vec3.create()
   move: (distance, direction) ->
     direction or= @direction
     vec3.add vec3.scale(direction, distance, _moveVec), @position, @position

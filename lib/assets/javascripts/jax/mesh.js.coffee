@@ -100,7 +100,7 @@ class Mesh
   
   Returns true.
   ###
-  recalcNormal = vec3.create()
+  recalcNormal = GLMatrix.vec3.create()
   recalculateNormals: ->
     normals = @data.normalBuffer
     vertices = @data.vertexBuffer
@@ -219,7 +219,7 @@ class Mesh
         (n.push __b for __b in _b) if _b
         (i.push __i - 65535 for __i in _i)
 
-  recalcPosition = vec3.create()
+  recalcPosition = GLMatrix.vec3.create()
   recalculateBounds: ->
     [left, right, top, bottom, front, back] = [@_bounds.left, @_bounds.right, @_bounds.top,
                                                @_bounds.bottom, @_bounds.front, @_bounds.back]

@@ -3,7 +3,7 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     super args...
     @clearColor = [0, 0, 0, 0]
     # we don't use a bias, it will mess up the paraboloid
-    mat4.identity @biasMatrix
+    GLMatrix.mat4.identity @biasMatrix
   
   illuminate: (context, material = 'paraboloid-depthmap', fbo = @shadowmapFBO) ->
     unless @backFBO
@@ -32,10 +32,10 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
     super context, vars, front
     vars[back]  = @backFBO.getTexture      context, 0
 
-  relative = vec3.create()
+  relative = GLMatrix.vec3.create()
   setupProjection: (projection, context) ->
     # the paraboloid will perform its own projection in the shader
-    mat4.identity projection
+    GLMatrix.mat4.identity projection
     
     # now calculate zNear and zFar for the paraboloid
     mostDistant = 0
