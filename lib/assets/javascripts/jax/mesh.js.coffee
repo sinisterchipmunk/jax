@@ -30,7 +30,7 @@ class Mesh
     else
       @material = Jax.default_material
   
-  @define 'material'
+  @define 'material',
     get: ->
       @validate() unless @_invalid
       @_material
@@ -42,7 +42,7 @@ class Mesh
         @_material = Jax.Material.find material
       @_material.name
       
-  @define 'data'
+  @define 'data',
     get: ->
       @validate() unless @_valid
       @_data
@@ -56,29 +56,29 @@ class Mesh
       @_data.addEventListener 'shouldRecalculateTangents', => @recalculateTangents()
       @_data.addEventListener 'shouldRecalculateBitangents', => @recalculateBitangents()
       
-  @define 'color'
+  @define 'color',
     get: -> @_color
     set: (color) ->
       @_color = color
       @_data.color = @_color
       @fireEvent 'colorChanged'
 
-  @define 'vertices'
+  @define 'vertices',
     get: ->
       @validate() unless @_valid
       @data.vertexBuffer
 
-  @define 'indices'
+  @define 'indices',
     get: ->
       @validate() unless @_valid
       @data.indexBuffer
 
-  @define 'bounds'
+  @define 'bounds',
     get: ->
       @validate() unless @_valid
       @_bounds
       
-  @define 'submesh'
+  @define 'submesh',
     get: ->
       @validate() unless @_valid
       @_submesh

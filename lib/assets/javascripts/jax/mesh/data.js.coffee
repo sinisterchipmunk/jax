@@ -68,7 +68,7 @@ class Jax.Mesh.Data
     @_glBuffers = {}
     @_valid = {}
     
-  @define 'color'
+  @define 'color',
     get: -> @_color
     set: (color) ->
       @fireEvent 'colorChanged'
@@ -80,7 +80,7 @@ class Jax.Mesh.Data
         @colorBuffer[i+2] = @originalColors[i+2] * @_color.blue
         @colorBuffer[i+3] = @originalColors[i+3] * @_color.alpha
         
-  @define 'context'
+  @define 'context',
     set: (context) ->
       @_bound = false
       @_context = context

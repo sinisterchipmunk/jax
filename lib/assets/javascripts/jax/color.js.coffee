@@ -32,19 +32,19 @@ class Jax.Color
   set: (@_red, @_green, @_blue, @_alpha) ->
     [@_vec...] = [@_red, @_green, @_blue, @_alpha]
     
-  @define 'red'
+  @define 'red',
     get: -> @_red
     set: (@_red) -> @_vec[0] = @_red
     
-  @define 'green'
+  @define 'green',
     get: -> @_green
     set: (@_green) -> @_vec[1] = @_green
     
-  @define 'blue'
+  @define 'blue',
     get: -> @_blue
     set: (@_blue) -> @_vec[2] = @_blue
     
-  @define 'alpha'
+  @define 'alpha',
     get: -> @_alpha
     set: (@_alpha) -> @_vec[3] = @_alpha
     

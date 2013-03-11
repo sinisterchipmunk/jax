@@ -22,11 +22,11 @@ class Jax.Mesh.Quad extends Jax.Mesh.Triangles
     options.height or= options.size || 1
     super options
   
-  @define 'width'
+  @define 'width',
     get: -> @_width
     set: (w) -> @_width = w; @invalidate()
   
-  @define 'height'
+  @define 'height',
     get: -> @_height
     set: (h) -> @_height = h; @invalidate()
     
