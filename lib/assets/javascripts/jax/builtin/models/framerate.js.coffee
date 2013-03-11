@@ -19,7 +19,7 @@ model (e.g. `new Jax.Framerate().camera.getPosition()`) except that it uses
 pixel coordinates instead of world units and is displayed with an 
 orthographic (essentially 2D) projection.
 
-The framerate is capable of two modes of operation
+The framerate is capable of two modes of operation:
 
 * EMA - calculates an exponential moving average of the framerate based on 
   the `ema` option, producing a smooth line on the graph, allowing you to 
@@ -33,19 +33,26 @@ The framerate is capable of two modes of operation
   the JavaScript garbage collector is run.
 
 You can also get the current framerate any time after the framerate has been
-added to the world by calling `fps` or `ups`.
+added to the world by calling `fps`.
 
 ###
 class Jax.Framerate extends Jax.Model
   drawPath = (ctx, points, height, current)->
     ctx.beginPath()
-    ctx.moveTo 0, height - points[0] * height
+    ctx.moveTo 0, clamp height - points[0] * height, 0, height
     for i in [0..current]
-      ctx.lineTo i, height - points[i] * height
+      ctx.lineTo i, clamp height - points[i] * height, 0, height
     ctx.stroke()
     ctx.closePath()
+
+  clamp = (val, min, max) ->
+    if val < min then min
+    else if val > max then max
+    else val
   
   constructor: (options = {}) ->
+    options.stroke or= "rgba(0, 0, 0, 255)"
+    options.fill or= "rgba(255, 0, 255, 255)"
     options.width or= 128
     options.height or= 64
     # Instead of disabling depth tests, we'll just position it in ortho
@@ -56,31 +63,30 @@ class Jax.Framerate extends Jax.Model
     options.castShadow or= false
     options.receiveShadow or= false
     options.illuminated or= false
+    options.fontHeight or= 12
     super options
     
     @canvas = document.createElement 'canvas'
     @canvas.width  = @width
     @canvas.height = @height
     @ctx = @canvas.getContext '2d'
-    @ctx.font      = @font or= "10pt Arial"
-    
-    @fps_points = []
-    @ups_points = []
+    @ctx.font      = @font or= "#{@fontHeight}px Arial"
+
+    @history = []
     @current = -1
-    @max_fps = @max_ups = 100
+    @max_fps = 100
     @ema = 30 if @ema is undefined
     
     # cache some variables for use during update
     @ema_exponent = 2 / (@ema + 1)
-    @_max_data_width = @width / 3
-    @_fps_label_left = 0
-    @_ups_label_left = @width / 3 + @width / 6
-    @_one_quarter_height = @height * 0.25
-    @_two_quarter_height = @height * 0.5
+    @_max_data_width       = @width / 3
+    @_fps_label_left       = 0
+    @_one_quarter_height   = @height * 0.25
+    @_two_quarter_height   = @height * 0.5
     @_three_quarter_height = @height * 0.75
-    @_12_pcnt_height = @height * 0.12
-    @_marker_offset = @width - @_12_pcnt_height
-    @_max_queue_size = Math.round(@width - @_12_pcnt_height)
+    @_12_pcnt_height       = @height * 0.12
+    @_marker_offset        = @width - @_12_pcnt_height
+    @_max_queue_size       = Math.round(@width - @_12_pcnt_height)
     
     @glTex = new Jax.Texture
       width: @width
@@ -88,58 +94,65 @@ class Jax.Framerate extends Jax.Model
       mag_filter: GL_LINEAR
       min_filter: GL_LINEAR
       flip_y: true
+      wrap_s: GL_CLAMP_TO_EDGE
+      wrap_t: GL_CLAMP_TO_EDGE
       
     @glTex.image = @canvas
     @mesh = new Jax.Mesh.Quad
       width: @width
       height: @height
-      color: [1, 1, 1, 0.5]
-      material: new Jax.Material(layers: [ { type: 'Position' }, { type: 'Texture', instance: @glTex } ])
-    
+      color: [1, 1, 1, 1]
+      transparent: true
+      material: new Jax.Material.Custom
+        layers: [
+          { type: 'Position' },
+          { type: 'VertexColor' },
+          { type: 'Texture', instance: @glTex }
+        ]
+
   render: (context, material) ->
     @fps = context.getFramesPerSecond()
-    fps_pcnt = @fps / @max_fps
+    fpsPcnt = @fps / @max_fps
     
-    if fps_pcnt == Number.POSITIVE_INFINITY then fps_pcnt = 1000
+    if @fps is Number.POSITIVE_INFINITY then @fps = fpsPcnt = 0
     
     if @current == @_max_queue_size
       for i in [0..@current]
-        @fps_points[i] = @fps_points[i+1]
+        @history[i] = @history[i+1]
     else @current++
     
     if @ema
       # calculate exponential moving average
       if @current == 0
-        fema = 0
-        uema = 0
+        curEMA = 0
       else
-        fema = @fps_points[@current-1]
-      @fps_points[@current] = (fps_pcnt * @ema_exponent) + (fema * (1 - @ema_exponent))
+        curEMA = @history[@current-1]
+      @history[@current] = curPcnt = (fpsPcnt * @ema_exponent) + (curEMA * (1 - @ema_exponent))
     else
-      @fps_points[@current] = fps_pcnt
+      @history[@current] = curPcnt = fpsPcnt
     
     # clear the graph
     @ctx.clearRect 0, 0, @width, @height
-    @ctx.fillStyle = "rgba(64, 64, 64, 0.7)"
-    @ctx.fillRect 0, 0, @width, @height
-    @ctx.textBaseline = "middle"
-    @ctx.fillStyle = "rgba(0, 32, 0, 1)"
-    @ctx.fillText "25", @_marker_offset, @_three_quarter_height, @_12_pcnt_height
-    @ctx.fillStyle = "rgba(0, 32, 0, 1)" # why do I have to do this again?
-    @ctx.fillText "50", @_marker_offset, @_two_quarter_height, @_12_pcnt_height
-    @ctx.fillStyle = "rgba(0, 32, 0, 1)"
-    @ctx.fillText "75", @_marker_offset, @_one_quarter_height, @_12_pcnt_height
 
     if !@ema or @current >= @ema
-      # FPS or FPS EMA
-      @ctx.strokeStyle = "red"
-      drawPath @ctx, @fps_points, @height, @current
-      
-      @ctx.textBaseline = "bottom"
-      @ctx.fillStyle = "red"
-      @ctx.fillText "#{Math.round @fps} FPS", @_fps_label_left, @height, @_max_data_width
+      @ctx.strokeStyle = @fill
+      drawPath @ctx, @history, @height, @current
+
+      @ctx.textBaseline = "center"
+
+      x = @width - @fontHeight * 4.25
+      y = clamp @height - (curPcnt * @height + 5), @fontHeight, @height
+
+      @ctx.strokeStyle = @stroke
+      @ctx.strokeText "#{Math.round @fps} FPS", x, y
+
+      @ctx.fillStyle = @fill
+      @ctx.fillText "#{Math.round @fps} FPS", x, y
     else
-      @ctx.fillStyle = "rgba(0, 0, 0, 1)"
+      @ctx.strokeStyle = @stroke
+      @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
+
+      @ctx.fillStyle = "rgba(128, 128, 128, 255)"
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
       
     @glTex.refresh context
