@@ -9,7 +9,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
     [vertices, colors, textureCoords, vertexNormals] = [[], [], [], []]
 
 
-  for subdivisions in [0..2] by 1
+  for subdivisions in [0..1] by 1
 
     describe "With "+subdivisions+" subdivision(s)", ->
 

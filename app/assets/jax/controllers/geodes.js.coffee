@@ -59,7 +59,7 @@ Jax.Controller.create "geodes",
           @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
 
 
-    for n in [0..3] by 1
+    for n in [0..2] by 1
 
       # Pulsating Geodes Duals
       geode = @world.addObject new Jax.Model
