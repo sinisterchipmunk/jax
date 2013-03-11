@@ -74,6 +74,10 @@ Jax.Controller.create "benchmark",
     k = 0
     
     @world.addLight new Jax.Light.Directional
+      color:
+        ambient: "#000"
+        diffuse: '#ccc'
+        specular: "#fff"
     @activeCamera.position = [0, 0, 10]
     
     for i in [0..max]
