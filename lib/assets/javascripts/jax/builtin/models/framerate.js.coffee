@@ -1,7 +1,7 @@
 ###
 
-A visual frames per second counter that can be added to the world like any other
-model:
+A visual frames per second counter that can be added to the world like any 
+other model:
 
     @world.addObject new Jax.Framerate
 
@@ -14,21 +14,23 @@ Several options can be passed:
     left   - the left pixel coordinate of the counter
     top    - the top pixel coordinate of the counter
 
-After instantiation, the counter can be manipulated just like any other Jax model
-(e.g. `new Jax.Framerate().camera.getPosition()`) except that it uses pixel coordinates
-instead of world units and is displayed with an orthographic (essentially 2D) projection.
+After instantiation, the counter can be manipulated just like any other Jax 
+model (e.g. `new Jax.Framerate().camera.getPosition()`) except that it uses 
+pixel coordinates instead of world units and is displayed with an 
+orthographic (essentially 2D) projection.
 
 The framerate is capable of two modes of operation
 
-* EMA - calculates an exponential moving average of the framerate based on the
-  `ema` option, producing a smooth line on the graph, allowing you to visually
-  "skip over" temporary disruptions such as garbage collection, and giving you
-  the "big picture".
-* Instant - if the `ema` option is `false`, no moving averages will be calculated,
-  allowing you to view every tiny disruption in framerate. You can use this to
-  home in on common wasteful coding practices such as allocating too many temporary
-  objects. This sort of optimization will produce a smoother-flowing application
-  with fewer and shorter pauses as the JavaScript garbage collector is run.
+* EMA - calculates an exponential moving average of the framerate based on 
+  the `ema` option, producing a smooth line on the graph, allowing you to 
+  visually "skip over" temporary disruptions such as garbage collection, and 
+  giving you the "big picture".
+* Instant - if the `ema` option is `false`, no moving averages will be 
+  calculated, allowing you to view every tiny disruption in framerate. You 
+  can use this to home in on common wasteful coding practices such as 
+  allocating too many temporary objects. This sort of optimization will 
+  produce a smoother-flowing application with fewer and shorter pauses as 
+  the JavaScript garbage collector is run.
 
 You can also get the current framerate any time after the framerate has been
 added to the world by calling `fps` or `ups`.
