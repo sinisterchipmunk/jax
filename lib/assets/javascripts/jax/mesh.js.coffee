@@ -66,7 +66,7 @@ class Mesh
   @define 'vertices'
     get: ->
       @validate() unless @_valid
-      @data.vertices
+      @data.vertexBuffer
 
   @define 'indices'
     get: ->

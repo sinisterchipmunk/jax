@@ -13,6 +13,9 @@ describe "Jax.Mesh", ->
     it "should rebuild successfully", ->
       mesh.rebuild()
       mesh.rebuild()
+
+    it 'should expose its vertices', ->
+      expect(mesh.vertices).toEqualVector [1,1,1]
       
   it "should initialize from a color as a space-delimited string", ->
     mesh = new Jax.Mesh.Quad color: "1 2 3 4"
