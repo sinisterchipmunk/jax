@@ -25,8 +25,8 @@ describe "Jax.Light", ->
     
       it "should return eye direction same as direction more than once", ->
         light.direction = [-1, -1, -1]
-        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
-        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([-1,-1,-1])
+        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([], [-1,-1,-1])
+        expect(light.eyeDirection camera.getNormalMatrix()).toEqualVector vec3.normalize([], [-1,-1,-1])
         
   it "should set colors from options", ->
     light = new Jax.Light color: {ambient: [1,1,1,1], diffuse: [2,2,2,2], specular: [3,3,3,3]}

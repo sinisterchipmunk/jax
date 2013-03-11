@@ -3,18 +3,18 @@
 
 class Jax.Camera
   @include Jax.EventEmitter
-  LOCAL_VIEW  = vec3.create [0, 0,-1]
-  LOCAL_RIGHT = vec3.create [1, 0, 0]
-  LOCAL_UP    = vec3.create [0, 1, 0]
+  LOCAL_VIEW  = vec3.clone [0, 0,-1]
+  LOCAL_RIGHT = vec3.clone [1, 0, 0]
+  LOCAL_UP    = vec3.clone [0, 1, 0]
   
   constructor: (options) ->
-    @rotation = quat4.identity()
+    @rotation = quat.identity quat.create()
     @_position = vec3.create()
     @matrices =
-      mv:  mat4.identity()
-      imv: mat4.identity()
-      p:   mat4.identity()
-      n:   mat3.identity()
+      mv:  mat4.identity mat4.create()
+      imv: mat4.identity mat4.create()
+      p:   mat4.identity mat4.create()
+      n:   mat3.identity mat3.create()
     @reset()
     @setFixedYawAxis true, vec3.UNIT_Y
     
@@ -22,7 +22,6 @@ class Jax.Camera
     @_viewVector = vec3.create()
     @_upVector   = vec3.create()
     @_rightVector= vec3.create()
-    
     if options
       @_position = options.position if options.position
       @direction = options.direction if options.direction
@@ -38,24 +37,24 @@ class Jax.Camera
   _dirVec = vec3.create()
   _dirRightVec = vec3.create()
   _dirUpVec = vec3.create()
-  _dirQuat = quat4.create()
+  _dirQuat = quat.create()
   @define 'direction',
     get: ->
       @validate() unless @isValid()
       @_viewVector
     set: (dir) ->
-      vec = vec3.set dir, _dirVec
-      vec3.normalize vec
+      vec = vec3.copy _dirVec, dir
+      vec3.normalize vec, vec
       if @_fixedYaw
         # negating so that right, up, vec is right-handed
-        vec3.negate vec
-        right = vec3.normalize vec3.cross @_fixedYawAxis, vec, _dirRightVec
-        up    = vec3.normalize vec3.cross vec, right, _dirUpVec
-        quat4.fromAxes vec, right, up, @rotation
+        vec3.negate vec, vec
+        right = vec3.normalize _dirRightVec, vec3.cross _dirRightVec, @_fixedYawAxis, vec
+        up    = vec3.normalize _dirUpVec,    vec3.cross _dirUpVec,    vec, right
+        quat.setAxes @rotation, vec, right, up
       else
-        rotquat = vec3.rotationTo @direction, vec, _dirQuat
-        quat4.multiply rotquat, @rotation, @rotation
-      quat4.normalize @rotation
+        rotquat = quat.rotationTo _dirQuat, @direction, vec
+        quat.multiply @rotation, rotquat, @rotation
+      quat.normalize @rotation, @rotation
       @invalidate()
       @fireEvent 'updated'
     
@@ -70,7 +69,7 @@ class Jax.Camera
   @define 'position',
     get: -> @_position
     set: (x) ->
-      vec3.set x, @_position
+      vec3.copy @_position, x
       # no need to completely invalidate, just force matrices and
       # frustum to update, that way we skip the overhead of
       # recalculating view, right and up vectors, which won't change.
@@ -88,17 +87,17 @@ class Jax.Camera
   recalculateMatrices: ->
     @validate() unless @isValid()
     @_stale = false
-    mat4.fromRotationTranslation @rotation, @position, @matrices.mv
-    mat4.inverse @matrices.mv, @matrices.imv
-    mat4.toInverseMat3 @matrices.mv, @matrices.n
-    mat3.transpose @matrices.n
+    mat4.fromRotationTranslation @matrices.mv, @rotation, @position
+    mat4.invert @matrices.imv, @matrices.mv
+    mat3.fromMat4 @matrices.n, @matrices.imv
+    mat3.transpose @matrices.n, @matrices.n
     @fireEvent 'matrixUpdated'
   
   validate: () ->
     @_isValid = true
-    @_viewVector  = quat4.multiplyVec3 @rotation, LOCAL_VIEW,  @_viewVector
-    @_rightVector = quat4.multiplyVec3 @rotation, LOCAL_RIGHT, @_rightVector
-    @_upVector    = quat4.multiplyVec3 @rotation, LOCAL_UP,    @_upVector
+    @_viewVector  = vec3.transformQuat @_viewVector,  LOCAL_VIEW,  @rotation
+    @_rightVector = vec3.transformQuat @_rightVector, LOCAL_RIGHT, @rotation
+    @_upVector    = vec3.transformQuat @_upVector,    LOCAL_UP,    @rotation
     
   setFixedYawAxis: (useFixedYaw, axis) ->
     @_fixedYaw = useFixedYaw
@@ -111,7 +110,7 @@ class Jax.Camera
     options.bottom or= -1
     options.far or= 200
     options.near or= 0.1
-    mat4.ortho options.left, options.right, options.bottom, options.top, options.near, options.far, @matrices.p
+    mat4.ortho @matrices.p, options.left, options.right, options.bottom, options.top, options.near, options.far
     @projection =
       width: options.right - options.left
       height: options.top - options.bottom
@@ -129,11 +128,11 @@ class Jax.Camera
     options or= {}
     throw new Error "Expected a screen width in Jax.Camera#perspective" unless options.width
     throw new Error "Expected a screen height in Jax.Camera#perspective" unless options.height
-    options.fov or= 45
+    options.fov or= 0.785398 # 45 degrees in radians
     options.near or= 0.1
     options.far or= 200
     aspectRatio = options.width / options.height
-    mat4.perspective options.fov, aspectRatio, options.near, options.far, @matrices.p
+    mat4.perspective @matrices.p, options.fov, aspectRatio, options.near, options.far
     @projection =
       width: options.width
       height: options.height
@@ -144,7 +143,7 @@ class Jax.Camera
     @fireEvent 'matrixUpdated'
     
   _rotVec = vec3.create()
-  _rotQuat = quat4.create()
+  _rotQuat = quat.create()
   rotate: (amount, x, y, z) ->
     if y is undefined then vec = x
     else
@@ -152,7 +151,7 @@ class Jax.Camera
       vec[0] = x
       vec[1] = y
       vec[2] = z
-    @rotateWorld amount, quat4.multiplyVec3 @rotation, vec, vec
+    @rotateWorld amount, vec3.transformQuat vec, vec, @rotation
   
   rotateWorld: (amount, x, y, z) ->
     if y is undefined then vec = x
@@ -161,9 +160,9 @@ class Jax.Camera
       vec[0] = x
       vec[1] = y
       vec[2] = z
-    rotquat = quat4.fromAngleAxis amount, vec, _rotQuat
-    quat4.normalize rotquat
-    quat4.multiply rotquat, @rotation, @rotation
+    rotquat = quat.setAxisAngle _rotQuat, vec, amount
+    quat.normalize rotquat, rotquat
+    quat.multiply @rotation, rotquat, @rotation
     @invalidate()
     @fireEvent 'updated'
     this
@@ -192,7 +191,7 @@ class Jax.Camera
     if pos then @position = pos
     else pos = @position
     view = @direction
-    @direction = vec3.subtract point, pos, view
+    @direction = vec3.subtract view, point, pos
     
   getTransformationMatrix: ->
     @recalculateMatrices() if @_stale
@@ -222,9 +221,9 @@ class Jax.Camera
       
       # calculation for inverting a matrix, computing projection x modelview
       # then compute the inverse
-      m = mat4.inverse mm, mat4.create() # WHY do I have to invert first?
-      mat4.multiply pm, m, m
-      return null unless mat4.inverse m, m
+      m = mat4.invert mat4.create(), mm # WHY do I have to invert first?
+      mat4.multiply m, pm, m
+      return null unless mat4.invert m, m
       
       # Transformation of normalized coordinates between -1 and 1
       inf[0] = (winx - viewport[0]) / viewport[2] * 2 - 1
@@ -234,7 +233,7 @@ class Jax.Camera
       
       # Objects coordinates
       out = inf
-      mat4.multiplyVec4 m, inf, out
+      vec4.transformMat4 out, inf, m
       return null if out[3] is 0
       
       result = vec3.create()
@@ -253,20 +252,24 @@ class Jax.Camera
   _moveVec = vec3.create()
   move: (distance, direction) ->
     direction or= @direction
-    vec3.add vec3.scale(direction, distance, _moveVec), @position, @position
+    vec3.add @position, vec3.scale(_moveVec, direction, distance), @position
     @invalidate()
     @fireEvent 'updated'
     this
     
+  _projectView = vec3.create()
+  _projectRight = vec3.create()
   projectMovement: (forward, strafe, dest) ->
     strafe or= 0
     dest or= vec3.create()
+    view  = _projectView
+    right = _projectRight
     
-    view = vec3.scale @direction, forward
-    right = vec3.scale @right, strafe
-    vec3.set @position, dest
-    vec3.add view, dest, dest
-    vec3.add right, dest, dest
+    vec3.scale view, @direction, forward
+    vec3.scale right, @right, strafe
+    vec3.copy dest, @position
+    vec3.add dest, view,  dest
+    vec3.add dest, right, dest
     return dest
     
   reset: ->

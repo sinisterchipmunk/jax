@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   }
 
   s.add_dependency 'rails',          '>= 3.1'
+  s.add_dependency 'gl-matrix-rails'
   s.add_dependency 'jquery-rails'
   s.add_dependency 'jasmine-rails'
 

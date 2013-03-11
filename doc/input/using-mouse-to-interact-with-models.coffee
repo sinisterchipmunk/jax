@@ -73,8 +73,8 @@ Click on the object to light it up; click elsewhere to darken it.
   update: (tc) -> @camera.yaw tc
 
 @mouse_pressed = (e) ->
-  ray = @activeCamera.unproject(e.x, e.y)
-  vec3.direction ray[1], ray[0], direction = []
+  ray = @activeCamera.unproject e.x, e.y
+  direction = vec3.subtract [], ray[1], ray[0]
   @light.enabled = false
   @sphere.mesh.eachTriangle (tri) =>
     if tri.intersectRay(ray[0], direction, dest = [])

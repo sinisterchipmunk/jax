@@ -137,17 +137,17 @@ Jax.Controller.create "d20",
     # The mouse is in the inscribed circle of the canvas, let's rotate
     if (x*x + y*y < r*r)
 
-      _quat = quat4.create()
-      quat4.multiply(
-        quat4.fromAngleAxis(-1 * diffx * baseAngle, cam.up),
-        quat4.fromAngleAxis(-1 * diffy * baseAngle, cam.right),
-        _quat
+      _quat = quat.create()
+      quat.multiply(
+        _quat, 
+        quat.setAxisAngle(quat.create(), cam.up, -1 * diffx * baseAngle),
+        quat.setAxisAngle(quat.create(), cam.right, -1 * diffy * baseAngle)
       )
 
       # warning : using cam.direction as third parameter here does not yield same (nor expected) result
-      cam.direction = quat4.multiplyVec3 _quat, cam.direction, vec3.create()
+      cam.direction = vec3.transformQuat vec3.create(), cam.direction, _quat
       # warning : `cam.position =` is mandatory, or nothing will move
-      cam.position = quat4.multiplyVec3 _quat, cam.position
+      cam.position = vec3.transformQuat vec3.create(), cam.position, _quat
       # these warns are a mix of @define and js voodoo. I'm all ears for a better usage suggestion !
 
     else # let's roll !

@@ -24,6 +24,7 @@ describe "Jax.Input.Mouse", ->
       target.style.top = '252px'
       document.body.appendChild target
       mouse = new Jax.Input.Mouse target
+      window.scrollTo 0, 0
     afterEach ->
       document.body.removeChild target
           

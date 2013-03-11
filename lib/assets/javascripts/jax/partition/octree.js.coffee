@@ -115,8 +115,8 @@ class Jax.Octree
       child
     else
       child = new Jax.Octree @splitThreshold, @mergeThreshold, @depth + 1, @size * 0.5, this
-      vec3.scale chvec, @size * 0.5
-      vec3.add chvec, @position, child.position
+      vec3.scale chvec, chvec, @size * 0.5
+      vec3.add child.position, chvec, @position
       @children[@quadrant vec] = child
       
   ###
@@ -125,8 +125,8 @@ class Jax.Octree
   ###
   recalculateChildPosition: (child) ->
     @quadrant child.position, chvec
-    vec3.scale chvec, @size * 0.5
-    vec3.add chvec, @position, child.position
+    vec3.scale chvec, chvec, @size * 0.5
+    vec3.add child.position, chvec, @position
   
   ###
   Returns true if this octree can contain the specified object based on its

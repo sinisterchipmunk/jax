@@ -41,8 +41,8 @@ class Jax.World
     buf = vec3.create()
     @_queueSorter = (a, b) ->
       camPos = world._sortPosition
-      len1 = vec3.length(vec3.subtract(a.position, camPos, buf)) - (a.mesh?.bounds.radius || 0)
-      len2 = vec3.length(vec3.subtract(b.position, camPos, buf)) - (b.mesh?.bounds.radius || 0)
+      len1 = vec3.length(vec3.subtract(buf, a.position, camPos)) - (a.mesh?.bounds.radius || 0)
+      len2 = vec3.length(vec3.subtract(buf, b.position, camPos)) - (b.mesh?.bounds.radius || 0)
       len1 - len2
       
   @define 'ambientColor',
@@ -131,7 +131,7 @@ class Jax.World
   renderOpaques: (material, cull) ->
     numObjectsRendered = 0
     @_sortPosition[0] = @_sortPosition[1] = @_sortPosition[2] = 0
-    mat4.multiplyVec3 @context.matrix_stack.getInverseModelViewMatrix(), @_sortPosition
+    vec3.transformMat4 @_sortPosition, @_sortPosition, @context.matrix_stack.getInverseModelViewMatrix()
     
     # render objects in octree
     if cull isnt false

@@ -113,7 +113,7 @@ class Jax.Frustum extends Jax.Model
     vec[1] = y
     vec[2] = z
     vec[3] = 1
-    mat4.multiplyVec4 extractedM, vec
+    vec4.transformMat4 vec, vec, extractedM
     if vec[3] is 0
       vec[0] = vec[1] = vec[2] = 0
       return vec
@@ -129,8 +129,8 @@ class Jax.Frustum extends Jax.Model
       ntl: vec4.create(), ntr: vec4.create(), nbl: vec4.create(), nbr: vec4.create(),
       ftl: vec4.create(), ftr: vec4.create(), fbl: vec4.create(), fbr: vec4.create()
     m = extractedM
-    mat4.multiply @projection, @modelview, m
-    mat4.inverse m
+    mat4.multiply m, @projection, @modelview
+    mat4.invert m, m
     @calcExtent e.ntl, -1,  1, -1; @calcExtent e.ntr,  1,  1, -1
     @calcExtent e.nbl, -1, -1, -1; @calcExtent e.nbr,  1, -1, -1
     @calcExtent e.ftl, -1,  1,  1; @calcExtent e.ftr,  1,  1,  1

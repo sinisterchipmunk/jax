@@ -116,7 +116,7 @@ describe("Jax.Camera", function() {
   it("should initialize camera when given position and direction", function() {
     camera = new Jax.Camera({position: [1,1,1], direction:[2,2,2]});
     expect(camera.position).toEqualVector([1,1,1]);
-    expect(camera.direction).toEqualVector(vec3.normalize([2,2,2]));
+    expect(camera.direction).toEqualVector(vec3.normalize([], [2,2,2]));
   });
   
   it("should not change its orientation when looking in its current direction", function() {
@@ -167,7 +167,7 @@ describe("Jax.Camera", function() {
     
     
     var nearest = [ 38.308727, 74.893821, 44.271007 ];
-    var farthest = [-94.170333, -137.355712, 86.261283];
+    var farthest = [-94.170295, -137.355697, 86.258216];
     
     // all that for this:
     expect(camera.unproject(0, 0, 0)).toEqualVector(nearest);
@@ -211,7 +211,7 @@ describe("Jax.Camera", function() {
   
   it("should project move and strafe", function() {
     var pos = camera.projectMovement(1, 1);
-    vec3.subtract(camera.position, pos);
+    vec3.subtract(pos, pos, camera.position);
     expect(pos).toEqualVector([1,0,-1])
   });
   

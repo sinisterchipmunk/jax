@@ -1,26 +1,29 @@
 ###
-A matrix stack, obviously. Every Jax.Context allocates its own matrix stack, so you probably
-shouldn't have to instantiate this directly.
+A matrix stack, obviously. Every Jax.Context allocates its own matrix stack,
+so you probably shouldn't have to instantiate this directly.
 
-Note that for performance reasons, whenever you call get[Some]Matrix(), the matrix instance
-itself is returned instead of a copy of the instance. Although this gives you the technical
-power to make changes directly to the returned matrix, that would be a Bad Idea (TM) because
-matrices that depend upon the one you just modified will be unaware of the changes, and this
-will make the other matrices inaccurate.
+Note that for performance reasons, whenever you call get[Some]Matrix(), the
+matrix instance itself is returned instead of a copy of the instance.
+Although this gives you the technical power to make changes directly to the
+returned matrix, that would be a Bad Idea (TM) because matrices that depend
+upon the one you just modified will be unaware of the changes, and this will
+make the other matrices inaccurate.
 
-For example, it would be very easy to use mat4.multiply() to change the Model matrix. In doing
-so, the ModelView matrix would no longer be accurate. This could lead to very
-difficult-to-debug situations.
+For example, it would be very easy to use mat4.multiply() to change the Model
+matrix. In doing so, the ModelView matrix would no longer be accurate. This
+could lead to very difficult-to-debug situations.
 
 It is _strongly_ recommended to use the various matrix methods found in
-Jax.MatrixStack to modify the matrices here. This will keep all related matrices up-to-date,
-and it doesn't cost anything in terms of performance because the corresponding calculations
-are performed lazily, rather than eagerly.
+Jax.MatrixStack to modify the matrices here. This will keep all related
+matrices up-to-date, and it doesn't cost anything in terms of performance
+because the corresponding calculations are performed lazily, rather than
+eagerly.
 ###
 class Jax.MatrixStack
-  TYPES = [ 'model', 'view', 'projection', 'inverseModel', 'inverseView', 'inverseProjection',
-            'normal', 'viewNormal', 'modelNormal', 'inverseViewNormal',
-            'modelView', 'modelViewProjection', 'inverseModelView']
+  TYPES = [ 'model', 'view', 'projection', 'inverseModel', 'inverseView',
+            'inverseProjection', 'normal', 'viewNormal', 'modelNormal',
+            'inverseViewNormal', 'modelView', 'modelViewProjection',
+            'inverseModelView']
   
   constructor: ->
     @maxDepth = 0
@@ -38,19 +41,19 @@ class Jax.MatrixStack
       inverseProjection: [true]
       modelViewProjection: [true]
     @matrices =
-      model: [mat4.identity()]
-      inverseModel: [mat4.identity()]
-      normal: [mat3.identity()]
-      modelNormal: [mat3.identity()]
-      view: [mat4.identity()]
-      inverseView: [mat4.identity()]
-      viewNormal: [mat3.identity()]
-      inverseViewNormal: [mat3.identity()]
-      modelView: [mat4.identity()]
-      inverseModelView: [mat4.identity()]
-      projection: [mat4.identity()]
-      inverseProjection: [mat4.identity()]
-      modelViewProjection: [mat4.identity()]
+      model:               [mat4.identity mat4.create()]
+      inverseModel:        [mat4.identity mat4.create()]
+      normal:              [mat3.identity mat3.create()]
+      modelNormal:         [mat3.identity mat3.create()]
+      view:                [mat4.identity mat4.create()]
+      inverseView:         [mat4.identity mat4.create()]
+      viewNormal:          [mat3.identity mat3.create()]
+      inverseViewNormal:   [mat3.identity mat3.create()]
+      modelView:           [mat4.identity mat4.create()]
+      inverseModelView:    [mat4.identity mat4.create()]
+      projection:          [mat4.identity mat4.create()]
+      inverseProjection:   [mat4.identity mat4.create()]
+      modelViewProjection: [mat4.identity mat4.create()]
     @reset()
       
   ###
@@ -103,7 +106,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.set other, @getModelMatrix()
+    mat4.copy @getModelMatrix(), other
     
   ###
   Replaces the current view matrix with the specified one.
@@ -117,7 +120,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.set other, @getViewMatrix()
+    mat4.copy @getViewMatrix(), other
     
   ###
   Replaces the current projection matrix with the specified one.
@@ -126,7 +129,7 @@ class Jax.MatrixStack
   loadProjectionMatrix: (other) ->
     @valid.inverseProjection[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.set other, @getProjectionMatrix()
+    mat4.copy @getProjectionMatrix(), other
     
   ###
   Multiplies the current model matrix with the specified one.
@@ -140,7 +143,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.multiply @getModelMatrix(), other, @getModelMatrix()
+    mat4.multiply @getModelMatrix(), @getModelMatrix(), other
   
   ###
   Multiplies the current view matrix with the specified one.
@@ -154,7 +157,7 @@ class Jax.MatrixStack
     @valid.modelView[@depth] = false
     @valid.inverseModelView[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.multiply @getViewMatrix(), other, @getViewMatrix()
+    mat4.multiply @getViewMatrix(), @getViewMatrix(), other
 
   ###
   Multiplies the current projection matrix with the specified one.
@@ -163,7 +166,7 @@ class Jax.MatrixStack
   multProjectionMatrix: (other) ->
     @valid.inverseProjection[@depth] = false
     @valid.modelViewProjection[@depth] = false
-    mat4.multiply @getProjectionMatrix(), other, @getProjectionMatrix()
+    mat4.multiply @getProjectionMatrix(), @getProjectionMatrix(), other
 
   ###
   The local model transformation matrix. Most models will manipulate this matrix.
@@ -201,7 +204,7 @@ class Jax.MatrixStack
       return @matrices.modelView[@depth]
     else
       @valid.modelView[@depth] = true
-      mat4.multiply @getViewMatrix(), @getModelMatrix(), @matrices.modelView[@depth]
+      mat4.multiply @matrices.modelView[@depth], @getViewMatrix(), @getModelMatrix()
       
   ###
   The opposite of the modelview matrix. Multiplying an eye-space coordinate by this matrix results in an
@@ -212,7 +215,7 @@ class Jax.MatrixStack
       return @matrices.inverseModelView[@depth]
     else
       @valid.inverseModelView[@depth] = true
-      mat4.inverse @getModelViewMatrix(), @matrices.inverseModelView[@depth]
+      mat4.invert @matrices.inverseModelView[@depth], @getModelViewMatrix()
 
   ###
   Returns the model, view and projection matrices combined into one. Multiplying a point in
@@ -224,7 +227,7 @@ class Jax.MatrixStack
       return @matrices.modelViewProjection[@depth]
     else
       @valid.modelViewProjection[@depth] = true
-      mat4.multiply @getProjectionMatrix(), @getModelViewMatrix(), @matrices.modelViewProjection[@depth]
+      mat4.multiply @matrices.modelViewProjection[@depth], @getProjectionMatrix(), @getModelViewMatrix()
     
   ###
   The inverse transpose of the modelview matrix. See
@@ -238,8 +241,7 @@ class Jax.MatrixStack
       return @matrices.normal[@depth]
     else
       @valid.normal[@depth] = true
-      mat4.toInverseMat3 @getModelViewMatrix(), @matrices.normal[@depth]
-      mat3.transpose @matrices.normal[@depth]
+      mat3.normalFromMat4 @matrices.normal[@depth], @getModelViewMatrix()
 
   ###
   A 3x3 normal matrix. When a directional vector in world space is multiplied by
@@ -250,8 +252,7 @@ class Jax.MatrixStack
       return @matrices.viewNormal[@depth]
     else
       @valid.viewNormal[@depth] = true
-      mat4.toInverseMat3 @getViewMatrix(), @matrices.viewNormal[@depth]
-      mat3.transpose @matrices.viewNormal[@depth]
+      mat3.normalFromMat4 @matrices.viewNormal[@depth], @getViewMatrix()
 
   ###
   The opposite of the view matrix. Multiplying a point in eye space against this matrix
@@ -262,8 +263,7 @@ class Jax.MatrixStack
       return @matrices.inverseViewNormal[@depth]
     else
       @valid.inverseViewNormal[@depth] = true
-      mat4.toInverseMat3 @getInverseViewMatrix(), @matrices.inverseViewNormal[@depth]
-      mat3.transpose @matrices.inverseViewNormal[@depth]
+      mat3.normalFromMat4 @matrices.inverseViewNormal[@depth], @getInverseViewMatrix()
 
   ###
   A 3x3 normal matrix. When a directional vector in object space is multiplied
@@ -274,8 +274,7 @@ class Jax.MatrixStack
       return @matrices.modelNormal[@depth]
     else
       @valid.modelNormal[@depth] = true
-      mat4.toInverseMat3 @getModelMatrix(), @matrices.modelNormal[@depth]
-      mat3.transpose @matrices.modelNormal[@depth]
+      mat3.normalFromMat4 @matrices.modelNormal[@depth], @getModelMatrix()
 
   ###
   The opposite of the local model transformation matrix. Multiplying a point
@@ -287,7 +286,7 @@ class Jax.MatrixStack
       return @matrices.inverseModel[@depth]
     else
       @valid.inverseModel[@depth] = true
-      mat4.inverse @getModelMatrix(), @matrices.inverseModel[@depth]
+      mat4.invert @matrices.inverseModel[@depth], @getModelMatrix()
       
   ###
   The opposite of the view matrix. Multiplying a point in eye space by this
@@ -298,7 +297,7 @@ class Jax.MatrixStack
       return @matrices.inverseView[@depth]
     else
       @valid.inverseView[@depth] = true
-      mat4.inverse @getViewMatrix(), @matrices.inverseView[@depth]
+      mat4.invert @matrices.inverseView[@depth], @getViewMatrix()
     
   ###
   The opposite of the projection matrix. Multiplying a 4D vector in normalized device coordinates by
@@ -310,4 +309,4 @@ class Jax.MatrixStack
       return @matrices.inverseProjection[@depth]
     else
       @valid.inverseProjection[@depth] = true
-      mat4.inverse @getProjectionMatrix(), @matrices.inverseProjection[@depth]
+      mat4.invert @matrices.inverseProjection[@depth], @getProjectionMatrix()

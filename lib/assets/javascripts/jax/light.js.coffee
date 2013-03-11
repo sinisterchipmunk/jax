@@ -68,7 +68,7 @@ class Jax.Light extends Jax.Model
     # invisible, but this would be a bad idea because some models contain
     # other models instead of meshes...
     objPos = model.position
-    dist = vec3.length(vec3.subtract objPos, @position, inRangeVec) - radius
+    dist = vec3.length(vec3.subtract inRangeVec, objPos, @position) - radius
     range = @maxEffectiveRange()
     return range is -1 or range >= dist
 
@@ -78,10 +78,11 @@ class Jax.Light extends Jax.Model
   rotate: (amount, axisX, axisY, axisZ) -> @camera.rotate amount, axisX, axisY, axisZ
 
   eyeDirection: (matrix, dest) ->
-    vec3.normalize mat3.multiplyVec3 matrix, @camera.direction, dest
+    dest or= vec3.create()
+    vec3.normalize dest, vec3.transformMat3 dest, @camera.direction, matrix
     
   eyePosition: (matrix, dest) ->
-    mat4.multiplyVec3 matrix, @camera.position, dest
+    vec3.transformMat4 dest, @camera.position, matrix
 
   crMinIntensity = 10.0 / 256.0
   maxEffectiveRange: (rangeIncrement = 1.0) ->

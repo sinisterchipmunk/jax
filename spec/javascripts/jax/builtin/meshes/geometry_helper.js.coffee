@@ -8,7 +8,7 @@ Jax.Mesh.Base::getVerticesAsVectors = () ->
   data = @data.vertexBuffer
 
   for i in [0...data.length] by 3 # data.length is _ref'd by coffee
-    vertices.push(vec3.create [data[i],data[i+1],data[i+2]])
+    vertices.push vec3.fromValues data[i], data[i+1], data[i+2]
 
   vertices
 
@@ -41,8 +41,8 @@ Equilateral :
 @return {Boolean}
 ###
 Jax.Geometry.Triangle::isEquilateral = () ->
-  distA = vec3.dist @a, @b
-  distB = vec3.dist @b, @c
-  distC = vec3.dist @c, @a
+  distA = vec3.distance @a, @b
+  distB = vec3.distance @b, @c
+  distC = vec3.distance @c, @a
 
   Math.equalish(distA, distB) && Math.equalish(distB, distC)

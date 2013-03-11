@@ -96,13 +96,13 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
         _tmpvec3[0] = sdata.vertexBuffer[vofs  ]
         _tmpvec3[1] = sdata.vertexBuffer[vofs+1]
         _tmpvec3[2] = sdata.vertexBuffer[vofs+2]
-        mat4.multiplyVec3 mvmatrix, _tmpvec3, _tmpvec3
+        vec3.transformMat4 _tmpvec3, _tmpvec3, mvmatrix
         verts.push -_tmpvec3[0], -_tmpvec3[1], -_tmpvec3[2]
 
         _tmpvec3[0] = sdata.normalBuffer[vofs  ]
         _tmpvec3[1] = sdata.normalBuffer[vofs+1]
         _tmpvec3[2] = sdata.normalBuffer[vofs+2]
-        mat3.multiplyVec3 nmatrix, _tmpvec3, _tmpvec3
+        vec3.transformMat3 _tmpvec3, _tmpvec3, nmatrix
         norms.push _tmpvec3[0], _tmpvec3[1], _tmpvec3[2]
 
         for k in [0...4]

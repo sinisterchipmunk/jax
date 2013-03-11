@@ -32,7 +32,7 @@ describe "Jax.Mesh", ->
     it "should set each normal to the vertex direction relative to calculated mesh center", ->
       # calculated center should be 1.5, 1.5, 1.5, making the normals [-1,-1,-1], [1,1,1]
       mesh.render @context, new Jax.Model
-      expect(mesh.data.normalBuffer).toEqualVector [vec3.normalize([-1,-1,-1])..., vec3.normalize([1,1,1])...]
+      expect(mesh.data.normalBuffer).toEqualVector [vec3.normalize([], [-1,-1,-1])..., vec3.normalize([], [1,1,1])...]
       
     describe "with a submesh", ->
       beforeEach -> mesh.submesh = new Jax.Mesh.Base(init: (v) -> v.push 2, 3, 4)
@@ -243,7 +243,7 @@ describe "Jax.Mesh", ->
         expect(mesh.vertices[0].position).toEqualVector [1, 2, 3]
         
       xit "should default normal to vector direction", ->
-        expect(mesh.vertices[0].normal).toEqualVector vec3.normalize([1, 2, 3])
+        expect(mesh.vertices[0].normal).toEqualVector vec3.normalize([], [1, 2, 3])
         
       xit "should add vertex index to indices", ->
         expect(mesh.indices).toEqualVector [0]

@@ -45,7 +45,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
     # Is needle in haystack ?
     isIn = (needleVertex, verticesHaystack) ->
       for vertex in verticesHaystack
-        if vec3.equal(needleVertex, vertex) then return true
+        if vec3.distance(needleVertex, vertex) < Math.EPSILON then return true
       return false
 
     # Get +howMuch+ closest vertices to +vertex+ from +vertices+ array
@@ -65,7 +65,8 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
       for i in [0...howMuch] by 1
         closestVertices.push vertices[i]
 
-      start = vec3.direction(vertex, closestVertices[0], [])
+      start = vec3.subtract([], closestVertices[0], vertex)
+      vec3.normalize(start, start)
       # angle sort along axis +vertex+, trigowise in ref. vertex/start/cross, angle zero at arbitrary +start+
 
       _vA = vec3.create()
@@ -74,16 +75,16 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
         # think on a more idiomatic way to do this ? Using referential change and Math.atan2(y,x) ?
 
         # rays from center vertex to adjacents
-        dA = vec3.direction(vertex, vA, _vA)
-        dB = vec3.direction(vertex, vB, _vB)
+        dA = vec3.normalize(_vA, vec3.subtract(_vA, vA, vertex))
+        dB = vec3.normalize(_vB, vec3.subtract(_vB, vB, vertex))
 
         # angle, not oriented
         a = vec3.dot(start, dA) + 1
         b = vec3.dot(start, dB) + 1
 
         # orient trigwise along the full circle
-        dotA = vec3.dot(vertex, vec3.cross(start, dA, []))
-        dotB = vec3.dot(vertex, vec3.cross(start, dB, []))
+        dotA = vec3.dot(vertex, vec3.cross([], start, dA))
+        dotB = vec3.dot(vertex, vec3.cross([], start, dB))
         if dotA < 0 then a *= -1
         if dotB < 0 then b *= -1
 
@@ -107,7 +108,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
       a = [geodeVertices[i  ],geodeVertices[i+1],geodeVertices[i+2]]
       b = [geodeVertices[i+3],geodeVertices[i+4],geodeVertices[i+5]]
       c = [geodeVertices[i+6],geodeVertices[i+7],geodeVertices[i+8]]
-      o = vec3.scale vec3.normalize(vec3.add(vec3.add(a, b, []), c)), @size
+      o = vec3.scale [], vec3.normalize([], vec3.add([], vec3.add([], a, b), c)), @size
 
       uniqueGeodeVertices.push a unless isIn a, uniqueGeodeVertices
       uniqueGeodeVertices.push b unless isIn b, uniqueGeodeVertices
@@ -119,8 +120,8 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
     icosahedronVertices = @icosahedron.vertices.slice 0
 
     for i in [0...icosahedronVertices.length] by 1
-      vec3.normalize icosahedronVertices[i]
-      vec3.scale icosahedronVertices[i], @size
+      vec3.normalize icosahedronVertices[i], icosahedronVertices[i]
+      vec3.scale icosahedronVertices[i], icosahedronVertices[i], @size
 
     # Pass 4 : for each geode vertex, add 5 or 6 triangles
     currentVertexBufferIndex = 0
@@ -135,13 +136,13 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
       medianAltitude = [0,0,0]
       for i in [0...n] by 1
-        vec3.add medianAltitude, closestVertices[i]
+        vec3.add medianAltitude, medianAltitude, closestVertices[i]
       medianAltitude = vec3.length(medianAltitude) / n
 
       # i'm doing a lot of these : normalize & scale
       # what about a vec3.normalizeScaled( vec, scale, dest ) ? or normalizeToScale ?
-      vec3.normalize vertex
-      vec3.scale vertex, medianAltitude
+      vec3.normalize vertex, vertex
+      vec3.scale vertex, vertex, medianAltitude
 
       for i in [0...n] by 1
         vertices.push vertex[0], vertex[1], vertex[2]

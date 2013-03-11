@@ -109,8 +109,8 @@ class Mesh
       recalcNormal[0] = vertices[i]
       recalcNormal[1] = vertices[i+1]
       recalcNormal[2] = vertices[i+2]
-      vec3.subtract recalcNormal, center, recalcNormal
-      vec3.normalize recalcNormal
+      vec3.subtract recalcNormal, recalcNormal, center
+      vec3.normalize recalcNormal, recalcNormal
       normals[i  ] = recalcNormal[0]
       normals[i+1] = recalcNormal[1]
       normals[i+2] = recalcNormal[2]
@@ -235,19 +235,19 @@ class Mesh
       # vertex = @data.vertices[index]
       # position = vertex.position
       if i == 0
-        vec3.set position, left
-        vec3.set position, right
-        vec3.set position, top
-        vec3.set position, bottom
-        vec3.set position, front
-        vec3.set position, back
+        vec3.copy left,   position
+        vec3.copy right,  position
+        vec3.copy top,    position
+        vec3.copy bottom, position
+        vec3.copy front,  position
+        vec3.copy back,   position
       else
-        if position[0] < left[0]   then vec3.set position, left
-        if position[0] > right[0]  then vec3.set position, right
-        if position[1] < bottom[1] then vec3.set position, bottom
-        if position[1] > top[1]    then vec3.set position, top
-        if position[2] < back[2]   then vec3.set position, back
-        if position[2] > front[2]  then vec3.set position, front
+        if position[0] < left[0]   then vec3.copy left,   position
+        if position[0] > right[0]  then vec3.copy right,  position
+        if position[1] < bottom[1] then vec3.copy bottom, position
+        if position[1] > top[1]    then vec3.copy top,    position
+        if position[2] < back[2]   then vec3.copy back,   position
+        if position[2] > front[2]  then vec3.copy front,  position
     width  = right[0] - left[0]
     height = top[1]   - bottom[1]
     depth  = front[2] - back[2]

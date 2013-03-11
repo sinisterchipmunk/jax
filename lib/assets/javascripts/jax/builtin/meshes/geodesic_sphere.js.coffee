@@ -84,19 +84,22 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
     # Push to vertices and normals or subdivide into 4 new triangles
     recursiveInit = (vA, vB, vC, detail) ->
       if detail < 1
-        vec3.normalize(vA, _vA)
-        vec3.normalize(vB, _vB)
-        vec3.normalize(vC, _vC)
+        vec3.normalize(_vA, vA)
+        vec3.normalize(_vB, vB)
+        vec3.normalize(_vC, vC)
         vertexNormals.push _vA[0], _vA[1], _vA[2], _vB[0], _vB[1], _vB[2], _vC[0], _vC[1], _vC[2]
-        vec3.scale _vA, size
-        vec3.scale _vB, size
-        vec3.scale _vC, size
+        vec3.scale _vA, _vA, size
+        vec3.scale _vB, _vB, size
+        vec3.scale _vC, _vC, size
         vertices.push _vA[0], _vA[1], _vA[2], _vB[0], _vB[1], _vB[2], _vC[0], _vC[1], _vC[2]
       else
         detail--
-        midAB = vec3.scale( vec3.add(vA, vB, vec3.create()), 1/2 )
-        midBC = vec3.scale( vec3.add(vB, vC, vec3.create()), 1/2 )
-        midCA = vec3.scale( vec3.add(vC, vA, vec3.create()), 1/2 )
+        midAB = vec3.create();
+        midBC = vec3.create();
+        midCA = vec3.create();
+        vec3.scale(midAB, vec3.add(midAB, vA, vB), 1/2 )
+        vec3.scale(midBC, vec3.add(midBC, vB, vC), 1/2 )
+        vec3.scale(midCA, vec3.add(midCA, vC, vA), 1/2 )
 
         recursiveInit vA, midAB, midCA, detail # top
         recursiveInit midAB, vB, midBC, detail # left
@@ -112,9 +115,12 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
         textureCoords.push uvA[0] * u, uvA[1] * v, uvB[0] * u, uvB[1] * v, uvC[0] * u, uvC[1] * v
       else
         detail--
-        midAB = vec2.scale( vec2.add(uvA, uvB, vec2.create()), 1/2 )
-        midBC = vec2.scale( vec2.add(uvB, uvC, vec2.create()), 1/2 )
-        midCA = vec2.scale( vec2.add(uvC, uvA, vec2.create()), 1/2 )
+        midAB = vec3.create();
+        midBC = vec3.create();
+        midCA = vec3.create();
+        vec3.scale(midAB, vec3.add(midAB, uvA, uvB), 1/2 )
+        vec3.scale(midBC, vec3.add(midBC, uvB, uvC), 1/2 )
+        vec3.scale(midCA, vec3.add(midCA, uvC, uvA), 1/2 )
 
         recursiveInitUV uvA, midAB, midCA, detail # top
         recursiveInitUV midAB, uvB, midBC, detail # left
@@ -126,18 +132,18 @@ class Jax.Mesh.GeodesicSphere extends Jax.Mesh.Triangles
     # Vertices & Vertices' Normals
     for face in @icosahedron.faces
       recursiveInit(
-        vec3.create(@icosahedron.vertices[face[0]]),
-        vec3.create(@icosahedron.vertices[face[1]]),
-        vec3.create(@icosahedron.vertices[face[2]]),
+        vec3.clone(@icosahedron.vertices[face[0]]),
+        vec3.clone(@icosahedron.vertices[face[1]]),
+        vec3.clone(@icosahedron.vertices[face[2]]),
         @subdivisions
       )
 
     # UVs
     for faceUVs in @icosahedron.facesUVs
       recursiveInitUV(
-        vec2.create(faceUVs[0]),
-        vec2.create(faceUVs[1]),
-        vec2.create(faceUVs[2]),
+        vec2.clone(faceUVs[0]),
+        vec2.clone(faceUVs[1]),
+        vec2.clone(faceUVs[2]),
         @subdivisions
       )
 

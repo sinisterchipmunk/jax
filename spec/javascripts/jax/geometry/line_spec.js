@@ -2,6 +2,22 @@ describe("Jax.Geometry.Line", function() {
   var line;
   
   beforeEach(function() { line = new Jax.Geometry.Line(); });
+
+  describe("after being set", function() {
+    beforeEach(function() { line.set([0,0,0], [1,0,0]); });
+
+    it("should contain points on it", function() {
+      // twice, to expose any caching-related issues
+      expect(line.contains([0.5,0,0])).toBe(true);
+      expect(line.contains([0.5,0,0])).toBe(true);
+    });
+
+    it("should not contain points not on it", function() {
+      // twice, to expose any caching-related issues
+      expect(line.contains([0.5,1,0])).toBe(false);
+      expect(line.contains([0.5,1,0])).toBe(false);
+    });
+  });
   
   it("should delegate index accessors", function() {
     expect(line[0]).toBe(line.a);

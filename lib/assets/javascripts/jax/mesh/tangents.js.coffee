@@ -1,8 +1,8 @@
 tangentBufs =
-  v1: vec3.create(), v2: vec3.create(), v3: vec3.create(),
-  w1: vec2.create(), w2: vec2.create(), w3: vec2.create(),
-  sdir: vec3.create(), tdir: vec3.create(), n: vec3.create(), t: vec3.create(),
-  tan: vec3.create(),
+  v1  : vec3.create(), v2  : vec3.create(), v3: vec3.create(),
+  w1  : vec2.create(), w2  : vec2.create(), w3: vec2.create(),
+  sdir: vec3.create(), tdir: vec3.create(), n : vec3.create(),
+  t   : vec3.create(), tan : vec3.create()
 
 itertri = new Jax.Geometry.Triangle()
 
@@ -61,8 +61,8 @@ Jax.Mesh.Tangents =
       normal[0] = normals[i3  ]
       normal[1] = normals[i3+1]
       normal[2] = normals[i3+2]
-      vec3.cross normal, bitangent, bitangent
-      vec3.scale bitangent, tangents[i4+3]
+      vec3.cross bitangent, normal, bitangent
+      vec3.scale tangents[i4+3], bitangent
       bitangents[i3  ] = bitangent[0]
       bitangents[i3+1] = bitangent[1]
       bitangents[i3+2] = bitangent[2]
@@ -160,4 +160,4 @@ Jax.Mesh.Tangents =
       tan[0] = tan2[a3  ]
       tan[1] = tan2[a3+1]
       tan[2] = tan2[a3+2]
-      data.tangentBuffer[a4+3] = (if vec3.dot(vec3.cross(n, t), tan) < 0 then -1 else 1)
+      data.tangentBuffer[a4+3] = (if vec3.dot(vec3.cross(n, n, t), tan) < 0 then -1 else 1)

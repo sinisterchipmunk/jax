@@ -54,7 +54,7 @@ Jax.Mesh.Normals =
         recalcVec[0] += rn[ni  ]
         recalcVec[1] += rn[ni+1]
         recalcVec[2] += rn[ni+2]
-      vec3.scale recalcVec, 3 / rnlen # 1 / (rn.length / 3)
+      vec3.scale recalcVec, recalcVec, 3 / rnlen # 1 / (rn.length / 3)
       data.normalBuffer[i3  ] = recalcVec[0]
       data.normalBuffer[i3+1] = recalcVec[1]
       data.normalBuffer[i3+2] = recalcVec[2]

@@ -43,7 +43,7 @@ describe "Jax.Mesh.Icosahedron", ->
         found = false
         for t2 in faces
           vec3.add t1.center, t2.center, dest
-          if vec3.equal dest, zero
+          if vec3.distance(dest, zero) < Math.EPSILON
             found = true
             break
         expect(found).toBeTrue()
@@ -74,7 +74,7 @@ describe "Jax.Mesh.Icosahedron", ->
         found = false
         for v2 in uniqueVertices
           vec3.add v1, v2, dest
-          if vec3.equal dest, zero
+          if vec3.distance(dest, zero) < Math.EPSILON
             found = true
             break
         expect(found).toBeTrue()
