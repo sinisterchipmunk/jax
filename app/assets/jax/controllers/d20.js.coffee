@@ -77,7 +77,7 @@ Jax.Controller.create "d20",
         size: 0.2
         color: @sun2.color.diffuse
 
-    @stats = @world.addObject new Jax.Framerate # this is not showing anything but a black square
+    @stats = @world.addObject new Jax.Framerate
 
 
     # Trackball Camera
@@ -172,9 +172,6 @@ Jax.Controller.create "d20",
     @sunHelper2.camera.position = @sun2.camera.position
     @sunHelper3.camera.position = @sun3.camera.position
     @sunHelper4.camera.position = @sun4.camera.position
-
-    fps = @stats.fps
-    $('#jax-banner').html("FPS : #{fps}")
 
 
 
