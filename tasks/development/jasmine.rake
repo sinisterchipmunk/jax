@@ -6,6 +6,7 @@ end
 
 desc "Run jasmine specs in browser"
 task :jasmine do
+  FileUtils.mkdir_p "tmp/pids"
   require 'jasmine'
   require 'rspec'
   require 'rspec/core/rake_task'
