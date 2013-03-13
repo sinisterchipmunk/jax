@@ -69,9 +69,11 @@ class Jax.Input
   ###
   listen: (type, callback) ->
     if this[type]
-      if eventType = @__proto__.constructor.eventTypes?[type]
-        @attach eventType, this[type]
-        @addEventListener type, callback if callback
+      if domTypes = @__proto__.constructor.eventTypes?[type]
+        for eventType in domTypes.split /,/
+          @attach eventType.trim(), this[type]
+          @addEventListener type, callback if callback
+        true
       else
         throw new Error "BUG: Method `#{type}` exists but no corresponding DOM event type associated"
     else throw new Error "Invalid #{@__proto__.constructor.name} input type: #{type}"

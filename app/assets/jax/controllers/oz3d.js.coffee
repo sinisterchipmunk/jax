@@ -1,16 +1,20 @@
 movement = { forward: 0, backward: 0, left: 0, right: 0 }
+radius = Math.sqrt 15*15 + 25*25
 
 Jax.Controller.create "oz3d",
   update: (timechange) ->
     speed = 0.15 * timechange;
     @_rotation = (@_rotation or 0) - speed
     pos = @_pos = (@_pos or vec3.create())
-    radius = Math.sqrt(15*15+25*25)
     pos[0] = Math.sin(@_rotation) * radius
     pos[1] = 20
     pos[2] = Math.cos(@_rotation) * radius
     @context.activeCamera.position = pos
     @context.activeCamera.lookAt [0, 4.5, 0]
+
+  mouse_rolled: (e) ->
+    radius += e.wheelDeltaY / e.wheelDelta * 0.25
+    radius = 0.25 if radius < 0.25
     
   mouse_dragged: (e) ->
     @light.camera.move e.diffy / 100, [0, 1, 0]

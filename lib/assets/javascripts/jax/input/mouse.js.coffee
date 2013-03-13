@@ -4,7 +4,7 @@ class Jax.Input.Mouse extends Jax.Input
     release: 'mouseup'
     move:    'mousemove'
     over:    'mouseover'
-    wheel:   'mousewheel'
+    wheel:   'mousewheel, DOMMouseScroll'
     exit:    'mouseout'
     
   ###
@@ -71,6 +71,10 @@ class Jax.Input.Mouse extends Jax.Input
       button: evt.button
       x: evt.clientX - rect.left
       y: evt.clientY - rect.top
+      wheelDeltaX: evt.wheelDeltaX || 0
+      wheelDeltaY: evt.wheelDeltaY || -evt.detail
+      wheelDeltaZ: evt.wheelDeltaZ || 0
+      wheelDelta:  evt.wheelDelta  || 1
     evt.x *= @receiver.width / rect.width
     evt.y *= @receiver.height/ rect.height
     if @_lastx is undefined
