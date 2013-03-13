@@ -18,7 +18,7 @@ rvm:
 before_script:
   - sh -e /etc/init.d/xvfb start
 
-#env: "SKIP_WEBGL=1 "
+env: "SKIP_WEBGL=1 "
 
 # JRuby and RBX are not yet officially supported,
 # until failing dependencies work properly or are
