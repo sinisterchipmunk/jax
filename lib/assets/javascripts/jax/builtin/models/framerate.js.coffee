@@ -168,7 +168,7 @@ class Jax.Framerate extends Jax.Model
     
     stack = context.matrix_stack
     stack.push()
-    mat4.copy stack.getProjectionMatrix(), @ortho
+    stack.loadProjectionMatrix @ortho
     stack.loadViewMatrix @identity
     stack.multModelMatrix @camera.getTransformationMatrix()
     @mesh.render context, this, material
