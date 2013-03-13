@@ -11,9 +11,10 @@ Gem::Specification.new do |s|
   s.homepage    = "http://jaxgl.com"
   s.summary     = %q{Framework for creating rich WebGL-enabled applications using JavaScript and Ruby}
   s.description = %q{
-    Framework for creating rich WebGL-enabled applications using JavaScript and Ruby.
-    Can be used stand-alone to create static JavaScript documents, or integrated
-    seamlessly with Ruby on Rails to build dynamic WebGL applications.
+    Framework for creating rich WebGL-enabled applications using JavaScript 
+    and Ruby. Can be used stand-alone to create static JavaScript documents, 
+    or integrated seamlessly with Ruby on Rails to build dynamic WebGL 
+    applications.
   }
 
   s.add_dependency 'railties',          '>= 3.1'
@@ -47,6 +48,8 @@ Gem::Specification.new do |s|
   
   s.files         = `git ls-files`.split("\n") - useless_files
   s.test_files    = `git ls-files -- spec features`.split("\n") - useless_files
-  s.executables   = `git ls-files -- bin`.split("\n").map{ |f| File.basename(f) }
+  s.executables   = `git ls-files -- bin`.split("\n").map do |f|
+    File.basename(f)
+  end
   s.require_paths = ["lib"]
 end
