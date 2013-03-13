@@ -12,6 +12,7 @@ rvm:
   - jruby-head
   - rbx-18mode
   - rbx-19mode
+  - ruby-head
 
 
 before_script:
@@ -31,4 +32,4 @@ matrix:
     - rvm: jruby-head
     - rvm: rbx-18mode
     - rvm: rbx-19mode
-
+    - rvm: ruby-head
