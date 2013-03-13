@@ -1,3 +1,40 @@
+* 3.0.0 (Not Released) *
+
+  * Jax now depends on railties, not on Rails proper.
+
+  * `Jax.Framerate` model has been added, which can be used to accurately 
+    measure framerate. Add an instance of it to `Jax.World` for a visual 
+    chart, or just keep it in memory to query FPS for reporting.
+
+  * GL-Matrix library updated to v2.2.0. NOTE: the matrix APIs have changed
+    significantly, so check your code!
+
+  * Basic testing instructions added to the testing guide (#73, #77, Antoine 
+    Goutenoir)
+  
+  * Updated light generator to produce 3.0-compliant files (#78, #79, 
+    Lutangar)
+
+  * Added `Jax.Mesh.GeodesicSphere` (Antoine Goutenoir)
+
+  * Added `Jax.Mesh.GeodesicSphereDual` (Antoine Goutenoir)
+
+  * Added `Jax.Mesh.Icosahedron` (Antoine Goutenoir)
+
+  * Jax now leverages `jasmine-rails` as a dependency, helping to decouple 
+    Jax from Jasmine internally. This should produce fewer Jasmine-related
+    bugs in the future.
+
+  * Resolved #81: Updated Jax sources to compile properly under latest
+    CoffeeScript
+
+  * Resolved #74, #72: updated Jax to play nicely with newest versions of 
+    Jasmine.
+
+  * Fixed `Jax.Mesh#vertices` to return vertex data
+
+
+
 * 3.0.0 RC2 *
 
   * Resolved #71: Jax.Input now removes event listeners from _itself_ when it
