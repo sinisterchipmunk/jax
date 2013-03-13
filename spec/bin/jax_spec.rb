@@ -13,6 +13,11 @@ describe 'bin/jax' do
     @args = []
   end
   
+  after :each do
+    FileUtils.rm_rf File.join(base_dir, "tmp/jax-bin")
+    FileUtils.chdir base_dir
+  end
+
   subject do
     jax = File.join base_dir, "bin/jax"
     result = %x[#{jax} #{@args.join(' ')} 2>&1]
