@@ -21,6 +21,9 @@
 
   * Added `Jax.Mesh.Icosahedron` (Antoine Goutenoir)
 
+  * Added `mouse_rolled` event to controllers to handle mouse wheel events
+    (#62, Lutangar)
+
   * Jax now leverages `jasmine-rails` as a dependency, helping to decouple 
     Jax from Jasmine internally. This should produce fewer Jasmine-related
     bugs in the future.
