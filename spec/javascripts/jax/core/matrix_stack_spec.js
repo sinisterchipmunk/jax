@@ -33,9 +33,11 @@ describe("Jax.MatrixStack", function() {
     });
     
     it("should revert when popped", function() {
-      mat4.copy(stack.getModelMatrix(), [1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4]);
+      stack.loadModelMatrix([1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4]);
+      var dependent = mat4.clone(stack.getModelViewMatrix());
       stack.pop();
-      expect(stack.getModelMatrix()).toEqualVector(mat4.identity(mat4.create()));
+      expect(stack.getModelMatrix()).toEqualVector(mat4.IDENTITY);
+      expect(stack.getModelViewMatrix()).toEqualVector(mat4.IDENTITY);
     });
   });
 });
