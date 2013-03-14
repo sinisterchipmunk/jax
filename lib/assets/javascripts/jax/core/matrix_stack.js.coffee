@@ -91,9 +91,8 @@ class Jax.MatrixStack
   See also Jax.MatrixStack#push()
   ###
   pop: ->
-    if @depth < 1 then @depth = 1
-    @depth--
-  
+    @depth-- if @depth > 0
+
   ###
   Replaces the current model matrix with the specified one.
   Updates the inverse model matrix, the modelview matrix, the inverse modelview matrix and the
