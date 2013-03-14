@@ -13,7 +13,7 @@ Jax.Controller.create "oz3d",
     @context.activeCamera.lookAt [0, 4.5, 0]
 
   mouse_rolled: (e) ->
-    radius += e.wheelDeltaY / e.wheelDelta * 0.25
+    radius += e.wheelDeltaY * 0.25
     radius = 0.25 if radius < 0.25
     
   mouse_dragged: (e) ->
