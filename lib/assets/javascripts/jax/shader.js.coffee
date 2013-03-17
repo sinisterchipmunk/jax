@@ -107,6 +107,7 @@ class Jax.Shader
   
   constructor: (@name = "generic") ->
     @id = Jax.guid()
+    @variables = {}
     @sources = []
     @main = new Array()
     
@@ -215,11 +216,23 @@ class Jax.Shader
     if body.indexOf('precision') is -1
       "precision mediump float;\n\n" + body
     else body
+
+  mergeVariables: (parser, map) ->
+    for definition in parser.findVariables()
+      for name in definition.names
+        name = map[name]
+        @variables[name] =
+          name: name
+          qualifier: definition.qualifier
+          type: definition.type
+    @variables
     
   insert: (src, mangler, index) ->
     @sources.splice index, 0, parser = new Parser src, mangler
+    map = parser.map()
+    @mergeVariables parser, map
     @fireEvent 'changed'
-    parser.map()
+    map
     
   append: (src, mangler = Jax.guid()) ->
     @insert src, mangler, @sources.length

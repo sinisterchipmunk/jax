@@ -1,238 +1,278 @@
 describe "Jax.Shader.Program", ->
   program = null
   beforeEach ->
+    @attr = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STREAM_DRAW, [1,2,3], 1, GL_FLOAT
+    Jax.Shader.Program.resetPopularities()
     program = new Jax.Shader.Program
-    
-  describe "after having been compiled", ->
-    beforeEach -> program.compile @context
-    
-    it "should compile again if its fragment source changes", ->
-      spyOn program, 'compile'
-      program.fragment.append '//'
-      program.bind @context
-      expect(program.compile).toHaveBeenCalled()
-    
-    it "should compile again if its vertex source changes", ->
-      spyOn program, 'compile'
-      program.vertex.append '//'
-      program.bind @context
-      expect(program.compile).toHaveBeenCalled()
 
-  # Specs for shader recycling are disabled because the funcitonality is too,
-  # it proved too slow to initialize (though effective once initialized). May
-  # revisit this with Web Workers in v3.1+.
-  describe "compiling two different programs with identical sources", ->
-    program2 = null
-    beforeEach ->
-      vcode = 'void main(void) { gl_Position = vec4(1); }'
-      fcode = 'void main(void) { gl_FragColor = vec4(1); }'
-      program.vertex.append vcode
-      program.fragment.append fcode
-      program2 = new Jax.Shader.Program
-      program2.vertex.append vcode
-      program2.fragment.append fcode
-      
-    xit 'sanity check', ->
-      expect(program.vertex).not.toBe program2.vertex
-      expect(program.fragment).not.toBe program2.fragment
-      expect(program.glShader(@context).program).toBe program.glShader(@context).program
-      expect(program.glShader(@context).vertex).toBe program.glShader(@context).vertex
-      expect(program.glShader(@context).fragment).toBe program.glShader(@context).fragment
-    
-    xit 'should produce the same GL program', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).program).toBe program2.glShader(@context).program
-      
-    xit 'should produce the same GL vertex shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).vertex).toBe program2.glShader(@context).vertex
-      
-    xit 'should produce the same GL fragment shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).fragment).toBe program2.glShader(@context).fragment
+  it 'should have a default vertex shader output', ->
+    expect(program.vertex.toString()).toMatch /gl_Position = vec4\(1\.0, 1\.0, 1\.0, 1\.0\);/
+
+  it 'should have a default fragment shader output', ->
+    expect(program.fragment.toString()).toMatch /gl_FragColor = vec4\(0\.0, 0\.0, 0\.0, 0\.0\);/
   
-  describe "compiling two programs with identical vertex and differring fragment", ->
-    program2 = null
+  describe 'binding', ->
     beforeEach ->
-      vcode = 'void main(void) { gl_Position = vec4(1); }'
-      program.vertex.append vcode
-      program.fragment.append 'void main(void) { gl_FragColor = vec4(1); }'
-      program2 = new Jax.Shader.Program
-      program2.vertex.append vcode
-      program2.fragment.append 'void main(void) { gl_FragColor = vec4(2); }'
+      spyOn @context.gl, 'useProgram'
+      program.bind @context
 
-    xit 'should produce a different GL program', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+    it 'should validate', ->
+      expect(program).toBeValid @context
 
-    xit 'should produce the same GL vertex shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).vertex).toBe program2.glShader(@context).vertex
+    it 'should use the program', ->
+      expect(@context.gl.useProgram).toHaveBeenCalled()
 
-    xit 'should produce a different GL fragment shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).fragment).not.toBe program2.glShader(@context).fragment
-      
-  describe "compiling two programs with different vertex and identical fragment", ->
-    program2 = null
+  describe 'assigning attribute variables', ->
     beforeEach ->
-      fcode = 'void main(void) { gl_FragColor = vec4(1); }'
-      program.vertex.append  'void main(void) { gl_Position = vec4(1); }'
-      program.fragment.append fcode
-      program2 = new Jax.Shader.Program
-      program2.vertex.append 'void main(void) { gl_Position = vec4(2); }'
-      program2.fragment.append fcode
+      program.vertex.append 'shared attribute float f;'
+      program.bind @context
 
-    xit 'should produce a different GL program', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+    it 'should bind the variable stored in an attribute slot', ->
+      spyOn(@attr, 'bind').andCallThrough()
+      program.set @context, f: @attr
+      expect(@attr.bind).toHaveBeenCalledWith @context
 
-    xit 'should produce a different GL vertex shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).vertex).not.toBe program2.glShader(@context).vertex
+    it 'should set the vertex pointer', ->
+      spyOn @context.gl, 'vertexAttribPointer'
+      program.set @context, f: @attr
+      expect(@context.gl.vertexAttribPointer).toHaveBeenCalledWith 0, 1, GL_FLOAT, false, 0, 0
 
-    xit 'should produce the same GL fragment shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).fragment).toBe program2.glShader(@context).fragment
-      
-  describe "compiling two programs with different vertex and fragment", ->
-    program2 = null
+    it 'should disable unused attributes', ->
+      spyOn @context.gl, 'disableVertexAttribArray'
+      program.set @context, {}
+      expect(@context.gl.disableVertexAttribArray).toHaveBeenCalledWith 0
+
+  describe 'assigning uniform variables', ->
     beforeEach ->
-      program.vertex.append    'void main(void) { gl_Position = vec4(1); }'
-      program.fragment.append  'void main(void) { gl_FragColor = vec4(1); }'
-      program2 = new Jax.Shader.Program
-      program2.vertex.append   'void main(void) { gl_Position = vec4(2); }'
-      program2.fragment.append 'void main(void) { gl_FragColor = vec4(2); }'
+      program.vertex.append '''
+      shared uniform float f;
+      shared uniform bool  b;
+      shared uniform int   i;
+      shared uniform vec2  v2;
+      shared uniform vec3  v3;
+      shared uniform vec4  v4;
+      shared uniform bvec2 bv2;
+      shared uniform bvec3 bv3;
+      shared uniform bvec4 bv4;
+      shared uniform ivec2 iv2;
+      shared uniform ivec3 iv3;
+      shared uniform ivec4 iv4;
+      shared uniform sampler2D s2d;
+      shared uniform samplerCube scube;
+      shared uniform mat2 m2;
+      shared uniform mat3 m3;
+      shared uniform mat4 m4;
+      '''
+      spyOn(@context.gl, 'getUniformLocation').andCallFake (p, name) ->
+        switch name
+          when 'f' then 0
+          when 'b' then 1
+          when 'i' then 2
+          when 'v2' then 3
+          when 'v3' then 4
+          when 'v4' then 5
+          when 'bv2' then 6
+          when 'bv3' then 7
+          when 'bv4' then 8
+          when 'iv2' then 9
+          when 'iv3' then 10
+          when 'iv4' then 11
+          when 's2d' then 12
+          when 'scube' then 13
+          when 'm2' then 14
+          when 'm3' then 15
+          when 'm4' then 16
+          else throw new Error "Unexpected getUniformLocation: #{name}"
+      program.bind @context
+      spyOn @context.gl, 'uniform1f'
+      spyOn @context.gl, 'uniform1i'
+      spyOn @context.gl, 'uniform2fv'
+      spyOn @context.gl, 'uniform3fv'
+      spyOn @context.gl, 'uniform4fv'
+      spyOn @context.gl, 'uniform2iv'
+      spyOn @context.gl, 'uniform3iv'
+      spyOn @context.gl, 'uniform4iv'
+      spyOn @context.gl, 'uniformMatrix2fv'
+      spyOn @context.gl, 'uniformMatrix3fv'
+      spyOn @context.gl, 'uniformMatrix4fv'
+      program.set @context,
+        f: 1.5
+        b: true
+        i: 1
+        v2: [1, 2]
+        v3: [1, 2, 3]
+        v4: [1, 2, 3, 4]
+        bv2: [true, false]
+        bv3: [true, false, true]
+        bv4: [true, false, true, false]
+        iv2: [1, 2]
+        iv3: [1, 2, 3]
+        iv4: [1, 2, 3, 4]
+        s2d: new Jax.Texture(width: 16, height: 16)
+        scube: new Jax.Texture(width: 16, height: 16)
+        m2: [1, 2, 3, 4]
+        m3: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        m4: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
-    xit 'should produce a different GL program', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).program).not.toBe program2.glShader(@context).program
+    it 'should set the uniform variables as appropriate', ->
+      expect(@context.gl.uniform1f).toHaveBeenCalledWith 0, 1.5 # f
+      expect(@context.gl.uniform1i).toHaveBeenCalledWith 1, true # b
+      expect(@context.gl.uniform1i).toHaveBeenCalledWith 2, 1 # i
+      expect(@context.gl.uniform2fv).toHaveBeenCalledWith 3, [1, 2] # v2
+      expect(@context.gl.uniform3fv).toHaveBeenCalledWith 4, [1, 2, 3] # v3
+      expect(@context.gl.uniform4fv).toHaveBeenCalledWith 5, [1, 2, 3, 4] # v4
+      expect(@context.gl.uniform2iv).toHaveBeenCalledWith 6, [true, false] # bv2
+      expect(@context.gl.uniform3iv).toHaveBeenCalledWith 7, [true, false, true] # bv3
+      expect(@context.gl.uniform4iv).toHaveBeenCalledWith 8, [true, false, true, false] # bv4
+      expect(@context.gl.uniform2iv).toHaveBeenCalledWith 9, [1, 2] # iv2
+      expect(@context.gl.uniform3iv).toHaveBeenCalledWith 10, [1, 2, 3] # iv3
+      expect(@context.gl.uniform4iv).toHaveBeenCalledWith 11, [1, 2, 3, 4] # iv4
+      expect(@context.gl.uniform1i).toHaveBeenCalledWith 12, 0 # s2d
+      expect(@context.gl.uniform1i).toHaveBeenCalledWith 13, 1 # scube
+      expect(@context.gl.uniformMatrix2fv).toHaveBeenCalledWith 14, false, [1, 2, 3, 4] # m2
+      expect(@context.gl.uniformMatrix3fv).toHaveBeenCalledWith 15, false, [1, 2, 3, 4, 5, 6, 7, 8, 9] # m3
+      expect(@context.gl.uniformMatrix4fv).toHaveBeenCalledWith 16, false, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] # m4
 
-    xit 'should produce a different GL vertex shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).vertex).not.toBe program2.glShader(@context).vertex
-
-    xit 'should produce the same GL fragment shader', ->
-      program.compile @context
-      program2.compile @context
-      expect(program.glShader(@context).fragment).not.toBe program2.glShader(@context).fragment
-
-  it "should bind textures and auto increment texture index", ->
-    tex1 = new Jax.Texture(path: "/textures/rock.png")
-    tex2 = new Jax.Texture(path: "/textures/rock.png")
-    
-    waitsFor ->
-      if tex1.loaded and tex2.loaded
-        program.fragment.append """
-          shared uniform sampler2D Tex1, Tex2;
-          void main(void) { gl_FragColor = texture2D(Tex1, vec2(1)) * texture2D(Tex2, vec2(1)); }
-        """
-
-        spyOn(SPEC_CONTEXT.gl, 'activeTexture').andCallThrough()
-        spyOn(SPEC_CONTEXT.gl, 'bindTexture').andCallThrough()
-        spyOn(SPEC_CONTEXT.gl, 'uniform1i').andCallThrough()
-
-        program.bind SPEC_CONTEXT
-        variables = program.discoverVariables SPEC_CONTEXT
-        program.set SPEC_CONTEXT,
-          Tex1: tex1
-          Tex2: tex2
-          
-        expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE0)
-        expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalledWith(GL_TEXTURE_2D, tex1.getHandle(SPEC_CONTEXT))
-        expect(SPEC_CONTEXT.gl.uniform1i).toHaveBeenCalledWith(variables['Tex1'].location, 0)
-
-        expect(SPEC_CONTEXT.gl.activeTexture).toHaveBeenCalledWith(GL_TEXTURE1)
-        expect(SPEC_CONTEXT.gl.bindTexture).toHaveBeenCalledWith(GL_TEXTURE_2D, tex2.getHandle(SPEC_CONTEXT))
-        expect(SPEC_CONTEXT.gl.uniform1i).toHaveBeenCalledWith(variables['Tex2'].location, 1)
-
-        return true
-      false
-
-  describe "given multiple appended copies of the same shared variable", ->
+  describe 'when there are multiple instances using similar variable names', ->
     beforeEach ->
-      program.vertex.append "shared attribute vec4 POSITION;"
-      program.vertex.append "shared attribute vec4 POSITION;"
-      
-    it "should compile", ->
-      expect(-> program.compile SPEC_CONTEXT).not.toThrow()
-      
-  describe "with no source code", ->
-    # this is because the shader is crashing the GPU on my machine,
-    # and I suspect an empty main() is leaving gl_Position / gl_FragColor
-    # as undefined. (Is that possible?)
-    
-    beforeEach -> program.compile SPEC_CONTEXT
-    
-    it "should set an arbitrary vertex position", ->
-      expect(program.vertex.toString()).toMatch /gl_Position = vec4/
+      program = new Jax.Shader.Program
+      @prog2 = new Jax.Shader.Program
+      program.vertex.append "shared attribute float b, a;"
+      @prog2.vertex.append "shared attribute float a, c;"
 
-    it "should set an arbitrary fragment color", ->
-      expect(program.fragment.toString()).toMatch /gl_FragColor = vec4/
+    describe 'binding', ->
+      beforeEach ->
+        spyOn @context.gl, 'bindAttribLocation'
+        spyOn @context.gl, 'enableVertexAttribArray'
+        program.bind @context
 
-  describe "with a valid vertex and fragment pair", ->
+      describe 'and then disabling the common attribute', ->
+        beforeEach -> program.set @context, { a: undefined, b: @attr }
+
+        it 'should reevaluate bindings so that the less common but enabled attribute uses slot 0', ->
+          expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'a'
+          expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'b'
+
+      it 'should bind the most popular variable name to slot 0', ->
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'a'
+
+      it 'should bind the less popular variable name to slot 1', ->
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'b'
+
+      it 'setting both with a value should enable both attribute locations', ->
+        program.set @context,
+          a: @attr
+          b: @attr
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 0
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 1
+
+  describe "when variables are matrices", ->
     beforeEach ->
-      program.vertex.append """
-        shared uniform mat4 mvMatrix;
-        shared attribute vec4 position;
-        shared varying vec4 color;
-        void main(void) {
-          color = vec4(1);
-          gl_Position = mvMatrix * position;
-        }
-      """
-      program.fragment.append """
-        shared varying vec4 color;
-        void main(void) { gl_FragColor = vec4(1,1,1,1); }
-      """
-      
-    describe "after binding", ->
-      beforeEach -> program.bind SPEC_CONTEXT
-      
-      it "should discover attributes", ->
-        expect(program.discoverVariables(SPEC_CONTEXT).position.type).toEqual GL_FLOAT_VEC4
-      # it "should detect uniform variable types", ->
-      #   expect(program.variables[SPEC_CONTEXT.id].mvMatrix.type).toEqual 'mat4'
-      #     
-      # it "should detect attribute variable types", ->
-      #   expect(program.variables[SPEC_CONTEXT.id].position.type).toEqual 'vec4'
-      # 
-      # it "should detect uniform variable qualifiers", ->
-      #   expect(program.variables[SPEC_CONTEXT.id].mvMatrix.qualifier).toEqual 'uniform'
-      # 
-      # it "should detect attribute variable qualifiers", ->
-      #   expect(program.variables[SPEC_CONTEXT.id].position.qualifier).toEqual 'attribute'
-      
-    it "should compile when initially bound", ->
-      spyOn(SPEC_CONTEXT.gl, 'linkProgram').andCallThrough()
-      program.bind SPEC_CONTEXT
-      expect(SPEC_CONTEXT.gl.linkProgram).toHaveBeenCalled()
-    
-    it "should use the GL program", ->
-      spyOn SPEC_CONTEXT.gl, 'useProgram'
-      program.bind SPEC_CONTEXT
-      expect(SPEC_CONTEXT.gl.useProgram).toHaveBeenCalled()
+      program.vertex.append "shared attribute mat2 m2;"
+      program.vertex.append "shared attribute mat3 m3;"
+      program.vertex.append "shared attribute mat4 m4;"
+      program.vertex.append "shared attribute float z;"
 
-    describe "after compiling", ->
-      beforeEach -> program.compile SPEC_CONTEXT
-      
-      it "should not recompile when binding", ->
-        spyOn SPEC_CONTEXT.gl, 'linkProgram'
-        program.bind SPEC_CONTEXT
-        expect(SPEC_CONTEXT.gl.linkProgram).not.toHaveBeenCalled()
+    describe 'binding and setting each with a value', ->
+      beforeEach ->
+        spyOn @context.gl, 'bindAttribLocation'
+        spyOn @context.gl, 'enableVertexAttribArray'
+        program.bind @context
+        program.set @context,
+          m2: @attr
+          m3: @attr
+          m4: @attr
+          z: @attr
 
-      it "should use the GL program", ->
-        spyOn SPEC_CONTEXT.gl, 'useProgram'
-        program.bind SPEC_CONTEXT
-        expect(SPEC_CONTEXT.gl.useProgram).toHaveBeenCalled()
+      it 'should pad attribute locations depending on matrix type', ->
+        p = program.getGLProgram @context
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,0,'m2'
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,2,'m3'
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,5,'m4'
+        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,9,'z'
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 0
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 2
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 5
+        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 9
+
+  describe "given a name", ->
+    beforeEach -> program = new Jax.Shader.Program "new name"
+
+    it 'should use the name', ->
+      expect(program.name).toEqual 'new name'
+
+  it 'should be given a default name', ->
+    expect(program.name).not.toBeBlank()
+
+  describe 'with a uniform float', ->
+    beforeEach ->
+      program.vertex.append 'shared uniform float f;'
+
+    it 'should detect the variable', ->
+      expect(program.variables.uniforms['f'].type).toEqual 'float'
+
+    it 'should detect the variable name', ->
+      expect(program.variables.uniforms['f'].name).toEqual 'f'
+
+  describe 'with an attribute vec3', ->
+    beforeEach ->
+      program.vertex.append 'shared attribute vec3 a;'
+
+    it 'should detect the variable', ->
+      expect(program.variables.attributes['a'].type).toEqual 'vec3'
+
+    it 'should detect the variable name', ->
+      expect(program.variables.attributes['a'].name).toEqual 'a'
+
+  describe 'with a varying vec3', ->
+    beforeEach ->
+      program.vertex.append 'shared varying vec3 a;'
+
+    it 'should detect the variable', ->
+      expect(program.variables.varyings['a'].type).toEqual 'vec3'
+
+    it 'should detect the variable name', ->
+      expect(program.variables.varyings['a'].name).toEqual 'a'
+
+  describe 'after validation', ->
+    beforeEach -> program.validate @context
+
+    it 'should be valid with the same context', ->
+      expect(program).toBeValid @context
+
+    it 'should not be valid with a different context', ->
+      expect(program).not.toBeValid {}
+
+    describe 'with multiple contexts', ->
+      beforeEach ->
+        @otherContext = new Jax.Context @context.canvas
+        program.validate @otherContext
+
+      describe 'invalidation with another context', ->
+        beforeEach -> program.invalidate @otherContext
+
+        it 'should be valid with the original context', ->
+          expect(program).toBeValid @context
+
+        it 'should not be valid with the other context', ->
+          expect(program).not.toBeValid @otherContext
+
+      describe "invalidation with no arguments", ->
+        beforeEach -> program.invalidate()
+
+        it 'should invalidate all contexts', ->
+          expect(program).not.toBeValid @context
+          expect(program).not.toBeValid @otherContext
+
+
+    describe "when its vertex shader source changes", ->
+      beforeEach -> program.vertex.append '//'
+
+      it 'should be invalid', ->
+        expect(program).not.toBeValid @context
+
+    describe "when its fragment shader source changes", ->
+      beforeEach -> program.fragment.append '//'
+
+      it 'should be invalid', ->
+        expect(program).not.toBeValid @context
