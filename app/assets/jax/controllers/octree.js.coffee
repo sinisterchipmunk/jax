@@ -73,7 +73,9 @@ Jax.Controller.create "octree",
             position: pos
             mesh: new Jax.Mesh.Sphere(radius: 0.25 + (Math.random() * 0.25 - 0.125), slices: 8, stacks: 8, color: [Math.abs(x) / 2, Math.abs(y) / 2, 1, 1])
 
-    @world.addObject new Jax.Model position: [ 0, 0, 4.5], mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
+    @world.addObject new Jax.Model
+      position: [ 0, 0, 4.5]
+      mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
     
     @_cam = camera = new Jax.Camera()
     camera.perspective near: 1, far: 10, width: @context.canvas.width, height: @context.canvas.height
