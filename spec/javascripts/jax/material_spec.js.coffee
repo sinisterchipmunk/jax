@@ -54,7 +54,7 @@ describe "Jax.Material", ->
         mat.addLayer type: 'VertexColor'
         expect(mat.shader.fragment.toString()).not.toEqual str
   
-  it "should not re-bind attribute arrays which are not overwritten between objects", ->
+  it "should not reuse attribute arrays from different objects", ->
     # when for example obj A binds its normals, but obj B does not,
     # then it should not try to create a vertex attrib pointer using
     # the normal buffer length and offset from obj A.
@@ -69,7 +69,7 @@ describe "Jax.Material", ->
         mesh.data.set vars, vertices: 'VERT'
     }, matr
 
-    normalVariable = matr.shader.discoverVariables(SPEC_CONTEXT)['NORMAL']
+    normalVariable = matr.shader.variables.attributes['NORMAL']
 
     obj1.render SPEC_CONTEXT, matr
     spyOn(matr.shader, 'setAttribute').andCallThrough()

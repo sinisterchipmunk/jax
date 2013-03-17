@@ -135,6 +135,7 @@ describe "Jax.Material.Surface", ->
 
     SPEC_CONTEXT.prepare()
     model.pushMatrices SPEC_CONTEXT
+    material.shader.bind SPEC_CONTEXT
     return false unless material.preparePass SPEC_CONTEXT, model.mesh, model, pass
     console.log "Run shader with: ", sim.state.variables if log
     Jax.getGlobal().SPEC_MATERIAL = material # to give console a handle to the most recent failing matr
