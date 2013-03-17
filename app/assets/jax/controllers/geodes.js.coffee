@@ -125,6 +125,3 @@ Jax.Controller.create "geodes",
 
     # sun's orbit
     @sun.camera.position = [ Math.cos(@theta)*20, Math.sin(@theta)*20, Math.sin(@theta)*10 ]
-
-    fps = @stats.fps
-    $('#jax-banner').html("FPS : #{fps}")
