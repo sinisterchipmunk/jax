@@ -156,18 +156,10 @@ class Jax.Material
       gl = context.gl
       gl.blendFunc GL_ONE, GL_ONE
       gl.depthFunc GL_EQUAL
-    @shader.set context, @assigns, pass is 0
+    @shader.set context, @assigns
     return true
     
   drawBuffers: (context, mesh, pass = 0) ->
-    unless Jax.environment is Jax.PRODUCTION or @_alreadyWarned
-      # in development mode, check that all variables are assigned, and warn if not.
-      # Only do this once (per material).
-      @_alreadyWarned = true
-      for name, variable of @shader.variables(context)
-        if variable.value is undefined
-          console.log "Warning: material #{@name} did not set a value for shader variable #{variable.name}"
-      
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context if pass is 0
       context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
