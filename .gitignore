@@ -1,7 +1,6 @@
 features/rerun.txt
 *.gem
 .bundle
-Gemfile.lock
 **/*/pkg/*
 .idea
 dist
