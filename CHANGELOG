@@ -1,5 +1,41 @@
 * 3.0.0 (Not Released) *
 
+  * Added `Jax.Mesh.OBJ` for loading .OBJ files.
+
+  * Added the ability to explicitly pass a `parser` object for both
+    `Jax.Mesh.OBJ` and `Jax.Mesh.PLY`, allowing you to avoid using XHR.
+    This is useful if you already have the file data loaded at runtime (e.g.
+    from a custom script embedded in HTML).
+
+  * Added `Jax.Mesh#toJSON()` for easy serialization of models in memory.
+
+    Pro Tip: load your model (e.g. an OBJ file) via one of the loaders,
+    then call `toJSON()` on it to bake tangents, bitangents, and normals!
+    Store that off into a file somewhere and then load the baked data instead
+    of wasting time recalculating them!
+
+  * Rewrote the low-level class `Jax.Shader.Program`, which directly wraps
+    and interfaces with the WebGL shader program objects. The new 
+    implementation is smarter about attribute enabling/disabling, and also 
+    is smart about attribute location binding. The previous implementation 
+    did no attribute binding, and consequently disabled attribute 0 in some 
+    circumstances. The new implementation should rarely, if ever, disable 
+    attribute 0, and should try to re-bind attribute locations if attribute 0  becomes disabled. The new implementation also fixes a bug where 
+    attributes that were used by the shader, but not given values by 
+    material, could be left enabled, causing INVALID_OPERATION errors during 
+    rendering. The new implementation is also faster.
+
+  * Dropped support for Ruby v1.8.7. This was a hard choice. I had 
+    originally planned to support it until Rails 4.0 is released, since that 
+    is the version that Rails will drop support in. However, I also wanted a 
+    major change like that to coincide with a major release version of Jax, 
+    and Rails 4 is now in beta; after much deliberation, I think we're close 
+    enough to the mark.
+
+  * Enabled testing on Ruby v2.0. Jax v3.0 will officially support Ruby 2.0, 
+    which was released a few weeks ago. As of this writing, all tests are 
+    passing. :)
+
   * Jax now depends on railties, not on Rails proper.
 
   * `Jax.Framerate` model has been added, which can be used to accurately 
