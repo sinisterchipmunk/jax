@@ -22,6 +22,18 @@ describe "Jax.Shader.Program", ->
     it 'should use the program', ->
       expect(@context.gl.useProgram).toHaveBeenCalled()
 
+    it 'should not dispatch the same command twice in a row', ->
+      @context.gl.useProgram.reset()
+      program.bind @context
+      expect(@context.gl.useProgram).not.toHaveBeenCalled()
+
+    it 'should dispatch the command if the last bound program was a different program', ->
+      prog2 = new Jax.Shader.Program
+      prog2.bind @context
+      @context.gl.useProgram.reset()
+      program.bind @context
+      expect(@context.gl.useProgram).toHaveBeenCalled()
+
   describe 'assigning attribute variables', ->
     beforeEach ->
       program.vertex.append 'shared attribute float f;'

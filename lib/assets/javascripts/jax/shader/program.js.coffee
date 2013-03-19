@@ -211,7 +211,7 @@ class Jax.Shader.Program
     {context, glProgram} = descriptor
     unless context._currentProgram is glProgram
       context.gl.useProgram glProgram
-      # context._currentProgram = glProgram
+      context._currentProgram = glProgram
 
   getGLProgram: (context) ->
     @getDescriptor(context).glProgram
