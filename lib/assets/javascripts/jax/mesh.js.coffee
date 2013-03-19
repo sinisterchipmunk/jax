@@ -89,12 +89,13 @@ class Mesh
   draw_mode: GL_POINTS
 
   toJSON: ->
-    vertices:      (i for i in @data.vertexBuffer)
-    normals:       (i for i in @data.normalBuffer)
-    tangents:      (i for i in @data.tangentBuffer)
-    bitangents:    (i for i in @data.bitangentBuffer)
-    textureCoords: (i for i in @data.textureCoordsBuffer)
-    indices:       (i for i in @data.indexBuffer)
+    vertices:      (parseFloat i.toFixed(6) for i in @data.vertexBuffer)
+    colors:        (parseFloat i.toFixed(6) for i in @data.colorBuffer)
+    textureCoords: (parseFloat i.toFixed(6) for i in @data.textureCoordsBuffer)
+    normals:       (parseFloat i.toFixed(6) for i in @data.normalBuffer)
+    tangents:      (parseFloat i.toFixed(6) for i in @data.tangentBuffer)
+    bitangents:    (parseFloat i.toFixed(6) for i in @data.bitangentBuffer)
+    indices:       (           i            for i in @data.indexBuffer)
 
   
   ###
