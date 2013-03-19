@@ -63,7 +63,18 @@ beforeEach ->
         when 1 then vec = arguments[0]
         when 3 then vec = arguments
         else throw new Error "Invalid args"
-      Math.equalish @actual, vec
+      switch vec.length
+        when  2 then  vec2.equalish @actual, vec
+        when  3 then  vec3.equalish @actual, vec
+        when  4 then  vec4.equalish @actual, vec
+        when  6 then mat2d.equalish @actual, vec
+        when  9 then  mat3.equalish @actual, vec
+        when 16 then  mat4.equalish @actual, vec
+        else
+          return false unless @actual.length is vec.length
+          for i in [0...@actual.length]
+            return false unless Math.equalish @actual[i], vec[i]
+          true
 
     toEqualMatrix: (mat) ->
       Math.equalish @actual, mat
