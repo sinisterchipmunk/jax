@@ -8,27 +8,23 @@ class Jax.Mesh.PLY extends Jax.Mesh.Triangles
     new Jax.Mesh.PLY "/path/to/model.ply"
     new Jax.Mesh.PLY path: "/path/to/model.ply", method: "POST"
   ###
-  constructor: (options) ->
+  constructor: (options = {}) ->
     if typeof options is 'string' then options = path: options
     @size = 1
-    @path = options?.path
-    @method = options?.method || "GET"
-    delete options.path if options?.path
-    delete options.method if options?.method
+    @method = "GET"
     super options
-  
-    xhr = new XMLHttpRequest()
-    self = this
-    # xhr.overrideMimeType "text/plain; charset=x-user-defined"
-    xhr.responseType = "arraybuffer"
-    xhr.onreadystatechange = ->
-      if xhr.readyState is xhr.DONE
-        if xhr.status is 200
-          self.parser = new Jax.Mesh.PLY.Parser xhr.response
-          self.rebuild()
-        else throw new Error "Request for #{self.path} returned status #{xhr.status}"
-    xhr.open @method, @path
-    xhr.send()
+    unless @parser
+      xhr = new XMLHttpRequest()
+      # xhr.overrideMimeType "text/plain; charset=x-user-defined"
+      xhr.responseType = "arraybuffer"
+      xhr.onreadystatechange = =>
+        if xhr.readyState is xhr.DONE
+          if xhr.status is 200
+            @parser = new Jax.Mesh.PLY.Parser xhr.response
+            @rebuild()
+          else throw new Error "Request for #{@path} returned status #{xhr.status}"
+      xhr.open @method, @path
+      xhr.send()
     
   init: (vertices, colors, textures, normals, indices) ->
     return unless @parser
@@ -63,7 +59,3 @@ class Jax.Mesh.PLY extends Jax.Mesh.Triangles
           colors[index*4+2] *= intensity
           colors[index*4+3] *= intensity
     null
-  
-  render: (args...) ->
-    return unless @parser
-    super args...
