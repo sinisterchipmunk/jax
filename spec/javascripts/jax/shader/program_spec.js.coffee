@@ -54,6 +54,19 @@ describe "Jax.Shader.Program", ->
       program.set @context, {}
       expect(@context.gl.disableVertexAttribArray).toHaveBeenCalledWith 0
 
+  describe 'assigning a texture that has not finished loading', ->
+    beforeEach ->
+      program.vertex.append 'shared uniform sampler2D tex;'
+      program.fragment.append 'shared uniform sampler2D tex; void main(void) { gl_FragColor = texture2D(tex, vec2(1.0, 0.0)); }'
+      program.bind @context
+      @tex = new Jax.Texture
+      spyOn(@context.gl, 'uniform1i')
+      spyOn(@tex, 'ready').andReturn false
+      program.set @context, tex: @tex
+
+    it 'should not bind the uniform', ->
+      expect(@context.gl.uniform1i).not.toHaveBeenCalled()
+
   describe 'assigning uniform variables', ->
     beforeEach ->
       program.vertex.append '''
