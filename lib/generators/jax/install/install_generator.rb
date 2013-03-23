@@ -48,7 +48,9 @@ DESC
       end
       
       def talk_about_restarting
-        say "If the development server is running, please restart it now."
+        unless shell.mute?
+          say "If the development server is running, please restart it now."
+        end
       end
     end
   end
