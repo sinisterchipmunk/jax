@@ -25,7 +25,7 @@ module Jax
     end
 
     routes do
-      mount JasmineRails::Engine => '/jasmine'
+      mount JasmineRails::Engine => '/jasmine', as: 'jasmine'
       root :to => "suite#index"
       match "/:action(/*id)", :controller => "suite"
     end

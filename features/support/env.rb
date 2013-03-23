@@ -2,6 +2,11 @@ require 'bundler/setup'
 require 'jax'
 require 'jax/rails/application'
 
+Jax::Rails::Application.routes do
+  @set.clear!
+  mount Jax::Engine => "/jax", :as => "jax"
+end
+
 # this will cause warnings but is necessary to ensure the #to_prepare blocks fire on each request.
 # note that since we are not (currently) using ActiveRecord, the warning can be ignored.
 Jax::Rails::Application.config.cache_classes = false

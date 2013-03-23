@@ -29,12 +29,36 @@ module Jax
           f.puts "Rails.application.routes.draw do\nend"
         end
         
-        # copy manifest file, required for all Jax applications as of v3.0
-        create_file "app/assets/jax/jax.js" do |f|
-          f.puts File.read(File.expand_path('../../../templates/manifest.js.erb', File.dirname(__FILE__)))
-        end
+        create_directory "app/assets/jax/shaders"
+        # create_directory "vendor/plugins/mine/app/assets/jax"
+        route "mount Jax::Engine => '/jax'"
+        FileUtils.chdir ENV['RAILS_ROOT']
+        create_file 'spec/javascripts/support/jasmine.yml' do |f|
+          f.puts <<-end_yml
+src_files:
+ - "application.{js,coffee}"
 
+stylesheets:
+
+helpers:
+  - "helpers/**/*.{js,coffee}"
+
+spec_files:
+  - "**/*[Ss]pec.{js,coffee}"
+
+src_dir: "app/assets/javascripts"
+
+spec_dir: spec/javascripts
+
+asset_paths:
+ - "vendor/assets/javascripts"
+     end_yml
+        end
         Jax.reset_config!
+        require 'thor'
+        shell = Thor::Shell::Basic.new
+        shell.instance_variable_set :"@mute", true
+        Jax::Generators::InstallGenerator.start [], shell: shell
       end
 
       def local(path)
@@ -80,7 +104,7 @@ module Jax
 
       def append_to_file(file, content = nil, &block)
         if File.file?(local file)
-          File.open(local(file), "w+") do |f|
+          File.open(local(file), "a+") do |f|
             f.puts content if content
             yield f if block_given?
           end
@@ -92,7 +116,7 @@ module Jax
       def route(content)
         append_to_file "config/routes.rb" # create it if missing
         routes = File.read(local "config/routes.rb")
-        create_file("config/routes.rb", routes.sub(/Rails.application.routes.draw do$/, "\\1#{content}"))
+        create_file("config/routes.rb", routes.sub(/Rails.application.routes.draw do$/, "\\0\n#{content}"))
       end
     end
   end

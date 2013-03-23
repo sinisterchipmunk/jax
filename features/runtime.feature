@@ -12,4 +12,4 @@ Feature: Runtime
     Given the WebGL start page is a hash with the following keys:
       | controller | action   |
       | jax/suite  | jasmine  |
-    Then the WebGL start path should be "http://www.example.com/jasmine"
+    Then the WebGL start path should be "http://www.example.com/jax/jasmine"
