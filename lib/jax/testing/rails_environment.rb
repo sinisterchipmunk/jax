@@ -32,7 +32,7 @@ module Jax
         create_directory "app/assets/jax/shaders"
         # create_directory "vendor/plugins/mine/app/assets/jax"
         route "mount Jax::Engine => '/jax'"
-        FileUtils.chdir ENV['RAILS_ROOT']
+        FileUtils.chdir ENV['RAILS_ROOT'] if ENV['RAILS_ROOT']
         create_file 'spec/javascripts/support/jasmine.yml' do |f|
           f.puts <<-end_yml
 src_files:
