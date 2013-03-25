@@ -6,7 +6,7 @@ Jax.Renderer.register class Jax.Renderer.WebGL
     @context = canvas.getContext 'experimental-webgl', options
     throw new Error "WebGL not supported!" unless @context
     
-    @context.clearColor 0.0, 0.0, 0.0, 1.0
+    @context.clearColor 0.0, 0.0, 0.0, 0.0
     @context.clearDepth 1.0
     @context.enable     GL_DEPTH_TEST
     @context.depthFunc  GL_LESS
