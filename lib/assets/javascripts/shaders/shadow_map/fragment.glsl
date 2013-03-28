@@ -36,8 +36,9 @@ float depth_lookup(vec2 offset, sampler2D shadowmap) {
 
 void main() {
   /* if (a && b) is broken on some hardware, use if (all(bvec)) instead */
+  float visibility = 1.0;
   if (PASS != 0) {
-    float visibility, dx, dy;
+    float dx, dy;
     bool front;
 
     if (SHADOWMAP_ENABLED) {
@@ -91,10 +92,8 @@ void main() {
           visibility += depth_lookup(vec2(0.0, 0.0), SHADOWMAP0);
         }
       }
-    } else {
-      visibility = 1.0;
     }
-
-    export(float, AttenuationMultiplier, visibility);
   }
+
+  gl_FragColor.rgb *= visibility;
 }

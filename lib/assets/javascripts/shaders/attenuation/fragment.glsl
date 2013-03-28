@@ -18,10 +18,11 @@ void main(void) {
     int skipAttenuation = 0;
     import(SkipAttenuation, skipAttenuation += SkipAttenuation);
   
-    if (skipAttenuation == 0)
+    if (skipAttenuation == 0) {
       multiplier *= SpotAttenuation;
       gl_FragColor.rgb *= multiplier / (ConstantAttenuation +
                                  LinearAttenuation * LightDistanceFromSurface +
                                  QuadraticAttenuation * pow(LightDistanceFromSurface, 2.0));
+    }
   }
 }

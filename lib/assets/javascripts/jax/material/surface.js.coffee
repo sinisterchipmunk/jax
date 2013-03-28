@@ -2,10 +2,12 @@ class Jax.Material.Surface extends Jax.Material.Custom
   @addLayer 'Position'
   @addLayer 'VertexColor'
   @addLayer 'WorldAmbient'
-  @addLayer 'LightAmbient'
   @addLayer 'LambertDiffuse'
   @addLayer 'PhongSpecular'
   @addLayer 'ShadowMap'
+  # Important: light ambient comes after shadow map so that ambient values
+  # are not reduced by "shadows"!
+  @addLayer 'LightAmbient'
   @addLayer 'Attenuation'
   @addLayer 'ClampColor'
   
