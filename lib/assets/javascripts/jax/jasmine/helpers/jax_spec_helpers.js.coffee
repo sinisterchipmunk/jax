@@ -1,5 +1,20 @@
 beforeEach ->
   @addMatchers 
+    toHaveBeenCalledWithInstanceOf: (klass) ->
+      return false unless @actual.wasCalled
+      for call in @actual.calls
+        if call.args.length and call.args[0] instanceof klass
+          return true
+      instances = []
+      for call in @actual.calls
+        args = (arg.__proto__.constructor.name for arg in call.args)
+        instances.push "[#{args.join(', ')}]"
+      instances = instances[0] if instances.length is 1
+      instances = "[#{instances.join ', '}]" if instances.join
+      @message = =>
+        "Expected #{if @isNot then 'not ' else ' '} to be called with an instance of #{klass.name}; was called with #{instances}"
+      false
+
     toBeCounterClockwise: (xform) -> !@actual.isClockwise xform
 
     toBeClockwise: (xform) -> @actual.isClockwise xform
