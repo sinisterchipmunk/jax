@@ -1,1 +1,6 @@
 //= require 'jax-tests'
+//= require 'jquery'
+//= require 'dev/underscore'
+//= require 'dev/backbone'
+//= require 'jax/dev/templates'
+//= require 'jax/dev'

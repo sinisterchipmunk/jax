@@ -36,6 +36,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rocco'
   s.add_development_dependency 'jshintrb'
   s.add_development_dependency 'shader-script'
+  s.add_development_dependency 'ejs'
     
   # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'

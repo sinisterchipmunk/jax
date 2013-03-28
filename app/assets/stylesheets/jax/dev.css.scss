@@ -1,0 +1,59 @@
+/*
+ *= require 'dev/jquery-ui'
+ */
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue Light", "Lucida Grande", "Calibri", "Arial", sans-serif;
+  background-color: #fff;
+}
+
+ul#controller-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0.5em;
+  opacity: 0.8;
+  z-index: 10;
+  display: inline-block;
+  min-height: 2in;
+  min-width: 1.5in;
+  background-color: #ccc;
+  border-bottom-right-radius: 8px;
+
+  li {
+    padding: 0.2em;
+    padding-left: 0.5em;
+    padding-right: 1.5em;
+
+    a {
+      font-weight: 400;
+      text-decoration: none;
+      color: #00f;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  }
+
+  li:nth-child(odd) {
+    background-color: #ddd;
+  }
+
+  li:nth-child(even) {
+    background-color: #eee;
+  }
+
+  li:last-child {
+    border-bottom-right-radius: 8px;
+  }
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}

@@ -3,39 +3,11 @@
   <head>
     <title>Jax Development Suite</title>
     <%= javascript_include_tag 'application' %>
-    <%= javascript_include_tag :jax %>
-    <%= javascript_include_tag :jquery %>
-    <%= stylesheet_link_tag 'jax/suite' %>
-
-    <%= yield :head %>
+    <%= stylesheet_link_tag "jax/dev" %>
   </head>
   
   <body>
-    <div id="jax-banner">
-      <span class="title">Jax</span>
-      <span class="version">v<%= Jax::VERSION %></span>
-    </div>
-
-    <div id="nav">
-      <ul>
-        <li><%= link_to "Test Suite", :action => 'specs' %></li>
-        <li><%= link_to "Run Application", :action => "run_webgl" %></li>
-        <li><%= link_to "Materials", :action => "shader_editor" %></li>
-        <li><%= link_to "Demo", :action => "run_webgl_demo" %></li>
-        <li><%= link_to "Guides & Docs", 'http://guides.jaxgl.com' %></li>
-      </ul>
-    </div>
-    
-    <% if !(content = yield(:below_nav).strip.html_safe).blank? %>
-      <div id="below-nav-row">
-        <div id="below-nav">
-          <div id="drop-arrow"></div>
-          <%= content %>
-        </div>
-      </div>
-    <% end %>
-
-    <div id="content">
+    <div id='app'>
       <%= yield %>
     </div>
   </body>
