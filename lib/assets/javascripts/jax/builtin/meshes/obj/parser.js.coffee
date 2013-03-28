@@ -1,6 +1,9 @@
 class Jax.Mesh.OBJ.Parser
   constructor: (content) ->
     @objects = {}
+    @vertices = []
+    @textureCoords = []
+    @normals = []
     curObj = null
     lines = []
     for line in content.split /\n/
@@ -9,9 +12,9 @@ class Jax.Mesh.OBJ.Parser
         args = line.split /\s+/
         switch cmd = args.shift()
           when 'o'  then curObj = @objects[args.shift()] =
-            vertices: []
-            textureCoords: []
-            normals: []
+            vertices: @vertices
+            textureCoords: @textureCoords
+            normals: @normals
             faces: []
             aggregates: {}
             smooth: false
