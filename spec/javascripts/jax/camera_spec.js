@@ -37,6 +37,21 @@ describe("Jax.Camera", function() {
         expect(camera.getTransformationMatrix()).toEqualVector([0,0,-1,0,0,1,0,0,1,0,0,0,0,0,-10,1]);
       });
     });
+
+    describe("rotating 2 different instances", function() {
+      var cam1, cam2;
+
+      beforeEach(function() {
+        cam1 = new Jax.Camera();
+        cam2 = new Jax.Camera();
+        cam1.rotate(0.831, [-0.658, -0.2938, 0.475]);
+        cam2.rotate(0.831, [-0.658, -0.2938, 0.475]);
+      });
+
+      it("should produce the same result", function() {
+        expect(cam1.rotation).toEqualVector(cam2.rotation);
+      });
+    });
     
     describe("pitching 90 deg", function() {
       beforeEach(function() { camera.pitch(Math.deg2rad(90)); });
