@@ -1,4 +1,4 @@
-rvm use --create --install 1.9.3@jax 2>&1
+rvm use --create --install 2.0.0@jax 2>&1
 
 if ! [ -e .bundle ] ; then
   bundle install
