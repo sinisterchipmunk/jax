@@ -3,6 +3,54 @@ describe 'Jax.Context', ->
     Jax.useRequestAnimFrame = false
     jasmine.Clock.useMock()
   afterEach -> Jax.useRequestAnimFrame = true
+
+  describe 'after pixel width changes', ->
+    beforeEach ->
+      @context.canvas.width = 1
+
+    describe 'rendering', ->
+      beforeEach ->
+        spyOn @context, 'setupCamera'
+        @context.render()
+
+      it 'should set up the camera again', ->
+        expect(@context.setupCamera).toHaveBeenCalled()
+
+  describe 'after pixel height changes', ->
+    beforeEach ->
+      @context.canvas.height = 1
+
+    describe 'rendering', ->
+      beforeEach ->
+        spyOn @context, 'setupCamera'
+        @context.render()
+
+      it 'should set up the camera again', ->
+        expect(@context.setupCamera).toHaveBeenCalled()
+
+  describe 'after clientWidth changes', ->
+    beforeEach ->
+      @context.canvas.clientWidth = 1
+
+    describe 'rendering', ->
+      beforeEach ->
+        spyOn @context, 'setupCamera'
+        @context.render()
+
+      it 'should set up the camera again', ->
+        expect(@context.setupCamera).toHaveBeenCalled()
+
+  describe 'after clientHeight changes', ->
+    beforeEach ->
+      @context.canvas.clientHeight = 1
+
+    describe 'rendering', ->
+      beforeEach ->
+        spyOn @context, 'setupCamera'
+        @context.render()
+
+      it 'should set up the camera again', ->
+        expect(@context.setupCamera).toHaveBeenCalled()
   
   it 'should have an id', -> expect(@context.id).not.toBeUndefined()
   it 'should have a world', -> expect(@context.world).toBeInstanceOf Jax.World

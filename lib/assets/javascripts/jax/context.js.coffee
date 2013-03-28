@@ -98,8 +98,6 @@ class Jax.Context
   ###
   reloadMatrices: ->
     camera = @activeCamera
-    @setupCamera() unless camera.projection
-
     @matrix_stack.reset() # reset depth
     @matrix_stack.loadModelMatrix mat4.IDENTITY
     # we use the inverse xform to go from WORLD to LOCAL instead of the opposite.
@@ -110,8 +108,21 @@ class Jax.Context
   update: (timechange) ->
     @controller?.update? timechange
     @world.update timechange
+
+  ###
+  Returns true if the active camera has no projection (e.g. neither
+  `perspective` nor `ortho` has been called on it yet), or if the canvas
+  size has changed since the last call to `setupCamera`.
+  ###
+  isViewportStale: ->
+    camera = @activeCamera
+    return true unless camera.projection
+    return true if @_realViewportWidth  isnt @canvas.clientWidth
+    return true if @_realViewportHeight isnt @canvas.clientHeight
+    false
     
   prepare: ->
+    @setupCamera() if @isViewportStale()
     @reloadMatrices()
     @renderer.prepare()
     
