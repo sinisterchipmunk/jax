@@ -47,23 +47,35 @@ Jax.Controller.create 'jax',
 
     @world.addObject new Jax.Framerate
 
-    jaxMesh = new Jax.Mesh.OBJ
-      path: "/assets/jack.obj"
-      material: new Jax.Material.Surface
-        intensity:
-          ambient: 1
-          diffuse: 1
-          specular: 1
-        color:
-          ambient: '#f40'
-          diffuse: '#f40'
-          specular: '#fff'
+    # FIXME I should be able to reuse a mesh with different materials,
+    # but the current API makes this either unintuitive or impossible.
+
     @jax1 = @world.addObject new Jax.Model
       position: [-0.062798, 0.580798,  0.486800]
-      mesh: jaxMesh
+      mesh: new Jax.Mesh.OBJ
+        path: "/assets/jack.obj"
+        material: new Jax.Material.Surface
+          intensity:
+            ambient: 1
+            diffuse: 1
+            specular: 1
+          color:
+            ambient: '#f40'
+            diffuse: '#f40'
+            specular: '#fff'
     @jax2 = @world.addObject new Jax.Model
       position: [-0.562798, 0.580798, -0.686800]
-      mesh: jaxMesh
+      mesh: new Jax.Mesh.OBJ
+        path: "/assets/jack.obj"
+        material: new Jax.Material.Surface
+          intensity:
+            ambient: 1
+            diffuse: 1
+            specular: 1
+          color:
+            ambient: '#04f'
+            diffuse: '#04f'
+            specular: '#fff'
 
     @jax1.camera.rotation = [0.215122, 0.907300, 0.328824, 0.149720]
     # HACK this shouldn't be necessary
