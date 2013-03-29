@@ -12,6 +12,19 @@ div#tools {
   border-bottom-left-radius: 8px;
   background-color: #333;
   font-size: 12px;
+  max-height: 90%;
+
+  .tabset {
+    height: 85%;
+
+    .tab-content {
+      overflow-y: auto;
+      height: 100%;
+      border-left: 0;
+      border-bottom: 0;
+      border-right: 0;
+    }
+  }
 }
 
 #tools {
@@ -24,5 +37,6 @@ div#tools {
   fieldset {
     border: 0;
     color: #ccc;
+    white-space: nowrap;
   }
 }
