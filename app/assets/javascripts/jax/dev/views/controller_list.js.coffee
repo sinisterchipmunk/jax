@@ -3,6 +3,7 @@
 class Jax.Dev.Views.ControllerList extends Backbone.View
   tagName: "ul"
   id: 'controller-list'
+  template: JST['jax/dev/controller_list']
 
   events:
     "click .minify": 'toggle'
@@ -63,7 +64,6 @@ class Jax.Dev.Views.ControllerList extends Backbone.View
     @$el.append view.$el
 
   render: =>
-    @$el.empty()
-    @$el.append "<li class='header'><a href='#' class='minify' alt='collapse' title='collapse'><span class='minify icon'>&nbsp;</span>Controllers</a></li>"
+    @$el.html @template()
     @collection.each @add
     true
