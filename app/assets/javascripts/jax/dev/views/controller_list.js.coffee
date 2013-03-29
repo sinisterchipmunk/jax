@@ -18,7 +18,7 @@ class Jax.Dev.Views.ControllerList extends Backbone.View
       @minify()
 
   expand: ->
-    @$("a.minify").css 'background-position', '-16px -192px'
+    @$("a.minify .icon").css 'background-position', '-16px -192px'
     @$("li.header").css 'border-bottom-right-radius', '0px'
     if @minified
       curHeight = @$el.height()
@@ -64,6 +64,6 @@ class Jax.Dev.Views.ControllerList extends Backbone.View
 
   render: =>
     @$el.empty()
-    @$el.append "<li class='header'><a href='#' class='minify' alt='collapse' title='collapse'><span class='icon'>&nbsp;</span>Controllers</a></li>"
+    @$el.append "<li class='header'><a href='#' class='minify' alt='collapse' title='collapse'><span class='minify icon'>&nbsp;</span>Controllers</a></li>"
     @collection.each @add
     true
