@@ -147,6 +147,7 @@ describe "Jax.Material.Surface", ->
     material = new Jax.Material.Surface
       shininess: 60
       color:
+        ambient: [1,1,1,1]
         diffuse: [0, 1, 0, 1]
         specular: [1, 0, 0, 1]
       intensity:
