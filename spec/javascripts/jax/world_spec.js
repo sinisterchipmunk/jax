@@ -5,6 +5,34 @@ describe("Jax.World", function() {
     SPEC_CONTEXT.prepare();
     world = SPEC_CONTEXT.world;
   });
+
+  describe("adding a light", function() {
+    var added, light;
+    beforeEach(function() {
+      added = false;
+      light = new Jax.Light.Directional();
+      world.on('lightAdded', function(light) { added = light; });
+      world.addLight(light);
+    });
+
+    it("should fire event including the light object", function() {
+      expect(added).toBe(light);
+    });
+
+    describe("removing a light", function() {
+      var removed;
+      beforeEach(function() {
+        removed = false;
+        world.on('lightRemoved', function(light) { removed = light; });
+        world.removeLight(light);
+      });
+
+      it("should fire event including the light object", function() {
+        expect(removed).toBe(light);
+      });
+    });
+
+  });
   
   describe("disposal", function() {
     it("should remove objects from itself", function() {
