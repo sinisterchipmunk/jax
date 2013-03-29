@@ -9,43 +9,87 @@ body {
 }
 
 ul#controller-list {
+  position: relative;
   list-style-type: none;
   margin: 0;
-  padding: 0.5em;
+  padding: 0;
   opacity: 0.8;
   z-index: 10;
   display: inline-block;
-  min-height: 2in;
   min-width: 1.5in;
-  background-color: #ccc;
   border-bottom-right-radius: 8px;
-
-  li {
-    padding: 0.2em;
-    padding-left: 0.5em;
-    padding-right: 1.5em;
-
-    a {
-      font-weight: 400;
-      text-decoration: none;
-      color: #00f;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-  }
+  font-size: 12px;
+  overflow: hidden;
+  border-right: 1px solid #ef8c08;
+  border-bottom: 1px solid #ef8c08;
 
   li:nth-child(odd) {
-    background-color: #ddd;
+    background-color: #333;
   }
 
   li:nth-child(even) {
-    background-color: #eee;
+    background-color: #393939;
   }
 
   li:last-child {
     border-bottom-right-radius: 8px;
+  }
+
+  li {
+    padding: 4px;
+    padding-left: 10px;
+    padding-right: 30px;
+
+    &.header {
+      line-height: 16px;
+      vertical-align: middle;
+      padding-right: 0.2em;
+      font-weight: 800;
+      text-transform: uppercase;
+      background-color: #333;
+      opacity: 1;
+      color: #ef8c08;
+    }
+
+    a.minify {
+      display: inline-block;
+      text-decoration: none;
+      color: #ef8c08;
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        overflow: hidden;
+        background-image: url('/assets/dev/ui-icons_ef8c08_256x240.png');
+        background-repeat: no-repeat;
+        background-position: -16px -192px;
+        margin-right: 0.5em;
+        display: inline-block;
+      }
+
+      &:hover {
+        text-decoration: none;
+        color: #ffd27a;
+
+        .icon {
+          background-image: url('/assets/dev/ui-icons_ffd27a_256x240.png');
+        }
+      }
+    }
+
+    a {
+      -webkit-transition: color 0.1s;
+      -moz-transition: color 0.1s;
+      -o-transition: color 0.1s;
+      transition: color 0.1s;
+      font-weight: 400;
+      text-decoration: none;
+      color: #ef8c08;
+    }
+
+    a:hover, &.active a {
+      color: #ffd27a;
+    }
   }
 }
 
