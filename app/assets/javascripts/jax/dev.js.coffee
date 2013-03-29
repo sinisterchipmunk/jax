@@ -1,3 +1,4 @@
+#= require dev/colorpicker
 #= require_self
 #= require_tree ./dev
 

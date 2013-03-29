@@ -1,5 +1,8 @@
 /*
  *= require 'dev/jquery-ui'
+ *= require 'dev/colorpicker'
+ *= require_self
+ *= require_tree './dev'
  */
 
 body {
@@ -72,47 +75,6 @@ div#tools {
   border-bottom-left-radius: 8px;
   background-color: #333;
   font-size: 12px;
-}
-
-ul#controller-list {
-  position: relative;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  opacity: 0.8;
-  z-index: 10;
-  display: inline-block;
-  border-bottom-right-radius: 8px;
-  font-size: 12px;
-  overflow: hidden;
-  border-right: 1px solid #ef8c08;
-  border-bottom: 1px solid #ef8c08;
-
-  li:nth-child(odd) {
-    background-color: #333;
-  }
-
-  li:nth-child(even) {
-    background-color: #393939;
-  }
-
-  li:last-child {
-    border-bottom-right-radius: 8px;
-  }
-
-  li {
-    a.minify {
-      font-weight: 400;
-
-      .icon {
-        margin-right: 0.5em;
-      }
-    }
-
-    &.active a {
-      color: #ffd27a;
-    }
-  }
 }
 
 canvas {

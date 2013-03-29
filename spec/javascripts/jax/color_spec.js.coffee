@@ -4,6 +4,10 @@ describe "Jax.Color", ->
   
   it "should default to opaque white", ->
     expect(color.toVec4()).toEqualVector [1, 1, 1, 1]
+
+  it 'toString', ->
+    expect(color.toString()).toEqual '#ffffffff'
+    expect(color.toString(6)).toEqual '#ffffff'
     
   it "shuld parse another color", ->
     color.red = 0

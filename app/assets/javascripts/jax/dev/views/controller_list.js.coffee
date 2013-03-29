@@ -13,6 +13,7 @@ class Jax.Dev.Views.ControllerList extends Backbone.View
 
   toggle: (e) =>
     e?.preventDefault()
+    e?.stopPropagation()
     if @minified
       @expand()
     else

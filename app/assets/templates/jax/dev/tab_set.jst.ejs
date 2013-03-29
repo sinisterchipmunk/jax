@@ -1,0 +1,12 @@
+<% for (var label in labels) { %>
+  <a class="tab" href='#' data-caption="<%= label %>">
+    <span class="label">
+      <%= label %>
+    </span>
+  </a>
+<% } %>
+
+<% for (var label in labels) { %>
+  <div class="tab-content" data-caption="<%= label %>">
+  </div>
+<% } %>
