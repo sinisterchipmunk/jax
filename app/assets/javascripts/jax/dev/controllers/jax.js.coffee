@@ -15,24 +15,28 @@ Jax.Controller.create 'jax',
 
   index: ->
     @timer = 0
-    @light = @world.addLight new Jax.Light.Directional
+    @light = @world.addLight new Jax.Light.Spot
       position: [3, 3, 3]
       direction: [1, -1, 1]
       attenuation:
-        linear: 1
+        constant: 1
+        linear: 0
+        quadratic: 0
+        # linear: 1
       shadows: true
       color:
-        ambient: '#222'
+        ambient: '#111'
         diffuse: '#eee'
         specular: '#fff'
-    @light.camera.rotation = [0.192552, -0.735685, -0.233828, -0.605820]
+    @light.camera.lookAt [0, 0, 0]
+    # @light.camera.rotation = [0.192552, -0.735685, -0.233828, -0.605820]
     # HACK this shouldn't be necessary
     @light.camera.fireEvent 'matrixUpdated'
     @update 0
     @world.addObject new Jax.Model
       castShadow: false
       mesh: new Jax.Mesh.Plane
-        size: 8
+        size: 32
         material: new Jax.Material.Surface
           intensity:
             ambient: 1
@@ -41,7 +45,8 @@ Jax.Controller.create 'jax',
           color:
             ambient: '#0f0'
             diffuse: '#ccc'
-            specular: '#fff'
+            specular: '#555'
+          shininess: 24
       position: [0, 0, 0]
       direction: [0, 1, 0]
 
