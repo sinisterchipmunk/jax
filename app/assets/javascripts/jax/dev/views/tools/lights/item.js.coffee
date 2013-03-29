@@ -1,4 +1,6 @@
-class Jax.Dev.Views.Tools.Lights.Item extends Backbone.View
+class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
+  iconSelector: "a.header .icon"
+
   template: JST['jax/dev/tools/lights/item']
 
   className: "light"
@@ -6,36 +8,10 @@ class Jax.Dev.Views.Tools.Lights.Item extends Backbone.View
   events:
     "click a.header": "toggle"
 
-  toggle: (e) =>
-    if @isExpanded()
-      @collapse e
-    else
-      @expand e
-
-  isExpanded: =>
-    @_expanded
-
-  collapse: (e) =>
-    e?.preventDefault()
-    @_expanded = false
-    @$(".icon").removeClass('collapse-small').addClass 'expand-small'
-    @$el.animate {
-      'height': '24px'
-    }, 'fast'
-
-  expand: (e) =>
-    e?.preventDefault()
-    @_expanded = true
-    @$(".icon").removeClass('expand-small').addClass 'collapse-small'
-    height = @$el.css('height')
-    targetHeight = @$el.css('height', 'auto').height()
-    @$el.css 'height', height
-    @$el.animate {
-      'height': targetHeight
-    }, 'fast'
-
   initialize: ->
+    @stateKey = "light_#{@model.__unique_id}"
     @render()
+    @restoreState()
 
   addColorPicker: (label, color) ->
     @$("#colors").append new Jax.Dev.Views.ColorPicker(

@@ -1,6 +1,5 @@
 describe "Jax.Dev.Views.ColorPicker", ->
   beforeEach -> @color = new Jax.Color
-  afterEach -> Jax.Dev.Views.ColorPicker.scrub()
 
   sharedExamplesFor "a color picker", ->
     it 'should render the label', ->

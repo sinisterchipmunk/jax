@@ -1,6 +1,10 @@
-class Jax.Dev.Views.Tools extends Backbone.View
-  COLLAPSED_WIDTH = '96px'
-  COLLAPSED_HEIGHT = '24px'
+#= require jax/dev/views/drawer
+
+class Jax.Dev.Views.Tools extends Jax.Dev.Views.Drawer
+  collapsedWidth: '96px'
+  collapseIcon: null
+  expandIcon:   null
+  stateKey: 'tools'
 
   id: "tools"
   template: JST['jax/dev/tools']
@@ -8,34 +12,6 @@ class Jax.Dev.Views.Tools extends Backbone.View
   events:
     "click a.tools": "toggle"
     "click a.tab": "expand"
-
-  toggle: (e) =>
-    e?.preventDefault()
-    if @_expanded
-      @collapse()
-    else
-      @expand()
-
-  collapse: =>
-    @$el.animate {
-      height: COLLAPSED_HEIGHT
-      width: COLLAPSED_WIDTH
-    }, 'fast'
-    @_expanded = false
-
-  expand: (e) =>
-    e?.preventDefault()
-    height = @$el.height()
-    width = @$el.width()
-    targetWidth = @$el.css('width', 'auto').width()
-    targetHeight = @$el.css('height', 'auto').height()
-    @$el.height(height)
-    @$el.width(width)
-    @$el.animate {
-      height: targetHeight
-      width: targetWidth
-    }, 'fast'
-    @_expanded = true
 
   initialize: ->
     # the Jax context to be interrogated/manipulated
@@ -47,10 +23,8 @@ class Jax.Dev.Views.Tools extends Backbone.View
         "Models":    $("<div/>")
         "Materials": $("<div/>")
     @render()
+    @restoreState()
 
   render: ->
     @$el.html @template()
     @$el.append @tabs.$el
-    @$el.css 'height', COLLAPSED_HEIGHT
-    @$el.css 'width', COLLAPSED_WIDTH
-    @_expanded = false

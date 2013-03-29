@@ -10,7 +10,10 @@ class Jax.Dev.Views.Tools.Lights extends Backbone.View
   render: =>
     @$el.empty()
     for light in @jax.world.lights
-      @$el.append new Jax.Dev.Views.Tools.Lights.Item(model: light).$el
+      console.log light
+      @$el.append new Jax.Dev.Views.Tools.Lights.Item(
+        model: light
+      ).$el
     true
 
   _timeout = null

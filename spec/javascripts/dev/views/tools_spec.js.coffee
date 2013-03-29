@@ -2,6 +2,8 @@ describe "Jax.Dev.Views.Tools", ->
   beforeEach ->
     @view = new Jax.Dev.Views.Tools context: @context
 
+  itShouldBehaveLike "a drawer"
+
   it 'should include tabbed views for world settings', ->
     expect(@view.$(".tab").text()).toMatch /World/
 

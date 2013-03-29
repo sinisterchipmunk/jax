@@ -8,7 +8,7 @@ describe 'Jax.Dev.Views.ControllerList', ->
     @view = new Jax.Dev.Views.ControllerList
       collection: @collection
 
-  afterEach -> Jax.Dev.Views.ControllerList.scrub()
+  itShouldBehaveLike "a drawer"
 
   it 'should build a new view for each model', ->
     spyOn @view, 'add'
@@ -28,12 +28,12 @@ describe 'Jax.Dev.Views.ControllerList', ->
     afterEach -> @view.$el.remove()
 
     it 'should collapse the list', ->
-      expect(@view.isMinified()).toBe true
+      expect(@view.isCollapsed()).toBe true
       expect(parseInt @view.$el.css('height')).toBeLessThan 30
 
     it 'should persist', ->
       newView = new Jax.Dev.Views.ControllerList collection: @collection
-      expect(newView.isMinified()).toBe true
+      expect(newView.isCollapsed()).toBe true
 
     describe 'clicking again', ->
       beforeEach ->
@@ -41,8 +41,8 @@ describe 'Jax.Dev.Views.ControllerList', ->
 
       it 'should persist', ->
         newView = new Jax.Dev.Views.ControllerList collection: @collection
-        expect(newView.isMinified()).toBe false
+        expect(newView.isCollapsed()).toBe false
 
       it 'should expand the list', ->
-        expect(@view.isMinified()).toBe false
+        expect(@view.isCollapsed()).toBe false
         expect(parseInt @view.$el.css('height')).not.toBeLessThan 30

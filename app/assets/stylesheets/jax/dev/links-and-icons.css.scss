@@ -17,7 +17,8 @@ a {
     display: inline-block;
 
     &.wrench         { background-position: -176px -112px; }
-    &.minify         { background-position:  -16px -192px; }
+    &.collapse-large { background-position:  -16px -192px; }
+    &.expand-large   { background-position:      0 -192px; }
     &.collapse-small { background-position:  -48px -128px; }
     &.expand-small   { background-position:  -16px -128px; }
   }

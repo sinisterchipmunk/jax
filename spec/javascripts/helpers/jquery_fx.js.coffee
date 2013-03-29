@@ -1,0 +1,2 @@
+beforeEach ->
+  $.fx.off = true
