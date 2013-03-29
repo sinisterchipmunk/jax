@@ -1,34 +1,67 @@
 class Jax.Dev.Views.ColorPicker extends Backbone.View
-  tagName: "input"
+  tagName: "fieldset"
+  className: "color"
+  template: JST['jax/dev/color_picker']
+
+  events:
+    "change .alpha": "alphaChanged"
+    "keyup .rgbhex": "colorChanged"
+
+  @scrub: -> $("div.colorpicker").remove()
+
+  alphaChanged: (e) ->
+    @$(".alpha-slider").slider("value", $(e.target).val())
+    @color.alpha = $(e.target).val()
+
+  colorChanged: (e) ->
+    try
+      len = $(e.target).val().length
+      if len is 7
+        @color.parse $(e.target).val()
+    catch e
+      true
+
+  jaxColorChanged: =>
+    hex = @getColorString()
+    @$(".rgbhex").css 'background-color', hex
+    @$(".rgbhex").val hex
+    avg = (@color.red + @color.green + @color.blue) / 3
+    if avg > 0.5
+      @$(".rgbhex").css 'color', '#000'
+    else
+      @$(".rgbhex").css 'color', '#fff'
 
   initialize: ->
+    @options.alpha = true if @options.alpha is undefined
     # an instance of Jax.Color to bind to
     @color = @options.color
-    @color.on 'change', => @$el.val @getColorString()
+    @color.on 'change', @jaxColorChanged
     @render()
 
   getColorString: =>
-    if @options.alpha
-      @color.toString 8
-    else
-      @color.toString 6
+    @color.toString 6
+
+  setColorString: (hex) =>
+    @color.parse hex
 
   render: ->
-    @$el.attr 'type', 'text'
-    @textField = @$el
-    @textField.val @getColorString()
-    @textField.css 'width', '58px'
-    @textField.css 'padding', '4px'
-    @textField.css 'border-width', '1px'
-    @textField.ColorPicker
+    @$el.html @template
+      label: @options.label
+      useAlpha: @options.alpha
       color: @getColorString()
-      onBeforeShow: =>
-        @textField.ColorPickerSetColor @getColorString()
-      onChange: (hsb, hex, rgb) =>
-        @textField.css 'background-color', '#' + hex
-        @color.parse '#' + hex
-        avg = (@color.red + @color.green + @color.blue) / 3
-        if avg > 0.5
-          @textField.css 'color', '#000'
-        else
-          @textField.css 'color', '#fff'
+      alpha: @color.alpha
+    @$(".rgbhex").val @getColorString
+    @$(".rgbhex").ColorPicker
+      color: @getColorString()
+      onBeforeShow: => @$('.rgbhex').ColorPickerSetColor @getColorString()
+      onChange: (hsb, hex, rgb) => @setColorString "##{hex}"
+    if @options.alpha
+      @$(".alpha-slider").slider
+        value: @color.alpha
+        step: 0.001
+        min: 0
+        max: 1
+        slide: (event, ui) =>
+          @$(".alpha").val ui.value
+          @color.alpha = ui.value
+    @jaxColorChanged()

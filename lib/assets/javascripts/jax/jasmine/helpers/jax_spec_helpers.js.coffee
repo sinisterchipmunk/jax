@@ -1,4 +1,8 @@
 beforeEach ->
+  jasmine.Clock.useMock()
+  # force jax to use timeouts, so we can use jasmine mocks to test it
+  Jax.useRequestAnimFrame = false
+
   @addMatchers 
     toHaveBeenCalledWithInstanceOf: (klass) ->
       return false unless @actual.wasCalled

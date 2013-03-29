@@ -1,0 +1,37 @@
+fieldset.color {
+  div { vertical-align: middle; }
+
+  input.rgbhex {
+    width: 58px;
+    border-width: 1px;
+    margin-right: 1px;
+  }
+
+  input.alpha {
+    width: 36px;
+    margin-left: 0;
+  }
+
+  .alpha-slider {
+    display: inline-block;
+    width: 98px;
+    font-size: 8px;
+  }
+
+  label {
+    width: 111px;
+    display: inline-block;
+
+    &.color-header {
+      font-size: 8px;
+      width: 58px;
+      margin-right: 2px;
+    }
+
+    &.alpha-header {
+      font-size: 8px;
+      margin-left: 0;
+      width: 36px;
+    }
+  }
+}

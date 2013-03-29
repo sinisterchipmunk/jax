@@ -1,0 +1,20 @@
+<div>
+  <label for="ambient-color-picker">
+    <%= label %>:
+  </label>
+  <div style='display: inline-block;'>
+    <div>
+      <label class="color-header">color</label>
+      <label class="alpha-header">alpha</label>
+    </div>
+    <div>
+      <input type='text' class='rgbhex' value="<%= color %>" />
+      <% if (useAlpha) { %>
+        <input type='text' class='alpha' value="<%= alpha %>" />
+      <% } %>
+    </div>
+    <% if (useAlpha) { %>
+      <div class="alpha-slider"></div>
+    <% } %>
+  </div>
+</div>
