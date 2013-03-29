@@ -11,43 +11,6 @@ body {
   background-color: #fff;
 }
 
-a {
-  display: inline-block;
-  text-decoration: none;
-  color: #ef8c08;
-  -webkit-transition: color 0.1s;
-  -moz-transition: color 0.1s;
-  -o-transition: color 0.1s;
-  transition: color 0.1s;
-
-  .icon {
-    width: 16px;
-    height: 16px;
-    overflow: hidden;
-    background-image: url('/assets/dev/ui-icons_ef8c08_256x240.png');
-    background-repeat: no-repeat;
-    background-position: -16px -192px;
-    display: inline-block;
-
-    &.wrench {
-      background-position: -176px -112px;
-    }
-
-    &.minify {
-      background-position: -16px -192px;
-    }
-  }
-
-  &:hover {
-    text-decoration: none;
-    color: #ffd27a;
-
-    .icon {
-      background-image: url('/assets/dev/ui-icons_ffd27a_256x240.png');
-    }
-  }
-}
-
 .header {
   display: inline-block;
   padding: 4px;
@@ -59,22 +22,6 @@ a {
   background-color: #333;
   opacity: 1;
   color: #ef8c08;
-}
-
-div#tools {
-  position: absolute;
-  margin: 0;
-  padding: 0;
-  opacity: 0.8;
-  z-index: 10;
-  right: 0;
-  display: inline-block;
-  border-left: 1px solid #ef8c08;
-  border-bottom: 1px solid #ef8c08;
-  overflow: hidden;
-  border-bottom-left-radius: 8px;
-  background-color: #333;
-  font-size: 12px;
 }
 
 canvas {

@@ -1,0 +1,33 @@
+a {
+  display: inline-block;
+  text-decoration: none;
+  color: #ef8c08;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -o-transition: color 0.1s;
+  transition: color 0.1s;
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    background-image: url('/assets/dev/ui-icons_ef8c08_256x240.png');
+    background-repeat: no-repeat;
+    background-position: -16px -192px;
+    display: inline-block;
+
+    &.wrench         { background-position: -176px -112px; }
+    &.minify         { background-position:  -16px -192px; }
+    &.collapse-small { background-position:  -48px -128px; }
+    &.expand-small   { background-position:  -16px -128px; }
+  }
+
+  &:hover {
+    text-decoration: none;
+    color: #ffd27a;
+
+    .icon {
+      background-image: url('/assets/dev/ui-icons_ffd27a_256x240.png');
+    }
+  }
+}

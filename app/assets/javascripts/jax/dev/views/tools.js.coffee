@@ -7,6 +7,7 @@ class Jax.Dev.Views.Tools extends Backbone.View
 
   events:
     "click a.tools": "toggle"
+    "click a.tab": "expand"
 
   toggle: (e) =>
     e?.preventDefault()
@@ -22,7 +23,8 @@ class Jax.Dev.Views.Tools extends Backbone.View
     }, 'fast'
     @_expanded = false
 
-  expand: =>
+  expand: (e) =>
+    e?.preventDefault()
     height = @$el.height()
     width = @$el.width()
     targetWidth = @$el.css('width', 'auto').width()
@@ -40,8 +42,8 @@ class Jax.Dev.Views.Tools extends Backbone.View
     @jax = @options.context
     @tabs = new Jax.Dev.Views.TabSet
       tabs:
-        "World":     new Jax.Dev.Views.Tools.World context: @jax
-        "Lights":    $("<div/>")
+        "World":     new Jax.Dev.Views.Tools.World  context: @jax
+        "Lights":    new Jax.Dev.Views.Tools.Lights context: @jax
         "Models":    $("<div/>")
         "Materials": $("<div/>")
     @render()

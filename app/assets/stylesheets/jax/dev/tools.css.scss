@@ -1,3 +1,19 @@
+div#tools {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  opacity: 0.8;
+  z-index: 10;
+  right: 0;
+  display: inline-block;
+  border-left: 1px solid #ef8c08;
+  border-bottom: 1px solid #ef8c08;
+  overflow: hidden;
+  border-bottom-left-radius: 8px;
+  background-color: #333;
+  font-size: 12px;
+}
+
 #tools {
   .tools.header {
     margin-bottom: 12px;
