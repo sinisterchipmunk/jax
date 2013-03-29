@@ -8,6 +8,39 @@ body {
   background-color: #fff;
 }
 
+a {
+  display: inline-block;
+  text-decoration: none;
+  color: #ef8c08;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -o-transition: color 0.1s;
+  transition: color 0.1s;
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    background-image: url('/assets/dev/ui-icons_ef8c08_256x240.png');
+    background-repeat: no-repeat;
+    background-position: -16px -192px;
+    display: inline-block;
+
+    &.minify {
+      background-position: -16px -192px;
+    }
+  }
+
+  &:hover {
+    text-decoration: none;
+    color: #ffd27a;
+
+    .icon {
+      background-image: url('/assets/dev/ui-icons_ffd27a_256x240.png');
+    }
+  }
+}
+
 ul#controller-list {
   position: relative;
   list-style-type: none;
@@ -52,42 +85,14 @@ ul#controller-list {
     }
 
     a.minify {
-      display: inline-block;
-      text-decoration: none;
-      color: #ef8c08;
+      font-weight: 400;
 
       .icon {
-        width: 16px;
-        height: 16px;
-        overflow: hidden;
-        background-image: url('/assets/dev/ui-icons_ef8c08_256x240.png');
-        background-repeat: no-repeat;
-        background-position: -16px -192px;
         margin-right: 0.5em;
-        display: inline-block;
-      }
-
-      &:hover {
-        text-decoration: none;
-        color: #ffd27a;
-
-        .icon {
-          background-image: url('/assets/dev/ui-icons_ffd27a_256x240.png');
-        }
       }
     }
 
-    a {
-      -webkit-transition: color 0.1s;
-      -moz-transition: color 0.1s;
-      -o-transition: color 0.1s;
-      transition: color 0.1s;
-      font-weight: 400;
-      text-decoration: none;
-      color: #ef8c08;
-    }
-
-    a:hover, &.active a {
+    &.active a {
       color: #ffd27a;
     }
   }
