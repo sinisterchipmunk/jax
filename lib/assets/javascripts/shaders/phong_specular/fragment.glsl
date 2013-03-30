@@ -47,7 +47,8 @@ void main(void) {
       vec3 E = normalize(vEyeSpaceSurfacePosition);
       float specularIntensity = MaterialSpecularIntensity;
       import(SpecularIntensity, specularIntensity *= SpecularIntensity);
-      gl_FragColor += vec4(C * SpotAttenuation * specularIntensity * pow(clamp(dot(R, E), 0.0, 1.0), MaterialShininess), 1.0);
+      specularIntensity *= SpotAttenuation * pow(clamp(dot(R, E), 0.0, 1.0), MaterialShininess) * LightSpecularColor.a;
+      gl_FragColor += vec4(C * specularIntensity, MaterialSpecularColor.a * specularIntensity);
     }
   }
 }

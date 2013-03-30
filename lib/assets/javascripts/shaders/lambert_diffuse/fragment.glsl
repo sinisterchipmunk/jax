@@ -39,11 +39,12 @@ void main(void) {
     // FIXME we probably need a better interface for this sort of thing
     cache(float, LightDistanceFromSurface) { LightDistanceFromSurface = d; }
   
-    vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb *
-              MaterialDiffuseColor.a * MaterialDiffuseIntensity;
+    float intensity = LightDiffuseColor.a * MaterialDiffuseIntensity;
+    vec3 C =  LightDiffuseColor.rgb * MaterialDiffuseColor.rgb;
 
     float lambert = max(dot(NormalizedEyeSpaceSurfaceNormal, L), 0.0);
-    vec4 color = vec4(lambert * C * SpotAttenuation, 1.0);
+    float diffuse = lambert * SpotAttenuation * intensity;
+    vec4 color = vec4(C * diffuse, MaterialDiffuseColor.a * diffuse);
     import(VertexColor, color *= VertexColor);
     gl_FragColor += color;
   }

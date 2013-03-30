@@ -6,8 +6,8 @@ shared uniform vec4 LightAmbientColor;
 void main(void) {
   // no output on world ambient pass
   if (PASS != 0) {
-    vec3 material = MaterialAmbientIntensity * MaterialAmbientColor.rgb * MaterialAmbientColor.a;
-    vec4 color = vec4(LightAmbientColor.rgb * LightAmbientColor.a * material, 1.0);
+    vec3 material = MaterialAmbientIntensity * MaterialAmbientColor.rgb;
+    vec4 color = vec4(LightAmbientColor.rgb * LightAmbientColor.a * material, MaterialAmbientColor.a);
     import(VertexColor, color *= VertexColor);
     gl_FragColor += color;
   }

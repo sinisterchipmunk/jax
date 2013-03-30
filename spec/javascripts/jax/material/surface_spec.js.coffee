@@ -189,6 +189,25 @@ describe "Jax.Material.Surface", ->
     describe "facing directly toward the surface", ->
       beforeEach -> light.direction = [0, 0, -1]
   
+      describe "when light color alpha is 0.5", ->
+        beforeEach ->
+          model.mesh.color = [1,1,1,1]
+          light.color.ambient  = [1,0,0,0.5]
+          light.color.diffuse  = [0,1,0,0.5]
+          light.color.specular = [0,0,1,0.5]
+          material.intensity.ambient = 1
+          material.intensity.diffuse = 1
+          material.intensity.specular= 1
+          material.color.ambient = [1,1,1,1]
+          material.color.diffuse = [1,1,1,1]
+          material.color.specular= [1,1,1,1]
+
+        it 'should apply alpha as intensity', ->
+          run 1
+          expect(sim.state.variables.gl_FragColor.value).toEqualVector [
+            0.5, 0.5, 0.5, 1
+          ]
+
       describe "with diffuse but no specular", ->
         beforeEach -> material.intensity.specular = 0
     
