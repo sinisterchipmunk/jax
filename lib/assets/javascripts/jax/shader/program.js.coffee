@@ -49,15 +49,16 @@ class Jax.Shader.Program
         @setAttribute context, attribute, value
       else
         # console.log 'not using', name
-        if @isAttributeEnabled context, attribute.location
-          if attribute.location is 0 and @_dislikedAttributes.indexOf(name) is -1
+        id = context.id
+        if @isAttributeEnabled context, attribute.location[id]
+          if attribute.location[id] is 0 and @_dislikedAttributes.indexOf(name) is -1
             # console.log 'disliking', name
             # make a note that this attribute was disabled; finish iterating
             # in case other attributes follow suit; then rebind and retry
             @_dislikedAttributes.push name
             mustRebind = true
           # console.log 'disabling', name
-          @disableAttribute context, attribute.location, attribute.name
+          @disableAttribute context, attribute.location[id], attribute.name
       attribute.value = value
     if mustRebind
       descriptor = @getDescriptor context
@@ -75,31 +76,33 @@ class Jax.Shader.Program
     true
 
   setAttribute: (context, variable, value) ->
-    unless @isAttributeEnabled context, variable.location
-      @enableAttribute context, variable.location, variable.name
+    id = context.id
+    unless @isAttributeEnabled context, variable.location[id]
+      @enableAttribute context, variable.location[id], variable.name
     value.bind context
-    context.gl.vertexAttribPointer variable.location, value.itemSize, value.dataType || GL_FLOAT, false, 0, value.offset || 0
+    context.gl.vertexAttribPointer variable.location[id], value.itemSize, value.dataType || GL_FLOAT, false, 0, value.offset || 0
 
   setUniform: (context, variable, value) ->
     {gl} = context
+    id = context.id
     switch variable.type
-      when 'float'          then gl.uniform1f  variable.location, value
-      when 'bool', 'int'    then gl.uniform1i  variable.location, value
-      when 'vec2'           then gl.uniform2fv variable.location, value
-      when 'vec3'           then gl.uniform3fv variable.location, value
-      when 'vec4'           then gl.uniform4fv variable.location, value
-      when 'bvec2', 'ivec2' then gl.uniform2iv variable.location, value
-      when 'bvec3', 'ivec3' then gl.uniform3iv variable.location, value
-      when 'bvec4', 'ivec4' then gl.uniform4iv variable.location, value
-      when 'mat2' then gl.uniformMatrix2fv variable.location, false, value
-      when 'mat3' then gl.uniformMatrix3fv variable.location, false, value
-      when 'mat4' then gl.uniformMatrix4fv variable.location, false, value
+      when 'float'          then gl.uniform1f  variable.location[id], value
+      when 'bool', 'int'    then gl.uniform1i  variable.location[id], value
+      when 'vec2'           then gl.uniform2fv variable.location[id], value
+      when 'vec3'           then gl.uniform3fv variable.location[id], value
+      when 'vec4'           then gl.uniform4fv variable.location[id], value
+      when 'bvec2', 'ivec2' then gl.uniform2iv variable.location[id], value
+      when 'bvec3', 'ivec3' then gl.uniform3iv variable.location[id], value
+      when 'bvec4', 'ivec4' then gl.uniform4iv variable.location[id], value
+      when 'mat2' then gl.uniformMatrix2fv variable.location[id], false, value
+      when 'mat3' then gl.uniformMatrix3fv variable.location[id], false, value
+      when 'mat4' then gl.uniformMatrix4fv variable.location[id], false, value
       when 'sampler2D', 'samplerCube'
         if !(value instanceof Jax.Texture) or value.ready()
           gl.activeTexture GL_TEXTURE0 + @__textureIndex
           value.refresh context unless value.isValid context
           gl.bindTexture value.options.target, value.getHandle context
-          gl.uniform1i variable.location, value = @__textureIndex++
+          gl.uniform1i variable.location[id], value = @__textureIndex++
       else throw new Error "Unexpected variable type: #{variable.type}"
 
   insert: (vsrc, fsrc, index) ->
@@ -131,8 +134,10 @@ class Jax.Shader.Program
           return s
       a.name.toLowerCase().localeCompare b.name.toLowerCase()
     nextAvailableLocation = 0
+    id = descriptor.context.id
     for variable in variables
-      variable.location = nextAvailableLocation
+      variable.location or= {}
+      variable.location[id] = nextAvailableLocation
       gl.bindAttribLocation descriptor.glProgram, nextAvailableLocation, variable.name
       nextAvailableLocation += switch variable.type
         when 'mat2' then 2
@@ -142,8 +147,9 @@ class Jax.Shader.Program
     true
 
   enableAllAttributes: (descriptor) ->
+    id = descriptor.context.id
     for name, variable of @variables.attributes
-      @enableAttribute descriptor.context, variable.location, name
+      @enableAttribute descriptor.context, variable.location[id], name
     true
 
   enableAttribute: (context, location, name) ->
@@ -160,9 +166,11 @@ class Jax.Shader.Program
   getUniformLocations: (descriptor) ->
     {gl} = descriptor.context
     program = @getGLProgram descriptor.context
+    id = descriptor.context.id
     for name, variable of @variables.uniforms
-      variable.location = gl.getUniformLocation program, variable.name
-      if variable.location is null
+      variable.location or= {}
+      variable.location[id] = gl.getUniformLocation program, variable.name
+      if variable.location[id] is null
         # remove variables that were not used in the shader, to prevent
         # uselessly iterating through them later
         delete @variables.uniforms[name]
@@ -259,6 +267,7 @@ class Jax.Shader.Program
       descriptor = @_contexts[context.id] =
         valid: false
         context: context
+      # console.log @variables
       maxAttrs = @getShaderContext(descriptor, 'vertex').maxVertexAttribs
       context._enabledAttributes or= new Uint8Array maxAttrs
     descriptor
