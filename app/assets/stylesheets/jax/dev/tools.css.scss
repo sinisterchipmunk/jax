@@ -18,6 +18,7 @@ div#tools {
     height: 85%;
 
     .tab-content {
+      overflow-x: hidden;
       overflow-y: auto;
       height: 100%;
       border-left: 0;
