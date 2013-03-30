@@ -19,7 +19,7 @@ describe "Jax.Dev.Views.ColorPicker", ->
       expect(@view.$(".alpha")).not.toBeEmpty()
 
     it 'should default alpha field to alpha value', ->
-      expect(@view.$(".alpha").val()).toEqual '1'
+      expect(@view.$(".alpha").val()).toEqual 'ff'
 
   describe "without alpha", ->
     beforeEach -> @view = new Jax.Dev.Views.ColorPicker
