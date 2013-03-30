@@ -24,6 +24,10 @@ class Jax.Light extends Jax.Model
     @innerSpotAngle = Math.PI / 8.75
     @outerSpotAngle = Math.PI / 8
     @energy = if options?.energy is undefined then 1 else options.energy
+    # FIXME should be easy to bind one function to many events
+    @attenuation.on 'constantChanged',  => @_maxEffectiveRangeCache = null
+    @attenuation.on 'linearChanged',    => @_maxEffectiveRangeCache = null
+    @attenuation.on 'quadraticChanged', => @_maxEffectiveRangeCache = null
     
     super options
     
@@ -86,19 +90,22 @@ class Jax.Light extends Jax.Model
 
   crMinIntensity = 10.0 / 256.0
   maxEffectiveRange: (rangeIncrement = 1.0) ->
+    return @_maxEffectiveRangeCache if @_maxEffectiveRangeCache
     attenuation = @attenuation
     
     # make sure the parameters are reasonable and that
     # the algorithm will terminate
-    if attenuation.constant < 0.0 or attenuation.linear < 0.0 or attenuation.quadratic < 0.0 or \
-       (attenuation.constant < (1 / crMinIntensity) and attenuation.linear is 0 and attenuation.quadratic is 0)
-      return -1
+    # the epsilons are important because very small values can stall the
+    # javascript
+    if attenuation.constant < Math.EPSILON or attenuation.linear < Math.EPSILON or attenuation.quadratic < Math.EPSILON or \
+       (attenuation.constant < (1 / crMinIntensity) and attenuation.linear < Math.EPSILON and attenuation.quadratic < Math.EPSILON)
+      return @_maxEffectiveRangeCache = -1
 
     distance = rangeIncrement
     while @calculateIntensity(distance) > crMinIntensity
       distance += rangeIncrement
 
-    distance
+    return @_maxEffectiveRangeCache = distance
     
   calculateIntensity: (distance) ->
     return 1.0 / (@attenuation.constant + @attenuation.linear * distance + \
