@@ -9,6 +9,9 @@ class Jax.Dev.Views.WebGLCanvas extends Backbone.View
   initialize: ->
     @render()
     # add to window to give dev a handle on jax context for console debugging
+    # - first dispose the context, if any, else it'll keep rendering in the
+    #   background
+    window.jax?.dispose()
     window.jax = @jax = new Jax.Context canvas: @el
     @startController 'jax'
 
