@@ -3,20 +3,20 @@ class Jax.Dev.Views.Tools.Lights extends Backbone.View
 
   initialize: ->
     @jax = @options.context
-    @jax.world.on 'lightAdded', @tainted
-    @jax.world.on 'lightRemoved', @tainted
+    @jax.world.on 'lightAdded', @add
+    @jax.world.on 'lightRemoved', @remove
     @render()
+
+  add: (light) =>
+    @$el.append new Jax.Dev.Views.Tools.Lights.Item(
+      model: light
+    ).$el
+
+  remove: (light) =>
+    @$("*[data-id=#{light.__unique_id}]").remove()
 
   render: =>
     @$el.empty()
     for light in @jax.world.lights
-      console.log light
-      @$el.append new Jax.Dev.Views.Tools.Lights.Item(
-        model: light
-      ).$el
+      @add light
     true
-
-  _timeout = null
-  tainted: =>
-    clearTimeout _timeout if _timeout
-    _timeout = setTimeout @render, 10

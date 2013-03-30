@@ -21,6 +21,7 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
 
   render: =>
     @$el.html @template klass: @model.__proto__.constructor.name
+    @$el.attr 'data-id', @model.__unique_id
     @addColorPicker "Ambient Color", @model.color.ambient
     @addColorPicker "Diffuse Color", @model.color.diffuse
     @addColorPicker "Specular Color", @model.color.specular
