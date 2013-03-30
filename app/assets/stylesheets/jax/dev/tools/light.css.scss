@@ -1,5 +1,29 @@
 #tools {
   .light {
     overflow: hidden;
+
+    .section.header {
+      color: #ccc;
+      font-weight: 800;
+      text-transform: none;
+    }
+
+    fieldset {
+      margin-left: 12px;
+
+      input.attenuation-dec {
+        width: 80px;
+      }
+    }
+
+    fieldset.attenuation {
+      label {
+        margin-top: 4px;
+      }
+
+      div {
+        vertical-align: top;
+      }
+    }
   }
 }

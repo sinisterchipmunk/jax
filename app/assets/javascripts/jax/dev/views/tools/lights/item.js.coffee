@@ -19,10 +19,20 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
       color: color
     ).$el
 
+  addAttenuationSlider: (label, type) ->
+    @$("#attenuation").append new Jax.Dev.Views.Tools.Lights.AttenuationSlider(
+      label: label
+      type: type
+      model: @model.attenuation
+    ).$el
+
   render: =>
     @$el.html @template klass: @model.__proto__.constructor.name
     @$el.attr 'data-id', @model.__unique_id
-    @addColorPicker "Ambient Color", @model.color.ambient
-    @addColorPicker "Diffuse Color", @model.color.diffuse
-    @addColorPicker "Specular Color", @model.color.specular
+    @addColorPicker "Ambient", @model.color.ambient
+    @addColorPicker "Diffuse", @model.color.diffuse
+    @addColorPicker "Specular", @model.color.specular
+    @addAttenuationSlider "Constant",  'constant'
+    @addAttenuationSlider "Linear",    'linear'
+    @addAttenuationSlider "Quadratic", 'quadratic'
     @_expanded = true

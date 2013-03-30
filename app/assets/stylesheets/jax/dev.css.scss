@@ -11,6 +11,21 @@ body {
   background-color: #fff;
 }
 
+fieldset {
+  div { vertical-align: middle; }
+  
+  label {
+    width: 100px;
+    display: inline-block;
+  }
+
+  .ui-slider {
+    display: inline-block;
+    width: 82px;
+    font-size: 8px;
+  }
+}
+
 .header {
   display: inline-block;
   padding: 4px;

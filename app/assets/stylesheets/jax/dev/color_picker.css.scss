@@ -1,6 +1,4 @@
-fieldset.color {
-  div { vertical-align: middle; }
-
+fieldset {
   input.rgbhex {
     width: 58px;
     border-width: 1px;
@@ -12,16 +10,7 @@ fieldset.color {
     margin-left: 0;
   }
 
-  .alpha-slider {
-    display: inline-block;
-    width: 82px;
-    font-size: 8px;
-  }
-
   label {
-    width: 100px;
-    display: inline-block;
-
     &.color-header {
       font-size: 8px;
       width: 58px;
