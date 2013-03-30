@@ -7,11 +7,16 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
 
   events:
     "click a.header": "toggle"
+    "change #shadows, #enabled": "booleanChanged"
 
   initialize: ->
     @stateKey = "light_#{@model.__unique_id}"
     @render()
     @restoreState()
+
+  booleanChanged: (e) =>
+    name = $(e.target).attr("id")
+    @model[name] = not @model[name]
 
   addColorPicker: (label, color) ->
     @$("#colors").append new Jax.Dev.Views.ColorPicker(
@@ -35,4 +40,7 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
     @addAttenuationSlider "Constant",  'constant'
     @addAttenuationSlider "Linear",    'linear'
     @addAttenuationSlider "Quadratic", 'quadratic'
+    @$("#shadows").prop 'checked', @model.shadows
+    @$("#enabled").prop 'checked', @model.enabled
+
     @_expanded = true
