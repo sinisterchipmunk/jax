@@ -79,7 +79,7 @@ class Jax.ShadowMap
   ###
   illuminate: (context, material = 'depthmap', fbo = @shadowmapFBO, capture = false) ->
     gl = context.gl
-    clearColor = gl.getParameter GL_COLOR_CLEAR_VALUE
+    clearColor = context.renderer.clearColor
     fbo.bind context, =>
       fbo.viewport context
       cc = @clearColor
