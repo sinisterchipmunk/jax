@@ -30,6 +30,9 @@ class Jax.Dev.Views.ColorPicker extends Backbone.View
       @$(".rgbhex").css 'color', '#000'
     else
       @$(".rgbhex").css 'color', '#fff'
+    alphaHex = parseInt(@color.alpha * 255).toString(16)
+    alphaHex = "0#{alphaHex}" if alphaHex.length is 1
+    @$(".alpha").val alphaHex
 
   initialize: ->
     @options.alpha = true if @options.alpha is undefined
@@ -61,7 +64,5 @@ class Jax.Dev.Views.ColorPicker extends Backbone.View
         step: 0.001
         min: 0
         max: 1
-        slide: (event, ui) =>
-          @$(".alpha").val ui.value
-          @color.alpha = ui.value
+        slide: (event, ui) => @color.alpha = ui.value
     @jaxColorChanged()
