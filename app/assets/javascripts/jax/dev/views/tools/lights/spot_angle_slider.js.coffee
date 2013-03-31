@@ -22,7 +22,7 @@ class Jax.Dev.Views.Tools.Lights.SpotAngleSlider extends Backbone.View
     if @useDegrees()
       newMax = 180 - Math.EPSILON
     else
-      newMax = 2 - Math.EPSILON
+      newMax = Math.TAU / 2 - Math.EPSILON
     @$("#slider").dragslider 'option', 'max', newMax
     @$("#slider").dragslider 'values', @$("#slider").dragslider 'values'
     @setModel @displayedValues()...
