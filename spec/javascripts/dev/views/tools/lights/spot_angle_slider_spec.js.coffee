@@ -80,7 +80,7 @@ describe "Jax.Dev.Views.Tools.Lights.SpotAngleSlider", ->
         expect(@view.$("#spot-inner-angle").val()).toEqual '60'
         expect(@view.$("#spot-outer-angle").val()).toEqual '90'
 
-    it 'should convert angles view to degrees', ->
+    it 'should convert angle fields to degrees', ->
       expect(@displayedInner()).toEqual 57.29578
       expect(@displayedOuter()).toEqual 114.591559
 
