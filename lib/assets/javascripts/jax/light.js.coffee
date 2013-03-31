@@ -49,11 +49,17 @@ class Jax.Light extends Jax.Model
     
   @define 'innerSpotAngle',
     get: -> @_innerSpotAngle
-    set: (c) -> @_innerSpotAngle = c; @_innerSpotAngleCos = Math.cos c
+    set: (c) ->
+      @_innerSpotAngle = c
+      @_innerSpotAngleCos = Math.cos c
+      @trigger 'innerSpotAngleChanged', c
     
   @define 'outerSpotAngle',
     get: -> @_outerSpotAngle
-    set: (c) -> @_outerSpotAngle = c; @_outerSpotAngleCos = Math.cos c
+    set: (c) ->
+      @_outerSpotAngle = c
+      @_outerSpotAngleCos = Math.cos c
+      @trigger 'outerSpotAngleChanged', c
 
   @define 'outerSpotAngleCos', get: -> @_outerSpotAngleCos
   @define 'innerSpotAngleCos', get: -> @_innerSpotAngleCos

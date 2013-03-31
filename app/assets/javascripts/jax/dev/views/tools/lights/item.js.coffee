@@ -42,5 +42,8 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
     @addAttenuationSlider "Quadratic", 'quadratic'
     @$("#shadows").prop 'checked', @model.shadows
     @$("#enabled").prop 'checked', @model.enabled
+    @$("#spot-angles").append new Jax.Dev.Views.Tools.Lights.SpotAngleSlider(
+        model: @model
+      ).$el
 
     @_expanded = true

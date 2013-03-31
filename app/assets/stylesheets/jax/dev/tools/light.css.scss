@@ -18,6 +18,29 @@
       }
     }
 
+    #spot-angles {
+      fieldset {
+        input.spot-angle {
+          width: 85px;
+          border-width: 1px;
+          margin-right: 1px;
+        }
+
+        label {
+          &.spot-header {
+            font-size: 8px;
+            width: 85px;
+            margin-right: 2px;
+            text-align: center;
+          }
+        }
+
+        #slider {
+          width: 180px;
+        }
+      }
+    }
+
     .section.header {
       color: #ccc;
       font-weight: 800;
