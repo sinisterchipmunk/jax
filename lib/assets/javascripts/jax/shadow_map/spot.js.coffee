@@ -19,7 +19,11 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     # account for infinite influence
     if far is -1 then far = mostDistant
 
-    fov = @light.outerSpotAngle * 180 / Math.PI * 2
+    angle = @light.outerSpotAngle
+    angle = Math.EPSILON if angle <= Math.EPSILON
+    angle += Math.EPSILON
+
+    fov = angle * 2
     near = 0.1
     aspect_ratio = @width / @height
 
