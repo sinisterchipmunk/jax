@@ -3,6 +3,11 @@
 class Jax.Dev.Views.WebGLCanvas extends Backbone.View
   tagName: "canvas"
 
+  events:
+    "click": "focus"
+
+  focus: => @$el.focus()
+
   startController: (name) ->
     @jax.redirectTo name
 
