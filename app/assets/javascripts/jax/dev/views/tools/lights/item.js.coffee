@@ -32,7 +32,9 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
     ).$el
 
   render: =>
-    @$el.html @template klass: @model.__proto__.constructor.name
+    @$el.html @template
+      klass: @model.__proto__.constructor.name
+      id: @model.__unique_id
     @$el.attr 'data-id', @model.__unique_id
     @addColorPicker "Ambient", @model.color.ambient
     @addColorPicker "Diffuse", @model.color.diffuse
@@ -45,5 +47,3 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
     @$("#spot-angles").append new Jax.Dev.Views.Tools.Lights.SpotAngleSlider(
         model: @model
       ).$el
-
-    @_expanded = true

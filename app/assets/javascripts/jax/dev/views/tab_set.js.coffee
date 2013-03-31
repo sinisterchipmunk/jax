@@ -13,7 +13,9 @@ class Jax.Dev.Views.TabSet extends Backbone.View
 
   tabClicked: (e) =>
     e?.preventDefault()
-    @activate $(e.currentTarget).attr("data-caption")
+    label = $(e.currentTarget).attr("data-caption")
+    @activate label
+    @options.tabs[label].trigger 'tab-selected'
 
   initialize: ->
     for label, view of @options.tabs
