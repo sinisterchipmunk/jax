@@ -19,7 +19,7 @@ sharedExamplesFor "a drawer", ->
 
     it 'should collapse the list', ->
       expect(@view.isCollapsed()).toBe true
-      expect(parseInt @view.$el.css('height')).toBeLessThan 30
+      expect(parseInt @view.$el.css('height')).toBeLessThan 40
 
     it 'should persist', ->
       expect(@cloneSubject().isCollapsed()).toBe true
@@ -40,4 +40,4 @@ sharedExamplesFor "a drawer", ->
 
       it 'should expand the list', ->
         expect(@view.isCollapsed()).toBe false
-        expect(parseInt @view.$el.css('height')).not.toBeLessThan 30
+        expect(parseInt @view.$el.css('height')).not.toBeLessThan 40

@@ -8,8 +8,12 @@ class Jax.Dev.Views.Tools.Lights extends Backbone.View
     @render()
 
   add: (light) =>
-    view = new Jax.Dev.Views.Tools.Lights.Item
-      model: light
+    if light instanceof Jax.Light.Spot
+      view = new Jax.Dev.Views.Tools.Lights.Spot
+        model: light
+    else
+      view = new Jax.Dev.Views.Tools.Lights.Item
+        model: light
     view.on 'layout', => @trigger 'layout'
     @$el.append view.$el
 
