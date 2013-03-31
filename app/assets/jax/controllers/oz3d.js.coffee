@@ -22,8 +22,7 @@ Jax.Controller.create "oz3d",
     @lighto.camera.position = @light.camera.position unless @light instanceof Jax.Light.Directional
     
   key_released: (e) ->
-    # FIXME this is bad practice, use World#removeLight
-    @world.lights.length = 0
+    @world.removeLight @light
     switch ++@lightType % 3
       when 0 then @light = new Jax.Light.Point       @lightOptions
       when 1 then @light = new Jax.Light.Directional @lightOptions
