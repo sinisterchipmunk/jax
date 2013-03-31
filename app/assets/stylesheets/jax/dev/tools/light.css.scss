@@ -2,18 +2,26 @@
   .light {
     overflow: hidden;
 
-    .booleans {
-      display: inline-block;
-      font-size: 10px;
-      text-align: left;
+    .basic {
+      white-space: nowrap;
 
-      fieldset {
-        display: inline;
-        margin: 0;
-        padding: 0;
+      .header {
+        vertical-align: top;
+      }
 
-        label {
-          width: auto;
+      .booleans {
+        display: inline-block;
+        font-size: 10px;
+        text-align: left;
+
+        fieldset {
+          display: inline;
+          margin: 0;
+          padding: 0;
+
+          label {
+            width: auto;
+          }
         }
       }
     }

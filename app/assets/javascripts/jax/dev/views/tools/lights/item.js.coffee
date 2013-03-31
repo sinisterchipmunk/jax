@@ -1,5 +1,6 @@
 class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
   iconSelector: "a.header .icon"
+  collapsedHeight: '36px'
 
   template: JST['jax/dev/tools/lights/item']
 
