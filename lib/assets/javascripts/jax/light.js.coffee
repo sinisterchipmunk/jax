@@ -26,7 +26,6 @@ class Jax.Light extends Jax.Model
     @spotExponent = 32
     @innerSpotAngle = Math.PI / 4.375
     @outerSpotAngle = Math.PI / 4
-    @energy = if options?.energy is undefined then 1 else options.energy
     # FIXME should be easy to bind one function to many events
     @attenuation.on 'constantChanged',  => @_maxEffectiveRangeCache = null
     @attenuation.on 'linearChanged',    => @_maxEffectiveRangeCache = null

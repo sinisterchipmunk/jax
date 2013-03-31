@@ -43,7 +43,6 @@ describe "Jax.Light", ->
     it "should have quadratic attenuation", -> expect(light.attenuation.quadratic).toBeDefined()
     it "should have a diffuse color", -> expect(light.color.diffuse).toBeDefined()
     it "should have a specular color", -> expect(light.color.specular).toBeDefined()
-    it "should have an energy", -> expect(light.energy).toBeDefined()
 
     it "should set ambient color from string", ->    
       light.color.ambient = '#123'
