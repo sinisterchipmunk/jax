@@ -14,7 +14,6 @@ class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
     vars['LightSpecularColor'] = light.color.specular
     vars['EyeSpaceLightDirection'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
     vars['LightType'] = light.type
-    vars['LightSpotExponent'] = light.spotExponent
     vars['LightSpotInnerCos'] = light.innerSpotAngleCos
     vars['LightSpotOuterCos'] = light.outerSpotAngleCos
     vars['EyeSpaceLightPosition'] = light.eyePosition context.matrix_stack.getViewMatrix(), @eyePos

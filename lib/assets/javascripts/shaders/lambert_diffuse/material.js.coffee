@@ -12,7 +12,6 @@ class Jax.Material.Layer.LambertDiffuse extends Jax.Material.IlluminationLayer
     
   illuminate: (context, mesh, model, vars, light) ->
     vars['LightDiffuseColor'] = light.color.diffuse
-    vars['LightSpotExponent'] = light.spotExponent
     vars['LightSpotInnerCos'] = light.innerSpotAngleCos
     vars['LightSpotOuterCos'] = light.outerSpotAngleCos
     vars['LightType'] = light.type

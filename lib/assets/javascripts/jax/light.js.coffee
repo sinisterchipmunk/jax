@@ -23,7 +23,6 @@ class Jax.Light extends Jax.Model
     @enabled = true
     @_color = new Jax.Light.Color
     @_attenuation = new Jax.Light.Attenuation
-    @spotExponent = 32
     @innerSpotAngle = Math.PI / 4.375
     @outerSpotAngle = Math.PI / 4
     # FIXME should be easy to bind one function to many events

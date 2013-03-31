@@ -1,14 +1,3 @@
-/* see http://jax.thoughtsincomputation.com/2011/05/webgl-apps-crashing-on-windows-7/ */
-//const struct LightSource {
-//  int enabled;
-//  int type;
-//  vec3 position; // in world space
-//  vec3 direction; // in world space
-//  vec4 ambient, diffuse, specular;
-//  float constant_attenuation, linear_attenuation, quadratic_attenuation;
-//  float spotExponent, spotCosCutoff;
-//};
-
 shared uniform bool LIGHT_ENABLED;
 shared uniform int LIGHT_TYPE;
 shared uniform vec3 LIGHT_POSITION, LIGHT_DIRECTION;
