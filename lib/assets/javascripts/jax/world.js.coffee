@@ -48,7 +48,7 @@ class Jax.World
   @define 'ambientColor',
     get: -> @_ambientColor
     set: (c) ->
-      @_ambientColor = Jax.Color.parse c
+      (@_ambientColor or= new Jax.Color).parse c
       @fireEvent 'ambientChanged'
     
   @getter 'objects', ->

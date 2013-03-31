@@ -4,6 +4,20 @@ beforeEach ->
   Jax.useRequestAnimFrame = false
 
   @addMatchers 
+    toBeEnabled: ->
+      return true if @actual.enabled
+      return false if @actual.disabled
+      return true if @actual.prop and not @actual.prop("disabled")
+      return true if @actual.prop and     @actual.prop("enabled")
+      false
+
+    toBeDisabled: ->
+      return false if @actual.enabled
+      return true if @actual.disabled
+      return false if @actual.prop and not @actual.prop("disabled")
+      return false if @actual.prop and     @actual.prop("enabled")
+      true
+
     toHaveBeenCalledWithInstanceOf: (klass) ->
       return false unless @actual.wasCalled
       for call in @actual.calls

@@ -1,0 +1,17 @@
+#tools {
+  #world {
+    div.column {
+      display: inline-block;
+      width: 50%;
+
+      input#draw-frame {
+        width: 100%;
+      }
+
+      input#tick-seconds {
+        margin-left: 2px;
+        width: 50px;
+      }
+    }
+  }
+}
