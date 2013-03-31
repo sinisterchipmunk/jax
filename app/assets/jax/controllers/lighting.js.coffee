@@ -21,8 +21,8 @@ Jax.Controller.create "lighting",
         linear: 0.04
         quadratic: 0
       spotExponent: 1
-      innerSpotAngle: Math.PI / 8.75
-      outerSpotAngle: Math.PI / 8
+      innerSpotAngle: Math.PI / 4.375
+      outerSpotAngle: Math.PI / 4
       color:
         ambient: [0, 0, 0, 1]
         diffuse: [1, 1, 1, 1]

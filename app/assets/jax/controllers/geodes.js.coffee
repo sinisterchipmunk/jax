@@ -24,8 +24,8 @@ Jax.Controller.create "geodes",
         constant: 0
         linear: 0.036
         quadratic: 0
-      innerSpotAngle: Math.TAU / 17.5
-      outerSpotAngle: Math.TAU / 16
+      innerSpotAngle: Math.TAU / 8.725
+      outerSpotAngle: Math.TAU / 8
       color:
         ambient:  [0, 0, 0, 1]
         diffuse:  [1, 1, 1, 1]

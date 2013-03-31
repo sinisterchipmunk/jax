@@ -23,7 +23,7 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     angle = Math.EPSILON if angle <= Math.EPSILON
     angle += Math.EPSILON
 
-    fov = angle * 2
+    fov = angle
     near = 0.1
     aspect_ratio = @width / @height
 
