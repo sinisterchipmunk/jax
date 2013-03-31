@@ -21,6 +21,24 @@ class Jax.Dev.Views.Drawer extends Backbone.View
     else
       @collapse e
 
+  # update layout to accommodate resizing child views. This method must
+  # be invoked explicitly, but all instances of Drawer will emit a 'layout'
+  # event when expanded or collapsed.
+  layout: =>
+    @$el.css 'width', 'auto'
+    @$el.css 'height', 'auto'
+    # if current height is clamped by max-height property, assign height
+    # explicitly to a pixel value. This is necessary so that children can
+    # use percentage-based heights as appropriate.
+    if max = @$el.css 'max-height'
+      cur = @$el.height()
+      @$el.css 'height', max
+      maxpx = @$el.height()
+      if cur >= maxpx
+        @$el.height maxpx
+      else
+        @$el.css 'height', 'auto'
+
   expand: (e) =>
     e?.preventDefault()
     e?.stopPropagation()
@@ -39,7 +57,6 @@ class Jax.Dev.Views.Drawer extends Backbone.View
     # its size will animate to 0x0. Set its size to auto so that it can size
     # itself appropriately after adding to the dom.
     @setAutoAfterAnimation = !jQuery.contains document.documentElement, @el
-    
     @$el.animate {
       'height': targetHeight
       'width': targetWidth
@@ -72,10 +89,12 @@ class Jax.Dev.Views.Drawer extends Backbone.View
         if @$el.width() and @$el.height()
           @$el.css 'width', @$el.width()
           @$el.css 'height', @$el.height()
+    @trigger 'layout'
 
   beforeCollapse: =>
 
   afterCollapse: =>
+    @trigger 'layout'
 
   isCollapsed: -> @collapsed
   isExpanded: -> !@collapsed

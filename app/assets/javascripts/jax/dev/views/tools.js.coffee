@@ -22,6 +22,7 @@ class Jax.Dev.Views.Tools extends Jax.Dev.Views.Drawer
         "Lights":    new Jax.Dev.Views.Tools.Lights context: @jax
         "Models":    $("<div/>")
         "Materials": $("<div/>")
+    @tabs.on 'layout', @layout
     @render()
     @restoreState()
 

@@ -18,7 +18,7 @@ class Jax.Dev.Views.TabSet extends Backbone.View
   initialize: ->
     for label, view of @options.tabs
       @default or= label
-      view.on 'close-dialog', => @trigger 'close-dialog'
+      view.on 'layout', => @trigger 'layout'
     @render()
 
   activate: (label) =>

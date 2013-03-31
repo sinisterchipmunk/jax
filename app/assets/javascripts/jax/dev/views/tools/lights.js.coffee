@@ -8,9 +8,10 @@ class Jax.Dev.Views.Tools.Lights extends Backbone.View
     @render()
 
   add: (light) =>
-    @$el.append new Jax.Dev.Views.Tools.Lights.Item(
+    view = new Jax.Dev.Views.Tools.Lights.Item
       model: light
-    ).$el
+    view.on 'layout', => @trigger 'layout'
+    @$el.append view.$el
 
   remove: (light) =>
     @$("*[data-id=#{light.__unique_id}]").remove()
