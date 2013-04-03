@@ -36,26 +36,39 @@ class Jax.Dev.Views.Jasmine extends Backbone.View
       @resultsDialog = new Jax.Dev.Views.Jasmine.ResultsDialog model: @suite
     @suite.start()
 
+  # update ui to reflect that the suite has stopped its run
+  reflectSuiteStopped: =>
+    @$(".rerun").show()
+    @$(".stop").hide()
+    current = @$('.start').width()
+    target = @$(".start").css("width", "auto").width()
+    @$(".start").width current
+    @$(".start").animate {
+      width: target
+    }, 'fast', => @$(".start").css('width', 'auto')
+    # @$(".start").show()
+
+  # update ui to reflect that the suite has started its run
+  reflectSuiteStarted: =>
+    @$(".rerun").hide()
+    @$(".stop").show()
+    @$(".start").animate {
+      width: 0
+    }, 'fast'
+    # @$(".start").hide()
+
   initialize: ->
     @suite = new Jax.Dev.Models.SpecSuite
     # can also emit 'aborted' if killed before it completes at all
     @suite.on 'completedWithSuccess', =>
-      @$(".rerun").show()
-      @$(".stop").hide()
-      @$(".start").show()
+      @reflectSuiteStopped()
       @statusView.collapse()
     @suite.on 'completedWithFailure', =>
-      @$(".rerun").show()
-      @$(".stop").hide()
-      @$(".start").show()
+      @reflectSuiteStopped()
     @suite.on 'aborted', =>
-      @$(".rerun").show()
-      @$(".stop").hide()
-      @$(".start").show()
+      @reflectSuiteStopped()
     @suite.on 'starting', =>
-      @$(".rerun").hide()
-      @$(".stop").show()
-      @$(".start").hide()
+      @reflectSuiteStarted()
       @statusView.expand()
     @render()
 

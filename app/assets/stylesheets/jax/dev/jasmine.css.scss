@@ -11,7 +11,10 @@
   opacity: 0.8;
 
   .start {
-    padding-right: 6px;
+    margin-right: 6px;
+    padding-right: 0;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .status {

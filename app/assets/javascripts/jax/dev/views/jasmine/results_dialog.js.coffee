@@ -31,22 +31,30 @@ class Jax.Dev.Views.Jasmine.ResultsDialog extends Backbone.View
     @popped = false
     @model.on 'rerun', =>
       @popped = false
-      @noFailures()
+      @clearFailures()
     @render()
 
-  noFailures: =>
+  clearFailures: =>
+    @_selectionName = ""
     @setFailureCount 0
     @$el.html $ '<div class="log no-failures">No failures reported.</div>'
 
   setFailureCount: (n) =>
     @failureCount = n
-    @_dialog?.dialog 'option', 'title', "#{@failureCount} FAILURES"
+    title = "#{@failureCount} FAILURES"
+    if @_selectionName isnt ""
+      title += " : #{@_selectionName}"
+    @_dialog?.dialog 'option', 'title', title
+
+  selection: (desc) =>
+    @_selectionName = desc
+    @setFailureCount @failureCount
 
   bumpFailureCount: =>
     @setFailureCount @failureCount + 1
 
   render: =>
-    @noFailures()
+    @clearFailures()
     @model.on 'result', (result) =>
       if result.status is 'failed'
         @bumpFailureCount()
@@ -57,6 +65,7 @@ class Jax.Dev.Views.Jasmine.ResultsDialog extends Backbone.View
           expect: entry.type is 'expect' and entry.passed and !entry.passed()
           stack: @preprocessStack entry.stack || ""
         item = $ @template result
+        item.on 'mouseover', => @selection result.longDescription
         item.find('a.view-source').click @showSource
         @$el.append item
         @show() unless @popped
