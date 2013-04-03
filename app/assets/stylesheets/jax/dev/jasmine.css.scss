@@ -1,0 +1,97 @@
+.jasmine {
+  display: inline-block;
+  position: relative;
+  z-index: 10;
+  vertical-align: top;
+  font-size: 12px;
+  border-right: 1px solid #ef8c08;
+  border-bottom-right-radius: 8px;
+  border-bottom: 1px solid #ef8c08;
+  background-color: #333;
+  opacity: 0.8;
+
+  .status {
+    border-left: 1px solid #ef8c08;
+    display: inline-block;
+    background-position: 2px center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    white-space: nowrap;
+
+    a.led {
+      background-image: url('/assets/jax/dev/led-off.png');
+      width: 20px;
+      background-position: 2px center;
+      background-repeat: no-repeat;
+      display: inline-block;
+    }
+  }
+
+  a.stop {
+    padding-right: 4px;
+
+    img {
+      vertical-align: middle;
+      border: 0;
+    }
+  }
+
+  .status.loading {
+    a.led {
+      background-image: url('/assets/jax/dev/led-yellow.png');
+    }
+  }
+
+  .status.passing {
+    a.led {
+      background-image: url('/assets/jax/dev/led-green.png');
+    }
+  }
+
+  .status.failing {
+    a.led {
+      background-image: url('/assets/jax/dev/led-red.png');
+    }
+  }
+}
+
+.source-code {
+  overflow: auto;
+}
+
+// important: must appear outside of .jasmine because it can be embedded
+// in a diaog!
+.spec-results {
+  li.failure {
+    color: #f66;
+    font-weight: 800;
+    margin-bottom: 1em;
+
+    a {
+      color: #ef8c08;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #ffd27a;
+    }
+
+    div.expectation {
+      color: #000;
+      background-color: #ff0;
+      font-weight: 400;
+      white-space: pre;
+      font-family: monospace;
+      margin-left: 2em;
+    }
+
+    div.stack {
+      color: #ccc;
+      font-weight: 400;
+      white-space: pre;
+      font-family: monospace;
+      margin-bottom: 1em;
+      margin-left: 4em;
+    }
+  }
+}

@@ -7,6 +7,7 @@ task :server do
   # conflicting with normal 'public' dirs in current or future Rails versions.
   Jax::Rails::Application.config.paths['public'] = "spec/fixtures/public"
   Jax::Rails::Application.initialize!
-  server = Jax::Server.new *(ENV['quiet'] ? ["--quiet"] : [])
+  rest = ENV['PORT'] ? ["--port", ENV['PORT']] : []
+  server = Jax::Server.new *(ENV['quiet'] ? ["--quiet", rest].flatten : rest)
   server.start
 end

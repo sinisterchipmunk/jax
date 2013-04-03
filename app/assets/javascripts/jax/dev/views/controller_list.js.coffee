@@ -30,10 +30,12 @@ class Jax.Dev.Views.ControllerList extends Jax.Dev.Views.Drawer
 
   beforeExpand: =>
     @$("li.header").css 'border-bottom-right-radius', '0px'
+    @$el.css 'border-bottom-right-radius', '8px'
     super()
 
   afterCollapse: =>
-    @$("li.header").css 'border-bottom-right-radius', '8px'
+    @$("li.header").css 'border-bottom-right-radius', '0px'
+    @$el.css 'border-bottom-right-radius', '0px'
     super()
 
   afterExpand: =>

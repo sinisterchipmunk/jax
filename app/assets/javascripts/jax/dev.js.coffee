@@ -1,5 +1,6 @@
 #= require dev/colorpicker
 #= require_self
+#= require jax/dev/_paths
 #= require_tree ./dev/mixins
 #= require_tree ./dev
 
@@ -9,7 +10,9 @@ Jax.Dev or=
   Mixins: {}
   Collections: {}
   Templates: {}
+  Paths: {}
 
 $ ->
-  router = new Jax.Dev.Router
-  Backbone.history.start()
+  unless window.router
+    window.router = new Jax.Dev.Router
+    Backbone.history.start()

@@ -1,0 +1,46 @@
+.ui-dialog {
+  background-color: #333333;
+  color: #ef8c08;
+  border: 1px solid #ef8c08;
+  opacity: 0.9;
+  padding: 0;
+  background-image: none;
+
+  .ui-dialog-content {
+    color: #ccc;
+    font-size: 12px;
+  }
+
+  .ui-dialog-titlebar {
+    background-image: none;
+    border: 0;
+    border-bottom: 1px solid #ef8c08;
+    background-color: inherit;
+    border-radius: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+
+    .ui-dialog-title {
+      font-weight: 400;
+      color: #ffd27a;
+      font-size: 14px;
+      // text-transform: uppercase;
+    }
+
+    .ui-dialog-titlebar-close {
+      background-color: inherit;
+      background-image: none;
+      border: 0; // 1px solid #ef8c08;
+
+      &.ui-state-hover {
+        border: 0; // 1px solid #ffd27a;
+
+        .ui-icon-closethick {
+          background-image: url(/assets/dev/ui-icons_ffd27a_256x240.png)
+        }
+      }
+    }
+  }
+}
