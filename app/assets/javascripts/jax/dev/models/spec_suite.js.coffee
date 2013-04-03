@@ -1,38 +1,3 @@
-class SpecReporter
-  constructor: (@model) ->
-    @counter = 0
-
-  reportRunnerStarting: (runner) ->
-    @model.set 'totalSpecsDefined', (runner.specs() || []).length
-
-  reportRunnerResults: (runner) ->
-
-  reportSuiteResults: (suite) ->
-    
-  reportSpecStarting: (spec) ->
-
-  bustrx = /[\&\?]__cachebuster=[0-9]+\.[0-9]+/g
-  reportSpecResults: (spec) ->
-    result = spec.results()
-    status = if result.passed() then 'passed' else 'failed'
-    status = 'skipped' if result.skipped
-    # null out the cachebuster that we added while loading scripts
-    entries = for entry in result.getItems()
-      if stack = entry.trace.stack
-        entry.stack = stack.replace(bustrx, '')
-      entry
-    @model.addResult result =
-      shortDescription: spec.description
-      longDescription: spec.getFullName()
-      entries: entries
-      status: status
-
-    switch status
-      when 'skipped' then @model.incr 'specsSkipped', 1
-      when 'passed'  then @model.incr 'specsPassed',  1
-      when 'failed'  then @model.incr 'specsFailed',  1
-    @model.incr 'specsCompleted', 1
-
 class Jax.Dev.Models.SpecSuite extends Backbone.Model
   newIFrame = ->
     iframe = $ '<iframe style="display:none;"></iframe>'
@@ -41,10 +6,19 @@ class Jax.Dev.Models.SpecSuite extends Backbone.Model
   
   cacheBuster = -> Math.random()
 
-  finishedLoading: (which) => @trigger 'sourceLoaded', which
+  finishedLoading: (which) =>
+    @trigger 'sourceLoaded', which
 
   ready: =>
-    @set 'env', @get('_global').jasmine.getEnv()
+    @set 'loading', false
+    env = @get('_global').jasmine.getEnv()
+    env.specFilter = (spec) => !@_passing[spec.getFullName()]
+    @get("_global").onload?()
+    reporter = new Jax.Dev.Models.SpecReporter this
+    env.addReporter reporter
+    env.execute()
+    @trigger 'executingSuite'
+    @set 'env', env
     @trigger 'ready'
 
   # injects the set of objects into the spec suite's global context.
@@ -52,32 +26,50 @@ class Jax.Dev.Models.SpecSuite extends Backbone.Model
     _.extend @get("_global"), objects
 
   start: =>
-    env = @get 'env'
-    @get("_global").onload?()
-    reporter = new SpecReporter this
-    env.addReporter reporter
-    env.execute()
+    @set 'running', true
+    @loadIndex()
+
+  isRunning: =>
+    @get 'running'
+
+  hasFailures: =>
+    @get 'specsFailed'
+
+  isLoading: =>
+    @get 'loading'
 
   stop: =>
+    @set 'running', false
+    @_indexReq?.abort()
     @get('_iframe').remove()
+    @set '_iframe', newIFrame()
+
+  # Rebuilds the spec index, and then re-runs specs which failed on the last
+  # execution, as well as any brand-new specs. Does not run specs which 
+  # have passed during the lifetime of this model.
+  rerun: =>
+    @stop()
+    @set @defaults()
+    @trigger 'rerun'
+    @start()
 
   reload: =>
     sources = @get 'index'
+    return unless sources.length
+    @trigger 'fetchingSources'
     head = @get('_iframe').contents().find 'head'
-    triggerLoad = @finishedLoading
-    done = @ready
-    fn = ->
+    fn = =>
       if sources.length
         filename = sources.shift()
         script = document.createElement('script')
-        script.onload = ->
-          triggerLoad filename
+        script.onload = =>
+          @finishedLoading filename
           setTimeout fn, 1
         script.type = 'text/javascript'
         script.src = filename + "?body=1&__cachebuster=" + cacheBuster()
         head[0].appendChild script
       else
-        done()
+        @ready()
     fn()
 
   incr: (key, amt) ->
@@ -94,15 +86,36 @@ class Jax.Dev.Models.SpecSuite extends Backbone.Model
     specsFailed: 0
     results: []
     index: []
+    running: false
+    loading: false
 
   addResult: (result) ->
     @get('results').push result
     @trigger 'result', result
 
-  initialize: ->
-    $.ajax
+  loadIndex: =>
+    @set 'loading', true
+    @trigger 'fetchingIndex'
+    @_indexReq = $.ajax
       type: "GET"
       url: Jax.Dev.Paths['spec_index']
       dataType: 'json'
-      success: (data) => @set 'index', data
+      success: (data) =>
+        @set 'index', data
+
+  initialize: ->
+    @on 'change:_iframe', =>
+      @set '_global', @get('_iframe').get(0).contentWindow
     @on 'change:index', @reload
+    @on 'change:running', =>
+      if @isRunning()
+        @trigger 'starting'
+      else
+        if @get('specsCompleted') is @get('totalSpecsDefined')
+          if @get('specsFailed') is 0
+            @trigger 'completedWithSuccess'
+          else
+            @trigger 'completedWithFailure'
+        else
+          @trigger 'aborted'
+    @_passing = []

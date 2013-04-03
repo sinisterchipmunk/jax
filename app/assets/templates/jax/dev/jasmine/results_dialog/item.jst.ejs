@@ -1,0 +1,19 @@
+<li class="failure">
+  <%= longDescription %>
+
+  <% _.each(entries, function(entry) { %>
+    <% if (entry.type === 'log') { %>
+
+      <div class='log'><%= _.escape(entry.toString()) %></div>
+
+    <% } else if (entry.expect) { %>
+
+      <div class='expectation'><%= _.escape(entry.message) %></div>
+
+      <% if (entry.stack) { %>
+        <div class="stack"><%= $.trim(entry.stack) %></div>
+      <% } %>
+      
+    <% } %>
+  <% }); %>
+</li>

@@ -1,10 +1,16 @@
-<a href='#' class='start header'>
+<a href='#' class='start header' title="Run All Specs">
   <span class="test icon">&nbsp;</span>
-  Run Specs
+  Run All Specs
 </a>
-<div class='status'>
-  <a href='#' class='led show-results'>&nbsp;</a>
-</div>
-<a href='#' class='stop' style='display:none;'>
+<a href='<%= Jax.Dev.Paths["spec_index"] %>' target="_blank" title="Run Specs in Separate Window">
+  <span class="popup icon">&nbsp;</span>
+</a>
+
+<div class='status'></div>
+
+<a href='#' class='stop' style='display:none;' title="Abort Run">
   <img src='/assets/jax/dev/stop.png' />
+</a>
+<a href='#' class='rerun' style='display:none;' title="Run Only New &amp; Failing Specs">
+  <span class="rerun icon">&nbsp;</span>
 </a>

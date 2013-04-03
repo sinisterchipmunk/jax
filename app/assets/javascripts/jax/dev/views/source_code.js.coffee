@@ -4,8 +4,6 @@ class Jax.Dev.Views.SourceCode extends Backbone.View
   className: "source-code"
 
   initialize: ->
-    # HACK no idea why this is necessary
-    @options.line -= 1
     $.ajax
       url: @options.url
       dataType: 'text'
