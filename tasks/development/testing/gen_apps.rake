@@ -1,6 +1,4 @@
 namespace :gen_app do
-  jax = File.expand_path('../../../bin/jax', File.dirname(__FILE__))
-
   all_testbeds = []
   namespace_each_gemfile do |gemfile, path|
     version = path.join('-')
@@ -20,7 +18,7 @@ namespace :gen_app do
         'rails', 'new', app_name, '-q', '--skip-gemfile', '--skip-bundle'
       chdir File.join(dest, app_name)
       run "jax installation into #{app_name}",
-        jax, 'install'
+        'rails', 'g', 'jax:install'
     end
   end
 
