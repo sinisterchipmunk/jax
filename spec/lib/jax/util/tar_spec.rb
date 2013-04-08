@@ -10,7 +10,7 @@ describe Jax::Util::Tar do
     FileUtils.rm_rf src  if File.exist?(src)
     FileUtils.rm_rf dest if File.exist?(dest)
     
-    Dir.mkdir_p src unless File.directory?(src)
+    FileUtils.mkdir_p src unless File.directory?(src)
     Dir.chdir src do
       File.open "root-file", "w" do |f|
         f.print "CONTENT"
