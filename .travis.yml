@@ -17,15 +17,14 @@ before_script:
 
 env: "SKIP_WEBGL=1 "
 
-# JRuby and RBX are not yet officially supported,
-# until failing dependencies work properly or are
-# no longer depended upon.
 matrix:
   allow_failures:
-    # disabled ruby-head for now since redcloth doesn't install
-    - rvm: ruby-head
+    # jruby and rbx are not supported at this time, but they're in the
+    # build matrix just to keep eyes on their pass/fail status. Maybe they
+    # will become supported eventually.
     - rvm: jruby-19mode
     - rvm: rbx-19mode
+    # disabled ruby-head because it's unstable by definition
     - rvm: ruby-head
 
 gemfile:
