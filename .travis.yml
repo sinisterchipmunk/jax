@@ -26,6 +26,7 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-19mode
     - rvm: rbx-19mode
+    - rvm: ruby-head
 
 gemfile:
   - gemfiles/rails/3.2
