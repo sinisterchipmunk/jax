@@ -3,12 +3,6 @@ require 'rspec/core/rake_task'
 namespace :spec do
   path = Pathname.new(File.expand_path('../../spec', File.dirname(__FILE__)))
 
-  desc "Run generator specs, which run outside of any application testbed"
-  RSpec::Core::RakeTask.new :generators do |t|
-    t.pattern = 'spec/generators{,/**/*_spec.rb}'
-    t.rspec_opts = "-Ispec/generators"
-  end
-
   namespace_each_gemfile do |gemfile, path|
     version = path.join('-')
 
@@ -34,4 +28,4 @@ end
 # `rake spec` will run rspec for the version of Rails currently available
 require 'rails'
 spec_rails = "spec:rails:#{Rails.version[/^\d+\.\d+/]}"
-task :spec => ['spec:generators', spec_rails]
+task :spec => spec_rails
