@@ -47,6 +47,10 @@ DESC
         remove_dir 'tmp/cache'
       end
       
+      def install_jasmine
+        copy_file 'jasmine/jasmine.yml', 'spec/javascripts/support/jasmine.yml'
+      end
+
       def talk_about_restarting
         unless shell.mute?
           say "If the development server is running, please restart it now."

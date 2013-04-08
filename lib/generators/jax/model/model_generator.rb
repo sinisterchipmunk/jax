@@ -4,7 +4,11 @@ module Jax
   module Generators
     class ModelGenerator < Jax::Generators::RailsBase
       argument :attributes, :type => :array, :default => [], :banner => "field:type field:type"
-      rails_equivalent { (orm = ::Rails::Generators.options[:rails][:orm]) && "#{orm}:model" }
+      rails_equivalent do
+        if orm = ::Rails::Generators.options[:rails][:orm]
+          "#{orm}:model"
+        end
+      end
       
       def create_model_file
         coffee_template_with_fallback "model.js",

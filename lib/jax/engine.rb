@@ -10,9 +10,14 @@ module Jax
   class Engine < ::Rails::Engine
     engine_name "jax"
     isolate_namespace Jax
+
+    # TODO remove this HACK!
+    # it's used to find jasmine (e.g. gems/jax/../jasmine.yml) in development
+    # when `rake server` is run. Instead I want to have `rake server` invoke
+    # one of the testbeds and mount the dev into the testbed. Then this hack
+    # can go away.
     DEFAULT_JASMINE_YAML_LOCATION =
       Jasmine::Headless::Options::DEFAULT_OPTIONS[:jasmine_config]
-
     def self.determine_jasmine_yaml_location
       Jasmine::Headless::Options::DEFAULT_OPTIONS
       if File.file? DEFAULT_JASMINE_YAML_LOCATION
@@ -27,12 +32,12 @@ module Jax
     routes do
       mount JasmineRails::Engine => '/jasmine', :as => 'jasmine'
       root :to => "suite#index"
-      match "/:action(/*id)", :controller => "suite"
+      get '/specs(.:format)' => 'suite#specs'
     end
     
     config.before_configuration do
       Jax::Engine.determine_jasmine_yaml_location
-      config.action_view.javascript_expansions[:jax] ||= [ 'jax' ]
+      # config.action_view.javascript_expansions[:jax] ||= [ 'jax' ]
     end
 
     initializer 'jax.engine' do |app|

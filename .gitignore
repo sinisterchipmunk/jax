@@ -19,3 +19,6 @@ _spec
 .jhw-cache
 log
 .sass-cache
+spec/testbeds/rails
+gemfiles/**/*.lock
+spec/testbeds/rails*

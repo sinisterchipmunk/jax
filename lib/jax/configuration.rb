@@ -1,9 +1,10 @@
 module Jax
   class Configuration
-    attr_accessor :webgl_start
+    attr_accessor :webgl_start, :concatenate_assets
 
     def initialize
       @webgl_start = { :controller => "jax/suite", :action => "run_webgl" }
+      @concatenate_assets = false
     end
     
     private

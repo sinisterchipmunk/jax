@@ -4,9 +4,12 @@
 
 module Jax
   module ScriptLoader
+    JAX_PATHS = ['script/jax', 'bin/jax']
+    RAILS_PATHS = ['script/rails', 'bin/rails']
+
     class << self
       def invoke!
-        @rails_or_jax = recursively_find_path("script/rails") || recursively_find_path("script/jax")
+        @rails_or_jax = recursively_find_path(RAILS_PATHS + JAX_PATHS)
         
         if @rails_or_jax
           if ARGV[0]
@@ -39,15 +42,15 @@ module Jax
         puts "Try `jax new [app-name]` or `rails new [app-name]` instead."
       end
       
-      def recursively_find_path(relative_path, path = File.expand_path("."))
-        full_path = File.join(path, relative_path)
-        if File.file?(full_path)
-          full_path
-        else
-          new_path = File.dirname(path)
-          return false if new_path == path # root
-          recursively_find_path relative_path, new_path
+      def recursively_find_path(relative_paths, path = File.expand_path("."))
+        relative_paths.each do |relative_path|
+          full_path = File.join(path, relative_path)
+          return full_path if File.file?(full_path)
         end
+
+        new_path = File.dirname(path)
+        return false if new_path == path # root
+        recursively_find_path relative_paths, new_path
       end
 
       def ruby(*args)

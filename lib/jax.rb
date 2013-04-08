@@ -1,6 +1,3 @@
-# Fix for #74 - make Jax work on ruby 1.8.7
-require 'active_support/core_ext/kernel/singleton_class'
-
 require 'rails'
 require 'jquery/rails'
 require 'gl-matrix'
@@ -15,6 +12,7 @@ module Jax
   autoload :ResourceFile,       "jax/resource_file"
   autoload :Server,             "jax/server"
   autoload :Shader,             "jax/shader"
+  autoload :Testing,            "jax/testing"
   autoload :Version,            "jax/version"
   autoload :VERSION,            "jax/version"
   autoload :Util,               "jax/util"

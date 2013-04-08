@@ -10,6 +10,10 @@ rescue LoadError
   exit
 end
 
+Dir[File.expand_path('tasks/support/**/*.rb', File.dirname(__FILE__))].each do |f|
+  require f
+end
+
 Dir[File.expand_path('tasks/**/*.rake', File.dirname(__FILE__))].each do |task|
   load task
 end

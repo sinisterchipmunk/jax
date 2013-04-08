@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-base_dir = File.expand_path '../..', File.dirname(__FILE__)
+base_dir = File.expand_path '../../..', File.dirname(__FILE__)
 
 class AppFailure < RuntimeError
 end
@@ -14,7 +14,6 @@ describe 'bin/jax' do
   end
   
   after :each do
-    FileUtils.rm_rf File.join(base_dir, "tmp/jax-bin")
     FileUtils.chdir base_dir
   end
 
@@ -93,55 +92,6 @@ describe 'bin/jax' do
     end
   end
   
-  describe "in a spaced jax app" do
-    let(:shell) { GenSpec::Shell.new }
-    
-    before do
-      Jax::Generators::ApplicationGenerator.start ["spaced app", "--skip-bundle"], :shell => shell
-      FileUtils.chdir "spaced app"
-    end
-    
-    it "should not fail to generate" do
-      proc { subject }.should_not raise_error
-    end
-  end
-  
-  describe "in a jax application" do
-    before(:each) do
-      Jax::Generators::ApplicationGenerator.start ["test_app", "--skip-bundle"], :shell => GenSpec::Shell.new
-      FileUtils.chdir "test_app"
-    end
-    
-    shared_examples_for 'jax app' do
-      it "should give usage" do
-        subject_with_rescue.should =~ /Usage:/
-      end
-      
-      it "should invoke `jax g` generator" do
-        @args.push "generate"
-        subject_with_rescue.should =~ /You can invoke the following Jax generators:/
-        subject_with_rescue.should =~ /jax generate controller/
-      end
-    end
-    
-    it "should revoke generators with destroy" do
-      @args.push "destroy", "controller", "welcome"
-      subject.should     match(/remove/)
-      subject.should_not match(/app\/views\/jax\/welcome/)
-      subject.should     match(/app\/assets\/jax\/controllers\/welcome_controller.js.coffee/)
-    end
-    
-    it_should_behave_like 'jax app'
-    
-    describe "subdirectory" do
-      before :each do
-        FileUtils.chdir "script"
-      end
-      
-      it_should_behave_like 'jax app'
-    end
-  end
-  
   describe 'not in any application' do
     describe "creating a new jax app" do
       before :each do
@@ -151,6 +101,12 @@ describe 'bin/jax' do
       it "should create a new jax application" do
         subject.should_not =~ /Not in a Jax or Rails application\./
         subject.should =~ /create(\e\[0m|)\s*testapp/
+      end
+
+      describe 'without gemfile' do
+        before { @args << '--skip-gemfile' }
+
+        specify { subject.should_not =~ /Gemfile/ }
       end
     end
     

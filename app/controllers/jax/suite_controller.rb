@@ -8,6 +8,7 @@ class Jax::SuiteController < ActionController::Base
   end
 
   def specs
+    # Jax.config.concatenate_assets
     respond_to do |fmt|
       fmt.json do
         assets = Rails.application.assets
@@ -16,9 +17,21 @@ class Jax::SuiteController < ActionController::Base
         # requests, but then we'd lose stack trace info.
         files = ::JasmineRails::JhwAdapter.new.js_files
         files.collect! do |f|
-          assets[f].to_a.collect { |a| a.logical_path }
+          if Jax.config.concatenate_assets
+            f = [assets[f]]
+          else
+            f = assets[f].to_a
+          end
+
+          f.collect do |a|
+            if Jax.config.concatenate_assets
+              File.join '/assets', a.logical_path
+            else
+              File.join '/assets', "#{a.logical_path}?body=1"
+            end
+          end
         end
-        files = files.flatten.uniq.collect { |f| File.join('/assets', f) }
+        files = files.flatten.uniq
 
         render json: files
       end
