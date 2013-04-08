@@ -1,4 +1,10 @@
+require 'rails'
+
 BASE = File.expand_path('../../gemfiles', File.dirname(__FILE__))
+
+def current_testbed
+  "rails:#{Rails.version[/^\d+\.\d+/]}"
+end
 
 def run desc, *cmd
   puts (['bundle', 'exec'] + cmd).join(' ')

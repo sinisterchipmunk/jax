@@ -26,6 +26,4 @@ namespace :spec do
 end
 
 # `rake spec` will run rspec for the version of Rails currently available
-require 'rails'
-spec_rails = "spec:rails:#{Rails.version[/^\d+\.\d+/]}"
-task :spec => spec_rails
+task :spec => "spec:#{current_testbed}"

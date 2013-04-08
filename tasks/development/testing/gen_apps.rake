@@ -25,3 +25,5 @@ namespace :gen_app do
   desc "Regenerate all testbeds"
   task :all => all_testbeds
 end
+
+task :gen_app => "gen_app:#{current_testbed}"
