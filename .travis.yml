@@ -3,10 +3,8 @@
 
 # Specify which versions of Ruby to run the tests on; each version will be used
 rvm:
-  - 1.9.2
   - 1.9.3
   - 2.0.0
-  - ree
   - jruby-19mode
   - rbx-19mode
   - ruby-head
