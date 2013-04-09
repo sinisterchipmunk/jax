@@ -14,6 +14,8 @@ Dir[File.expand_path('tasks/support/**/*.rb', File.dirname(__FILE__))].each do |
   require f
 end
 
+extend TaskHelpers
+
 Dir[File.expand_path('tasks/**/*.rake', File.dirname(__FILE__))].each do |task|
   load task
 end

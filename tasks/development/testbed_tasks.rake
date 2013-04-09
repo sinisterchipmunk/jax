@@ -7,12 +7,7 @@ namespace :testbed do
     path = current_testbed.split(/:/).join('-')
     local = File.join('../../spec/testbeds', path)
     app_path = File.expand_path(local, File.dirname(__FILE__))
-    load File.join(app_path, 'Rakefile')
-
-    desc "Start server for testbed #{current_testbed}"
-    task :server do
-      system 'bundle', 'exec', 'rackup', File.join(app_path, 'config.ru'),
-              '-p', ENV['PORT'] || '3000'
-    end
+    rakefile = File.join(app_path, 'Rakefile')
+    load rakefile if File.file? rakefile
   end
 end
