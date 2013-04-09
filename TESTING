@@ -1,0 +1,59 @@
+# How To Test
+
+1. Install the bundles for each Gemfile in `./gemfiles/*`:
+
+    $ BUNDLE_GEMFILE=gemfiles/rails/3.2 bundle install
+
+2. Generate the testbed for each Gemfile:
+
+    $ rake gen_app:all
+
+    # Or, only generate the one you want to use: 
+    $ rails gen_app:rails:3.2
+
+3. Run the specs for the testbed of your choice:
+ 
+    $ rake spec:rails:3.2
+
+## Alternative Method
+
+The root gemfile located at ./Gemfile represents my development work. Unlike
+the files in `./gemfiles/*`, I commit the `./Gemfile.lock` file to Github.
+This means you can test against the exact setup I'm developing with like so:
+
+1. Install bundle:
+
+    $ bundle install
+
+2. Generate the testbed for the installed bundle:
+
+    $ rake gen_app
+
+3. Run the specs:
+
+    $ rake spec
+
+3(b). Run the entire test suite, including JavaScripts, with command-line
+  output:
+
+    # WARNING: This part of the suite is under active development.
+    # It probably won't work at all. Ideally, do this:
+    $ bundle exec rake
+
+
+## Running Jax
+
+So that's how you test the Ruby specs. How to test the JavaScript specs, and
+execute Jax in a browser? First you have to have a testbed, so follow steps
+1 and 2 of either of the above methods.
+
+After you have a testbed, just run:
+
+    # use a specific testbed
+    $ BUNDLE_GEMFILE=gemfiles/rails/4.0 bundle exec rackup 
+
+    # use the development testbed
+    $ bundle exec rackup
+
+Now just visit the app at http://localhost:3000/jax .
+
