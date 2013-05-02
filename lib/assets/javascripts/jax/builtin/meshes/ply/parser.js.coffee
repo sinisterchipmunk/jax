@@ -29,13 +29,13 @@ class Jax.Mesh.PLY.Parser
   stringToBytes: (str) ->
     result = []
     for i in [0...str.length]
-      char = str.charCodeAt i
+      _char = str.charCodeAt i
       stack = []
-      stack.unshift char & 0xff
-      char = char >> 8
-      while char
-        stack.unshift char & 0xff
-        char = char >> 8
+      stack.unshift _char & 0xff
+      _char = _char >> 8
+      while _char
+        stack.unshift _char & 0xff
+        _char = _char >> 8
       result = result.concat stack
     result
     
@@ -62,8 +62,8 @@ class Jax.Mesh.PLY.Parser
       
   parseHeader: (bytes) ->
     header = ""
-    for byte in bytes
-      header += String.fromCharCode byte
+    for _byte in bytes
+      header += String.fromCharCode _byte
       break if header.indexOf('end_header\n') != -1
     header
     
