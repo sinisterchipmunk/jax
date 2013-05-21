@@ -25,6 +25,8 @@ JAX_ROOT = File.dirname(__FILE__)
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
-# disabled node tests for now, since Jax.DataRegion and friends break it. Rake jasmine:ci instead.
-task :default => ['spec', 'travis', 'guides']
+# TODO we should also add the 'travis' task, but right now we can't
+# because travis has no WebGL support.
+task :default => ['rspec', 'guides']
+
 # task :release => 'guides:publish'
