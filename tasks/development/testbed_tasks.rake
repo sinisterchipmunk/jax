@@ -1,13 +1,26 @@
-namespace :testbed do
-  # due to Rails not allowing more than one Rails::Application, we can only
-  # load tasks for the version of Rails made available at the time of loading
-  # this file. Note that Rails 4.0 removes this requirement.
+require 'testbeds/rake'
 
-  namespace current_testbed do
-    path = current_testbed.split(/:/).join('-')
-    local = File.join('../../spec/testbeds', path)
-    app_path = File.expand_path(local, File.dirname(__FILE__))
-    rakefile = File.join(app_path, 'Rakefile')
-    load rakefile if File.file? rakefile
+each_testbed do |testbed|
+  desc "Run specs for #{testbed.name}"
+  task :spec do
+    require 'rspec/core/rake_task'
+    ENV['BUNDLE_GEMFILE'] = testbed.gemfile
+    unless Rake::Task.task_defined?("_rspec_")
+      RSpec::Core::RakeTask.new("_rspec_") do |t|
+        t.pattern = './spec/{lib,controllers,models,generators}/**/*_spec.rb'
+        t.rspec_opts = "-Ispec -r#{testbed.dependencies.join(' -r')}"
+      end
+    end
+
+    Rake::Task["_rspec_"].invoke
+    Rake::Task["_rspec_"].reenable
+  end
+end
+
+# `rake spec` will run rspec for the version of Rails currently available
+desc "run all specs in all testbeds"
+task :spec do
+  each_testbed do |testbed|
+    Rake::Task["#{testbed.namespace}:spec"].invoke
   end
 end

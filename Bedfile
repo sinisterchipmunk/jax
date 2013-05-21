@@ -1,0 +1,32 @@
+store_in 'spec/testbeds'
+
+testbeds do
+  gemfiles 'gemfiles/rails-3.2',
+           'gemfiles/rails-4.0'
+
+  init do
+    run 'rails', 'new', name, '--skip-gemfile', '--skip-bundle'
+    chdir name
+    run 'rails', 'g', 'jax:install', '--force'
+    # rm 'app/assets/javascripts/application.js'
+    File.open "app/assets/javascripts/application.js", "a+" do |f|
+      f.puts "//= require jax/dev"
+    end
+    cp "../../fixtures/jasmine.yml", "./spec/javascripts/support"
+    Dir['../../fixtures/public/*'].each do |dir|
+      cp_r dir, './public/'
+    end
+
+    # add bootstrap code so we don't have to copy assets into each testbed
+    # every time a change is made
+    # File.open("config/application.rb", "a+") do |f|
+    #   fixtures = File.expand_path('spec/fixtures', File.dirname(__FILE__))
+    #   f.puts <<-end_bootstrap
+    #     Rails.application.config.assets.paths << "#{fixtures}/app/assets/javascripts"
+    #   end_bootstrap
+    # end
+  end
+
+  depend_on '<%= name %>/config/application.rb'
+  rakefile '<%= name %>/Rakefile'
+end

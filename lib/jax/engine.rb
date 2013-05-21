@@ -1,44 +1,10 @@
 require 'rails'
 require 'jasmine-rails'
 
-# this appears to be necessary for rbx, jruby, ruby1.8 -- but it may be a bug in rails
-# so possibly could be removed in later versions.
-# Symptom: undefined method `singleton_class' for Jax:Module
-require 'active_support/core_ext'
-
 module Jax
   class Engine < ::Rails::Engine
     engine_name "jax"
     isolate_namespace Jax
-
-    # TODO remove this HACK!
-    # it's used to find jasmine (e.g. gems/jax/../jasmine.yml) in development
-    # when `rake server` is run. Instead I want to have `rake server` invoke
-    # one of the testbeds and mount the dev into the testbed. Then this hack
-    # can go away.
-    DEFAULT_JASMINE_YAML_LOCATION =
-      Jasmine::Headless::Options::DEFAULT_OPTIONS[:jasmine_config]
-    def self.determine_jasmine_yaml_location
-      Jasmine::Headless::Options::DEFAULT_OPTIONS
-      if File.file? DEFAULT_JASMINE_YAML_LOCATION
-        Jasmine::Headless::Options::DEFAULT_OPTIONS[:jasmine_config] =
-          DEFAULT_JASMINE_YAML_LOCATION
-      else
-        Jasmine::Headless::Options::DEFAULT_OPTIONS[:jasmine_config] =
-          File.expand_path('../../spec/javascripts/support/jasmine.yml', File.dirname(__FILE__))
-      end
-    end
-
-    routes do
-      mount JasmineRails::Engine => '/jasmine', :as => 'jasmine'
-      root :to => "suite#index"
-      get '/specs(.:format)' => 'suite#specs'
-    end
-    
-    config.before_configuration do
-      Jax::Engine.determine_jasmine_yaml_location
-      # config.action_view.javascript_expansions[:jax] ||= [ 'jax' ]
-    end
 
     initializer 'jax.engine' do |app|
       # exclude Jax assets in the gem directory, as these are used for general testing.
@@ -55,10 +21,6 @@ module Jax
 
       app.assets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
       app.assets.register_preprocessor   'application/javascript', Jax::DirectiveProcessor
-    end
-
-    config.to_prepare do
-      Jax::Engine.determine_jasmine_yaml_location
     end
 
     config.to_prepare do

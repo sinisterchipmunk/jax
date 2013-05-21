@@ -1,2 +1,14 @@
-# See lib/jax/rails/application.rb for out-of-Rails (and test) routes
-# See lib/jax/engine.rb for Jax routes, both within Rails and without
+Jax::Engine.routes.draw do
+  if defined?(JasmineRails)
+    mount JasmineRails::Engine => '/jasmine', :as => 'jasmine_rails'
+  end
+  
+  root :to => "suite#index"
+  get '/specs(.:format)' => 'suite#specs'
+end
+
+if defined?(JasmineRails)
+  Rails.application.routes.draw do
+    mount JasmineRails::Engine => '/jasmine', :as => 'jasmine_rails'
+  end
+end

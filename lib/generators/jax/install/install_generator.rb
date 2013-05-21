@@ -32,6 +32,22 @@ DESC
         coffee_template_with_fallback "application_helper.js", 'app/assets/jax/helpers/application_helper.js'
       end
 
+      def require_jax_from_app_manifest
+        if File.file?(appjs = 'app/assets/javascripts/application.js')
+          content = File.read(appjs)
+          File.open(appjs, "w") do |f|
+            f.puts content.strip
+            f.puts "//= require jax"
+          end
+        elsif File.file?(appjs = 'app/assets/javascripts/application.coffee') || File.file?(appjs = 'app/assets/javascripts/application.js.coffee')
+          content = File.read(appjs)
+          File.open(appjs, "w") do |f|
+            f.puts content.strip
+            f.puts "#= require jax"
+          end
+        end
+      end
+
       def create_jax_manifest_file
         coffee_template_with_fallback "manifest.js", 'app/assets/jax/jax.js'
       end
