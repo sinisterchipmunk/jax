@@ -2,7 +2,7 @@ require 'testbeds/rake'
 
 each_testbed do |testbed|
   desc "Run specs for #{testbed.name}"
-  task :spec do
+  task :rspec do
     require 'rspec/core/rake_task'
     ENV['BUNDLE_GEMFILE'] = testbed.gemfile
     unless Rake::Task.task_defined?("_rspec_")
@@ -19,7 +19,7 @@ end
 
 # `rake spec` will run rspec for the version of Rails currently available
 desc "run all specs in all testbeds"
-task :spec do
+task :rspec do
   each_testbed do |testbed|
     Rake::Task["#{testbed.namespace}:spec"].invoke
   end
