@@ -31,12 +31,13 @@ Jax.Controller.create "geodes",
         diffuse:  [1, 1, 1, 1]
         specular: [1, 1, 1, 1]
 
-    @stats = @world.addObject new Jax.Framerate # this is not showing anything but a black square
+    @stats = @world.addObject new Jax.Framerate
 
     @context.activeCamera.position = [0, 3, 13]
     @context.activeCamera.lookAt [0, 1.5, 0]
 
 
+    # we need this as a closure, because of the onload
     createTexturedGeode = (n, world) ->
       geode = new Jax.Model
         _loaded: false
@@ -50,7 +51,7 @@ Jax.Controller.create "geodes",
               diffuse: [0.6, 0.6, 0.6, 1]
               specular:[1, 0.9, 0.9, 1]
             textures:  [{
-              path: '/textures/icosahedron_mars.jpg'
+              path: '/textures/icosahedron/mars.jpg'
               onload: ()-> world.addObject geode
             }]
           })
@@ -86,7 +87,11 @@ Jax.Controller.create "geodes",
       # Geodes Duals
       geode = @world.addObject new Jax.Model
         position: [-3.5+n*2.4, 2.4, 0]
-        mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface, subdivisions: n }
+        mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface({
+          textures:  [{
+            path: '/textures/geode_dual/tron.png'
+          }]
+        }), subdivisions: n }
         update: (timechange) ->
           @camera.rotate timechange * (0.025 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
 

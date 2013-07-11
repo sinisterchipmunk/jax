@@ -1,5 +1,5 @@
 ###
-A Geodesic Sphere Dual mesh
+A basic Geodesic Sphere Dual mesh
 Its faces are 12 pentagons and the rest are hexagons.
 Of course, these are made of respectively 5 and 6 triangles,
 almost equilaterals.
@@ -21,8 +21,8 @@ Don't use it with more than 3 subdivisions.
 
 Options:
 
-* size : the size of the geode in units. Defaults to 1.0.
-* subdivisions : the number of times each face is divided into 4 triangles before dualization. Defaults to 0.
+- size : the size of the geode in units. Defaults to 1.0.
+- subdivisions : the number of times each face is divided into 4 triangles before dualization. Defaults to 0.
 
 Example:
 
@@ -45,7 +45,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
   init: (vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents) ->
 
-    # Helpers
+    ## Helpers
 
     # Is needle in haystack ?
     isIn = (needleVertex, verticesHaystack) ->
@@ -97,7 +97,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
       closestVertices
 
-    # Business
+    ## Mesh Factory
 
     [ geodeVertices, geodeColors, geodeTextureCoords, geodeVertexNormals ] = [ [], [], [], [] ]
 
@@ -167,9 +167,13 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
   ### HOMOTILIC UV MAPPING HELPERS
 
-  todo: The data about the pentagon and the hexagon should be somehow moved
-  respectively to Jax.Geometry.Pentagon and Jax.Geometry.Hexagon.
-  todo: shorten the referential change maths below once Ruby let me run the tests again, because these are vestigial
+  The data about the pentagon and the hexagon should be somehow moved
+  respectively to Jax.Geometry.Pentagon and Jax.Geometry.Hexagon ?
+
+  todo: decide on a version of the referential change maths below
+  Compiled :
+  - perfs "should" be a tad better
+  - less explicit / reusable / understandable
 
   ###
 
@@ -178,22 +182,37 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
     c2 = (Math.sqrt(5)+1)/4
     s1 = (Math.sqrt(10+2*Math.sqrt(5)))/4
     s2 = (Math.sqrt(10-2*Math.sqrt(5)))/4
-    vertices = [
-      [   0,   0 ] # center
-      [   0,   1 ] # top
-      [ -s1,  c1 ] # rotate trigwise
-      [ -s2, -c2 ] # rotate trigwise
-      [  s2, -c2 ] # rotate trigwise
-      [  s1,  c1 ] # rotate trigwise
-    ]
 
-    # from the classical centric referential to UV referential
-    o = [ 1, 1 ]
-    for v in vertices
-      v[1] *= -1 # invert y
-      vec2.add v, v, o # add the referential offset
-      v[0] *= 1/4 # scale to UV referential, X-wise
-      v[1] *= 1/2 # scale to UV referential, Y-wise
+    # pentagon vertices in classic centric referential
+#    vertices = [
+#      [   0,   0 ] # center
+#      [   0,   1 ] # top
+#      [ -s1,  c1 ] # rotate trigwise
+#      [ -s2, -c2 ] # rotate trigwise
+#      [  s2, -c2 ] # rotate trigwise
+#      [  s1,  c1 ] # rotate trigwise
+#    ]
+
+    # from the classic centric referential to UV referential
+#    o = [ 1, 1 ]
+#    for v in vertices
+#      v[1] *= -1 # invert y
+#      vec2.add v, v, o # add the referential offset
+#      v[0] *= 1/4 # scale to UV referential, X-wise
+#      v[1] *= 1/2 # scale to UV referential, Y-wise
+
+    # referential change from classic centric referential
+    # x' = ( x + 1 )
+
+    # compiled version
+    vertices = [
+      [       1/4, 1/2       ] # center
+      [       1/4, 0         ] # top
+      [ (-s1+1)/4, (-c1+1)/2 ] # rotate trigwise
+      [ (-s2+1)/4, (c2+1)/2  ] # rotate trigwise
+      [  (s2+1)/4, (c2+1)/2  ] # rotate trigwise
+      [  (s1+1)/4, (-c1+1)/2 ] # rotate trigwise
+    ]
 
     o = vertices.shift()
     @_pushTriangleFanUV o, vertices, intoUVs
@@ -202,24 +221,37 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
   _pushHexagonUV: (intoUVs) ->
     h = Math.sqrt(3)/2
-    vertices = [
-      [    0,    0 ] # center
-      [    0,    1 ] # top
-      [   -h,  0.5 ] # rotate trigwise
-      [   -h, -0.5 ] # rotate trigwise
-      [    0,   -1 ] # rotate trigwise
-      [    h, -0.5 ] # rotate trigwise
-      [    h,  0.5 ] # rotate trigwise
-    ]
 
-    # from the classical centric referential to UV referential
-    o = [ 1, 1 ]
-    for v in vertices
-      v[1] *= -1 # invert y
-      vec2.add v, v, o # add the referential offset
-      v[0] *= 1/4 # scale to UV referential, X-wise
-      v[1] *= 1/2 # scale to UV referential, Y-wise
-      v[0] += 0.5 # pentagon is on the right
+    # hexagon vertices in classic centric referential
+#    vertices = [
+#      [    0,    0 ] # center
+#      [    0,    1 ] # top
+#      [   -h,  0.5 ] # rotate trigwise
+#      [   -h, -0.5 ] # rotate trigwise
+#      [    0,   -1 ] # rotate trigwise
+#      [    h, -0.5 ] # rotate trigwise
+#      [    h,  0.5 ] # rotate trigwise
+#    ]
+#
+    # from the classic centric referential to UV referential
+#    o = [ 1, 1 ]
+#    for v in vertices
+#      v[1] *= -1 # invert y
+#      vec2.add v, v, o # add the referential offset
+#      v[0] *= 1/4 # scale to UV referential, X-wise
+#      v[1] *= 1/2 # scale to UV referential, Y-wise
+#      # and...
+#      v[0] += 0.5 # pentagon is on the right
+
+    vertices = [
+      [      3/4, 1/2 ] # center
+      [      3/4, 0   ] # top
+      [ (-h+3)/4, 1/4 ] # rotate trigwise
+      [ (-h+3)/4, 3/4 ] # rotate trigwise
+      [      3/4, 1   ] # rotate trigwise
+      [  (h+3)/4, 3/4 ] # rotate trigwise
+      [  (h+3)/4, 1/4 ] # rotate trigwise
+    ]
 
     o = vertices.shift()
     @_pushTriangleFanUV o, vertices, intoUVs
