@@ -1,0 +1,22 @@
+store_in 'spec/testbeds'
+
+testbeds do
+  gemfiles 'gemfiles/rails-3.2',
+           'gemfiles/rails-4.0'
+
+  init do
+    run 'rails', 'new', name, '--skip-gemfile', '--skip-bundle'
+    chdir name
+    run 'rails', 'g', 'jax:install', '--force'
+
+    cp "../../fixtures/jasmine.yml", "./spec/javascripts/support"
+    Dir['../../fixtures/public/*'].each do |dir|
+      cp_r dir, './public/'
+    end
+
+    run 'rake', 'db:migrate'
+  end
+
+  depend_on '<%= name %>/config/application.rb'
+  rakefile '<%= name %>/Rakefile'
+end

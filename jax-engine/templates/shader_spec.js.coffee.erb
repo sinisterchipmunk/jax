@@ -1,0 +1,13 @@
+describe "Jax.Material.<%= class_name %>'", ->
+  material = mesh = null
+  
+  beforeEach -> mesh = new Jax.Mesh.Quad()
+  
+  describe "stand-alone", ->
+    beforeEach -> mesh.material = new Jax.Material.Custom
+      layers: [ {
+        type: '<%= class_name %>'
+      } ]
+    
+    it "should render without error", ->
+      expect(-> mesh.render @context).not.toThrow()

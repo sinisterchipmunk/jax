@@ -1,0 +1,57 @@
+require 'bundler'
+Bundler::GemHelper.install_tasks
+Bundler.setup
+
+begin
+  require 'jasmine'
+  load 'jasmine/tasks/jasmine.rake'
+
+  namespace :jasmine do
+    task :require do
+      require 'jasmine'
+      require 'jasmine/config'
+      require File.expand_path('spec/javascripts/support/jasmine_helper.rb', File.dirname(__FILE__))
+    end
+  end
+
+rescue LoadError
+  task :jasmine do
+    abort "Jasmine is not available. In order to run jasmine, you must: (sudo) gem install jasmine"
+  end
+end
+
+desc 'compile jax to js'
+task :compile do
+  require File.expand_path('./spec/spec_helper', File.dirname(__FILE__))
+  Rails.application.assets.append_path File.expand_path('spec/javascripts', File.dirname(__FILE__))
+  File.open('build/jax.js', 'w') { |f| f.print Rails.application.assets['_manifest.js'].to_s }
+end
+
+desc 'minify jax.js'
+task :minify => :compile do
+  require "uglifier"
+  File.open("build/jax.min.js", 'w') do |file|
+    file.write Uglifier.compile(File.read('build/jax.js'))
+  end
+end
+
+
+task :ci do
+  require 'capybara'
+  require File.expand_path('./spec/support/js_reporter', File.dirname(__FILE__))
+
+  Thread.new { Rake::Task['jasmine'].invoke }
+  Capybara.current_driver = :selenium
+
+  js_reporter = JSReporter.new
+  until js_reporter.finished?
+    Thread.pass
+  end
+
+  js_reporter.dump
+end
+
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:rspec)
+
+task :default => [ :rspec, :ci ]

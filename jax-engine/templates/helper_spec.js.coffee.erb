@@ -1,0 +1,8 @@
+describe "<%= camelized_helper_name %>", ->
+  helper = null 
+ 
+  beforeEach ->
+    klass = Jax.Class.create helpers: [ <%= camelized_helper_name %> ]
+    helper = new klass
+  
+  # it "should sum 1+1", -> expect(helper.sum 1, 1).toEqual(2)

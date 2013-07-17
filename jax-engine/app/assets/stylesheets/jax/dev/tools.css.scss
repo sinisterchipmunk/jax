@@ -1,0 +1,42 @@
+div#tools {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  opacity: 0.8;
+  z-index: 10;
+  right: 0;
+  top: 0;
+  display: inline-block;
+  border-left: 1px solid #ef8c08;
+  border-bottom: 1px solid #ef8c08;
+  overflow: hidden;
+  border-bottom-left-radius: 8px;
+  background-color: #333;
+  font-size: 12px;
+  max-height: 90%;
+  overflow-y: auto;
+  padding-bottom: 10px;
+
+  .tabset {
+
+    .tab-content {
+      border-left: 0;
+      border-bottom: 0;
+      border-right: 0;
+    }
+  }
+}
+
+#tools {
+  .tools.header {
+    margin-bottom: 12px;
+    width: 100%;
+    text-align: center;
+  }
+
+  fieldset {
+    border: 0;
+    color: #ccc;
+    white-space: nowrap;
+  }
+}

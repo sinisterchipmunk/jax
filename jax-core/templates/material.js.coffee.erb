@@ -1,0 +1,22 @@
+Jax.Material.addResources
+  <%= File.basename(name).underscore %>:
+    # Valid types include: Surface; Wire; Halo; Custom
+    type: "Surface"
+
+    # Colors are given in red, green, blue hex. They can also accept
+    # an optional alpha hex, which is used for transparency.
+    color:
+      diffuse: "#ffffff"
+      specular: "#ffffff"
+
+    # Intensity multipliers so you can scale up or down the individual
+    # color components as it interacts with light.
+    intensity:
+      ambient: 1
+      diffuse: 1
+      specular: 1
+
+    shininess: 60
+
+    layers: [
+    ]

@@ -1,0 +1,50 @@
+require 'capybara/rspec'
+require 'sprockets'
+require 'rack/builder'
+require 'jax/core'
+
+root = File.expand_path('..', File.dirname(__FILE__))
+
+SPROCKETS = Sprockets::Environment.new root
+
+# HACK this should only be done by railtie
+SPROCKETS.register_engine '.glsl', Jax::Core::Shader
+SPROCKETS.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
+SPROCKETS.register_preprocessor   'application/javascript', Jax::Core::DirectiveProcessor
+
+SPROCKETS.append_path 'lib/assets/javascripts'
+SPROCKETS.append_path 'spec/javascripts'
+SPROCKETS.append_path 'vendor/javascripts'
+
+# add all gems (gl-matrix, shader-script, etc)
+Gem.loaded_specs.each do |name, gem|
+  path = Pathname.new(gem.full_gem_path)
+  SPROCKETS.append_path path.join('app/assets/javascripts')
+  SPROCKETS.append_path path.join('lib/assets/javascripts')
+  SPROCKETS.append_path path.join('vendor/assets/javascripts')
+end
+
+SPROCKETS.append_path File.expand_path('./javascripts', File.dirname(__FILE__))
+
+class App
+  def call env
+    [200, {}, [
+      '<html><head>',
+      '<script src="/assets/_manifest.js"></script>',
+      '</head></html>'
+    ]]
+  end
+end
+
+app = Rack::Builder.new do
+  map '/assets' do
+    run SPROCKETS
+  end
+
+  map '/' do
+    run App.new
+  end
+end
+
+Capybara.app = app
+Capybara.current_driver = :selenium

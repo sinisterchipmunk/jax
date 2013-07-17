@@ -1,0 +1,8 @@
+describe "<%= class_name %>Controller", ->
+  controller = null
+  
+  beforeEach ->
+    @context.redirectTo "<%= file_name %>"
+
+  it "should do something", ->
+    expect(@context.controller).toBeInstanceOf(Jax.Controller)

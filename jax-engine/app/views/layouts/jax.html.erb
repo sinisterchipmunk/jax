@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Jax: the WebGL Engine for Rails</title>
+    <%= javascript_include_tag 'application' %>
+    <%= javascript_include_tag 'jax/dev' %>
+    <%= stylesheet_link_tag "jax/dev" %>
+  </head>
+  
+  <body>
+    <div id='app'>
+      <%= yield %>
+    </div>
+  </body>
+</html>

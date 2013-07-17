@@ -1,0 +1,6 @@
+describe "example", type: :feature do
+  it 'something' do
+    visit '/'
+    p page.evaluate_script 'Jax.VERSION'
+  end
+end

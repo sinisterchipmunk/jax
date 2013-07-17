@@ -1,0 +1,15 @@
+/*
+  If a variable isn't "shared", it will be defined specifically for this
+  shader. If this shader is used twice in one material, unshared variables
+  will be defined twice -- once for each use of the shader.
+
+  Example of unshared variables:
+    uniform sampler2D Texture;
+    uniform float TextureScaleX, TextureScaleY;
+
+  Example of shared variables:
+    shared uniform mat4 ModelViewMatrix, ProjectionMatrix;
+    shared uniform mat3 NormalMatrix;
+    
+  You can also create shared attributes, varyings and functions.
+*/

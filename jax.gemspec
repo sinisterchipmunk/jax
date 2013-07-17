@@ -17,37 +17,19 @@ Gem::Specification.new do |s|
     applications.
   }
 
-  s.add_dependency 'railties',          '>= 3.1'
-  s.add_dependency 'gl-matrix-rails'
-  s.add_dependency 'jquery-rails'
-  s.add_dependency 'jasmine-rails'
+  s.add_dependency 'jax-core'
+  s.add_dependency 'jax-engine'
 
-  s.add_development_dependency 'testbeds'
-  s.add_development_dependency 'rspec-rails'
-  s.add_development_dependency 'rails',          '>= 3.1'
-  s.add_development_dependency 'rspec',          '~> 2'
-  s.add_development_dependency 'coffee-rails',   '>= 3'
-  s.add_development_dependency 'coderay',        '~> 1'
-  s.add_development_dependency 'sqlite3',        '~> 1'
-  s.add_development_dependency 'sass-rails',     '>= 3'
-  s.add_development_dependency 'uglifier',       '~> 1'
-  s.add_development_dependency 'genspec'
-  s.add_development_dependency 'selenium-webdriver', '~> 2'
-  s.add_development_dependency 'ansi'
-  # s.add_development_dependency 'cucumber-rails'
   s.add_development_dependency 'rocco'
   s.add_development_dependency 'jshintrb'
-  s.add_development_dependency 'shader-script'
-  s.add_development_dependency 'ejs'
-    
-  # required by guides
   s.add_development_dependency 'RedCloth',       '~> 4.2'
   s.add_development_dependency 'w3c_validators', '~> 1.2'
 
   s.rubyforge_project = "jax"
 
-  # Don't include stuff used to build & document jax, otherwise the gem will get huge
-  useless_files = `git ls-files -- public guides doc`.split("\n")
+  # Don't include stuff used to build & document jax
+  # otherwise the gem will get huge. Also don't include the other gems.
+  useless_files = `git ls-files -- public guides doc jax-core jax-engine`.split("\n")
   
   s.files         = `git ls-files`.split("\n") - useless_files
   s.test_files    = `git ls-files -- spec features`.split("\n") - useless_files

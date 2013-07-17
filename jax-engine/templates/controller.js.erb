@@ -1,0 +1,10 @@
+(function() {
+  Jax.Controller.create("<%=class_name%>", ApplicationController, {
+    <%- actions.each do |action| -%>
+    <%=action%>: function() {
+      
+    },
+
+    <%- end -%>
+  });
+})();

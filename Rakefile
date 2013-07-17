@@ -18,15 +18,21 @@ Dir[File.expand_path('tasks/**/*.rake', File.dirname(__FILE__))].each do |task|
   load task
 end
 
-require File.join(File.dirname(__FILE__), "lib/jax")
-JAX_ROOT = File.dirname(__FILE__)
-
 # 'Guides' tasks & code borrowed from Railties.
 desc 'Generate guides (for authors), use ONLY=foo to process just "foo.textile"'
 task :guides => 'guides:generate'
 
 # TODO we should also add the 'travis' task, but right now we can't
 # because travis has no WebGL support.
-task :default => ['rspec', 'guides']
+desc 'run all tests and build all documentation'
+task :default => ['guides'] do
+  chdir 'jax-core' do
+    raise 'jax-core failed' unless system 'rake'
+  end
+
+  chdir 'jax-engine' do
+    raise 'jax-engine failed' unless system 'rake'
+  end
+end
 
 # task :release => 'guides:publish'

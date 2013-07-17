@@ -1,0 +1,7 @@
+Jax.<%= file_name.camelize %>.addResources
+  # default attribute values
+  # (these will apply to all <%= plural_name %>)
+  default:
+    <%- attributes.each do |attr| -%>
+    <%= attr.name %>: <%= attr.default.to_json %>
+    <%- end -%>
