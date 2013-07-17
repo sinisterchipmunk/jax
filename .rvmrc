@@ -1,6 +1,0 @@
-rvm use --create --install 2.0.0@jax 2>&1
-
-if ! [ -e .bundle ] ; then
-  bundle install
-  mkdir .bundle
-fi
