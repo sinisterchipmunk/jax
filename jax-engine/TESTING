@@ -38,6 +38,6 @@ the `Bedfile`. To generate or regenerate testbeds, first install the
 
     $ generate-testbeds
 
-Do _not_ use `bundle install` for this. Bundler messes with the load paths,
+Do _not_ use `bundle exec` for this. Bundler messes with the load paths,
 which is fine for a single `Gemfile` but `testbeds` requires multiple
 `Gemfile`s -- one for each testbed app.
