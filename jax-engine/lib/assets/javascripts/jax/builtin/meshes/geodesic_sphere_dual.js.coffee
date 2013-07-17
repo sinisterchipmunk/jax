@@ -1,6 +1,5 @@
-
 ###
-A Geodesic Sphere Dual mesh
+A basic Geodesic Sphere Dual mesh
 Its faces are 12 pentagons and the rest are hexagons.
 Of course, these are made of respectively 5 and 6 triangles,
 almost equilaterals.
@@ -10,14 +9,20 @@ With 1, it looks like a football
 With 2, it looks like a golfball
 With 3 and more, it looks like a Civilization V map
 
-Don't use it with more than 3 subdivisions
+Default UV mapping is homotilic.
+Homotilic : all hexagons share the same UV mapping, and all pentagons too.
+The texture is divided in two squares.
+On the left, fill the inscribed pentagon of the inscribed circle of the left square.
+On the right, fill the inscribed hexagon of the inscribed circle of the right square.
+Both polygons point upwards.
 
+Don't use it with more than 3 subdivisions.
 ¡ THIS SCALES BADLY ! O(4^n) at least
 
 Options:
 
-* size : the size of the geode in units. Defaults to 1.0.
-* subdivisions : the number of times each face is divided into 4 triangles before dualization. Defaults to 0.
+- size : the size of the geode in units. Defaults to 1.0.
+- subdivisions : the number of times each face is divided into 4 triangles before dualization. Defaults to 0.
 
 Example:
 
@@ -40,7 +45,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
   init: (vertices, colors, textureCoords, vertexNormals, vertexIndices, tangents, bitangents) ->
 
-    # Helpers
+    ## Helpers
 
     # Is needle in haystack ?
     isIn = (needleVertex, verticesHaystack) ->
@@ -92,7 +97,7 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
       closestVertices
 
-    # Business
+    ## Mesh Factory
 
     [ geodeVertices, geodeColors, geodeTextureCoords, geodeVertexNormals ] = [ [], [], [], [] ]
 
@@ -129,8 +134,10 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
       if isIn(vertex, icosahedronVertices)
         n = 5
+        @_pushPentagonUV textureCoords
       else
         n = 6
+        @_pushHexagonUV textureCoords
 
       closestVertices = getClosestVertices vertex, centerVertices, n
 
@@ -151,14 +158,111 @@ class Jax.Mesh.GeodesicSphereDual extends Jax.Mesh.GeodesicSphere
 
       currentVertexBufferIndex += n * 9
 
-    # UVs
-    # Each triangle face is one of two uv triangles, bottom-left or top-right
-    # Proper default mapping is non-trivial
-    # need uv mapping specs, spy and tools before further continuation
-    for i in [0...vertices.length] by 9
-      if i % 2 == 0
-        textureCoords.push 0, 0, 1, 1, 1, 0
-      else
-        textureCoords.push 0, 0, 0, 1, 1, 1
 
     true # don't return an array, it's faster
+
+
+
+
+
+  ### HOMOTILIC UV MAPPING HELPERS
+
+  The data about the pentagon and the hexagon should be somehow moved
+  respectively to Jax.Geometry.Pentagon and Jax.Geometry.Hexagon ?
+
+  todo: decide on a version of the referential change maths below
+  Compiled :
+  - perfs "should" be a tad better
+  - less explicit / reusable / understandable
+
+  ###
+
+  _pushPentagonUV: (intoUVs) ->
+    c1 = (Math.sqrt(5)-1)/4
+    c2 = (Math.sqrt(5)+1)/4
+    s1 = (Math.sqrt(10+2*Math.sqrt(5)))/4
+    s2 = (Math.sqrt(10-2*Math.sqrt(5)))/4
+
+    # pentagon vertices in classic centric referential
+#    vertices = [
+#      [   0,   0 ] # center
+#      [   0,   1 ] # top
+#      [ -s1,  c1 ] # rotate trigwise
+#      [ -s2, -c2 ] # rotate trigwise
+#      [  s2, -c2 ] # rotate trigwise
+#      [  s1,  c1 ] # rotate trigwise
+#    ]
+
+    # from the classic centric referential to UV referential
+#    o = [ 1, 1 ]
+#    for v in vertices
+#      v[1] *= -1 # invert y
+#      vec2.add v, v, o # add the referential offset
+#      v[0] *= 1/4 # scale to UV referential, X-wise
+#      v[1] *= 1/2 # scale to UV referential, Y-wise
+
+    # referential change from classic centric referential
+    # x' = ( x + 1 )
+
+    # compiled version
+    vertices = [
+      [       1/4, 1/2       ] # center
+      [       1/4, 0         ] # top
+      [ (-s1+1)/4, (-c1+1)/2 ] # rotate trigwise
+      [ (-s2+1)/4, (c2+1)/2  ] # rotate trigwise
+      [  (s2+1)/4, (c2+1)/2  ] # rotate trigwise
+      [  (s1+1)/4, (-c1+1)/2 ] # rotate trigwise
+    ]
+
+    o = vertices.shift()
+    @_pushTriangleFanUV o, vertices, intoUVs
+    undefined
+
+
+  _pushHexagonUV: (intoUVs) ->
+    h = Math.sqrt(3)/2
+
+    # hexagon vertices in classic centric referential
+#    vertices = [
+#      [    0,    0 ] # center
+#      [    0,    1 ] # top
+#      [   -h,  0.5 ] # rotate trigwise
+#      [   -h, -0.5 ] # rotate trigwise
+#      [    0,   -1 ] # rotate trigwise
+#      [    h, -0.5 ] # rotate trigwise
+#      [    h,  0.5 ] # rotate trigwise
+#    ]
+#
+    # from the classic centric referential to UV referential
+#    o = [ 1, 1 ]
+#    for v in vertices
+#      v[1] *= -1 # invert y
+#      vec2.add v, v, o # add the referential offset
+#      v[0] *= 1/4 # scale to UV referential, X-wise
+#      v[1] *= 1/2 # scale to UV referential, Y-wise
+#      # and...
+#      v[0] += 0.5 # pentagon is on the right
+
+    vertices = [
+      [      3/4, 1/2 ] # center
+      [      3/4, 0   ] # top
+      [ (-h+3)/4, 1/4 ] # rotate trigwise
+      [ (-h+3)/4, 3/4 ] # rotate trigwise
+      [      3/4, 1   ] # rotate trigwise
+      [  (h+3)/4, 3/4 ] # rotate trigwise
+      [  (h+3)/4, 1/4 ] # rotate trigwise
+    ]
+
+    o = vertices.shift()
+    @_pushTriangleFanUV o, vertices, intoUVs
+    undefined
+
+
+  _pushTriangleFanUV: (centerVertex, fanVertices, intoUVs) ->
+    len = fanVertices.length
+    for i in [0...len] by 1
+      v1 = fanVertices[(i+0)%len]
+      v2 = fanVertices[(i+1)%len]
+      intoUVs.push centerVertex..., v1..., v2...
+    undefined
+
