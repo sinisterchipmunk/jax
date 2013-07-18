@@ -239,6 +239,43 @@ describe "Jax.Shader.Program", ->
     it 'should detect the variable name', ->
       expect(program.variables.uniforms['f'].name).toEqual 'f'
 
+  describe 'when a function precedes a variable declaration', ->
+    beforeEach ->
+      program.vertex.append 'void x() {\n}\nshared uniform float a;\n'
+
+    it 'should not remove the function', ->
+      expect(program.vertex.toString()).toMatch /void x/
+
+  describe 'when a shared function precedes a variable declaration', ->
+    beforeEach ->
+      program.vertex.append 'shared void x() {\n}\nshared uniform float a;\n'
+
+    it 'should not remove the function', ->
+      expect(program.vertex.toString()).toMatch /void x/
+
+    it 'should not remove the curly brace', ->
+      expect(program.vertex.toString()).toMatch /\}/
+
+  describe 'when there is a valid variable declaration commented out', ->
+    beforeEach ->
+      program.vertex.append "// shared attribute float a;\nshared attribute float b;"
+
+    it 'should not detect the commented variable', ->
+      expect(program.variables.attributes['a']).toBeUndefined()
+
+    it 'should still detect the uncommented variable', ->
+      expect(program.variables.attributes['b']).not.toBeUndefined()
+
+  describe 'when there is a variable declaration in a multiline comment', ->
+    beforeEach ->
+      program.vertex.append "/*\nshared attribute float a;\n*/shared attribute float b;"
+
+    it 'should not detect the commented variable', ->
+      expect(program.variables.attributes['a']).toBeUndefined()
+
+    it 'should still detect the uncommented variable', ->
+      expect(program.variables.attributes['b']).not.toBeUndefined()
+
   describe 'with an attribute vec3', ->
     beforeEach ->
       program.vertex.append 'shared attribute vec3 a;'
