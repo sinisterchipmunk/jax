@@ -20,23 +20,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'jquery-rails'
   s.add_dependency 'jasmine-rails'
   s.add_dependency 'jax-core'
-
-  s.add_development_dependency 'testbeds'
-  s.add_development_dependency 'rspec-rails'
-  s.add_development_dependency 'rails',          '>= 3.1'
-  s.add_development_dependency 'rspec',          '~> 2'
-  s.add_development_dependency 'coffee-rails',   '>= 3'
-  s.add_development_dependency 'coderay',        '~> 1'
-  s.add_development_dependency 'sqlite3',        '~> 1'
-  s.add_development_dependency 'sass-rails',     '>= 3'
-  s.add_development_dependency 'uglifier',       '~> 1'
-  s.add_development_dependency 'genspec'
-  s.add_development_dependency 'selenium-webdriver', '~> 2'
-  s.add_development_dependency 'ansi'
-  # s.add_development_dependency 'cucumber-rails'
-  s.add_development_dependency 'shader-script'
-  s.add_development_dependency 'ejs'
-  s.add_development_dependency 'jshintrb'
     
   s.rubyforge_project = "jax-engine"
 

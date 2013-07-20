@@ -16,8 +16,22 @@ end
 
 include FixturesHelper
 
+module JaxRoutes
+  def self.included base
+    base.module_eval do
+      alias _get get
+      def get(action, params = {}, session = nil, flash = nil)
+        _get action, params.merge(:use_route => :jax), session, flash
+      end
+
+      # TODO put, post, delete
+    end
+  end
+end
+
 RSpec.configure do |c|
   c.include FixturesHelper
+  c.include JaxRoutes
 
   c.before do
     # necessary so jasmine can find assets relative to rails root, instead of

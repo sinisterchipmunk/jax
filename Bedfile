@@ -1,8 +1,8 @@
-store_in 'spec/testbeds'
+store_in File.expand_path('../jax-engine/spec/testbeds', __FILE__)
 
 testbeds do
-  gemfiles 'gemfiles/rails-3.2',
-           'gemfiles/rails-4.0'
+  gemfiles File.expand_path('../gemfiles/rails-3.2', __FILE__),
+           File.expand_path('../gemfiles/rails-4.0', __FILE__)
 
   init do
     run 'rails', 'new', name, '--skip-gemfile', '--skip-bundle'

@@ -1,0 +1,33 @@
+source 'https://rubygems.org'
+gemspec path: File.expand_path('..', File.dirname(__FILE__))
+
+# gem 'jax', :path => File.expand_path('../../', __FILE__)
+gem 'jax-core', :path => File.expand_path('../../jax-core', __FILE__)
+gem 'jax-engine', path: File.expand_path('../../jax-engine', __FILE__)
+
+gem 'rocco', :git => 'git://github.com/rtomayko/rocco.git'
+gem 'shader-script', :git => "git://github.com/sinisterchipmunk/shader-script.git"
+
+# dev deps of jax-core
+gem 'rake'
+gem 'jasmine'
+gem 'rspec'
+gem 'rack-coffee'
+gem 'capybara'
+gem 'genspec'
+gem 'uglifier'
+
+# dev deps of jax-engine
+gem 'testbeds'
+gem 'rspec-rails'
+gem 'rspec'
+gem 'coffee-rails'
+gem 'coderay', '~> 1'
+gem 'sqlite3'
+gem 'sass-rails'
+gem 'uglifier'
+gem 'genspec'
+gem 'selenium-webdriver', '~> 2'
+gem 'ansi'
+gem 'ejs'
+gem 'jshintrb'

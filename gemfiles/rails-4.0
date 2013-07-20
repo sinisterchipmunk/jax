@@ -1,0 +1,8 @@
+common = File.expand_path('../_common', __FILE__)
+eval File.read(common), binding, common
+
+gem 'rails', '~> 4.0.0'
+
+gem 'coffee-rails'
+gem 'sass-rails'
+gem 'turbolinks'
