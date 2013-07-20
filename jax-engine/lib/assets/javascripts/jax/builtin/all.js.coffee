@@ -1,2 +1,2 @@
-#= require_tree "./meshes"
-#= require_tree "./models"
+#= require jax/builtin/meshes/all
+#= require jax/builtin/models/all
