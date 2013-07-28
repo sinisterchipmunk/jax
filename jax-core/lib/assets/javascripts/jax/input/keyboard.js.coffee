@@ -12,7 +12,7 @@ class Jax.Input.Keyboard extends Jax.Input
       @on 'release', (event) -> controller.key_released event
     if controller.key_typed
       @attach 'keypress', @type
-      @on 'press',   (event) -> controller.key_typed    event
+      @on 'type',    (event) -> controller.key_typed    event
 
   constructor: (element, options = {}) ->
     super element, options
