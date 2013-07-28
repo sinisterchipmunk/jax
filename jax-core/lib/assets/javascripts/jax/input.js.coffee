@@ -34,8 +34,8 @@ class Jax.Input
   
   ###
   Subclasses can override this method if they need to maintain themselves
-  over time. The default implementation does nothing. Timechange is in 
-  seconds.
+  over time. They need to be sure to call `super`, in order to dispatch events
+  that have been enqueued since the last frame. Timechange is in seconds.
   ###
   update: (timechange) ->
     for type, event of @_pendingEvents
