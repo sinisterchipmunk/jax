@@ -2,7 +2,7 @@ class Jax.Input.Mouse extends Jax.Input
   Jax.Input.devices.push this
 
   alias: 'mouse'
-    
+  
   register: (controller) ->
     if controller.mouse_pressed
       @attach 'mousedown', @press
@@ -83,11 +83,12 @@ class Jax.Input.Mouse extends Jax.Input
       evt.diffx = evt.diffy = 0
     else
       [evt.diffx, evt.diffy] = [evt.x - @_lastx, evt.y - @_lasty]
-    [@_lastx, @_lasty] = [evt.x, evt.y]
+    [@_tmplastx, @_tmplasty] = [evt.x, evt.y]
     evt
   
   update: (timechange) ->
     super timechange
+    [@_lastx, @_lasty] = [@_tmplastx, @_tmplasty]
     for button of @_pendingClicks
       @_pendingClicks[button] += timechange
       if @_pendingClicks[button] >= @clickSpeed
