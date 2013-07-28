@@ -65,14 +65,18 @@ class Jax.Input
   getLastEnqueuedEventType: -> @_lastEnqueuedEventType
 
   ###
-  Returns the last enqueued event, or `null` if no events have been enqueued
-  since the last call to `update`.
+  Returns the last enqueued event, or `undefined` if no events have been
+  enqueued since the last call to `update`.
   ###
   getLastEnqueuedEvent: -> @enqueued @getLastEnqueuedEventType()
     
   ###
-  Attaches the specified event listener to the `@receiver`. Ensures that
-  the specific callback is only ever registered once.
+  Begins listening for the specified DOM event type to be emitted from the
+  `@receiver`. If the given callback is already registered, it will not be
+  registered a second time. Thus, the main difference between this method
+  and just simply adding event listeners directly to `@receiver`, is that
+  this method will not produce duplicate events if the same listener is
+  given more than once.
   ###
   attach: (eventType, callback) ->
     attached = @_attached[eventType] or= []
@@ -83,8 +87,13 @@ class Jax.Input
       callback @processEvent eventType, event
     
   ###
-  Removes all event listeners from the input receiver.
+  Removes all event listeners from the input receiver, and removes all event
+  listeners from this input device, effectively shutting it down until
+  `register` is called again. This is used by `Jax.Context` as a teardown
+  method while redirecting, in order to prevent memory leaks and clean up
+  listeners for events that are no longer desired.
   ###
   stopListening: ->
     @off()
     @receiver.off()
+    @_pendingEvents = {}
