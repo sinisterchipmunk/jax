@@ -14,7 +14,7 @@ before_script:
 
 script: "rake"
 
-env: "SKIP_WEBGL=1 "
+env: "SKIP_WEBGL=1 JASMINE_PORT=18888"
 
 matrix:
   allow_failures:

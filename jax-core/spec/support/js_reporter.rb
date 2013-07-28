@@ -175,7 +175,7 @@ class JSReporter
   end
 
   def initialize
-    visit 'http://localhost:8888'
+    visit "http://localhost:#{ENV['JASMINE_PORT'] || 8888}"
   end
 
   def _reporter
