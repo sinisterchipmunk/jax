@@ -183,96 +183,19 @@ describe("Jax.World", function() {
   });
   
   describe("picking", function() {
-    var at, ofront, otopleft, otopright, obottomleft, obottomright, mesh;
-    
+    var at, obj, otopleft, otopright, obottomleft, obottomright, mesh;
+
     beforeEach(function() {
-      var width = SPEC_CONTEXT.canvas.width,
-          height = SPEC_CONTEXT.canvas.height;
-      at = { left: 0, right: width-1, top: 0, bottom: height-1,
-             center_x: parseInt(width/2), center_y: parseInt(height/2) };
-
-      // put some objects in the world for picking
-      // function mesh() { return new Jax.Mesh.Sphere({size:1.0}); }
-      
       mesh = new Jax.Mesh.Sphere({radius: 1.0});
-      ofront       = world.addObject(new Jax.Model({position:[ 0.0, 0.0, -5],mesh:mesh}));
-      otopleft     = world.addObject(new Jax.Model({position:[-2.5, 2.5, -5],mesh:mesh}));
-      otopright    = world.addObject(new Jax.Model({position:[ 2.5, 2.5, -5],mesh:mesh}));
-      obottomleft  = world.addObject(new Jax.Model({position:[-2.5,-2.5, -5],mesh:mesh}));
-      obottomright = world.addObject(new Jax.Model({position:[ 2.5,-2.5, -5],mesh:mesh}));
-    });
-    
-    it("center",       function() { expect(world.pick(at.center_x, at.center_y) === ofront).toBeTruthy(); });
-    it("top left",     function() { expect(world.pick(at.left, at.top)          === otopleft).toBeTruthy(); });
-    it("top right",    function() { expect(world.pick(at.right,at.top)          === otopright).toBeTruthy(); });
-    it("bottom left",  function() { expect(world.pick(at.left, at.bottom)       === obottomleft).toBeTruthy(); });
-    it("bottom right", function() { expect(world.pick(at.right,at.bottom)       === obottomright).toBeTruthy(); });
-    
-    it("object blocked by another larger object", function() {
-      var front = world.addObject(new Jax.Model({position: [0.0, 0.0, -0.1], mesh: new Jax.Mesh.Quad({size: 10})}));
-      expect(world.pick(at.center_x, at.center_y)).toBe(front);
-    });
-    
-    it("object blocking another larger object", function() {
-      var rear = world.addObject(new Jax.Model({position: [0.0, 0.0, -7], mesh: new Jax.Mesh.Quad({size: 10})}));
-      expect(world.pick(at.center_x, at.center_y)).toBe(ofront);
-    });
-    
-    it("region: everything", function() {
-      var objects = world.pickRegion(at.left, at.top, at.right, at.bottom);
-      expect(objects.indexOf(ofront)).not.toEqual(-1);
-      expect(objects.indexOf(otopleft)).not.toEqual(-1);
-      expect(objects.indexOf(otopright)).not.toEqual(-1);
-      expect(objects.indexOf(obottomleft)).not.toEqual(-1);
-      expect(objects.indexOf(obottomright)).not.toEqual(-1);
-    });
-    
-    it("region: top-left quadrant", function() {
-      var objects = world.pickRegion(at.left, at.top, at.center_x, at.center_y);
-      expect(objects.indexOf(ofront)).not.toEqual(-1);
-      expect(objects.indexOf(otopleft)).not.toEqual(-1);
-      expect(objects.indexOf(otopright)).toEqual(-1);
-      expect(objects.indexOf(obottomleft)).toEqual(-1);
-      expect(objects.indexOf(obottomright)).toEqual(-1);
-    });
-    
-    it("region: top-right quadrant", function() {
-      var objects = world.pickRegion(at.right, at.top, at.center_x, at.center_y);
-      expect(objects.indexOf(ofront)).not.toEqual(-1);
-      expect(objects.indexOf(otopleft)).toEqual(-1);
-      expect(objects.indexOf(otopright)).not.toEqual(-1);
-      expect(objects.indexOf(obottomleft)).toEqual(-1);
-      expect(objects.indexOf(obottomright)).toEqual(-1);
-    });
-    
-    it("region: bottom-left quadrant", function() {
-      var objects = world.pickRegion(at.left, at.bottom, at.center_x, at.center_y);
-      expect(objects.indexOf(ofront)).not.toEqual(-1);
-      expect(objects.indexOf(otopleft)).toEqual(-1);
-      expect(objects.indexOf(otopright)).toEqual(-1);
-      expect(objects.indexOf(obottomleft)).not.toEqual(-1);
-      expect(objects.indexOf(obottomright)).toEqual(-1);
-    });
-    
-    it("region: bottom-right quadrant", function() {
-      var objects = world.pickRegion(at.right, at.bottom, at.center_x, at.center_y);
-      expect(objects.indexOf(ofront)).not.toEqual(-1);
-      expect(objects.indexOf(otopleft)).toEqual(-1);
-      expect(objects.indexOf(otopright)).toEqual(-1);
-      expect(objects.indexOf(obottomleft)).toEqual(-1);
-      expect(objects.indexOf(obottomright)).not.toEqual(-1);
-    });
-    
-    it("should be able to pick objects not explicitly added to the world", function() {
-      var onested = new Jax.Model({position: [0.0, 0.0, -5], mesh: mesh});
-      ofront.render = function(context, options) { onested.render(context, options); };
-      expect(world.pick(at.center_x, at.center_y) === onested).toBeTruthy();
+      obj  = world.addObject(new Jax.Model({position:[ 0.0, 0.0, -5],mesh:mesh}));
     });
 
-    it("should be able to regionally pick objects not explicitly added to the world", function() {
-      var onested = new Jax.Model({position: [0.0, 0.0, -5], mesh: mesh});
-      ofront.render = function(context, options) { onested.render(context, options); };
-      expect(world.pickRegion(at.center_x-1, at.center_y-1, at.center_x+1, at.center_y+1)[0] === onested).toBeTruthy();
+    it("should find objects rendered by other objects", function() {
+      var objNested = new Jax.Model({position: [0.0, 0.0, -5], mesh: mesh});
+      obj.render = function(context, options) { objNested.render(context, options); };
+      world.context.canvas.width = 1;
+      world.context.canvas.height = 1;
+      expect(world.pickRegion(0, 0, 1, 1)[0] === objNested).toBeTruthy();
     });
   });
   
