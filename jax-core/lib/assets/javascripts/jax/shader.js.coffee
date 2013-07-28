@@ -311,7 +311,7 @@ class Jax.Shader
     @sources.splice index, 0, parser = new Parser src, mangler
     map = parser.map()
     @mergeVariables parser, map
-    @fireEvent 'changed'
+    @trigger 'changed'
     map
     
   append: (src, mangler = Jax.guid()) ->

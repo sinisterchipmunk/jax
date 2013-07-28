@@ -5,7 +5,7 @@ describe("Jax.EventEmitter", function() {
     emitter = Jax.Class.create({ });
     emitter.addMethods(Jax.EventEmitter);
     emitter = new emitter();
-    listenerID = emitter.addEventListener('evt', function(obj) { evt = obj; });
+    listenerID = emitter.on('evt', function(obj) { evt = obj; });
   });
   
   // don't taint other tests
@@ -13,29 +13,28 @@ describe("Jax.EventEmitter", function() {
   
   it("should pass events to listeners", function() {
     var result = false;
-    emitter.addEventListener('evt', function(evt) { result = evt; });
-    emitter.fireEvent('evt', 1);
+    emitter.on('evt', function(evt) { result = evt; });
+    emitter.trigger('evt', 1);
     expect(result).toBeTruthy();
   });
 
   it("should work with no event at all", function() {
-    emitter.fireEvent('evt');
+    emitter.trigger('evt');
     expect(evt).toBeUndefined();
   });
   
-  it("should set a default +type+ property on events", function() {
-    emitter.fireEvent('evt', { });
-    expect(evt.type).toEqual('evt');
-  });
-  
-  it("should not override a +type+ property on events", function() {
-    emitter.fireEvent('evt', { type: 'one' });
-    expect(evt.type).toEqual('one');
-  });
-  
   it("should be un-listenenable", function() {
-    emitter.removeEventListener('evt', listenerID);
-    emitter.fireEvent('evt', {});
+    emitter.off('evt', listenerID);
+    emitter.trigger('evt', {});
     expect(evt).toBeUndefined(); // because the original listener never was fired
+  });
+
+  describe("off() with no args", function() {
+    beforeEach(function() { emitter.off(); });
+
+    it("should remove the listener", function() {
+      emitter.trigger('evt', {});
+      expect(evt).toBeUndefined();
+    });
   });
 });

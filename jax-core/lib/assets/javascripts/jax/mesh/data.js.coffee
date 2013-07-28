@@ -71,7 +71,7 @@ class Jax.Mesh.Data
   @define 'color',
     get: -> @_color
     set: (color) ->
-      @fireEvent 'colorChanged'
+      @trigger 'colorChanged'
       @invalidate()
       @_color = Jax.Color.parse color
       for i in [0...@colorBuffer.length] by 4
@@ -219,7 +219,7 @@ class Jax.Mesh.Data
   ###
   recalculateNormals: () ->
     @_shouldRecalculateNormals = false
-    @fireEvent 'shouldRecalculateNormals'
+    @trigger 'shouldRecalculateNormals'
     @invalidate()
     true
     
@@ -231,7 +231,7 @@ class Jax.Mesh.Data
   ###
   recalculateTangents: () ->
     @_shouldRecalculateTangents = false
-    @fireEvent 'shouldRecalculateTangents'
+    @trigger 'shouldRecalculateTangents'
     @invalidate()
     true
   
@@ -243,7 +243,7 @@ class Jax.Mesh.Data
   ###
   recalculateBitangents: () ->
     @_shouldRecalculateBitangents = false
-    @fireEvent 'shouldRecalculateBitangents'
+    @trigger 'shouldRecalculateBitangents'
     @invalidate()
     true
     

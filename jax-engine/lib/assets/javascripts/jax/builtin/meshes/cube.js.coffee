@@ -32,48 +32,48 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
     [w, h, d] = [options.width, options.height, options.depth]
     @left = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @left.camera.reorient [-1, 0, 0], [-w/2, 0, 0]
-    @left.mesh.addEventListener 'colorChanged', invalidate
-    @left.camera.addEventListener 'updated', invalidate
+    @left.mesh.on 'colorChanged', invalidate
+    @left.camera.on 'updated', invalidate
     Object.defineProperty @left, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c
 
     @right = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @right.camera.reorient [1, 0, 0], [w/2, 0, 0]
-    @right.mesh.addEventListener 'colorChanged', invalidate
-    @right.camera.addEventListener 'updated', invalidate
+    @right.mesh.on 'colorChanged', invalidate
+    @right.camera.on 'updated', invalidate
     Object.defineProperty @right, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c
 
     @front = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @front.camera.reorient [0, 0, 1], [0, 0, d/2]
-    @front.mesh.addEventListener 'colorChanged', invalidate
-    @front.camera.addEventListener 'updated', invalidate
+    @front.mesh.on 'colorChanged', invalidate
+    @front.camera.on 'updated', invalidate
     Object.defineProperty @front, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c
 
     @back = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @back.camera.reorient [0, 0, -1], [0, 0, -d/2]
-    @back.mesh.addEventListener 'colorChanged', invalidate
-    @back.camera.addEventListener 'updated', invalidate
+    @back.mesh.on 'colorChanged', invalidate
+    @back.camera.on 'updated', invalidate
     Object.defineProperty @back, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c
 
     @top = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @top.camera.reorient [0, 1, 0], [0, h/2, 0]
-    @top.mesh.addEventListener 'colorChanged', invalidate
-    @top.camera.addEventListener 'updated', invalidate
+    @top.mesh.on 'colorChanged', invalidate
+    @top.camera.on 'updated', invalidate
     Object.defineProperty @top, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c
 
     @bottom = new Jax.Model mesh: new Jax.Mesh.Quad d, h
     @bottom.camera.reorient [0, -1, 0], [0, -h/2, 0]
-    @bottom.mesh.addEventListener 'colorChanged', invalidate
-    @bottom.camera.addEventListener 'updated', invalidate
+    @bottom.mesh.on 'colorChanged', invalidate
+    @bottom.camera.on 'updated', invalidate
     Object.defineProperty @bottom, 'color',
       get: -> @mesh.color
       set: (c) -> @mesh.color = c

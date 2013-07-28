@@ -27,9 +27,9 @@ class Jax.Shader.Program
       uniforms:   {}
       varyings:   {}
     @vertex = new Jax.Shader "#{@name}-v"
-    @vertex.addEventListener 'changed', @vertexShaderChanged
+    @vertex.on 'changed', @vertexShaderChanged
     @fragment = new Jax.Shader "#{@name}-f"
-    @fragment.addEventListener 'changed', @fragmentShaderChanged
+    @fragment.on 'changed', @fragmentShaderChanged
     if @vertex.main.length == 0
       @vertex.main.push "gl_Position = vec4(1.0, 1.0, 1.0, 1.0);"
     if @fragment.main.length == 0

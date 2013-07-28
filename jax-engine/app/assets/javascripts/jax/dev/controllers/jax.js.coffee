@@ -31,7 +31,7 @@ Jax.Controller.create 'jax',
     @light.camera.lookAt [0, 0, 0]
     # @light.camera.rotation = [0.192552, -0.735685, -0.233828, -0.605820]
     # HACK this shouldn't be necessary
-    @light.camera.fireEvent 'matrixUpdated'
+    @light.camera.trigger 'matrixUpdated'
     @update 0
     @world.addObject new Jax.Model
       castShadow: false
@@ -84,10 +84,10 @@ Jax.Controller.create 'jax',
 
     @jax1.camera.rotation = [0.215122, 0.907300, 0.328824, 0.149720]
     # HACK this shouldn't be necessary
-    @jax1.camera.fireEvent 'matrixUpdated'
+    @jax1.camera.trigger 'matrixUpdated'
 
     @jax2.camera.rotation = [0.387454, 0.616156, -0.008283, -0.685695]
-    @jax2.camera.fireEvent 'matrixUpdated'
+    @jax2.camera.trigger 'matrixUpdated'
 
     @axis = 'pitch'
 

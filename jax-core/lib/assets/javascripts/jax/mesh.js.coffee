@@ -51,17 +51,17 @@ class Mesh
       @_initialized = true # keep validation from rebuilding; user can still rebuild explicitly
       @_data.dispose() if @_data
       @_data = d
-      @_data.addEventListener 'colorChanged', => @fireEvent 'colorChanged'
-      @_data.addEventListener 'shouldRecalculateNormals', => @recalculateNormals()
-      @_data.addEventListener 'shouldRecalculateTangents', => @recalculateTangents()
-      @_data.addEventListener 'shouldRecalculateBitangents', => @recalculateBitangents()
+      @_data.on 'colorChanged', => @trigger 'colorChanged'
+      @_data.on 'shouldRecalculateNormals', => @recalculateNormals()
+      @_data.on 'shouldRecalculateTangents', => @recalculateTangents()
+      @_data.on 'shouldRecalculateBitangents', => @recalculateBitangents()
       
   @define 'color',
     get: -> @_color
     set: (color) ->
       @_color = color
       @_data.color = @_color
-      @fireEvent 'colorChanged'
+      @trigger 'colorChanged'
 
   @define 'vertices',
     get: ->
@@ -172,7 +172,7 @@ class Mesh
     @_data.indices_buf = new Jax.Buffer GL_ELEMENT_ARRAY_BUFFER, @_data.indexFormat, GL_STATIC_DRAW, @_data.indexBuffer, 1
     @__validating = false
     @_valid = true
-    @fireEvent 'validated'
+    @trigger 'validated'
     this
 
   rebuild: ->
@@ -185,7 +185,7 @@ class Mesh
       @submesh = @split vertices, colors, textures, normals, indices, tangents, bitangents
     @data = new Jax.Mesh.Data vertices, colors, textures, normals, indices, tangents, bitangents
     @_data.color = @_color
-    @fireEvent 'rebuilt'
+    @trigger 'rebuilt'
     @_initialized = true # keep validation from rebuilding; user can still rebuild explicitly
     this
   

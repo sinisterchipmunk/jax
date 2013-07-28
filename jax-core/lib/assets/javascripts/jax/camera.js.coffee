@@ -56,7 +56,7 @@ class Jax.Camera
         quat.multiply @rotation, rotquat, @rotation
       quat.normalize @rotation, @rotation
       @invalidate()
-      @fireEvent 'updated'
+      @trigger 'updated'
     
   @getter 'right', ->
     @validate() unless @isValid()
@@ -75,7 +75,7 @@ class Jax.Camera
       # recalculating view, right and up vectors, which won't change.
       @_stale = true
       @_frustum?.invalidate()
-      @fireEvent 'updated'
+      @trigger 'updated'
     
   invalidate: ->
     @_isValid = false
@@ -91,7 +91,7 @@ class Jax.Camera
     mat4.invert @matrices.imv, @matrices.mv
     mat3.fromMat4 @matrices.n, @matrices.imv
     mat3.transpose @matrices.n, @matrices.n
-    @fireEvent 'matrixUpdated'
+    @trigger 'matrixUpdated'
   
   validate: () ->
     @_isValid = true
@@ -122,7 +122,7 @@ class Jax.Camera
       near: options.near
       far: options.far
       type: 'orthographic'
-    @fireEvent 'matrixUpdated'
+    @trigger 'matrixUpdated'
     
   perspective: (options) ->
     options or= {}
@@ -140,7 +140,7 @@ class Jax.Camera
       far: options.far
       fov: options.fov
       type: 'perspective'
-    @fireEvent 'matrixUpdated'
+    @trigger 'matrixUpdated'
     
   _rotVec = vec3.create()
   _rotQuat = quat.create()
@@ -164,7 +164,7 @@ class Jax.Camera
     quat.normalize rotquat, rotquat
     quat.multiply @rotation, rotquat, @rotation
     @invalidate()
-    @fireEvent 'updated'
+    @trigger 'updated'
     this
     
   pitch: (amount) ->
@@ -254,7 +254,7 @@ class Jax.Camera
     direction or= @direction
     vec3.add @position, vec3.scale(_moveVec, direction, distance), @position
     @invalidate()
-    @fireEvent 'updated'
+    @trigger 'updated'
     this
     
   _projectView = vec3.create()
@@ -277,4 +277,4 @@ class Jax.Camera
     @rotation[0] = @rotation[1] = @rotation[2] = 0
     @rotation[3] = 1
     @invalidate()
-    @fireEvent 'updated'
+    @trigger 'updated'

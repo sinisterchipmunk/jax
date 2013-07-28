@@ -1,3 +1,4 @@
+//= require jquery
 //= require "jax/vendor"
 //= require_self
 //= require "jax/env"

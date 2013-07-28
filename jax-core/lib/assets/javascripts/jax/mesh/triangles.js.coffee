@@ -11,7 +11,7 @@ class Jax.Mesh.Triangles extends Jax.Mesh.Base
     @draw_mode or= GL_TRIANGLES
     super args...
     @triangleOrder = []
-    @addEventListener 'validated', => @updateTriangleOrder()
+    @on 'validated', => @updateTriangleOrder()
     
   updateTriangleOrder: ->
     triangleOrder = @triangleOrder

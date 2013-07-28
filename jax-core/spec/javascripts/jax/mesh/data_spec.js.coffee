@@ -64,13 +64,13 @@ describe "Jax.Mesh.Data", ->
       
       it "should fire a shouldRecalculateNormals event", ->
         fired = false
-        data.addEventListener 'shouldRecalculateNormals', -> fired = true
+        data.on 'shouldRecalculateNormals', -> fired = true
         data.set {}, normals: 'NORMS'
         expect(fired).toBeTrue()
         
       it "should not fire a shouldRecalculateNormals event for subsequent bindings", ->
         count = 0
-        data.addEventListener 'shouldRecalculateNormals', -> count++
+        data.on 'shouldRecalculateNormals', -> count++
         data.set {}, normals: 'NORMS'
         data.set {}, normals: 'NORMS'
         data.set {}, normals: 'NORMS'
@@ -81,7 +81,7 @@ describe "Jax.Mesh.Data", ->
 
       it "should not fire a shouldRecalculateNormals event", ->
         fired = false
-        data.addEventListener 'shouldRecalculateNormals', -> fired = true
+        data.on 'shouldRecalculateNormals', -> fired = true
         data.set {}, vertices: 'VERTS'
         expect(fired).toBeFalse()
       

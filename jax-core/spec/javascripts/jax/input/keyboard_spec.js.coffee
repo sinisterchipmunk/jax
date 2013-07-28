@@ -1,29 +1,30 @@
 describe "Jax.Input.Keyboard", ->
-  evt = keyboard = null
+  evt = keyboard = canvas = null
   beforeEach ->
     evt = null
-    keyboard = new Jax.Input.Keyboard document.createElement('canvas')
+    canvas = $ document.createElement('canvas')
+    keyboard = new Jax.Input.Keyboard canvas
   
   describe "with a key pressed handler", ->
     beforeEach ->
-      keyboard.listen 'press', (e) -> evt = e
+      keyboard.register {key_pressed: (e) -> evt = e }
   
     it "should process key press events", ->
-      keyboard.trigger 'keydown'
+      canvas.trigger 'keydown'
       expect(evt).not.toBeNull()
   
   describe "with a key released handler", ->
     beforeEach ->
-      keyboard.listen 'release', (e) -> evt = e
+      keyboard.register {key_released: (e) -> evt = e }
 
     it "should process key press events", ->
-      keyboard.trigger 'keyup'
+      canvas.trigger 'keyup'
       expect(evt).not.toBeNull()
 
   describe "with a key typed handler", ->
     beforeEach ->
-      keyboard.listen 'type', (e) -> evt = e
+      keyboard.register {key_typed: (e) -> evt = e }
 
     it "should process key press events", ->
-      keyboard.trigger 'keypress'
+      canvas.trigger 'keypress'
       expect(evt).not.toBeNull()

@@ -6,7 +6,7 @@ class Jax.Mesh.TriangleStrip extends Jax.Mesh.Base
     @draw_mode or= GL_TRIANGLE_STRIP
     super args...
     @triangleOrder = []
-    @addEventListener 'validated', => @updateTriangleOrder()
+    @on 'validated', => @updateTriangleOrder()
     
   updateTriangleOrder: ->
     triangleOrder = @triangleOrder

@@ -96,7 +96,7 @@
         var self = this;
         this.__unique_id = Jax.guid();
         this.camera = new Jax.Camera();
-        this.camera.addEventListener('updated', function() { self.fireEvent('transformed'); });
+        this.camera.on('updated', function() { self.trigger('transformed'); });
         
         initProperties(this, Jax.Model.default_properties);
         if (this._klass && this._klass.resources)

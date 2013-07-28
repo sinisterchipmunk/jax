@@ -49,7 +49,7 @@ class Jax.World
     get: -> @_ambientColor
     set: (c) ->
       (@_ambientColor or= new Jax.Color).parse c
-      @fireEvent 'ambientChanged'
+      @trigger 'ambientChanged'
     
   @getter 'objects', ->
     console.log """The getter `objects` is deprecated; please use `getObjects()` instead.
@@ -70,7 +70,7 @@ class Jax.World
       if i > num
         for j in [num...i]
           @_cameras[j] = new Jax.Camera
-      @fireEvent 'numCamerasChanged'
+      @trigger 'numCamerasChanged'
   
   ###
   Renders this World to its Jax context. If a material (or its name) is not
@@ -192,7 +192,7 @@ class Jax.World
   addLight: (light) ->
     light = Jax.Light.find(light) unless light instanceof Jax.Light
     @lights.push light
-    @fireEvent 'lightAdded', light
+    @trigger 'lightAdded', light
     light
     
   ###
@@ -200,7 +200,7 @@ class Jax.World
   ###
   removeLight: (light) ->
     @lights.splice @lights.indexOf(light)
-    @fireEvent 'lightRemoved', light
+    @trigger 'lightRemoved', light
     light
 
   ###
@@ -228,17 +228,17 @@ class Jax.World
     
     if addToOctree
       @octree.add object
-      object.addEventListener 'transformed', @updateOctree
-      @fireEvent 'objectAddedToOctree'
+      object.on 'transformed', @updateOctree
+      @trigger 'objectAddedToOctree'
     else
       @_objects[object.__unique_id] = object
     @getObjects().push object
-    @fireEvent 'objectAdded'
+    @trigger 'objectAdded'
     if object.castShadow isnt false
       # immediately invalidate shadow maps so that this object doesn't
       # not have a shadow
       @invalidateShadowMaps.call object
-      object.addEventListener 'transformed', @invalidateShadowMaps
+      object.on 'transformed', @invalidateShadowMaps
     object
   
   ###
@@ -264,12 +264,12 @@ class Jax.World
     # invalidate shadow maps if necessary so that the object's shadow gets
     # removed
     @invalidateShadowMaps.call obj
-    obj.removeEventListener 'transformed', @invalidateShadowMaps
-    obj.removeEventListener 'transformed', @updateOctree
+    obj.off 'transformed', @invalidateShadowMaps
+    obj.off 'transformed', @updateOctree
     if node = @octree.find(obj)
       node.remove obj
-      @fireEvent 'objectRemovedFromOctree'
-    @fireEvent 'objectRemoved'
+      @trigger 'objectRemovedFromOctree'
+    @trigger 'objectRemoved'
     obj
     
   pickDataBuffers = {}
@@ -386,5 +386,5 @@ class Jax.World
       @removeLight light
       light.dispose @context
     @ambientColor = new Jax.Color 0.05, 0.05, 0.05, 1
-    @fireEvent 'disposed'
+    @trigger 'disposed'
     true

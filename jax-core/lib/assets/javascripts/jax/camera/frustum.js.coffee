@@ -43,7 +43,7 @@ class Jax.Frustum extends Jax.Model
         vertices[72+i] = e.ntr[i]; vertices[75+i] = e.ftr[i]
         vertices[78+i] = e.nbr[i]; vertices[81+i] = e.fbr[i]
       mesh.data.invalidate()
-    @addEventListener 'updated', recalculateMeshVertices
+    @on 'updated', recalculateMeshVertices
     recalculateMeshVertices()
     return mesh
     
@@ -104,7 +104,7 @@ class Jax.Frustum extends Jax.Model
     return if @isValid()
     @extractFrustum()
     @_isValid = true
-    @fireEvent 'updated'
+    @trigger 'updated'
     
   extractedM = mat4.create()
   extractedVec = vec3.create()

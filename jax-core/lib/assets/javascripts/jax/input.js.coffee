@@ -3,14 +3,33 @@
 
 class Jax.Input
   @include Jax.EventEmitter
-  
-  constructor: (@receiver, @options = {}) ->
-    @_listeners = {}
-    @receiver.getEventListeners = (type) => @getReceiverEventListeners type
-    
-  getReceiverEventListeners: (type) -> @_listeners[type] or= []
 
-  isListening: (type) -> !!@getReceiverEventListeners(type).length
+  @devices: []
+  
+  ###
+  Takes a `@receiver`, which is expected to be an HTML element which will
+  emit events, such as a `<canvas/>` element.
+  ###
+  constructor: (@receiver, @options = {}) ->
+    @receiver = $ @receiver
+    @_attached = {}
+
+  # isListening: (type) -> !!@getReceiverEventListeners(type).length
+
+  ###
+  Registers the given controller to receive input from this device.
+
+  This method must be overridden by subclasses.
+  ###
+  register: (controller) ->
+    throw new Error "Input device must register listeners"
+
+  ###
+  Subclasses can override this method if they need to preprocess the event
+  object prior to dispatching it to any listeners. They should return the
+  event object, or a new object if it is intended to replace the original.
+  ###
+  processEvent: (type, event) -> event
   
   ###
   Subclasses can override this method if they need to maintain themselves
@@ -20,61 +39,20 @@ class Jax.Input
   update: (timechange) ->
     
   ###
-  Manually triggers an event on the underlying receiver. This is mostly
-  used for testing. Subclasses must override this method; the default
-  implementation just raises an error.
-  ###  
-  trigger: (type, event) ->
-    throw new Error "#{@__proto__.constructor.name} can't trigger event type #{type}: not implemented"
-    
-  ###
-  Explicitly process a given event object. This is normally invoked by
-  an event listener added to the underlying receiver.
-  ###
-  processEvent: (eventType, evt) ->
-    for listener in @getReceiverEventListeners eventType
-      listener.call(this, evt)
-    true
-      
-  ###
-  Convenience method that just registers the specified event listener with
-  the input receiver. Ensures that the specific callback is only ever
-  registered once.
+  Attaches the specified event listener to the `@receiver`. Ensures that
+  the specific callback is only ever registered once.
   ###
   attach: (eventType, callback) ->
-    listeners = @getReceiverEventListeners(eventType)
-    unless listeners.interface
-      listeners.interface = (evt) => 
-        evt.preventDefault()
-        @processEvent eventType, evt
-      @receiver.addEventListener eventType, listeners.interface
-    listeners.push callback unless callback in listeners
+    attached = @_attached[eventType] or= []
+    for attachedCallback in attached
+      return if callback is attachedCallback
+    attached.push callback
+    @receiver.on eventType, (event) =>
+      callback @processEvent eventType, event
     
   ###
   Removes all event listeners from the input receiver.
   ###
   stopListening: ->
-    for type of @_listeners
-      listeners = @getReceiverEventListeners type
-      if listeners.interface
-        @receiver.removeEventListener type, listeners.interface
-        listeners.length = 0
-        delete listeners.interface
-    @removeAllEventListeners()
-
-  ###
-  Starts listening for a specific event type. The callback is optional and
-  if specified, will be fired every time this input device fires the specified
-  event type.
-  ###
-  listen: (type, callback) ->
-    if this[type]
-      if domTypes = @__proto__.constructor.eventTypes?[type]
-        for eventType in domTypes.split /,/
-          @attach eventType.trim(), this[type]
-          @addEventListener type, callback if callback
-        true
-      else
-        throw new Error "BUG: Method `#{type}` exists but no corresponding DOM event type associated"
-    else throw new Error "Invalid #{@__proto__.constructor.name} input type: #{type}"
-    
+    @off()
+    @receiver.off()

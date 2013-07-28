@@ -18,5 +18,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "railties"
+  spec.add_dependency "jquery-rails"
   spec.add_dependency 'gl-matrix-rails'
 end

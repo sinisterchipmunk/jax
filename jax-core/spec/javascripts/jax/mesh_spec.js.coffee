@@ -137,7 +137,7 @@ describe "Jax.Mesh", ->
     it "should fire event listeners when color is changed", ->
       listener = fire: (type) -> expect(type).toEqual 'color_changed'
       spyOn listener, 'fire'
-      mesh.addEventListener 'color_changed', listener.fire
+      mesh.on 'color_changed', listener.fire
       mesh.color = [1, 2, 3, 4]
       expect(spyOn.listener).toHaveBeenCalled
     

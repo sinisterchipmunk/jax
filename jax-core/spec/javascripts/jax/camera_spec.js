@@ -404,17 +404,17 @@ describe("Jax.Camera", function() {
 
   describe("events", function() {
     beforeEach(function() {
-      spyOn(camera, 'fireEvent').andCallThrough();
+      spyOn(camera, 'trigger').andCallThrough();
     });
     
     it("should fire 'updated' when position= called", function() {
       camera.position = [1, 1, 1];
-      expect(camera.fireEvent).toHaveBeenCalledWith('updated');
+      expect(camera.trigger).toHaveBeenCalledWith('updated');
     });
     
     it("should fire 'updated' when orient called", function() {
       camera.direction = [ 0, 0, -1 ];
-      expect(camera.fireEvent).toHaveBeenCalledWith('updated');
+      expect(camera.trigger).toHaveBeenCalledWith('updated');
     });
   });
 });

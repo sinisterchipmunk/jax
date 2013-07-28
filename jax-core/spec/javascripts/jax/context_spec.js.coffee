@@ -77,33 +77,6 @@ describe 'Jax.Context', ->
     it "should raise an error", ->
       expect(-> new Jax.Context null).toThrow("Received `null` where a canvas was expected! If you meant to initialize Jax without a canvas, don't pass any value at all for one.")
 
-  describe "redirecting to a controller that listens to mouse clicks", ->
-    beforeEach ->
-      Jax.Controller.create "one",
-        mouse_clicked: -> 
-        index: -> 
-
-      Jax.Controller.create "two",
-        index: ->
-
-      @context.redirectTo "one"
-
-    describe "twice", ->
-      beforeEach -> @context.redirectTo "one"
-
-      it "should not call the listener twice", ->
-        count = 0
-        @context.controller.mouse_clicked = -> count++
-        @context.mouse.trigger "click"
-        expect(count).toEqual 1
-
-      describe "and then to a controller that does not", ->
-        beforeEach ->
-          @context.redirectTo "two"
-
-        it "should not raise an error when the event is fired", ->
-          expect(=> @context.mouse.trigger("click")).not.toThrow()
-
   describe "given a non-canvas target and an empty list of renderers", ->
     div = null
     clicked = indexed = null
@@ -383,36 +356,8 @@ describe 'Jax.Context', ->
       expect(@context.controller).toBeUndefined()
     
     it "should not register any event listeners on the canvas", ->
-      expect(@context.canvas.getEventListeners()).toBeEmpty()
-  
-  describe "at a controller that has no appropriate callbacks", ->
-    beforeEach ->
-      Jax.Controller.create 'test', {}
-      @context.redirectTo 'test'
-    
-    it "should not register any event listeners on the canvas", ->
-      expect(@context.canvas.getEventListeners()).toBeEmpty()
-      
-  describe "at a controller with a mouse_pressed listener", ->
-    beforeEach ->
-      Jax.Controller.create 'test', mouse_pressed: (e) ->
-      @context.redirectTo 'test'
-    
-    it "should fire the callback", ->
-      spyOn @context.controller, 'mouse_pressed'
-      @context.mouse.trigger 'mousedown'
-      expect(@context.controller.mouse_pressed).toHaveBeenCalled()
-
-  describe "at a controller with a mouse_rolled listener", ->
-    beforeEach ->
-      Jax.Controller.create 'test', mouse_rolled: (e) ->
-      @context.redirectTo 'test'
-
-    it "should fire the callback", ->
-      spyOn @context.controller, 'mouse_rolled'
-      @context.mouse.trigger 'mousewheel'
-      expect(@context.controller.mouse_rolled).toHaveBeenCalled()
-
+      expect($(@context.canvas).data("events")).toBeUndefined()
+        
   describe "at a controller with every possible callback", ->
     beforeEach ->
       Jax.Controller.create 'test',
@@ -430,16 +375,8 @@ describe 'Jax.Context', ->
         key_typed: (e) ->
       @context.redirectTo 'test'
 
-    it "should not produce more than one call to mouse_clicked", ->
-      c = 0
-      @context.controller.mouse_clicked = -> c++
-      @context.mouse.trigger 'mousedown'
-      @context.mouse.trigger 'mouseup'
-      expect(c).toEqual 1
-        
     describe "after disposing the context", ->
       beforeEach -> @context.dispose()
         
       it "should remove all event listeners from its canvas", ->
-        expect(@context.canvas.getEventListeners()).toBeEmpty()
-      
+        expect($(@context.canvas).data("events")).toBeUndefined()

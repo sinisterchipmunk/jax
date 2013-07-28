@@ -1,5 +1,6 @@
 require 'rails'
 require 'sprockets/railtie'
+require 'jquery/rails'
 require 'gl-matrix'
 require 'jax/core/directive_processor'
 require 'jax/core/shader'

@@ -29,6 +29,7 @@ class Jax.Context
     @_renderHandle = @_updateHandle = null
     @_framesPerSecond = 0
     @_renderStartTime = null
+    @inputDevices = []
     
     @_errorFunc = (error, url, line) =>
       if @controller and @controller.error
@@ -62,7 +63,7 @@ class Jax.Context
       @render()
       if @isRendering() then @requestRenderFrame()
       
-    window.addEventListener 'error', @_errorFunc
+    $(window).on 'error', @_errorFunc
 
     @id = Jax.guid()
     @world = new Jax.World this
@@ -228,10 +229,10 @@ class Jax.Context
   ###
   setupInputDevices: (focusCanvas = true) ->
     if @canvas
-      if Jax.Input?.Mouse
-        @mouse    = new Jax.Input.Mouse    @canvas
-      if Jax.Input?.Keyboard
-        @keyboard = new Jax.Input.Keyboard @canvas, focus: focusCanvas
+      for Device in Jax.Input.devices
+        device = new Device @canvas, focus: focusCanvas
+        @[device.alias] = device if device.alias
+        @inputDevices.push device
     
   redirectTo: (path) ->
     @unregisterListeners()
@@ -271,7 +272,7 @@ class Jax.Context
         height: @canvas.clientHeight || @canvas.height || 200
     
   dispose: ->
-    window.removeEventListener 'error', @_errorFunc
+    $(window).off 'error', @_errorFunc
     @stopUpdating()
     @stopRendering()
     @world.dispose()
@@ -280,37 +281,14 @@ class Jax.Context
     
   registerListeners: ->
     return unless @controller
-    if @mouse
-      if @controller.mouse_pressed  then @mouse.listen 'press',      (evt) => 
-        @controller.mouse_pressed  evt
-      if @controller.mouse_released then @mouse.listen 'release',    (evt) =>
-        @controller.mouse_released evt
-      if @controller.mouse_clicked  then @mouse.listen 'click',      (evt) =>
-        @controller.mouse_clicked  evt
-      if @controller.mouse_moved    then @mouse.listen 'move',       (evt) =>
-        @controller.mouse_moved    evt
-      if @controller.mouse_entered  then @mouse.listen 'enter',      (evt) =>
-        @controller.mouse_entered  evt
-      if @controller.mouse_exited   then @mouse.listen 'exit',       (evt) =>
-        @controller.mouse_exited   evt
-      if @controller.mouse_dragged  then @mouse.listen 'drag',       (evt) =>
-        @controller.mouse_dragged  evt
-      if @controller.mouse_rolled   then @mouse.listen 'wheel',      (evt) =>
-        @controller.mouse_rolled   evt
-      if @controller.mouse_over     then @mouse.listen 'over',       (evt) =>
-        @controller.mouse_over     evt
-    if @keyboard
-      if @controller.key_pressed    then @keyboard.listen 'press',   (evt) =>
-        @controller.key_pressed    evt
-      if @controller.key_released   then @keyboard.listen 'release', (evt) =>
-        @controller.key_released   evt
-      if @controller.key_typed      then @keyboard.listen 'type',    (evt) =>
-        @controller.key_typed      evt
+    for device in @inputDevices
+      device.register @controller
     true
     
   unregisterListeners: ->
-    @mouse.stopListening()    if @mouse
-    @keyboard.stopListening() if @keyboard
+    for device in @inputDevices
+      device.stopListening()
+    true
 
   getFramesPerSecond: ->
     @_calculateFrameRate = true

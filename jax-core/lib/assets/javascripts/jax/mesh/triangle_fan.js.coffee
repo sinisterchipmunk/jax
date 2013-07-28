@@ -6,7 +6,7 @@ class Jax.Mesh.TriangleFan extends Jax.Mesh.Base
     @draw_mode or= GL_TRIANGLE_FAN
     super args...
     @triangleOrder = []
-    @addEventListener 'validated', => @updateTriangleOrder()
+    @on 'validated', => @updateTriangleOrder()
     
   updateTriangleOrder: ->
     triangleOrder = @triangleOrder

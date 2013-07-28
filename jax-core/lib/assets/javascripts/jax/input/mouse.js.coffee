@@ -1,12 +1,47 @@
 class Jax.Input.Mouse extends Jax.Input
-  @eventTypes:
-    press:   'mousedown'
-    release: 'mouseup'
-    move:    'mousemove'
-    over:    'mouseover'
-    wheel:   'mousewheel, DOMMouseScroll'
-    exit:    'mouseout'
+  Jax.Input.devices.push this
+
+  alias: 'mouse'
     
+  register: (controller) ->
+    if controller.mouse_pressed
+      @attach 'mousedown', @press
+      @on 'press', (event) -> controller.mouse_pressed event
+    if controller.mouse_released
+      @attach 'mouseup',   @release
+      @on 'release', (event) -> controller.mouse_released event
+    if controller.mouse_clicked
+      @attach 'mousedown', @press
+      @attach 'mouseup', @release
+      @attach 'mousemove', @move
+      @on 'click', (event) -> controller.mouse_clicked event
+    if controller.mouse_moved
+      @attach 'mousedown', @press
+      @attach 'mouseup', @release
+      @attach 'mousemove', @move
+      @attach 'mouseout', @exit
+      @on 'move', (event) -> controller.mouse_moved event
+    if controller.mouse_entered
+      @attach 'mouseover', @over
+      @attach 'mouseout', @exit
+      @on 'enter', (event) -> controller.mouse_entered event
+    if controller.mouse_exited
+      @attach 'mouseout', @exit
+      @on 'exit', (event) -> controller.mouse_exited event
+    if controller.mouse_dragged
+      @attach 'mousemove', @move
+      @attach 'mousedown', @press
+      @attach 'mouseup', @release
+      @attach 'mouseout', @exit
+      @on 'drag', (event) -> controller.mouse_dragged event
+    if controller.mouse_rolled
+      @attach 'mousewheel', @wheel
+      @attach 'DOMMouseScroll', @wheel
+      @on 'wheel', (event) -> controller.mouse_rolled event
+    if controller.mouse_over
+      @attach 'mouseover', @over
+      @on 'over', (event) -> controller.mouse_over event
+
   ###
   Click speed, in seconds. The lower this number, the faster the
   mouse must be pressed and released in order to result in a single click.
@@ -22,29 +57,6 @@ class Jax.Input.Mouse extends Jax.Input
     @_clickCount = {}
     @_buttonState = {}
   
-  ###
-  Programmatically triggers an event. Note that because Jax uses
-  `addEventListener`, you can't trigger events using jQuery. Instead,
-  you have to either trigger events through the DOM methods, or use this 
-  method.
-  ###
-  trigger: (type, evt = {}) ->
-    if type is 'click'
-      @trigger 'mousedown', evt
-      @trigger 'mouseup',   evt
-      return
-    event = document.createEvent 'MouseEvents'
-    event.initMouseEvent type, true,               \ # type, bubbles, 
-                         true,                     \ # cancelable,
-                         window,                   \ # windowObject
-                         1,                        \ # detail
-                         evt.screenX, evt.screenY, \ # screenX, screenY
-                         evt.clientX, evt.clientY, \ # clientX, clientY
-                         false, false,             \ # ctrlKey, altKey
-                         false, false,             \ # shiftKey, metaKey
-                         evt.button, null            # button, relatedTarget
-    @receiver.dispatchEvent event
-    
   processEvent: (type, evt) ->
     evt = @normalizeEvent evt
     super type, evt
@@ -64,19 +76,9 @@ class Jax.Input.Mouse extends Jax.Input
   Returns the normalized event.
   ###
   normalizeEvent: (evt) ->
-    rect = @receiver.getBoundingClientRect()
-    root = document.documentElement
-    evt =
-      base: evt
-      button: evt.button
-      x: evt.clientX - rect.left
-      y: evt.clientY - rect.top
-      wheelDeltaX: evt.wheelDeltaX || 0
-      wheelDeltaY: evt.wheelDeltaY || -evt.detail
-      wheelDeltaZ: evt.wheelDeltaZ || 0
-      wheelDelta:  evt.wheelDelta  || 1
-    evt.x *= @receiver.width / rect.width
-    evt.y *= @receiver.height/ rect.height
+    offset = @receiver.offset()
+    evt.x = (evt.pageX - offset.left) * @receiver[0].width / @receiver.width()
+    evt.y = (evt.pageY - offset.top)  * @receiver[0].height/ @receiver.height()
     if @_lastx is undefined
       evt.diffx = evt.diffy = 0
     else
@@ -99,60 +101,41 @@ class Jax.Input.Mouse extends Jax.Input
     delete @_pendingClicks[button]
     delete @_clickCount[button]
   
-  listen: (type, callback) ->
-    switch type
-      when 'enter'
-        super 'over'
-        super 'exit'
-        @addEventListener 'enter', callback if callback
-      when 'move', 'click'
-        super 'move'
-        super 'press'
-        super 'release'
-        @addEventListener type, callback if callback
-      when 'drag'
-        super 'move'
-        super 'press'
-        super 'release'
-        super 'exit'
-        @addEventListener type, callback if callback
-      else super type, callback
-      
-  press: (e) ->
-    @fireEvent 'press', e
+  press: (e) =>
+    @trigger 'press', e
     @logClickStart e.button
     @_buttonState[e.button] = true
     
-  release: (e) ->
-    @fireEvent 'release', e
+  release: (e) =>
+    @trigger 'release', e
     @_buttonState[e.button] = false
     if @_pendingClicks[e.button] isnt undefined
       e.clickCount = @_clickCount[e.button]
-      @fireEvent 'click', e
+      @trigger 'click', e
     
-  move: (e) ->
+  move: (e) =>
     if @_buttonState[e.button]
       # mouse movement invalidates any clicks
       for button of @_pendingClicks
         @clearClick button
-      @fireEvent 'drag', e
+      @trigger 'drag', e
     else
-      @fireEvent 'move', e
+      @trigger 'move', e
     
-  over: (e) ->
-    @fireEvent 'over', e
+  over: (e) =>
+    @trigger 'over', e
     unless @_entered
       @_entered = true
-      @fireEvent 'enter', e
+      @trigger 'enter', e
 
-  wheel: (e) ->
-    @fireEvent 'wheel', e
+  wheel: (e) =>
+    @trigger 'wheel', e
 
-  exit: (e) ->
+  exit: (e) =>
     @_entered = false
     # when mouse leaves canvas, stop 'dragging'
     # this may not sound right, but in practice, it's the expected
     # result far more often than the reverse.
     for button of @_buttonState
       delete @_buttonState[button]
-    @fireEvent 'exit', e
+    @trigger 'exit', e
