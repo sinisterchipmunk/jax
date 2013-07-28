@@ -107,6 +107,7 @@ class Jax.Context
     @matrix_stack
   
   update: (timechange) ->
+    device.update timechange for device in @inputDevices
     @controller?.update? timechange
     @world.update timechange
 

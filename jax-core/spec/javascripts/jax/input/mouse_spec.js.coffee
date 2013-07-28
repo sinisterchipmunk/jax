@@ -1,9 +1,16 @@
 describe "Jax.Input.Mouse", ->
+  stubCanvasTrigger = ->
+    _trigger = canvas.trigger
+    canvas.trigger = ->
+      _trigger.apply this, arguments
+      mouse.update(0)
+
   evt = mouse = canvas = null
   beforeEach ->
     evt = null
     canvas = $ document.createElement('canvas')
     mouse = new Jax.Input.Mouse canvas
+    stubCanvasTrigger canvas
   
   it "should not initially register any handlers", ->
     spyOn @context.canvas, 'addEventListener'
@@ -16,6 +23,7 @@ describe "Jax.Input.Mouse", ->
       LEFT = 202
       TOP = 252
       canvas =  $ target = document.createElement('canvas')
+      stubCanvasTrigger canvas
       target.width = 150
       target.height = 100
       target.style.width = '300px'

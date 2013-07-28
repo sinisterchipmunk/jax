@@ -1,8 +1,15 @@
 describe "Jax.Input.Keyboard", ->
+  stubCanvasTrigger = ->
+    _trigger = canvas.trigger
+    canvas.trigger = ->
+      _trigger.apply this, arguments
+      keyboard.update(0)
+
   evt = keyboard = canvas = null
   beforeEach ->
     evt = null
     canvas = $ document.createElement('canvas')
+    stubCanvasTrigger()
     keyboard = new Jax.Input.Keyboard canvas
   
   describe "with a key pressed handler", ->

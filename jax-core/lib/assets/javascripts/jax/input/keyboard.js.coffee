@@ -5,11 +5,14 @@ class Jax.Input.Keyboard extends Jax.Input
 
   register: (controller) ->
     if controller.key_pressed
-      @attach 'keydown',  (event) -> controller.key_pressed  event
+      @attach 'keydown', @press
+      @on 'press',   (event) -> controller.key_pressed  event
     if controller.key_released
-      @attach 'keyup',    (event) -> controller.key_released event
+      @attach 'keyup', @release
+      @on 'release', (event) -> controller.key_released event
     if controller.key_typed
-      @attach 'keypress', (event) -> controller.key_typed  event
+      @attach 'keypress', @type
+      @on 'press',   (event) -> controller.key_typed    event
 
   constructor: (element, options = {}) ->
     super element, options
@@ -24,3 +27,12 @@ class Jax.Input.Keyboard extends Jax.Input
     # add a mouse listener to capture focus when mouse moves over
     @receiver.on 'mouseover', @_captureFocus = (e) ->
       this.focus()
+
+  press: (e) =>
+    @enqueue 'press', e
+    
+  release: (e) =>
+    @enqueue 'release', e
+    
+  type: (e) =>
+    @enqueue 'type', e

@@ -87,6 +87,7 @@ class Jax.Input.Mouse extends Jax.Input
     evt
   
   update: (timechange) ->
+    super timechange
     for button of @_pendingClicks
       @_pendingClicks[button] += timechange
       if @_pendingClicks[button] >= @clickSpeed
@@ -102,34 +103,34 @@ class Jax.Input.Mouse extends Jax.Input
     delete @_clickCount[button]
   
   press: (e) =>
-    @trigger 'press', e
+    @enqueue 'press', e
     @logClickStart e.button
     @_buttonState[e.button] = true
     
   release: (e) =>
-    @trigger 'release', e
+    @enqueue 'release', e
     @_buttonState[e.button] = false
     if @_pendingClicks[e.button] isnt undefined
       e.clickCount = @_clickCount[e.button]
-      @trigger 'click', e
+      @enqueue 'click', e
     
   move: (e) =>
     if @_buttonState[e.button]
       # mouse movement invalidates any clicks
       for button of @_pendingClicks
         @clearClick button
-      @trigger 'drag', e
+      @enqueue 'drag', e
     else
-      @trigger 'move', e
+      @enqueue 'move', e
     
   over: (e) =>
-    @trigger 'over', e
+    @enqueue 'over', e
     unless @_entered
       @_entered = true
-      @trigger 'enter', e
+      @enqueue 'enter', e
 
   wheel: (e) =>
-    @trigger 'wheel', e
+    @enqueue 'wheel', e
 
   exit: (e) =>
     @_entered = false
@@ -138,4 +139,4 @@ class Jax.Input.Mouse extends Jax.Input
     # result far more often than the reverse.
     for button of @_buttonState
       delete @_buttonState[button]
-    @trigger 'exit', e
+    @enqueue 'exit', e

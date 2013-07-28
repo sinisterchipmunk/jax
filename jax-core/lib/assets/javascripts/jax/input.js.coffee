@@ -13,6 +13,7 @@ class Jax.Input
   constructor: (@receiver, @options = {}) ->
     @receiver = $ @receiver
     @_attached = {}
+    @_pendingEvents = {}
 
   # isListening: (type) -> !!@getReceiverEventListeners(type).length
 
@@ -37,6 +38,37 @@ class Jax.Input
   seconds.
   ###
   update: (timechange) ->
+    for type, event of @_pendingEvents
+      @trigger type, event
+      delete @_pendingEvents[type]
+    true
+
+  ###
+  Adds an event to the pending events queue, to be dispatched the next time
+  `update` is called. Note that any event of the same type already in the
+  queue will be replaced. This ensures multiple events are not dispatched
+  between updates, wasting cycles.
+  ###
+  enqueue: (type, event) ->
+    @_lastEnqueuedEventType = type
+    @_pendingEvents[type] = event
+
+  ###
+  If the specified event type is in the events queue waiting to be dispatched,
+  it is returned. Otherwise, `undefined` is returned.
+  ###
+  enqueued: (type) -> @_pendingEvents[type]
+
+  ###
+  Returns the last enqueued event type.
+  ###
+  getLastEnqueuedEventType: -> @_lastEnqueuedEventType
+
+  ###
+  Returns the last enqueued event, or `null` if no events have been enqueued
+  since the last call to `update`.
+  ###
+  getLastEnqueuedEvent: -> @enqueued @getLastEnqueuedEventType()
     
   ###
   Attaches the specified event listener to the `@receiver`. Ensures that
