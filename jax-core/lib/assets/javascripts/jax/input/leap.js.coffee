@@ -49,7 +49,6 @@ Jax.Input.Leap = class _Leap extends Jax.Input
   startLooping: ->
     return if @looping
     # TODO don't enable gestures if they are not being used
-    console.log Leap
     Leap.loop {enableGestures: true}, (data) => @loop data
     @looping = true
 
