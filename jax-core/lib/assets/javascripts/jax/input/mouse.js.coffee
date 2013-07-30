@@ -34,10 +34,10 @@ class Jax.Input.Mouse extends Jax.Input
       @attach 'mouseup', @release
       @attach 'mouseout', @exit
       @on 'drag', (event) -> controller.mouse_dragged event
-    if controller.mouse_rolled
+    if controller.mouse_scrolled
       @attach 'mousewheel', @wheel
       @attach 'DOMMouseScroll', @wheel
-      @on 'wheel', (event) -> controller.mouse_rolled event
+      @on 'wheel', (event) -> controller.mouse_scrolled event
     if controller.mouse_over
       @attach 'mouseover', @over
       @on 'over', (event) -> controller.mouse_over event

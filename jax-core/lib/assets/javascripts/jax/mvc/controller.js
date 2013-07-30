@@ -19,7 +19,7 @@
  *   * *mouse_exited*   - called when the mouse exits the canvas.
  *   * *mouse_moved*    - called when the mouse is moved, unless a button is pressed.
  *   * *mouse_dragged*  - called when the mouse is moved while a button is pressed.
- *   * *mouse_rolled*    - called when the mouse wheel has been rolled
+ *   * *mouse_scrolled*    - called when the mouse wheel has been scrolled
  *   * *mouse_pressed*  - called when a mouse button has been pressed.
  *   * *mouse_released* - called when a mouse button has been released.
  *   * *mouse_clicked*  - called when a mouse button has been clicked.
