@@ -1,4 +1,3 @@
-#= require 'jquery'
 #= require 'dev/jquery.cookie'
 #= require 'dev/underscore'
 #= require 'dev/backbone'
