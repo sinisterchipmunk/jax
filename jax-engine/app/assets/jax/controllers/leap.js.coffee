@@ -1,3 +1,5 @@
+#= require leap
+
 SPEED = 0
 MAX_SPEED = 1.5
 SCALE = 1 / 800

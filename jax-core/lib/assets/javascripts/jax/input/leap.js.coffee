@@ -1,5 +1,3 @@
-#= require leap
-
 # this funky syntax is to prevent `Leap` from resolving to
 # `Jax.Input.Leap` within the class definition.
 Jax.Input.Leap = class _Leap extends Jax.Input
