@@ -64,7 +64,7 @@ Jax.Controller.create "octree",
     for x in range
       for y in range
         for z in [-1..1]
-          rot += Math.PI * 2 / 12.5
+          rot += Math.TAU / 12.5
           radius = Math.sqrt(x*x+y*y) * 4
           pos = [Math.sin(rot) * radius, z * 2, Math.cos(rot) * radius]
           octree.add new Jax.Model

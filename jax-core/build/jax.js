@@ -8291,7 +8291,7 @@ Jax.Util = {
  *   * *mouse_exited*   - called when the mouse exits the canvas.
  *   * *mouse_moved*    - called when the mouse is moved, unless a button is pressed.
  *   * *mouse_dragged*  - called when the mouse is moved while a button is pressed.
- *   * *mouse_rolled*    - called when the mouse wheel has been rolled
+ *   * *mouse_scrolled*    - called when the mouse wheel has been scrolled
  *   * *mouse_pressed*  - called when a mouse button has been pressed.
  *   * *mouse_released* - called when a mouse button has been released.
  *   * *mouse_clicked*  - called when a mouse button has been clicked.
@@ -13051,9 +13051,9 @@ Jax.Geometry.Triangle = (function() {
             return _this.controller.mouse_dragged(evt);
           });
         }
-        if (this.controller.mouse_rolled) {
+        if (this.controller.mouse_scrolled) {
           this.mouse.listen('wheel', function(evt) {
-            return _this.controller.mouse_rolled(evt);
+            return _this.controller.mouse_scrolled(evt);
           });
         }
         if (this.controller.mouse_over) {
