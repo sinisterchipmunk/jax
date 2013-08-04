@@ -16,6 +16,8 @@ var Jax = {
   PRODUCTION: 1,
   
   webgl_not_supported_path: null,
+
+  Mixins: {},
   
   /**
    * Global
