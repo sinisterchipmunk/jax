@@ -14,6 +14,14 @@ testbeds do
       cp_r dir, './public/'
     end
 
+    require 'open-uri'
+    OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+    open 'https://raw.github.com/leapmotion/leapjs/master/leap.js' do |js|
+      File.open('vendor/assets/javascripts/leap.js', 'w') do |f|
+        f.print js.read
+      end
+    end
+
     run 'rake', 'db:migrate'
   end
 
