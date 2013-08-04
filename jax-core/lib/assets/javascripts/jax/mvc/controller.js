@@ -10,24 +10,40 @@
  * so you should avoid doing this in your code and instead rely on the route set.
  * 
  * Methods added to controllers are called actions. You can name actions whatever
- * you want, but some action names serve special purposes. They are as follows:
+ * you want, but some action names serve special purposes.
+ * They are automatically *called* by Jax as follows:
  * 
- *   * *index*          - called when the action name is omitted from a route.
- *   * *destroy*        - called when leaving the current controller.
- *   * *mouse_clicked*  - called when the mouse is clicked within the canvas.
- *   * *mouse_entered*  - called when the mouse enters the canvas.
- *   * *mouse_exited*   - called when the mouse exits the canvas.
- *   * *mouse_moved*    - called when the mouse is moved, unless a button is pressed.
- *   * *mouse_dragged*  - called when the mouse is moved while a button is pressed.
- *   * *mouse_rolled*    - called when the mouse wheel has been rolled
- *   * *mouse_pressed*  - called when a mouse button has been pressed.
- *   * *mouse_released* - called when a mouse button has been released.
- *   * *mouse_clicked*  - called when a mouse button has been clicked.
- *   * *key_pressed*    - called when a keyboard button has been pressed.
- *   * *key_released*   - called when a keyboard button has been released.
- *   * *key_typed*      - called when a keyboard button has been typed.
- *   * *update*         - called (approximately) 60 times per second for as long
- *   as a controller is active. Time difference in seconds is passed as an arguments.
+ *   * *index*          - when the action name is omitted from a route.
+ *   * *destroy*        - when leaving the current controller.
+ *   * *leap_frame*     - when a leap motion captures a frame
+ *   * *leap_frame_rotated*    - when a leap frame has been rotated
+ *   * *leap_frame_scaled*     - when a leap frame has been scaled
+ *   * *leap_frame_translated* - when a leap frame has been translated
+ *   * *leap_hand_added*       - when a leap hand has been added
+ *   * *leap_hand_removed*     - when a leap hand has been removed
+ *   * *leap_hand_updated*     - when a leap hand has been updated
+ *   * *leap_hand_rotated*     - when a leap hand has been rotated
+ *   * *leap_hand_scaled*      - when a leap hand has been scaled
+ *   * *leap_hand_translated*  - when a leap hand has been translated
+ *   * *leap_gesture_circled*  - when a leap gesture has circled
+ *   * *leap_gesture_swiped*   - when a leap gesture has swiped
+ *   * *leap_gesture_key_tapped*    - when a leap gesture mimics a key being tapped
+ *   * *leap_gesture_screen_tapped* - when a leap gesture mimics a screen being tapped
+ *   * *mouse_clicked*  - when the mouse is clicked within the canvas.
+ *   * *mouse_entered*  - when the mouse enters the canvas.
+ *   * *mouse_exited*   - when the mouse exits the canvas.
+ *   * *mouse_moved*    - when the mouse is moved, unless a button is pressed.
+ *   * *mouse_dragged*  - when the mouse is moved while a button is pressed.
+ *   * *mouse_scrolled* - when the mouse wheel has been scrolled
+ *   * *mouse_pressed*  - when a mouse button has been pressed.
+ *   * *mouse_released* - when a mouse button has been released.
+ *   * *mouse_clicked*  - when a mouse button has been clicked.
+ *   * *key_pressed*    - when a keyboard button has been pressed.
+ *   * *key_released*   - when a keyboard button has been released.
+ *   * *key_typed*      - when a keyboard button has been typed.
+ *   * *update*         - (approximately) 60 times per second for
+ *                        as long as this controller is active.
+ *                        Time difference in seconds is passed as an argument.
  *   
  * Example:
  * 
