@@ -32,7 +32,17 @@ Jax.EventEmitter =
 
   # Triggers an event. An optional event object can be specified, which will
   # be passed to each listener registered for the given event.
+  #
+  # Event names containing colons (:) are considered "scoped" events. Scoped
+  # events will be split apart and will produce subsequent events on the higher
+  # scope. For example, triggering an event called "change:name" will produce
+  # both a "change:name" event and a "change" event. All listeners on either
+  # of these events will be called, and will receive the `event` object.
+  #
   trigger: (name, event) ->
     for listener in @getEventListeners(name)
       listener.call this, event
+    if (index = name.indexOf(':')) isnt -1
+      name = name.substring 0, index
+      @trigger name, event
     true

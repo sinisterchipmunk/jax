@@ -19,8 +19,14 @@ describe("Jax.EventEmitter", function() {
   });
 
   it("should work with no event at all", function() {
+    evt = 1;
     emitter.trigger('evt');
     expect(evt).toBeUndefined();
+  });
+
+  it("should trigger higher scopes on scoped events", function() {
+    emitter.trigger('evt:two', 1);
+    expect(evt).toEqual(1);
   });
   
   it("should be un-listenenable", function() {
