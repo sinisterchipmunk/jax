@@ -1,3 +1,5 @@
+#= require leap
+
 # this funky syntax is to prevent `Leap` from resolving to
 # `Jax.Input.Leap` within the class definition.
 Jax.Input.Leap = class _Leap extends Jax.Input
@@ -58,8 +60,10 @@ Jax.Input.Leap = class _Leap extends Jax.Input
 
   register: (controller) ->
     if typeof(Leap) is 'undefined'
-      throw new Error "Leap could not be found. Did you include leap.js ?"
-
+      console.log 'Your controller is listening for Leap Motion actions, but Leap could not be found.'
+      console.log '  Did you include leap.js?'
+      return
+    
     if controller.on_leap_frame
       @startLooping()
       @_captures.push 'captureFrame'
@@ -72,10 +76,10 @@ Jax.Input.Leap = class _Leap extends Jax.Input
       @startLooping()
       @_captures.push 'captureFrameScale'
       @on 'frameScale', (data) -> controller.leap_frame_scaled data
-    if controller.leap_frame_translated
+    if func = controller.leap_frame_translated || controller.leap_frame_moved
       @startLooping()
       @_captures.push 'captureFrameTranslate'
-      @on 'frameTranslate', (data) -> controller.leap_frame_translated data
+      @on 'frameTranslate', (data) -> func.call controller, data
     if controller.leap_hand_added
       @startLooping()
       @_captures.push 'captureHandAdd'
@@ -105,12 +109,12 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_hand_scaled event
         true
-    if controller.leap_hand_translated
+    if func = controller.leap_hand_translated || controller.leap_hand_moved
       @startLooping()
       @_captures.push 'captureHandTranslate'
       @on 'handTranslate', (events) ->
         for event in events
-          controller.leap_hand_translated event
+          func.call controller, event
         true
     if controller.leap_gesture_circled
       @startLooping()
