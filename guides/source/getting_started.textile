@@ -58,14 +58,28 @@ Here's a screenshot of the finished dungeon scene:
 
 !images/getting_started/dungeon-complete.png(The Dungeon)!
 
+h4. Creating the Rails Dungeon Application
+
+The first thing we want to do is to create a Dungeon application. Start a terminal or command prompt, switch to a directory you have permission to write to, and enter the following command:
+
+<shell>
+$ rails new dungeon
+</shell>
+
+This will create a Rails application called Dungeon in the +dungeon+ directory. You'll want to change into that directory for the remainder of this guide:
+
+<shell>
+$ cd dungeon
+</shell>
+
 h4. Jax on Rails
 
-Setting up Jax within a Ruby on Rails application is slightly different from creating a new stand-alone Jax application. If you are using Ruby on Rails, please read this section! Otherwise, feel free to skip ahead to "Installing Jax":#installing-jax.
+Setting up Jax within a Ruby on Rails application is easy as adding a gem.
 
 Within your Rails +Gemfile+, add the following line:
 
 <ruby>
-gem "jax", "~> 2.0.0"
+gem "jax", "~> 3.0.0"
 </ruby>
 
 Then, run the following commands:
@@ -75,34 +89,9 @@ Then, run the following commands:
 # rails generate jax:install
 </shell>
 
-At this point, Jax is ready to use! The remaining sections here detail how to set up a new stand-alone Jax application, so you can skip ahead to "Jax Lives!":#jax-lives.
+At this point, Jax is ready to use!
 
-h4. Installing Jax
-
-The first step to creating any Jax application is to make sure Jax itself is installed. Assuming you have already set up its primary dependencies, "Ruby":http://www.ruby-lang.org and "RubyGems":http://rubyforge.org/frs/?group_id=126, this should be as simple as running the following command:
-
-<shell>
-Usually, run this as the root user:
-# gem install jax
-</shell>
-
-This will install Jax and a number of other Ruby Gems that it relies upon.
-
-If you encounter an error during install, such as @cannot load such file -- mkmf@, you probably need to install the @ruby-dev@ package.
-
-h4. Creating the Dungeon Application
-
-Now that Jax is installed, we can go ahead and generate the Dungeon application. Start a terminal or command prompt, switch to a directory you have permission to write to, and enter the following command:
-
-<shell>
-$ jax new dungeon
-</shell>
-
-This will create a Jax application called Dungeon in the +dungeon+ directory. You'll want to change into that directory for the remainder of this guide:
-
-<shell>
-$ cd dungeon
-</shell>
+h4. A birdview of the files
 
 The files that Jax has created, and descriptions of what they are for, are given below:
 
@@ -136,12 +125,12 @@ h3. Jax Lives!
 The next thing we need to do is start the Jax application server. Do that with the following command:
 
 <shell>
-$ jax server
+$ rails server
 </shell>
 
 This will start up a built-in server which you will use to develop and test your application.
 
-NOTE: It's worth noting that, while possible, this wasn't really meant to be used in a production environment. Unless you are developing Jax within a Ruby on Rails application, Jax projects are meant to produce static HTML and JavaScript applications via the +jax package+ command. You can deploy the static files anywhere.
+NOTE: It's worth noting that, while possible, this wasn't really meant to be used in a production environment. Jax projects are meant to produce static HTML and JavaScript applications via the +rake assets:precompile+ command. You can then deploy the static files anywhere.
 
 h4. The Development Environment
 
@@ -172,7 +161,7 @@ h5. Generating the Controller
 So let's get started on this graphical "Hello, World". First, we need to generate a controller, which will be responsible for setting up the teapot scene. By convention, we'll name the controller after the type of scene it represents:
 
 <shell>
-$ jax generate controller teapot
+$ rails generate jax:controller teapot
 </shell>
 
 It should have generated several files: a _spec_, for testing the controller; a _view_, for rendering it; and the controller itself. The view is called "index" and, if you take a look at the controller code, you'll see that a JavaScript method called "index" was also created. The "index" is the primary _action_ which all controllers are expected to implement.
@@ -206,14 +195,14 @@ h5. Using Materials for Color
 We have a teapot, but we don't have a very _impressive_ teapot. In fact, it looks rather flat, uninspiring and _white_. Let's change that. In a terminal, run the following command within your Jax application:
 
 <shell>
-$ jax generate material teapot
+$ rails generate jax:material teapot
 </shell>
 
 This will generate a Jax material. By default, Jax will also add in support for scene lighting.
 
 TIP: This guide won't cover Jax materials in depth, but they're very powerful and very versatile. For more information regarding Jax materials, see the "Jax Material Guide":materials.html.
 
-Edit the newly-generated material file, +app/assets/jax/resources/material/teapot.resource+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0.
+Edit the newly-generated material file, +app/assets/jax/resources/material/teapot.js.coffee+. Under +ambient+ coloring, change the +green+ and +blue+ values to 0.0, and leave the +red+ and +alpha+ values at 1.0.
 
 <yaml>
 ambient:
@@ -258,7 +247,7 @@ Directional lights have no point of origin. They shine in the same direction upo
 Let's start simple by adding a directional light to our scene. First, from the command line, use the light source generator:
 
 <shell>
-$ jax generate light sun directional
+$ rails generate jax:light sun directional
 </shell>
 
 Next, we need the controller to add it to the scene. Edit your controller file at +app/assets/jax/controllers/teapot_controller.js.coffee+ and add the following line to the +index+ action:
@@ -269,7 +258,7 @@ index: ->
   @world.addLight "sun"
 </js>
 
-Now edit the file the generator created, +app/assets/jax/resources/lights/sun.resource+, and change the +direction+ field to look like this:
+Now edit the file the generator created, +app/assets/jax/resources/lights/sun.js.coffee+, and change the +direction+ field to look like this:
 
 <yaml>
 direction:
@@ -294,7 +283,7 @@ These are omnidirectional lights that have an origin at a specific point in worl
 Point lights are useful for simulating relatively small light sources like candles. Let's add one now. Once again, run the light source generator:
 
 <shell>
-$ jax generate light candle point
+$ rails generate jax:light candle point
 </shell>
 
 Again, add the light source to the scene from the controller +app/assets/jax/controllers/teapot_controller.js.coffee+:
@@ -305,7 +294,7 @@ index ->
   @world.addLight "candle"
 </js>
 
-And again, edit the generated file, +app/assets/jax/resources/lights/candle.yml+, and change the +position+ field to look like this:
+And again, edit the generated file, +app/assets/jax/resources/lights/candle.js.coffee+, and change the +position+ field to look like this:
 
 <yaml>
 position:
@@ -353,7 +342,7 @@ We'll use the spot light to simulate a searchlight.
 Generate the spot light in the same manner as the last two:
 
 <shell>
-$ jax generate light searchlight spot
+$ rails generate jax:light searchlight spot
 </shell>
 
 Like the others, add this light to the scene in +app/assets/jax/controllers/teapot_controller.js.coffee+:
@@ -366,51 +355,54 @@ index: ->
 
 This time, we'll alter the position and direction to shine toward, but not directly upon, the teapot; we'll also alter the color, the angle of the spotlight (that is, the width of the cone), and the spot exponent, which represents how fast light fades out from the center of the cone. With a spot exponent of zero, the spotlight's cone should be quite clearly defined.
 
-The file to edit is +app/assets/jax/resources/lights/searchlight.yml+:
+The file to edit is +app/assets/jax/resources/lights/searchlight.js.coffee+:
 
-<yaml>
-position:
-  x: 0
-  y: 0
-  z: -3.25
+<js>
+Jax.Light.addResources
+  searchlight:
 
-direction:
-  x: 0.05
-  y: -0.025
-  z: -1
+    position:
+      x: 0
+      y: 0
+      z: -3.25
 
-type: SPOT_LIGHT
+    direction:
+      x: 0.05
+      y: -0.025
+      z: -1
 
-# the cone is approx. 20 degrees wide, in radians
-angle: 0.349
+    type: Jax.SPOT_LIGHT
 
-# this light has fairly sharp edges.
-spot_exponent: 8
+    # the cone is approx. 20 degrees wide, in radians
+    angle: 0.349
 
-attenuation:
-  constant: 1.0
-  linear: 0
-  quadratic: 0
+    # this light has fairly sharp edges.
+    spot_exponent: 8
 
-color:
-  ambient:
-    red: 0
-    green: 0
-    blue: 0.4
-    alpha: 1
+    attenuation:
+      constant: 1.0
+      linear: 0
+      quadratic: 0
 
-  diffuse:
-    red: 0
-    green: 0
-    blue: 1.0
-    alpha: 1.0
+    color:
+      ambient:
+        red: 0
+        green: 0
+        blue: 0.4
+        alpha: 1
 
-  specular:
-    red: 0
-    green: 1
-    blue: 0
-    alpha: 1.0
-</yaml>
+      diffuse:
+        red: 0
+        green: 0
+        blue: 1.0
+        alpha: 1.0
+
+      specular:
+        red: 0
+        green: 1
+        blue: 0
+        alpha: 1.0
+</js>
 
 Once again, you're ready to reload the scene. Note how the spotlight is bright in the center, but begins to fade a little bit toward the edges. The amount of fading is controlled with the +spot_exponent+ setting. In general, a higher number will produce a spotlight that fades more quickly, while a lower number will produce sharper edges. A spotlight with a spot exponent of 0 will have extremely sharp edges.
 
@@ -444,10 +436,10 @@ h5. Generating the Model
 Instead, let's generate an appropriate Teapot model from the terminal:
 
 <shell>
-$ jax generate model teapot
+$ rails generate jax:model teapot
 </shell>
 
-This will generate a model file at +app/assets/jax/models/teapot.js.coffee+ as well as a <em>default resource</em> at +app/assets/jax/resources/teapots/default.yml+.
+This will generate a model file at +app/assets/jax/models/teapot.js.coffee+ as well as a <em>default resource</em> at +app/assets/jax/resources/teapots/default.js.coffee+.
 
 h5. Resources
 
@@ -457,21 +449,27 @@ A good way to think of resources is as database entries, even though they actual
 
 When a model is first generated, Jax also generates a <em>default resource</em>. The default resource is loaded for <em>each and every resource</em>, and specifies <em>default values</em> for the various fields. This allows the individual resource files to completely omit certain attributes, instead allowing the <em>default resource</em> to specify what those attributes should default to.
 
-In the case of our teapot, we're going to set a default size and speed of rotation for all Teapot models to use. First, edit the resource file. You'll see that, save for a few comments, it's completely empty. Add the following:
+In the case of our teapot, we're going to set a default size and speed of rotation for all Teapot models to use. First, edit the resource file to look like this:
 
-<yaml>
-size: 1.0
-rotation_speed: 1.0 # in radians per second
-</yaml>
+<js>
+# default attribute values
+# (these will apply to all teapots)
+Jax.getGlobal().Teapot.addResources
+  'default':
+    size: 1.0
+    rotation_speed: 1.0 # in radians per second
+</js>
 
-Now, create a new file alongside +app/assets/jax/resources/teapot/default.resource+ called +app/assets/jax/resources/teapot/actual.resource+. Inside that file, we'll specify the position of the teapot we plan to use:
+Now, create a new file alongside +app/assets/jax/resources/teapot/default.js.coffee+ called +app/assets/jax/resources/teapot/actual.js.coffee+. Inside that file, we'll specify the position of the teapot we plan to use:
 
-<yaml>
-position:
-  x: 0
-  y: 0
-  z: -5
-</yaml>
+<js>
+Jax.getGlobal().Teapot.addResources
+  actual:
+    position:
+      x: 0
+      y: 0
+      z: -5
+</js>
 
 You'll notice that we've specified the exact same position that the current teapot already occupies.
 
@@ -489,7 +487,7 @@ The above code will pass the teapot's +size+ attribute into its mesh.
 
 TIP: The mesh is used for rendering -- we'll discuss it in detail later on. For now, just understand that without a Mesh, a model technically _exists_, but it is invisible. The Mesh is the actual 3D data used by WebGL to draw the object, in this case a teapot.
 
-NOTE: Notice that we didn't do anything with the +position+ attribute, which we created in +app/assets/jax/resources/teapot/actual.yml+. This is because Jax is smart enough to use basic attributes such as +position+ and +direction+ to orient the model without the need for us to explicitly get involved. If we _did_ want to deal with the +position+ attribute directly, we'd have to be careful about it because it is only specified on an _instance_ of the model; the <em>default resource</em> doesn't include the +position+ attribute, so it's quite possible to create a teapot that has no +position+. (In that case, Jax would place it at the origin.)
+NOTE: Notice that we didn't do anything with the +position+ attribute, which we created in +app/assets/jax/resources/teapot/actual.js.coffee+. This is because Jax is smart enough to use basic attributes such as +position+ and +direction+ to orient the model without the need for us to explicitly get involved. If we _did_ want to deal with the +position+ attribute directly, we'd have to be careful about it because it is only specified on an _instance_ of the model; the <em>default resource</em> doesn't include the +position+ attribute, so it's quite possible to create a teapot that has no +position+. (In that case, Jax would place it at the origin.)
 
 h5. Using the Model
 
@@ -659,12 +657,18 @@ Here is a table listing the keyboard events you can handle within a Jax applicat
 
 IMPORTANT: Unlike mouse events, which only fire in direct relation to the HTML +canvas+ element, keyboard events will fire whenever the corresponding event occurs anywhere in the document -- _except_ when a form input element is focused. If an element is accepting input from the user, Jax will not capture those events, so you'll have to revert to standard HTML event capturing if you really want to do so.
 
+h4. LEAP Motion events
+
+Jax also supports many events related to the LEAP motion controller.
+
+Look into `jax-core/lib/assets/javascripts/jax/input/leap.js.coffee` and `jax-core/lib/assets/javascripts/jax/mvc/controller.js` for more details.
+
 h3. Scaffolding
 
 You've just completed a very common process in Jax. So common, in fact, that it has its own generator. We can generate a _scaffold_ to have Jax build a controller, model and material for us. As you can imagine, scaffolding is most useful in situations where the controller name and the model name are the same, as is the case with our Dungeon:
 
 <shell>
-$ jax generate scaffold dungeon
+$ rails generate jax:scaffold dungeon
 </shell>
 
 The _scaffold_ generator will create the following files:
@@ -673,8 +677,8 @@ The _scaffold_ generator will create the following files:
 | app/assets/jax/models/dungeon.js                            | The +Dungeon+ model |
 | app/assets/jax/controllers/dungeon_controller.js            | The +DungeonController+ |
 | app/assets/jax/views/dungeon/index.js                       | The +DungeonController+'s primary view |
-| app/assets/jax/resources/dungeons/default.resource          | The default resource for the +Dungeon+ model |
-| app/assets/jax/resources/materials/dungeon.resource         | A default material for the +Dungeon+'s mesh |
+| app/assets/jax/resources/dungeons/default.js.coffee         | The default resource for the +Dungeon+ model |
+| app/assets/jax/resources/materials/dungeon.js.coffee        | A default material for the +Dungeon+'s mesh |
 | spec/javascripts/jax/models/dungeon.js                      | Tests for the +Dungeon+ model |
 | spec/javascripts/jax/controllers/dungeon_controller_spec.js | Tests for the +DungeonController+ |
 
@@ -759,19 +763,20 @@ We're now ready to build up our dungeon. First, we need a way to tell Jax what t
 
 h4. Define the Resource
 
-Create the file +app/assets/jax/resources/dungeons/first.resource+ and add the following content:
+Create the file +app/assets/jax/resources/dungeons/first.js.coffee+ and add the following content:
 
-<yaml>
-map:
-  - XXXXXXXXX
-  - X XXX  'X
-  - X'    X X
-  - XXXXXXXXX
-  
-starting:
-  position: 1, 1
-  direction: 0, 1
-</yaml>
+<js>
+Jax.getGlobal().Dungeon.addResources
+  map:
+    - XXXXXXXXX
+    - X XXX  'X
+    - X'    X X
+    - XXXXXXXXX
+
+  starting:
+    position: 1, 1
+    direction: 0, 1
+</js>
 
 NOTE: It's usually a good idea to define the obvious components of a model in its resource file before starting to add any model logic. By the time you've decided what data to store, you'll often have a good idea of how you want to parse it. This doesn't mean you can't come back and alter it as needed, of course.
 
@@ -837,7 +842,7 @@ if @starting
   @starting.direction = parse @starting.direction
 </js>
 
-IMPORTANT: The reason we test to see if +@starting+ exists is because we didn't add a corresponding entry to the dungeon's +default.resource+ file. This means that it's possible to instantiate a dungeon without any +starting+ attribute. Had we moved the +starting+ attribute into the +default+ resource, we would not have to make this check.
+IMPORTANT: The reason we test to see if +@starting+ exists is because we didn't add a corresponding entry to the dungeon's +default.js.coffee+ file. This means that it's possible to instantiate a dungeon without any +starting+ attribute. Had we moved the +starting+ attribute into the +default+ resource, we would not have to make this check.
 
 Here's the complete +app/assets/jax/models/dungeon.js.coffee+ source code listing:
 
@@ -857,13 +862,14 @@ h4. The Mesh
 
 As you saw with the _Teacup_ example, in order to draw on the screen, we must first define a Mesh. Meshes represent the 3D data used by WebGL. Previously, we used a built-in type of Mesh -- the +Teapot+. There are a growing number of built-in meshes that you can use for simple objects, and they are listed in the table below:
 
-| Mesh type | Description | Usage Example |
-| Cube      | Six perpendicular Quads forming a closed box. The faces of the Cube point outward. | <tt>new Jax.Mesh.Cube({width:1, height:2, depth:3});</tt> |
-| Plane     | An arbitrary number of Quads placed adjacently to form one large, multi-polygon square. | <tt>new Jax.Mesh.Plane({width:500, height:500, x_segments:20, y_segments:20});</tt> |
-| Quad      | A single-polygon square. | <tt>new Jax.Mesh.Quad({width:1, height:1});</tt> |
-| Sphere    | A multi-polygon mesh approximating the shape of a ball. Slices and stacks comprise the number of polygons; the more slices and stacks, the more perfect the sphere will be. | <tt>new Jax.Mesh.Sphere({slices:30, stacks:30, radius:1});</tt> |
-| Teapot    | A Jax implementation of the "Utah Teapot":http://en.wikipedia.org/wiki/Utah_teapot. | <tt>new Jax.Mesh.Teapot({size:1});</tt> |
-| Torus     | A "donut"-shaped mesh. The number of polygons is comprised of the number of sides and rings; the more polygons, the more perfect the torus will be. | <tt>new Jax.Mesh.Torus({inner_radius:0.6, outer_radius:1.8, sides:128, rings:256});</tt> |
+| Mesh type   | Description | Usage Example |
+| Cube        | Six perpendicular Quads forming a closed box. The faces of the Cube point outward. | <tt>new Jax.Mesh.Cube({width:1, height:2, depth:3});</tt> |
+| Plane       | An arbitrary number of Quads placed adjacently to form one large, multi-polygon square. | <tt>new Jax.Mesh.Plane({width:500, height:500, x_segments:20, y_segments:20});</tt> |
+| Quad        | A single-polygon square. | <tt>new Jax.Mesh.Quad({width:1, height:1});</tt> |
+| Sphere      | A multi-polygon mesh approximating the shape of a ball. Slices and stacks comprise the number of polygons; the more slices and stacks, the more perfect the sphere will be. | <tt>new Jax.Mesh.Sphere({slices:30, stacks:30, radius:1});</tt> |
+| Icosahedron | A 20-sided regular polyhedron. | <tt>new Jax.Mesh.Icosahedron({size:1});</tt> |
+| Teapot      | A Jax implementation of the "Utah Teapot":http://en.wikipedia.org/wiki/Utah_teapot. | <tt>new Jax.Mesh.Teapot({size:1});</tt> |
+| Torus       | A "donut"-shaped mesh. The number of polygons is comprised of the number of sides and rings; the more polygons, the more perfect the torus will be. | <tt>new Jax.Mesh.Torus({inner_radius:0.6, outer_radius:1.8, sides:128, rings:256});</tt> |
 
 Unfortunately, no graphics library can pre-build every possible mesh -- and besides, you probably wouldn't want them to try. Whether you store your meshes in static files and load them with AJAX, or write algorithms to build them dynamically, one way or another you're going to need to know how to build your own Mesh.
 
@@ -896,11 +902,11 @@ First, we tell Jax to create a new mesh type by inheriting from the base +Jax.Me
 
 We only need to add one function, +init+, to the mesh. When Jax determines that it's time to build (or rebuild) the mesh, it will call +init+ with a number of arguments. All of these arguments are arrays. Although they are all effectively optional, omitting them will limit their compatibility with certain shaders:
 
-| Argument   | Description                       | If Empty... |
-| +vertices+ | Vertex coordinate data. Must be stored in multiples of 3 (X, Y, Z). | ... the mesh can't be rendered. |
-| +colors+   | Per-vertex color information. Must be stored in multiples of 4 (red, green, blue, alpha transparency) and must have one color per vertex stored in +vertices+. | ... the color data will default to all 1's (pure white, completely opaque). |
+| Argument        | Description                       | If Empty... |
+| +vertices+      | Vertex coordinate data. Must be stored in multiples of 3 (X, Y, Z). | ... the mesh can't be rendered. |
+| +colors+        | Per-vertex color information. Must be stored in multiples of 4 (red, green, blue, alpha transparency) and must have one color per vertex stored in +vertices+. | ... the color data will default to all 1's (pure white, completely opaque). |
 | +textureCoords+ | Texture coordinate information. Multiples of 2 (U, V). Must specify one texture coordinate per vertex. Individual materials may scale these numbers as needed. | ... the mesh cannot be rendered with any texture-based shaders. Attempting to do so will probably result in a GL_INVALID_OPERATION error. |
-| +normals+ | Directional vectors representing the direction each vertex is pointing. Multiples of 3 (X, Y, Z). Must specify one normal per vertex. | ... Jax will attempt to calculate the normals if they are required by a shader. This is an expensive operation and may cause significant delay on some machines, directly depending upon the number of vertices in the mesh. To compensate for the performance implications, if normal data is not requested, Jax won't auto-calculate it. |
+| +normals+       | Directional vectors representing the direction each vertex is pointing. Multiples of 3 (X, Y, Z). Must specify one normal per vertex. | ... Jax will attempt to calculate the normals if they are required by a shader. This is an expensive operation and may cause significant delay on some machines, directly depending upon the number of vertices in the mesh. To compensate for the performance implications, if normal data is not requested, Jax won't auto-calculate it. |
 | +vertexIndices+ | Vertex index data. Stored in multiples of 1, each index is an integer value pointing to a vertex to be drawn. For instance, index 0 represents <tt>vertices[0..2]</tt>; index 1 represents <tt>vertices[3..5]</tt>; and so on. Note that each index corresponds identically to color index, textureCoords index, and so on. | If left empty, Jax will automatically use the +vertices+ data sequentially as if the vertex indices were equal to <tt>[0, 1, 2, ... n]</tt>. No errors should occur, though the mesh may not be rendered properly if the vertex data is not meant to be rendered sequentially. |
 
 INFO: In order to achieve maximum compatibility, you should do your best not to leave any of the data arrays empty, except perhaps +vertexIndices+ if your mesh doesn't rely on vertex indices.
@@ -1020,13 +1026,17 @@ We're going to use the texture below for the walls of the dungeon. Save this ima
 
 !images/getting_started/rock.png(The Dungeon Wall Texture)!
 
-Now edit the +app/resources/materials/dungeon.yml+ file. Scroll to the bottom, and change the texture's +path+ to the path of the dungeon texture:
+Now edit the +app/resources/materials/dungeon.js.coffee+ file. Scroll to the bottom, and change the texture's +path+ to the path of the dungeon texture:
 
-<yaml>
-- type: Texture
-  path: /images/rock.png
-  # ...
-</yaml>
+<js>
+layers: [
+  # [...]
+  {
+    "type": "Texture"
+    "path": "/images/rock.png"
+  }
+]
+</js>
 
 Reload, and you'll see textured walls! However, all is not quite ideal. The walls of the dungeon are now textured, but they are still tinged with their original colors. This is because the per-vertex color data hasn't changed. Jax, receiving conflicting information about the mesh, has merged the two data sets. Actually, it's pretty standard for a graphics library to do this, because it allows you to do special coloring on a mesh irrespective of the textures used.
 
@@ -1041,7 +1051,7 @@ h3. Light Sources
 Our dungeon is looking good, but we're not quite there, yet. We still need to add our point lights to the scene. Fortunately, as you saw with the Teacup example, adding lights is a piece of cake! First we need to generate the light source:
 
 <shell>
-$ jax generate light torch point
+$ rails generate jax:light torch point
 </shell>
 
 Now we just need to add the light source to the appropriate locations in the scene. However, the appropriate locations are determined by the model. The controller shouldn't necessarily care about where the lights are positioned, as long as they are positioned appropriately. Since these lights are directly associated with the dungeon, it makes sense for the controller to delegate this job to the dungeon.
@@ -1087,7 +1097,7 @@ h4. The Lantern
 It might be preferable for the player to hold a light source somewhat different than those attached to the walls, just in case we need to tweak the color, attenuation, and so forth. Since it's not particularly troublesome to do so, let's just generate a new point light called +lantern+:
 
 <shell>
-$ jax generate light lantern point
+$ rails generate jax:light lantern point
 </shell>
 
 Now, add it to the world via the controller in the +index+ action of +app/assets/jax/controllers/dungeon_controller.js.coffee+:
@@ -1122,16 +1132,20 @@ In order to implement normal mapping, we'll first need a normal map. Save this i
 Now append a +normal_map+ shader to your existing dungeon wall material:
 
 <shell>
-$ jax generate material dungeon normal_map --append
+$ rails generate jax:material dungeon normal_map --append
 </shell>
 
-Finally, edit the +app/resources/materials/dungeon.yml+ file and set the path to the normal map image:
+Finally, edit the +app/resources/materials/dungeon.js.coffee+ file and set the path to the normal map image:
 
-<yaml>
-- type: NormalMap
-  path: /images/rock_normal.png
-  # ...
-</yaml>
+<js>
+layers: [
+  # [...]
+  {
+    "type": "NormalMap"
+    "path": "/images/rock_normal.png"
+  }
+]
+</js>
 
 You're done setting up normal mapping! We've already got all of our lights, meshes and whatnot in place, so all you have to do now is reload your application to see the normal map in action.
 

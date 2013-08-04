@@ -92,7 +92,7 @@ $(document).ready(function() {
          */
         mouse_clicked:  function() { },
         mouse_dragged:  function() { },
-        mouse_rolled:   function() { },
+        mouse_scrolled:   function() { },
         mouse_pressed:  function() { },
         mouse_moved:    function() { },
         mouse_entered:  function() { },

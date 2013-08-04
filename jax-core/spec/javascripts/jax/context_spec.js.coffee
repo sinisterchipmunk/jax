@@ -350,7 +350,7 @@ describe 'Jax.Context', ->
         mouse_released: (e) ->
         mouse_moved: (e) ->
         mouse_dragged: (e) ->
-        mouse_rolled: (e) ->
+        mouse_scrolled: (e) ->
         mouse_entered: (e) ->
         mouse_exited: (e) ->
         mouse_over: (e) ->
