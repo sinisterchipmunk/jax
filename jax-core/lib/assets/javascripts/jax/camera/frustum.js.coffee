@@ -1,7 +1,8 @@
 #= require 'jax/geometry'
+#= require 'jax/mixins/event_emitter'
 
 class Jax.Frustum extends Jax.Model
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
   
   [RIGHT, LEFT, BOTTOM, TOP, FAR, NEAR] = [0, 1, 2, 3, 4, 5]
   @OUTSIDE:   Jax.Geometry.Plane.BACK

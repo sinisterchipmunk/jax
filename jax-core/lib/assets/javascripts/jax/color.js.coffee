@@ -1,3 +1,4 @@
+#= require 'jax/mixins/event_emitter'
 #= require 'jax/core/coffee_patterns'
 
 alphaHex = "0123456789abcdef"
@@ -33,7 +34,7 @@ hexEncode = (flt, precision) ->
     else throw new Error "invalid precision"
 
 class Jax.Color
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
 
   constructor: (r = 1, g = 1, b = 1, a = 1) ->
     @_vec = vec4.clone(arguments)

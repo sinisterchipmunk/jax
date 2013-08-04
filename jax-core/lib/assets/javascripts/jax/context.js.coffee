@@ -1,8 +1,9 @@
 #= require 'jax/core'
 #= require 'jax/renderer'
+#= require 'jax/mixins/event_emitter'
 
 class Jax.Context
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
   
   constructor: (@canvas, options) ->
     # Normalize single-argument form

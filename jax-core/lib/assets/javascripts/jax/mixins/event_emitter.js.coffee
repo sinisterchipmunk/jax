@@ -1,5 +1,5 @@
 # Methods which can be added to potential event emitters.
-Jax.EventEmitter =
+Jax.Mixins.EventEmitter =
 
   # Returns an array containing all event listeners associated with the
   # specified event type.

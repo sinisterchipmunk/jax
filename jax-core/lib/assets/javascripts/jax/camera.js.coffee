@@ -1,8 +1,10 @@
+#= require 'jax/mixins/event_emitter'
 #= require_self
 #= require_tree './camera'
 
 class Jax.Camera
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
+  
   LOCAL_VIEW  = vec3.clone [0, 0,-1]
   LOCAL_RIGHT = vec3.clone [1, 0, 0]
   LOCAL_UP    = vec3.clone [0, 1, 0]

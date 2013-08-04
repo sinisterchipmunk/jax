@@ -1,3 +1,5 @@
+#= require 'jax/mixins/event_emitter'
+
 # A new attempt at sanely managing mesh data.
 # Wraps around a single ArrayBuffer with helper methods.
 # Must be initialized with a known vertex count.
@@ -12,7 +14,7 @@ class FloatBuffer
   bind: -> # no-op for compatibility with Jax.Buffer
 
 class Jax.Mesh.Data
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
   
   ###
   Contains extra data points that will be allocated, and the number

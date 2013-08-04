@@ -1,5 +1,7 @@
+#= require 'jax/mixins/event_emitter'
+
 class Jax.Light.Attenuation
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
 
   @define 'constant',
     get: -> @_constant

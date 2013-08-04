@@ -1,6 +1,7 @@
 #= require "jax/core"
 #= require "jax/camera"
 #= require "jax/partition/octree"
+#= require 'jax/mixins/event_emitter'
 
 ###
 A +Jax.World+ represents a scene in the graphics engine. All objects to be rendered (or at least,
@@ -9,7 +10,7 @@ of +Jax.Context+ has its own +Jax.World+, and the currently-active +Jax.World+ i
 controllers and views as the +this.world+ property.
 ###
 class Jax.World
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
   
   constructor: (@context) ->
     @renderOctree = false

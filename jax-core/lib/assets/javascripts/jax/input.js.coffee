@@ -1,8 +1,9 @@
+#= require 'jax/mixins/event_emitter'
 #= require_self
 #= require_tree './input'
 
 class Jax.Input
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
 
   @devices: []
   

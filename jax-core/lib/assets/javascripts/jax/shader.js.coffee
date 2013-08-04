@@ -1,3 +1,4 @@
+#= require 'jax/mixins/event_emitter'
 #= require_self
 #= require_tree './shader'
 
@@ -183,7 +184,7 @@ class Parser
     src
 
 class Jax.Shader
-  @include Jax.EventEmitter
+  @include Jax.Mixins.EventEmitter
   
   constructor: (@name = "generic") ->
     @id = Jax.guid()

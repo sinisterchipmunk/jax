@@ -9,9 +9,9 @@ Jax.Mixins.Attributes =
 
   # Sets an attribute with the given name, to the given value.
   # Before setting the new value, the old value is copied into
-  # `@previousAttributes`. If this object also mixes in `Jax.EventEmitter`,
-  # an event is triggered with the form 'change:name', where 'name' is the
-  # given attribute name.
+  # `@previousAttributes`. If this object also mixes in
+  # `Jax.Mixins.EventEmitter`, an event is triggered with the form
+  # 'change:name', where 'name' is the given attribute name.
   set: (name, value) ->
     @previousAttributes[name] = @attributes[name]
     @attributes[name] = value

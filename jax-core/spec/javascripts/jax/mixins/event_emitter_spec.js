@@ -1,9 +1,9 @@
-describe("Jax.EventEmitter", function() {
+describe("Jax.Mixins.EventEmitter", function() {
   var emitter, evt, listenerID;
   
   beforeEach(function() {
     emitter = Jax.Class.create({ });
-    emitter.addMethods(Jax.EventEmitter);
+    emitter.addMethods(Jax.Mixins.EventEmitter);
     emitter = new emitter();
     listenerID = emitter.on('evt', function(obj) { evt = obj; });
   });

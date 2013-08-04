@@ -1,4 +1,4 @@
-//= require 'jax/core/event_emitter'
+//= require 'jax/mixins/event_emitter'
 
 /**
  * class Jax.Model
@@ -374,7 +374,7 @@
     return klass;
   };
   
-  Jax.Model.addMethods(Jax.EventEmitter);
+  Jax.Model.addMethods(Jax.Mixins.EventEmitter);
   
   /*
   This is touchy. Jax.World needs to be able to look up models
