@@ -131,33 +131,17 @@ describe 'Jax.Context', ->
     beforeEach ->
       error = shouldResume = null
       Jax.Controller.create "test",
-        error: (err) -> error = err; shouldResume
-        index: ->
-        failNonFatally: ->
-          shouldResume = true
-          @raise()
-        failFatally: ->
-          shouldResume = null
-          @raise()
-        raise: ->
-          # raise a mock error, as a real one would fubar the test case
-          err = document.createEvent 'Events'
-          err.initEvent 'error', true, true
-          window.dispatchEvent err
+        fail: -> throw new Error()
+        nofail: -> 
       context = new Jax.Context(document.createElement('canvas'))
-      context.redirectTo 'test'
       
-    it "should pass error into handler", ->
-      context.controller.failNonFatally()
-      expect(error).not.toBeNull()
-      
-    it "should halt rendering if the handler returned false", ->
-      context.controller.failFatally()
+    it "should halt rendering", ->
+      expect(-> context.redirectTo 'test/fail').toThrow()
       expect(context.isRendering()).toBeFalse()
       expect(context.isUpdating()).toBeFalse()
-    
-    it "should resume rendering if the handler returned true", ->
-      context.controller.failNonFatally()
+
+    it "should be rendering if no failure occurred", ->
+      expect(-> context.redirectTo 'test/nofail').not.toThrow()
       expect(context.isRendering()).toBeTrue()
       expect(context.isUpdating()).toBeTrue()
     

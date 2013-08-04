@@ -31,40 +31,27 @@ class Jax.Context
     @_renderStartTime = null
     @inputDevices = []
     
-    @_errorFunc = (error, url, line) =>
-      if @controller and @controller.error
-        result = @controller.error error, url, line
-      else if typeof(ApplicationController) isnt 'undefined' and \
-          ApplicationController.prototype.error
-        result = ApplicationController.prototype.error.apply \
-          (@controller || new ApplicationController()), arguments
-          
-      if result is true
-        # non-fatal, restart rendering and updating
-        @restart()
-        error.preventDefault?()
-        true
-      else
+    @_renderFunc = (time) =>
+      try
+        # deal with time in seconds, not ms
+        time *= 0.001
+        renderStartTime = @_renderStartTime or= time
+        @_lastUptime = @uptime || renderStartTime
+        @uptime = time - renderStartTime
+
+        if @_calculateFrameRate then @calculateFramerate()
+        if @isUpdating()
+          timechange = @getTimePassed()
+          @update timechange
+        @render()
+        if @isRendering() then @requestRenderFrame()
+      catch err
+        # Halt everything by default, let user recover from nonfatal errors
+        # explicitly
         @stopRendering()
         @stopUpdating()
-        false
-    
-    @_renderFunc = (time) =>
-      # deal with time in seconds, not ms
-      time *= 0.001
-      renderStartTime = @_renderStartTime or= time
-      @_lastUptime = @uptime || renderStartTime
-      @uptime = time - renderStartTime
-
-      if @_calculateFrameRate then @calculateFramerate()
-      if @isUpdating()
-        timechange = @getTimePassed()
-        @update timechange
-      @render()
-      if @isRendering() then @requestRenderFrame()
+        throw err
       
-    $(window).on 'error', @_errorFunc
-
     @id = Jax.guid()
     @world = new Jax.World this
     @uptime = 0
@@ -273,7 +260,6 @@ class Jax.Context
         height: @canvas.clientHeight || @canvas.height || 200
     
   dispose: ->
-    $(window).off 'error', @_errorFunc
     @stopUpdating()
     @stopRendering()
     @world.dispose()
