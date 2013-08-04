@@ -62,37 +62,69 @@ Jax.Input.Leap = class _Leap extends Jax.Input
       console.log '  Did you include leap.js?'
       return
     
+    @registerLeapFrame           controller
+    @registerFrameRotated        controller
+    @registerFrameScaled         controller
+    @registerFrameTranslated     controller
+    @registerHandAdded           controller
+    @registerHandRemoved         controller
+    @registerHandsUpdated        controller
+    @registerHandRotated         controller
+    @registerHandScaled          controller
+    @registerHandTranslated      controller
+    @registerGestureCircled      controller
+    @registerGestureSwiped       controller
+    @registerGestureKeyTapped    controller
+    @registerGestureScreenTapped controller
+    @_clearDuplicateCaptures()
+
+  registerLeapFrame: (controller) ->
     if controller.on_leap_frame
       @startLooping()
       @_captures.push 'captureFrame'
       @on 'frame', (data) => controller.on_leap_frame data
+
+  registerFrameRotated: (controller) ->
     if controller.leap_frame_rotated
       @startLooping()
       @_captures.push 'captureFrameRotation'
       @on 'frameRotate', (data) -> controller.leap_frame_rotated data
+
+  registerFrameScaled: (controller) ->
     if controller.leap_frame_scaled
       @startLooping()
       @_captures.push 'captureFrameScale'
       @on 'frameScale', (data) -> controller.leap_frame_scaled data
-    if func = controller.leap_frame_translated || controller.leap_frame_moved
+
+  registerFrameTranslated: (controller) ->
+    if controller.leap_frame_translated || controller.leap_frame_moved
       @startLooping()
       @_captures.push 'captureFrameTranslate'
-      @on 'frameTranslate', (data) -> func.call controller, data
+      @on 'frameTranslate', (data) ->
+        (controller.leap_frame_translated || controller.leap_frame_moved) data
+
+  registerHandAdded: (controller) ->
     if controller.leap_hand_added
       @startLooping()
       @_captures.push 'captureHandAdd'
       @on 'handAdd', (data) -> controller.leap_hand_added data
+
+  registerHandRemoved: (controller) ->
     if controller.leap_hand_removed
       @startLooping()
       @_captures.push 'captureHandAdd'
       @_captures.push 'captureHandRemove'
       @on 'handRemove', (data) -> controller.leap_hand_removed data
+
+  registerHandsUpdated: (controller) ->
     if controller.leap_hands_updated
       @startLooping()
       @_captures.push 'captureHandAdd'
       @_captures.push 'captureHandRemove'
       @_captures.push 'captureHandUpdate'
       @on 'handUpdate', (data) -> controller.leap_hands_updated data
+
+  registerHandRotated: (controller) ->
     if controller.leap_hand_rotated
       @startLooping()
       @_captures.push 'captureHandRotate'
@@ -100,6 +132,8 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_hand_rotated event
         true
+
+  registerHandScaled: (controller) ->
     if controller.leap_hand_scaled
       @startLooping()
       @_captures.push 'captureHandScale'
@@ -107,13 +141,17 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_hand_scaled event
         true
-    if func = controller.leap_hand_translated || controller.leap_hand_moved
+
+  registerHandTranslated: (controller) ->
+    if controller.leap_hand_translated || controller.leap_hand_moved
       @startLooping()
       @_captures.push 'captureHandTranslate'
       @on 'handTranslate', (events) ->
         for event in events
-          func.call controller, event
+          (controller.leap_hand_translated || controller.leap_hand_moved) event
         true
+
+  registerGestureCircled: (controller) ->
     if controller.leap_gesture_circled
       @startLooping()
       @_captures.push 'captureGestures'
@@ -121,6 +159,8 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_gesture_circled event
         true
+
+  registerGestureSwiped: (controller) ->
     if controller.leap_gesture_swiped
       @startLooping()
       @_captures.push 'captureGestures'
@@ -128,6 +168,8 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_gesture_swiped event
         true
+
+  registerGestureKeyTapped: (controller) ->
     if controller.leap_gesture_key_tapped
       @startLooping()
       @_captures.push 'captureGestures'
@@ -135,6 +177,8 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_gesture_key_tapped event
         true
+
+  registerGestureScreenTapped: (controller) ->
     if controller.leap_gesture_screen_tapped
       @startLooping()
       @_captures.push 'captureGestures'
@@ -142,7 +186,6 @@ Jax.Input.Leap = class _Leap extends Jax.Input
         for event in events
           controller.leap_gesture_screen_tapped event
         true
-    @_clearDuplicateCaptures()
 
   loop: (frame) ->
     @currentFrame = frame
