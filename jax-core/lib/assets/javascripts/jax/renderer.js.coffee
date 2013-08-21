@@ -6,6 +6,7 @@ class Jax.Renderer
   @register: (klass) -> @registeredOrder.push klass
   
   @attemptThese: (canvas, renderers, contextOptions) ->
+    errors = []
     for Renderer in renderers
       name = null
       try
@@ -19,6 +20,6 @@ class Jax.Renderer
         else
           console.log "Warning: renderer '#{name}' not found!"
       catch e
-        console.log "Instantiation of renderer '#{name}' failed with: #{e}"
+        null
     throw new Error "Could not find a compatible renderer."
     

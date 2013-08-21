@@ -11,6 +11,7 @@ gem 'shader-script', :git => "git://github.com/sinisterchipmunk/shader-script.gi
 # dev deps of jax-core
 gem 'rake'
 gem 'jasmine'
+gem 'jasmine-headless-webkit'
 gem 'rspec'
 gem 'rack-coffee'
 gem 'capybara'

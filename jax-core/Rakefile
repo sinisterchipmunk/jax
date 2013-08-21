@@ -20,6 +20,14 @@ rescue LoadError
   end
 end
 
+require 'jasmine-headless-webkit'
+
+Jasmine::Headless::Task.new('jasmine:headless') do |t|
+  t.colors = true
+  t.keep_on_error = true
+  t.jasmine_config = 'spec/javascripts/support/jasmine-headless.yml'
+end
+
 desc 'compile jax to js'
 task :compile do
   require File.expand_path('./spec/spec_helper', File.dirname(__FILE__))
