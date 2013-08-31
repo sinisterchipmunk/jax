@@ -53,7 +53,7 @@ describe 'Jax.Texture', ->
       expect(@tex.get 'format').toEqual GL_RGBA
       expect(@tex.get 'target').toEqual GL_TEXTURE_2D
       expect(@tex.get 'data_type').toEqual GL_UNSIGNED_BYTE
-      expect(@tex.get 'flip_y').toEqual false
+      expect(@tex.get 'flip_y').toEqual true
       expect(@tex.get 'premultiply_alpha').toEqual false
       expect(@tex.get 'colorspace_conversion').toEqual true
 
