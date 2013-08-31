@@ -152,8 +152,8 @@ class Jax.Framerate extends Jax.Model
 
       @ctx.fillStyle = "rgba(128, 128, 128, 255)"
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
-      
-    # @glTex.refresh context
+
+    @glTex.invalidate 'data'
     
     unless @ortho
       @camera.ortho

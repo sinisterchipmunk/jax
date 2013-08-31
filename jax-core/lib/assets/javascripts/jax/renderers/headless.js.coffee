@@ -35,3 +35,5 @@ Jax.Renderer.register class Jax.Renderer.Headless
   generateMipmap: ->
 
   texImage2D: ->
+
+  getState: -> null

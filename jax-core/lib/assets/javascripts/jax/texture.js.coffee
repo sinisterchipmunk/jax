@@ -64,7 +64,7 @@ class Jax.Texture
     @set 'data_type',             GL_UNSIGNED_BYTE
     @set 'wrap_s',                GL_REPEAT
     @set 'wrap_t',                GL_REPEAT
-    @set 'flip_y',                false
+    @set 'flip_y',                true
     @set 'premultiply_alpha',     false
     @set 'colorspace_conversion', true
     @set 'width',                 1
@@ -80,9 +80,8 @@ class Jax.Texture
   invalid, and also makes a note as to which parameters must be refreshed.
   ###
   texParamChanged: (self, evtName) =>
-    flags = @get('changedTexParams') || 0
     param = evtName.substring(evtName.indexOf('change:')+7, evtName.length)
-    @set 'changedTexParams', flags | FLAGS.texture_validity | FLAGS[param]
+    @invalidate param
 
   ###
   Finds or creates and then returns the texture handle for the given context.
@@ -99,6 +98,15 @@ class Jax.Texture
     handles = @get('handles')
     context.renderer.deleteTexture handles[context.id] if handles[context.id]
     handles[context.id] = null
+
+  ###
+  Invalidates the specified texture parameter so that the next time this
+  texture validated, it will cause the specified texture parameter to be
+  updated.
+  ###
+  invalidate: (param) ->
+    flags = @get('changedTexParams') || 0
+    @set 'changedTexParams', flags | FLAGS.texture_validity | FLAGS[param]
 
   ###
   Returns true if this texture is valid for rendering, false otherwise.
@@ -142,27 +150,42 @@ class Jax.Texture
   ###
   validate: (context) ->
     return false unless @isReady()
+    attrs = @attributes
     handle = @getHandle context
-    flags = @get 'changedTexParams'
+    flags = attrs.changedTexParams
     return handle unless flags & FLAGS.texture_validity
     # texture is not valid, make it so!
-    target = @get 'target'
+    target = attrs.target
     gl = context.renderer
     gl.bindTexture target, handle
-    if flags & FLAGS.data or flags & FLAGS.format or flags & FLAGS.data_type or
-       flags & FLAGS.target
-      @upload context, handle, @get 'data'
-    gl.texParameteri target, GL_TEXTURE_MAG_FILTER, @get 'mag_filter' if flags & FLAGS.mag_filter
-    gl.texParameteri target, GL_TEXTURE_MIN_FILTER, @get 'min_filter' if flags & FLAGS.min_filter
-    gl.texParameteri target, GL_TEXTURE_WRAP_S,     @get 'wrap_s'     if flags & FLAGS.wrap_s
-    gl.texParameteri target, GL_TEXTURE_WRAP_T,     @get 'wrap_t'     if flags & FLAGS.wrap_t
-    gl.pixelStorei GL_UNPACK_FLIP_Y_WEBGL, @get 'flip_y'              if flags & FLAGS.flip_y
-    gl.pixelStorei GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, @get 'premultiply_alpha' if flags & FLAGS.premultiply_alpha
-    if flags & FLAGS.colorspace_conversion
-      conversion = if @get('colorspace_conversion') then GL_BROWSER_DEFAULT_WEBGL else GL_NONE
+
+    if attrs.mag_filter isnt gl.getState GL_TEXTURE_MAG_FILTER
+      gl.texParameteri target, GL_TEXTURE_MAG_FILTER, attrs.mag_filter
+
+    if attrs.min_filter isnt gl.getState GL_TEXTURE_MIN_FILTER
+      gl.texParameteri target, GL_TEXTURE_MIN_FILTER, attrs.min_filter
+
+    if attrs.wrap_s isnt gl.getState GL_TEXTURE_WRAP_S
+      gl.texParameteri target, GL_TEXTURE_WRAP_S,     attrs.wrap_s
+
+    if attrs.wrap_t isnt gl.getState GL_TEXTURE_WRAP_T
+      gl.texParameteri target, GL_TEXTURE_WRAP_T,     attrs.wrap_t
+
+    if attrs.flip_y isnt gl.getState GL_UNPACK_FLIP_Y_WEBGL
+      gl.pixelStorei GL_UNPACK_FLIP_Y_WEBGL, attrs.flip_y
+
+    if attrs.premultiply_alpha isnt gl.getState GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL
+      gl.pixelStorei GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, attrs.premultiply_alpha
+
+    if attrs.colorspace_conversion isnt gl.getState GL_UNPACK_COLORSPACE_CONVERSION_WEBGL
+      conversion = if attrs.colorspace_conversion then GL_BROWSER_DEFAULT_WEBGL else GL_NONE
       gl.pixelStorei GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, conversion
-    if @get 'generate_mipmap'
-      @generateMipmap gl, target, @get 'mipmap_hint'
+
+    @upload context, handle, attrs.data
+
+    if attrs.generate_mipmap
+      @generateMipmap gl, target, attrs.mipmap_hint
+
     # done!
     @set 'changedTexParams', 0
     return handle

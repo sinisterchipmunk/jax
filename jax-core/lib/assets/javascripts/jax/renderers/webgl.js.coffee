@@ -12,6 +12,7 @@ Jax.Renderer.register class Jax.Renderer.WebGL
     @context = canvas.getContext 'experimental-webgl', options
     throw new Error "WebGL not supported!" unless @context
     
+    @state = {}
     @_clearColor or= vec4.fromValues 0, 0, 0, 0
     
     @clearColor = [0,0,0,0]
@@ -42,13 +43,15 @@ Jax.Renderer.register class Jax.Renderer.WebGL
 
   texImage2D: -> #(target, level, internalformat, width, height, border, format, type, pixels) ->
     @context.texImage2D.apply @context, arguments
-    # @context.texImage2D target, level, internalFormat, width, height, border, format, type, pixels
-    # @context.texImage2D target, level, internalFormat, format, type, data
+
+  getState: (which) -> @state[which]
 
   texParameteri: (target, type, value) ->
+    @state[type] = value
     @context.texParameteri target, type, value
 
   pixelStorei: (type, value) ->
+    @state[type] = value
     @context.pixelStorei type, value
 
   hint: (n) -> @context.hint n
