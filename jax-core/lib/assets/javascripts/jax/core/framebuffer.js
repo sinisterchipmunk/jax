@@ -96,11 +96,20 @@ Jax.Framebuffer = (function() {
           texture_options = Jax.Util.merge(format, texture_options);
         }
         else { texture_options.format = format; }
+        texture_options.upload = function(context, handle, textureData) {
+          context.renderer.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                      GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+        };
+        texture_options.data = new Uint8Array(width*height*Jax.Util.sizeofFormat(texture_options.format));
         handle.textures[i] = new Jax.Texture(texture_options);
       }
       
-      if (handle.textures[i].getTarget() == GL_TEXTURE_2D)
-        context.gl.framebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, handle.textures[i].getHandle(context), 0);
+      if (handle.textures[i].get('target') == GL_TEXTURE_2D) {
+        var handle;
+        if (handle = handle.textures[i].validate(context))
+          context.gl.framebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
+                  handle, 0);
+      }
       else
         context.gl.framebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                 handle.textures[i].getHandle(context), 0);

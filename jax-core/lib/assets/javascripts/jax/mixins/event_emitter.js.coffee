@@ -49,7 +49,7 @@ Jax.Mixins.EventEmitter =
   #
   trigger: (name, event) ->
     for listener in @getEventListeners(name)
-      listener.call this, event
+      listener.call this, event, name
     if (index = name.indexOf(':')) isnt -1
       name = name.substring 0, index
       @trigger name, event

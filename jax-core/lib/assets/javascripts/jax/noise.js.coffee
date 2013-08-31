@@ -1,4 +1,4 @@
-#= require 'jax/core/texture'
+#= require 'jax/texture'
 
 # class Jax.Noise
 # Constructs several textures to be used in vertex shaders involving Perlin noise.
@@ -47,7 +47,7 @@ class Jax.Noise
   
   # 32 tesseract edges
   grad = [[0, 1, 1, 1],   [0, 1, 1,-1],   [0, 1,-1, 1],   [0, 1,-1,-1],
-          [0,-1, 1, 1],  [0,-1, 1,-1],  [0,-1,-1, 1],  [0,-1,-1,-1], 
+          [0,-1, 1, 1],   [0,-1, 1,-1],   [0,-1,-1, 1],   [0,-1,-1,-1], 
           [1, 0, 1, 1],   [1, 0, 1,-1],   [1, 0,-1, 1],   [1, 0,-1,-1], 
           [-1, 0, 1, 1],  [-1, 0, 1,-1],  [-1, 0,-1, 1],  [-1, 0,-1,-1], 
           [1, 1, 0, 1],   [1, 1, 0,-1],   [1,-1, 0, 1],   [1,-1, 0,-1], 
@@ -64,6 +64,9 @@ class Jax.Noise
       mag_filter: GL_NEAREST
       width:256
       height:256
+      upload: (context, handle, textureData) ->
+        context.renderer.texImage2D GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0,
+                                    GL_RGBA, GL_UNSIGNED_BYTE, textureData
 
     unless grad_buf
       pixels = new Array 256*256*4
@@ -80,18 +83,14 @@ class Jax.Noise
       
       grad_buf = new Uint8Array pixels
 
+    tex.set 'data', grad_buf
     tex
   
-  prepare: (context) ->
-    @grad.bind context, ->
-      context.gl.texImage2D GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, grad_buf
-      
-  constructor: (context = null) ->
+  constructor: ->
     # Jax.Noise#grad -> Jax.Texture
     # A 2D texture for a combined index permutation and gradient lookup table.
     # This texture is used for 2D, 3D and 4D noise, both classic and simplex.
     @grad = initGradTexture()
-    @prepare context if context
     
   # Jax.Noise#bind(context, uniforms) -> Jax.Shader.Delegator
   # - context (Jax.Context): the context to bind the noise textures to
@@ -107,14 +106,6 @@ class Jax.Noise
   #
   # Returns the same uniforms delegator that was specified to begin with.
   bind: (context, uniforms) ->
-    @prepare context unless @isPrepared context
     uniforms.gradTexture = @grad
     
-  # Jax.Noise#isPrepared(context) -> Boolean
-  #
-  # Returns true if this Jax.Noise has had its textures prepared for the
-  # specified context.
-  isPrepared: (context) ->
-    @grad.isValid context
-
 Jax.noise = new Jax.Noise

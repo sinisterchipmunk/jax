@@ -1,4 +1,4 @@
 class Jax.Material.Layer.Noise extends Jax.Material.Layer
   setVariables: (context, mesh, model, vars, pass) ->
-    Jax.noise.prepare context unless Jax.noise.isPrepared context
+    Jax.noise or= new Jax.Noise()
     vars.gradTexture = Jax.noise.grad

@@ -26,8 +26,6 @@ describe 'Jax.Mixins.EventEmitter', ->
       @emitter.trigger 'two'
       expect(@fired).not.toBeTrue()
 
-
-
   describe 'listening for more than one type of event (single space)', ->
     beforeEach -> @emitter.on 'one two', => @fired = true
     itShouldBehaveLike 'listening to multiple events'
@@ -37,11 +35,11 @@ describe 'Jax.Mixins.EventEmitter', ->
       itShouldBehaveLike 'not listening to any events'
   
   describe 'listening for more than one type of event (multi space)', ->
-    beforeEach -> @emitter.on 'one  \t two', => @fired = true
+    beforeEach -> @emitter.on 'one  \t\n two', => @fired = true
     itShouldBehaveLike 'listening to multiple events'
 
     describe 'off', ->
-      beforeEach -> @emitter.off 'one \t  two'
+      beforeEach -> @emitter.off 'one \t\n  two'
       itShouldBehaveLike 'not listening to any events'
   
   describe 'listening for more than one type of event (comma)', ->

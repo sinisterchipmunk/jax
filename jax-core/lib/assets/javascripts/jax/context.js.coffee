@@ -33,25 +33,18 @@ class Jax.Context
     @inputDevices = []
     
     @_renderFunc = (time) =>
-      try
-        # deal with time in seconds, not ms
-        time *= 0.001
-        renderStartTime = @_renderStartTime or= time
-        @_lastUptime = @uptime || renderStartTime
-        @uptime = time - renderStartTime
+      # deal with time in seconds, not ms
+      time *= 0.001
+      renderStartTime = @_renderStartTime or= time
+      @_lastUptime = @uptime || renderStartTime
+      @uptime = time - renderStartTime
 
-        if @_calculateFrameRate then @calculateFramerate()
-        if @isUpdating()
-          timechange = @getTimePassed()
-          @update timechange
-        @render()
-        if @isRendering() then @requestRenderFrame()
-      catch err
-        # Halt everything by default, let user recover from nonfatal errors
-        # explicitly
-        @stopRendering()
-        @stopUpdating()
-        throw err
+      if @_calculateFrameRate then @calculateFramerate()
+      if @isUpdating()
+        timechange = @getTimePassed()
+        @update timechange
+      @render()
+      if @isRendering() then @requestRenderFrame()
       
     @id = Jax.guid()
     @world = new Jax.World this

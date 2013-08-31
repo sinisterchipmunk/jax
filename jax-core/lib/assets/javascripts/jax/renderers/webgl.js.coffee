@@ -35,3 +35,24 @@ Jax.Renderer.register class Jax.Renderer.WebGL
     canvasWidth  = @context.canvas.width
     canvasHeight = @context.canvas.height
     @context.viewport 0, 0, canvasWidth, canvasHeight
+
+  createTexture: -> @context.createTexture()
+
+  bindTexture: (target, handle) -> @context.bindTexture target, handle
+
+  texImage2D: -> #(target, level, internalformat, width, height, border, format, type, pixels) ->
+    @context.texImage2D.apply @context, arguments
+    # @context.texImage2D target, level, internalFormat, width, height, border, format, type, pixels
+    # @context.texImage2D target, level, internalFormat, format, type, data
+
+  texParameteri: (target, type, value) ->
+    @context.texParameteri target, type, value
+
+  pixelStorei: (type, value) ->
+    @context.pixelStorei type, value
+
+  hint: (n) -> @context.hint n
+
+  generateMipmap: (target) -> @context.generateMipmap target
+
+  deleteTexture: (texture) -> @context.deleteTexture texture

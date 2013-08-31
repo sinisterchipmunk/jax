@@ -88,16 +88,14 @@ class Jax.Framerate extends Jax.Model
     @_marker_offset        = @width - @_12_pcnt_height
     @_max_queue_size       = Math.round(@width - @_12_pcnt_height)
     
-    @glTex = new Jax.Texture
-      width: @width
-      height: @height
+    @glTex = new Jax.Texture.Bitmap
+      data: @canvas
       mag_filter: GL_LINEAR
       min_filter: GL_LINEAR
       flip_y: true
       wrap_s: GL_CLAMP_TO_EDGE
       wrap_t: GL_CLAMP_TO_EDGE
       
-    @glTex.image = @canvas
     @mesh = new Jax.Mesh.Quad
       width: @width
       height: @height
@@ -155,7 +153,7 @@ class Jax.Framerate extends Jax.Model
       @ctx.fillStyle = "rgba(128, 128, 128, 255)"
       @ctx.fillText "Gathering data...", 10, @height / 2, @width - 20
       
-    @glTex.refresh context
+    # @glTex.refresh context
     
     unless @ortho
       @camera.ortho

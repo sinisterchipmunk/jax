@@ -98,11 +98,12 @@ class Jax.Shader.Program
       when 'mat3' then gl.uniformMatrix3fv variable.location[id], false, value
       when 'mat4' then gl.uniformMatrix4fv variable.location[id], false, value
       when 'sampler2D', 'samplerCube'
-        if !(value instanceof Jax.Texture) or value.ready()
-          gl.activeTexture GL_TEXTURE0 + @__textureIndex
-          value.refresh context unless value.isValid context
-          gl.bindTexture value.options.target, value.getHandle context
-          gl.uniform1i variable.location[id], value = @__textureIndex++
+        gl.activeTexture GL_TEXTURE0 + @__textureIndex
+        if handle = value.validate context
+          gl.bindTexture value.get('target'), handle
+        else
+          gl.bindTexture value.get('target'), null
+        gl.uniform1i variable.location[id], value = @__textureIndex++
       else throw new Error "Unexpected variable type: #{variable.type}"
 
   insert: (vsrc, fsrc, index) ->

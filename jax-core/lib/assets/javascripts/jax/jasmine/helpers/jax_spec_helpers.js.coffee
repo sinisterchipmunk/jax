@@ -11,6 +11,9 @@ beforeEach ->
       return true if @actual.prop and     @actual.prop("enabled")
       false
 
+    toBeReady: ->
+      return @actual.isReady()
+
     toBeDisabled: ->
       return false if @actual.enabled
       return true if @actual.disabled

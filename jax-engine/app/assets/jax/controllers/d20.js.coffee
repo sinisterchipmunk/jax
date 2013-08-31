@@ -77,7 +77,7 @@ Jax.Controller.create "d20",
         size: 0.2
         color: @sun2.color.diffuse
 
-    @stats = @world.addObject new Jax.Framerate
+    # @stats = @world.addObject new Jax.Framerate
 
 
     # Trackball Camera
@@ -90,7 +90,7 @@ Jax.Controller.create "d20",
 
     # Textured D20, added to world once texture is loaded (this is important, or random bug will eat your brainz !)
     world = @world
-    geode = new Jax.Model
+    geode = world.addObject new Jax.Model
       position: [0, 0, 0]
       mesh: new Jax.Mesh.GeodesicSphere {
         subdivisions: 0
@@ -105,8 +105,8 @@ Jax.Controller.create "d20",
           }]
           normalMaps: [{
             path: '/textures/d20_normal.png'
-            onload: (img) ->
-              world.addObject geode
+            # onload: (img) ->
+            #   world.addObject geode
             specularChannel: true
           }]
         })

@@ -19,3 +19,19 @@ Jax.Renderer.register class Jax.Renderer.Headless
   prepare: ->
     
   viewport: ->
+
+  createTexture: -> {}
+
+  deleteTexture: (tex) ->
+
+  texParameteri: ->
+
+  bindTexture: (tex) ->
+
+  pixelStorei: ->
+
+  hint: ->
+
+  generateMipmap: ->
+
+  texImage2D: ->
