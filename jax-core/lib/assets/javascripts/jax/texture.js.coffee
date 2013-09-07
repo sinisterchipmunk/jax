@@ -33,8 +33,8 @@ class Jax.Texture
          change:colorspace_conversion   change:data',
          @texParamChanged
     @set 'handles',               {}
-    @set 'min_filter',            GL_NEAREST
-    @set 'mag_filter',            GL_NEAREST
+    @set 'min_filter',            GL_NEAREST_MIPMAP_LINEAR
+    @set 'mag_filter',            GL_LINEAR
     @set 'generate_mipmap',       true
     @set 'mipmap_hint',           GL_DONT_CARE
     @set 'format',                GL_RGBA
