@@ -92,6 +92,7 @@ class Jax.Camera
     @initializeAttributes()
     @activeAnimations = {}
     @animationQueues = {}
+    @_time = 0
     @set 'matrix',              mat4.identity mat4.create()
     @set 'inverseMatrix',       mat4.identity mat4.create()
     @set 'normalMatrix',        mat3.identity mat3.create()
@@ -240,19 +241,18 @@ class Jax.Camera
   from the queue if necessary.
   ###
   update: (tc) ->
-    @_time or= 0
-    @_time += tc * 1000
+    time = @_time += tc * 1000
 
     # update any animations in progress -- we do this first to prevent any
     # animation from receiving an update when the time difference would be 0
     for queueName, animation of @activeAnimations
-      delete @activeAnimations[queueName] unless animation.update @_time
+      delete @activeAnimations[queueName] unless animation.update time
 
     # pull animations from their queues if necessary
     for queueName, queue of @animationQueues
       if queue.length && !@activeAnimations[queueName]
         @activeAnimations[queueName] = @createAnimation queue.shift()
-        @activeAnimations[queueName].start @_time
+        @activeAnimations[queueName].start time
 
     this
 
@@ -269,6 +269,10 @@ class Jax.Camera
   - `right`
 
   The result is placed in `out` and returned.
+
+  Each option given is assumed to be of unit length, and is not normalized
+  automatically. To produce a valid result, you should ensure the vectors
+  have been normalized prior to calling this method.
   ###
   calcRotation: (out, opts) ->
     if opts.direction
