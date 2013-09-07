@@ -41,12 +41,12 @@ class Jax.Light extends Jax.Model
     set: (options) -> @_attenuation = new Jax.Light.Attenuation options
     
   @define 'direction',
-    get: -> @camera.direction
-    set: (dir) -> @camera.direction = dir
+    get: -> @camera.get('direction')
+    set: (dir) -> @camera.setDirection dir
 
   @define 'position',
-    get: -> @camera.position
-    set: (pos) -> @camera.position = pos
+    get: -> @camera.get('position')
+    set: (pos) -> @camera.setPosition pos
   
   @define 'innerSpotAngle',
     get: -> @_innerSpotAngle
@@ -99,10 +99,10 @@ class Jax.Light extends Jax.Model
 
   eyeDirection: (matrix, dest) ->
     dest or= vec3.create()
-    vec3.normalize dest, vec3.transformMat3 dest, @camera.direction, matrix
+    vec3.normalize dest, vec3.transformMat3 dest, @camera.get('direction'), matrix
     
   eyePosition: (matrix, dest) ->
-    vec3.transformMat4 dest, @camera.position, matrix
+    vec3.transformMat4 dest, @camera.get('position'), matrix
 
   crMinIntensity = 10.0 / 256.0
   maxEffectiveRange: (rangeIncrement = 1.0) ->

@@ -20,7 +20,7 @@ Jax.Controller.create "mouselook",
       position: [0, -9, 0]
 
   mouse_dragged: (evt) ->
-    @activeCamera.rotate 1/100, -evt.diffy, -evt.diffx, 0
+    @activeCamera.rotate 1/100, [-evt.diffy, -evt.diffx, 0]
 
   key_pressed: (event) ->
     switch event.keyCode

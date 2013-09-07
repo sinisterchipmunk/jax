@@ -240,7 +240,10 @@ class Jax.MatrixStack
       return @matrices.normal[@depth]
     else
       @valid.normal[@depth] = true
-      mat3.normalFromMat4 @matrices.normal[@depth], @getModelViewMatrix()
+      if (!mat3.normalFromMat4 @matrices.normal[@depth], @getModelViewMatrix())
+        console.log("Normal matrix could not be generated from:", @getModelViewMatrix());
+        throw new Error("Normal matrix could not be generated");
+      else return @matrices.normal[@depth];
 
   ###
   A 3x3 normal matrix. When a directional vector in world space is multiplied by

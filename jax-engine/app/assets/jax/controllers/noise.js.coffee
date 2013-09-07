@@ -23,4 +23,4 @@ Jax.Controller.create "noise",
     @world.addObject new Jax.Model 
       position: [0, 0, -3]
       mesh: tpmesh
-      update: (tc) -> @camera.rotate tc * 0.25, 1, 0.75, 0.5
+      update: (tc) -> @camera.rotate tc * 0.25, [1, 0.75, 0.5]

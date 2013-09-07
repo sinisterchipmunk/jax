@@ -1,5 +1,6 @@
 eye = vec3.fromValues 0, 0, 0
 pos = vec3.fromValues 4, 4, 7
+up  = vec3.fromValues 0, 1, 0
 speed = 0.25
 
 Jax.Controller.create 'jax', 
@@ -9,15 +10,13 @@ Jax.Controller.create 'jax',
     cos = Math.cos @timer
     pos[0] = 5 * cos
     pos[2] = 5 * sin
-    @activeCamera.lookAt eye, pos
+    @activeCamera.lookAt pos, eye, up
     # HACK light is not generating shadow maps until its matrix changes
     @light?.camera.move 0
 
   index: ->
     @timer = 0
     @light = @world.addLight new Jax.Light.Spot
-      position: [3, 3, 3]
-      direction: [1, -1, 1]
       attenuation:
         constant: 1
         linear: 0
@@ -28,10 +27,9 @@ Jax.Controller.create 'jax',
         ambient: '#111'
         diffuse: '#eee'
         specular: '#fff'
-    @light.camera.lookAt [0, 0, 0]
-    # @light.camera.rotation = [0.192552, -0.735685, -0.233828, -0.605820]
+    @light.camera.lookAt [3,3,3], [0,0,0], [0,1,0]
     # HACK this shouldn't be necessary
-    @light.camera.trigger 'matrixUpdated'
+    @light.camera.trigger 'change'
     @update 0
     @world.addObject new Jax.Model
       castShadow: false
@@ -82,12 +80,8 @@ Jax.Controller.create 'jax',
             diffuse: '#04f'
             specular: '#fff'
 
-    @jax1.camera.rotation = [0.215122, 0.907300, 0.328824, 0.149720]
-    # HACK this shouldn't be necessary
-    @jax1.camera.trigger 'matrixUpdated'
-
-    @jax2.camera.rotation = [0.387454, 0.616156, -0.008283, -0.685695]
-    @jax2.camera.trigger 'matrixUpdated'
+    @jax1.camera.setRotation [0.215122, 0.907300, 0.328824, 0.149720]
+    @jax2.camera.setRotation [0.387454, 0.616156, -0.008283, -0.685695]
 
     @axis = 'pitch'
 
@@ -100,5 +94,5 @@ Jax.Controller.create 'jax',
 
   # mouse_dragged: (e) ->
   #   # @light.camera.yaw e.diffx / 100
-  #   # @jax1.camera[@axis] e.diffx / 100, [0, 1, 0]
+  #   @jax1.camera[@axis] e.diffx / 100, [0, 1, 0]
   #   

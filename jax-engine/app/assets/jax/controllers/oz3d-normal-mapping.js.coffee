@@ -24,8 +24,8 @@ Jax.Controller.create "oz3d-normal",
     console.log "  When enabled, the mortar between bricks should have 0 specular."
     
     # @activeCamera.position = [0, 0, 100]
-    @activeCamera.position = [32, -13.52, 55.4]
-    @activeCamera.direction = [-0.65, 0.2, -0.73]
+    @activeCamera.setPosition [32, -13.52, 55.4]
+    @activeCamera.setDirection [-0.65, 0.2, -0.73]
     
     lightPos = [10, -10, 45]
     @light = @world.addLight new Jax.Light.Point
@@ -76,4 +76,4 @@ Jax.Controller.create "oz3d-normal",
         stacks: 20
         radius: 40
       position: [0, 0, 0]
-    model.camera.pitch Math.PI / 2
+    model.camera.yaw Math.PI / 2

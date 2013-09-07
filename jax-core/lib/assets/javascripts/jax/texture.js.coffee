@@ -159,27 +159,14 @@ class Jax.Texture
     gl = context.renderer
     gl.bindTexture target, handle
 
-    if attrs.mag_filter isnt gl.getState GL_TEXTURE_MAG_FILTER
-      gl.texParameteri target, GL_TEXTURE_MAG_FILTER, attrs.mag_filter
-
-    if attrs.min_filter isnt gl.getState GL_TEXTURE_MIN_FILTER
-      gl.texParameteri target, GL_TEXTURE_MIN_FILTER, attrs.min_filter
-
-    if attrs.wrap_s isnt gl.getState GL_TEXTURE_WRAP_S
-      gl.texParameteri target, GL_TEXTURE_WRAP_S,     attrs.wrap_s
-
-    if attrs.wrap_t isnt gl.getState GL_TEXTURE_WRAP_T
-      gl.texParameteri target, GL_TEXTURE_WRAP_T,     attrs.wrap_t
-
-    if attrs.flip_y isnt gl.getState GL_UNPACK_FLIP_Y_WEBGL
-      gl.pixelStorei GL_UNPACK_FLIP_Y_WEBGL, attrs.flip_y
-
-    if attrs.premultiply_alpha isnt gl.getState GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL
-      gl.pixelStorei GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, attrs.premultiply_alpha
-
-    if attrs.colorspace_conversion isnt gl.getState GL_UNPACK_COLORSPACE_CONVERSION_WEBGL
-      conversion = if attrs.colorspace_conversion then GL_BROWSER_DEFAULT_WEBGL else GL_NONE
-      gl.pixelStorei GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, conversion
+    gl.texParameteri target, GL_TEXTURE_MAG_FILTER, attrs.mag_filter
+    gl.texParameteri target, GL_TEXTURE_MIN_FILTER, attrs.min_filter
+    gl.texParameteri target, GL_TEXTURE_WRAP_S,     attrs.wrap_s
+    gl.texParameteri target, GL_TEXTURE_WRAP_T,     attrs.wrap_t
+    gl.pixelStorei GL_UNPACK_FLIP_Y_WEBGL, attrs.flip_y
+    gl.pixelStorei GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, attrs.premultiply_alpha
+    conversion = if attrs.colorspace_conversion then GL_BROWSER_DEFAULT_WEBGL else GL_NONE
+    gl.pixelStorei GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, conversion
 
     @upload context, handle, attrs.data
 

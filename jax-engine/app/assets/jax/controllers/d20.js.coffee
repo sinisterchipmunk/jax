@@ -82,15 +82,12 @@ Jax.Controller.create "d20",
 
     # Trackball Camera
     cameraPosition = [0, 0, 10]
-    @context.activeCamera.position = cameraPosition
     cameraTarget = [0, 0, 0]
-    @context.activeCamera.lookAt cameraTarget
-    @context.activeCamera.setFixedYawAxis false
+    @context.activeCamera.lookAt cameraPosition, cameraTarget, [0, 1, 0]
 
-
-    # Textured D20, added to world once texture is loaded (this is important, or random bug will eat your brainz !)
+    # Textured D20
     world = @world
-    geode = world.addObject new Jax.Model
+    geode = @world.addObject new Jax.Model
       position: [0, 0, 0]
       mesh: new Jax.Mesh.GeodesicSphere {
         subdivisions: 0
@@ -101,19 +98,18 @@ Jax.Controller.create "d20",
             diffuse: [0.6, 0.6, 0.6, 1]
             specular:[1, 0.9, 0.9, 1]
           textures:  [{
+            flip_y: false
             path: '/textures/d20_plain_red.png'
           }]
           normalMaps: [{
+            flip_y: false
             path: '/textures/d20_normal.png'
-            # onload: (img) ->
-            #   world.addObject geode
             specularChannel: true
           }]
         })
       }
       update: (timechange) ->
-        @camera.rotate timechange * (0.08), 1, 5, 0
-
+        @camera.rotate timechange * (0.16), [1, 5, 0]
 
 
   # Trying trackball controls
@@ -140,15 +136,11 @@ Jax.Controller.create "d20",
       _quat = quat.create()
       quat.multiply(
         _quat, 
-        quat.setAxisAngle(quat.create(), cam.up, -1 * diffx * baseAngle),
-        quat.setAxisAngle(quat.create(), cam.right, -1 * diffy * baseAngle)
+        quat.setAxisAngle(quat.create(), cam.get('up'), -1 * diffx * baseAngle),
+        quat.setAxisAngle(quat.create(), cam.get('right'), -1 * diffy * baseAngle)
       )
 
-      # warning : using cam.direction as third parameter here does not yield same (nor expected) result
-      cam.direction = vec3.transformQuat vec3.create(), cam.direction, _quat
-      # warning : `cam.position =` is mandatory, or nothing will move
-      cam.position = vec3.transformQuat vec3.create(), cam.position, _quat
-      # these warns are a mix of @define and js voodoo. I'm all ears for a better usage suggestion !
+      cam.rotateQuat _quat
 
     else # let's roll !
 
@@ -163,15 +155,15 @@ Jax.Controller.create "d20",
 
     # sun's orbit
     distance = 18
-    @sun1.camera.position = [ Math.cos(@theta)*distance, Math.sin(@theta)*distance, Math.sin(@theta)*10 ]
-    @sun2.camera.position = [ Math.cos(@theta+Math.PI)*distance, Math.sin(@theta+Math.PI)*distance, Math.sin(@theta)*10 ]
-    @sun3.camera.position = [ Math.cos(@theta)*distance, Math.sin(-@theta)*distance, Math.sin(-@theta)*10 ]
-    @sun4.camera.position = [ Math.cos(@theta+Math.PI)*distance, Math.sin(Math.PI-@theta)*distance, Math.sin(-@theta)*10 ]
+    @sun1.camera.setPosition [ Math.cos(@theta)*distance, Math.sin(@theta)*distance, Math.sin(@theta)*10 ]
+    @sun2.camera.setPosition [ Math.cos(@theta+Math.PI)*distance, Math.sin(@theta+Math.PI)*distance, Math.sin(@theta)*10 ]
+    @sun3.camera.setPosition [ Math.cos(@theta)*distance, Math.sin(-@theta)*distance, Math.sin(-@theta)*10 ]
+    @sun4.camera.setPosition [ Math.cos(@theta+Math.PI)*distance, Math.sin(Math.PI-@theta)*distance, Math.sin(-@theta)*10 ]
 
-    @sunHelper1.camera.position = @sun1.camera.position
-    @sunHelper2.camera.position = @sun2.camera.position
-    @sunHelper3.camera.position = @sun3.camera.position
-    @sunHelper4.camera.position = @sun4.camera.position
+    @sunHelper1.camera.setPosition @sun1.camera.get 'position'
+    @sunHelper2.camera.setPosition @sun2.camera.get 'position'
+    @sunHelper3.camera.setPosition @sun3.camera.get 'position'
+    @sunHelper4.camera.setPosition @sun4.camera.get 'position'
 
 
 

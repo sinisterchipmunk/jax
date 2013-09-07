@@ -67,7 +67,7 @@ Jax.Controller.create "benchmark",
     position[1] = 0
     position[2] = Math.sin(@_rotation) * radius
     
-    @context.activeCamera.lookAt origin, position
+    @context.activeCamera.lookAt position, origin, [0, 1, 0]
     
   benchmark_complete: ->
     max = MAX

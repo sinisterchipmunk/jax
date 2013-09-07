@@ -18,7 +18,7 @@ describe("Jax.Geometry.Triangle", function() {
       describe("with a matrix representing a look backward", function() {
         var mat;
         beforeEach(function() {
-          mat = new Jax.Camera({direction: [0, 0, 1]}).getTransformationMatrix();
+          mat = new Jax.Camera({direction: [0, 0, 1]}).get("matrix");
         });
 
         it("should not be CCW", function() {

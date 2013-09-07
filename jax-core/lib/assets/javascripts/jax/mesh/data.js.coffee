@@ -117,6 +117,7 @@ class Jax.Mesh.Data
   invalidate: ->
     for id of @_valid
       @_valid[id] = false
+    true
       
   ###
   Deletes all GL buffers. Call this before you delete your handle to this

@@ -1,5 +1,7 @@
 # Demo of a Geodesic Sphere
 # Access demo by cloning and running jax repo in localhost
+ROTATE_AXIS = [1, 0.75, 0.5]
+
 Jax.Controller.create "geodes",
   index: ->
 
@@ -32,14 +34,12 @@ Jax.Controller.create "geodes",
         specular: [1, 1, 1, 1]
 
     @stats = @world.addObject new Jax.Framerate
-
-    @context.activeCamera.position = [0, 3, 13]
-    @context.activeCamera.lookAt [0, 1.5, 0]
+    @context.activeCamera.lookAt [0, 3, 13], [0, 1.5, 0], [0, 1, 0]
 
 
     # we need this as a closure, because of the onload
     createTexturedGeode = (n, world) ->
-      geode = new Jax.Model
+      geode = world.addObject new Jax.Model
         _loaded: false
         position: [-3.5+n*2.4, -2.4, 0]
         mesh: new Jax.Mesh.GeodesicSphere {
@@ -52,28 +52,31 @@ Jax.Controller.create "geodes",
               specular:[1, 0.9, 0.9, 1]
             textures:  [{
               path: '/textures/icosahedron/mars.jpg'
-              onload: ()-> world.addObject geode
+              flip_y: false
+              # onload: ()-> world.addObject geode
             }]
           })
         }
         update: (timechange) ->
-          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), ROTATE_AXIS
 
 
     for n in [0..2] by 1
 
       # Pulsating Geodes Duals
+      o = vec3.create()
       geode = @world.addObject new Jax.Model
         position: [-3.5+n*2.4, 4.8, 0]
         mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface, subdivisions: n }
         update: (timechange) ->
-          @camera.rotate timechange * -1 * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+          @camera.rotate timechange * -1 * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), ROTATE_AXIS
 
           # pulsate
           @stellation = @stellation || 0 # not rly, but what else then ?
           buff = @mesh.data.vertexBuffer # look into using Mesh#vertices
           for i in [0...buff.length] by 9
-            o = vec3.fromValues(buff[i],buff[i+1],buff[i+2])
+            # o = vec3.fromValues(buff[i],buff[i+1],buff[i+2])
+            [o[0], o[1], o[2]] = [buff[i], buff[i+1], buff[i+2]]
 
             @stellation = (@stellation + timechange * (Math.TAU / 6180) ) % Math.TAU
             vec3.scale(o, vec3.normalize(o, o), @mesh.size * (Math.cos(@stellation)+1))
@@ -90,10 +93,11 @@ Jax.Controller.create "geodes",
         mesh: new Jax.Mesh.GeodesicSphereDual { material: new Jax.Material.Surface({
           textures:  [{
             path: '/textures/geode_dual/tron.png'
+            flip_y: false
           }]
         }), subdivisions: n }
         update: (timechange) ->
-          @camera.rotate timechange * (0.025 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+          @camera.rotate timechange * (0.025 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), ROTATE_AXIS
 
 
       # Wired Geodes
@@ -101,7 +105,7 @@ Jax.Controller.create "geodes",
         position: [-3.5+n*2.4, 0, 0]
         mesh: new Jax.Mesh.GeodesicSphere { material: new Jax.Material.Wire, subdivisions: n }
         update: (timechange) ->
-          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), 1, 0.75, 0.5
+          @camera.rotate timechange * (0.03 + 0.85 / Math.pow(2,@mesh.subdivisions+1) ), ROTATE_AXIS
 
       # Textured Geodes
       # Added to @world AFTER image onload, or uvmapping will RANDOMLY y-flip !
@@ -111,7 +115,7 @@ Jax.Controller.create "geodes",
   # Drag to pan
   # Ctrl + drag Y-wise to zoom
   mouse_dragged: (e) ->
-    newPos = @context.activeCamera.position
+    newPos = @context.activeCamera.get('position')
 
     newPos[0] += e.diffx * -0.01
     if (e.base.ctrlKey)
@@ -119,7 +123,7 @@ Jax.Controller.create "geodes",
     else
       newPos[1] += e.diffy * 0.01
 
-    @context.activeCamera.position = newPos
+    @context.activeCamera.setPosition newPos
 
 
   update: (timechange) ->
@@ -129,4 +133,4 @@ Jax.Controller.create "geodes",
     @theta = (@theta + timechange/3) % Math.TAU
 
     # sun's orbit
-    @sun.camera.position = [ Math.cos(@theta)*20, Math.sin(@theta)*20, Math.sin(@theta)*10 ]
+    @sun.camera.setPosition [ Math.cos(@theta)*20, Math.sin(@theta)*20, Math.sin(@theta)*10 ]

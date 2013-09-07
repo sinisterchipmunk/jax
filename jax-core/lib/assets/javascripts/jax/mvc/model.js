@@ -65,8 +65,8 @@
     if (data) {
       for (attribute in data) {
         switch(attribute) {
-          case 'position':    self.camera.position = Jax.Util.vectorize(data[attribute]); break;
-          case 'direction':   self.camera.direction = Jax.Util.vectorize(data[attribute]); break;
+          case 'position':    self.camera.setPosition(Jax.Util.vectorize(data[attribute])); break;
+          case 'direction':   self.camera.setDirection(Jax.Util.vectorize(data[attribute])); break;
           default:
             self[attribute] = data[attribute];
         }
@@ -96,7 +96,7 @@
         var self = this;
         this.__unique_id = Jax.guid();
         this.camera = new Jax.Camera();
-        this.camera.on('updated', function() { self.trigger('transformed'); });
+        this.camera.on('change', function() { self.trigger('transformed'); });
         
         initProperties(this, Jax.Model.default_properties);
         if (this._klass && this._klass.resources)
@@ -153,7 +153,7 @@
       
       pushMatrices: function(context) {
         context.matrix_stack.push();
-        context.matrix_stack.multModelMatrix(this.camera.getTransformationMatrix());
+        context.matrix_stack.multModelMatrix(this.camera.get('matrix'));
       },
       
       popMatrices: function(context) {
@@ -339,13 +339,13 @@
   };
   
   Object.defineProperty(Jax.Model.prototype, 'position', {
-    get: function() { return this.camera.position; },
-    set: function(p) { return this.camera.position = p; }
+    get: function() { return this.camera.get('position'); },
+    set: function(p) { return this.camera.setPosition(p); }
   });
   
   Object.defineProperty(Jax.Model.prototype, 'direction', {
-    get: function() { return this.camera.direction; },
-    set: function(p) { return this.camera.direction = p; }
+    get: function() { return this.camera.get('direction'); },
+    set: function(p) { return this.camera.setDirection(p); }
   });
   
   /**

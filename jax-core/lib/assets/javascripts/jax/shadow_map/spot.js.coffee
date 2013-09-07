@@ -6,7 +6,7 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     mostDistant = 0
     
     for id, obj of context.world.getObjects()
-      vec3.subtract relative, @light.position, obj.camera.position
+      vec3.subtract relative, @light.position, obj.camera.get('position')
       dist = vec3.length(relative) + obj.mesh?.bounds.radius
       if dist > mostDistant then mostDistant = dist
       

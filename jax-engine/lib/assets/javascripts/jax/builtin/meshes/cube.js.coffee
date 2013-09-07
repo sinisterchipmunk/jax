@@ -31,7 +31,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
     invalidate = => @invalidate true
     [w, h, d] = [options.width, options.height, options.depth]
     @left = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @left.camera.reorient [-1, 0, 0], [-w/2, 0, 0]
+    @left.camera.lookAt [-w/2,0,0], [-w/2-1,0,0], [0,1,0]
     @left.mesh.on 'colorChanged', invalidate
     @left.camera.on 'updated', invalidate
     Object.defineProperty @left, 'color',
@@ -39,7 +39,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       set: (c) -> @mesh.color = c
 
     @right = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @right.camera.reorient [1, 0, 0], [w/2, 0, 0]
+    @right.camera.lookAt [w/2,0,0], [w/2+1,0,0], [0,1,0]
     @right.mesh.on 'colorChanged', invalidate
     @right.camera.on 'updated', invalidate
     Object.defineProperty @right, 'color',
@@ -47,7 +47,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       set: (c) -> @mesh.color = c
 
     @front = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @front.camera.reorient [0, 0, 1], [0, 0, d/2]
+    @front.camera.lookAt [0,0,d/2], [0,0,d/2+1], [0,1,0]
     @front.mesh.on 'colorChanged', invalidate
     @front.camera.on 'updated', invalidate
     Object.defineProperty @front, 'color',
@@ -55,7 +55,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       set: (c) -> @mesh.color = c
 
     @back = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @back.camera.reorient [0, 0, -1], [0, 0, -d/2]
+    @back.camera.lookAt [0,0,-d/2], [0,0,-d/2-1], [0,1,0]
     @back.mesh.on 'colorChanged', invalidate
     @back.camera.on 'updated', invalidate
     Object.defineProperty @back, 'color',
@@ -63,7 +63,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       set: (c) -> @mesh.color = c
 
     @top = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @top.camera.reorient [0, 1, 0], [0, h/2, 0]
+    @top.camera.lookAt [0,h/2,0], [0,h/2+1,0], [0,0,-1]
     @top.mesh.on 'colorChanged', invalidate
     @top.camera.on 'updated', invalidate
     Object.defineProperty @top, 'color',
@@ -71,7 +71,7 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       set: (c) -> @mesh.color = c
 
     @bottom = new Jax.Model mesh: new Jax.Mesh.Quad d, h
-    @bottom.camera.reorient [0, -1, 0], [0, -h/2, 0]
+    @bottom.camera.lookAt [0,-h/2,0], [0,-h/2-1,0], [0,0,1]
     @bottom.mesh.on 'colorChanged', invalidate
     @bottom.camera.on 'updated', invalidate
     Object.defineProperty @bottom, 'color',
@@ -89,8 +89,8 @@ class Jax.Mesh.Cube extends Jax.Mesh.Triangles
       sdata = side.mesh.data
       # use inverse xform to go from world space to object space, instead of
       # the opposite.
-      mvmatrix = side.camera.getTransformationMatrix()
-      nmatrix = side.camera.getNormalMatrix()
+      mvmatrix = side.camera.get('matrix')
+      nmatrix = side.camera.get('normalMatrix')
       for j in [0...sdata.length]
         [vofs, tofs, cofs] = [j * 3, j * 2, j * 4]
         _tmpvec3[0] = sdata.vertexBuffer[vofs  ]

@@ -33,5 +33,5 @@ Jax.Controller.create "ssao",
       position: [0, -1, 0]
       direction: [0, -1, 0]
 
-    @activeCamera.lookAt [0,0,0], [10, 10, 10]
+    @activeCamera.lookAt [10, 10, 10], [0,0,0], [0,1,0]
     

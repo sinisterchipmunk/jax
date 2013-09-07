@@ -19,10 +19,10 @@ Jax.Controller.create "octree",
   update: (tc) ->
     for id, obj of @octree.nestedObjects
       obj.rot += tc * 0.75
-      pos = obj.position
+      pos = obj.camera.get 'position'
       pos[0] = Math.sin(obj.rot) * obj.radius
       pos[2] = Math.cos(obj.rot) * obj.radius
-      obj.camera.position = pos
+      obj.camera.setPosition pos
       @octree.update obj
     true
 
@@ -73,13 +73,13 @@ Jax.Controller.create "octree",
             position: pos
             mesh: new Jax.Mesh.Sphere(radius: 0.25 + (Math.random() * 0.25 - 0.125), slices: 8, stacks: 8, color: [Math.abs(x) / 2, Math.abs(y) / 2, 1, 1])
 
-    @world.addObject new Jax.Model
-      position: [ 0, 0, 4.5]
-      mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
+    # @world.addObject new Jax.Model
+    #   position: [ 0, 0, 4.5]
+    #   mesh: new Jax.Mesh.Cube(size: 0.25, color: '#fff')
     
     @_cam = camera = new Jax.Camera()
     camera.perspective near: 1, far: 10, width: @context.canvas.width, height: @context.canvas.height
-    camera.position = [0, 0, 4.5]
+    camera.setPosition [0, 0, 4.5]
     @world.addObject camera.frustum
     # @world.addLight new Jax.Light.Directional
     #   shadows: false
@@ -121,7 +121,7 @@ Jax.Controller.create "octree",
         renderMaterial = material
         numObjs = 0
         numNodes = 0
-        octree.traverse camera.position, callback
+        octree.traverse camera.get('position'), callback
         if min is null or min > numObjs then min = numObjs
         if max is null or max < numObjs then max = numObjs
         $('#jax-banner').html("Objects rendered: #{numObjs}; nodes traversed: #{numNodes}; records: [#{min}, #{max}]")
@@ -129,4 +129,4 @@ Jax.Controller.create "octree",
     # octree.add @world.addObject new Jax.Model position: [5, 5, 5], mesh: new Jax.Mesh.Cube(color: '#f00')
 
     @context.activeCamera.ortho near: 1, far: 250, left: -10, right: 10, top: 10, bottom: -10
-    @context.activeCamera.lookAt [0, 0, 0], [0, 27, 0]
+    @context.activeCamera.lookAt [0, 27, 0], [0, 0, 0], [0,0,-1]

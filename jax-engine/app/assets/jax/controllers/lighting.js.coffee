@@ -50,14 +50,13 @@ Jax.Controller.create "lighting",
         diffuse: [0, 0, 1, 1]
         specular: [0, 0, 1, 1]
     
-    @context.activeCamera.position = [0, 15, 50]
-    @context.activeCamera.lookAt [0, 0, 0]
+    @activeCamera.lookAt [0, 15, 50], [0, 0, 0], [0, 1, 0]
     
   mouse_dragged: (e) ->
-    newPos = @teapot.camera.position
+    newPos = @teapot.camera.get 'position'
     newPos[0] += e.diffx * 0.1
     newPos[2] += e.diffy * 0.1
-    @teapot.camera.position = newPos
+    @teapot.camera.setPosition newPos
 
   update: (timechange) ->
     return unless spot = @spot
@@ -69,6 +68,10 @@ Jax.Controller.create "lighting",
     # When magnitude is 1, X is cos. The cos of 45 degrees is sqrt(2)/2. So to pivot every
     # 45 degrees off from the focal point (for a total of 90 degrees difference), we'll
     # check X <=> sqrt(2)/2.
+    #
+    # We also need Z to be negative (facing forward) so if for some reason it's
+    # not, we won't change direction until it is. This could happen if timechange
+    # is very large.
     view = spot.direction
     if view[0] > SQ2_2 then @rotationPerSecond = speed
     else if view[0] < -SQ2_2 then @rotationPerSecond = -speed
@@ -76,7 +79,7 @@ Jax.Controller.create "lighting",
     # rotate the spotlight. Just like any other object, a light has its own camera, so
     # it's trivial to orient it within the scene. Rotating about the Y axis causes a
     # horizontal movement.
-    spot.rotate rotationDirection*timechange, 0, 1, 0
+    spot.camera.yaw rotationDirection*timechange
     
     # update player position if s/he's holding a movement key down
     # var speed = 25 * timechange;

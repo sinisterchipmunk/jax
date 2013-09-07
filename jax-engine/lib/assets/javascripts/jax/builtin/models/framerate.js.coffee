@@ -161,14 +161,14 @@ class Jax.Framerate extends Jax.Model
         right: context.canvas.width
         bottom: 0
         top: context.canvas.height
-      @ortho = @camera.getProjectionMatrix()
+      @ortho = @camera.get('projection').matrix
       @identity = mat4.identity mat4.create()
     
     stack = context.matrix_stack
     stack.push()
     stack.loadProjectionMatrix @ortho
     stack.loadViewMatrix @identity
-    stack.multModelMatrix @camera.getTransformationMatrix()
+    stack.multModelMatrix @camera.get('matrix')
     @mesh.render context, this, material
     stack.pop()
     

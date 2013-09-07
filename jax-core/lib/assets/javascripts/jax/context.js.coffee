@@ -82,15 +82,15 @@ class Jax.Context
     camera = @activeCamera
     @matrix_stack.reset() # reset depth
     @matrix_stack.loadModelMatrix mat4.IDENTITY
-    # we use the inverse xform to go from WORLD to LOCAL instead of the opposite.
-    @matrix_stack.loadViewMatrix camera.getInverseTransformationMatrix()
-    @matrix_stack.loadProjectionMatrix camera.getProjectionMatrix()
+    @matrix_stack.loadViewMatrix camera.get('inverseMatrix')
+    @matrix_stack.loadProjectionMatrix camera.get('projection').matrix
     @matrix_stack
   
   update: (timechange) ->
     device.update timechange for device in @inputDevices
     @controller?.update? timechange
     @world.update timechange
+    @activeCamera.update timechange
 
   ###
   Returns true if the active camera has no projection (e.g. neither
@@ -123,6 +123,7 @@ class Jax.Context
   getTimePassed: ->
     uptime = @uptime
     timechange = uptime - @_lastUptime
+    timechange = 0 if timechange < 0
 
     if clampValue = @clampTimechange
       Math.min timechange, clampValue

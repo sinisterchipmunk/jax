@@ -6,7 +6,7 @@ class Jax.ShadowMap
     @_shadowMatrix = mat4.create()
     @_projectionMatrix = mat4.create()
     @_isValid = false
-    @light.camera.on 'updated', => @invalidate()
+    @light.camera.on 'change', => @invalidate()
     @biasMatrix = mat4.identity mat4.create()
     @clearColor = [0, 0, 0, 0]
     @cullFace = GL_FRONT
@@ -46,7 +46,7 @@ class Jax.ShadowMap
 
       @setupProjection @_projectionMatrix, context
       # shadowMatrix = bias * projection * modelview
-      mat4.copy @_shadowMatrix, @light.camera.getInverseTransformationMatrix()
+      mat4.copy @_shadowMatrix, @light.camera.get('inverseMatrix')
       mat4.multiply @_shadowMatrix, @_projectionMatrix, @_shadowMatrix
       @_isValid = true
       @illuminate context

@@ -289,7 +289,7 @@ Jax.Geometry.Plane = (function() {
         vec3.copy(this.normal, arguments[1]);
         this.d = -vec3.dot(arguments[1], arguments[0]);
       } else {
-        var tmp1 = this.normal, tmp2 = vec3.create();
+        var tmp1 = this.normal, tmp2 = bufs.settmp2 || (bufs.settmp2 = vec3.create());
         var points = arguments;
         
         if (arguments.length != 3) points = arguments[0];

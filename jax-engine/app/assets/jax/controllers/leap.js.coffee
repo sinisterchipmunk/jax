@@ -20,7 +20,7 @@ Jax.Controller.create "leap",
                        "</div>"
     document.body.appendChild _pauseNotifier[0]
 
-    @activeCamera.setFixedYawAxis false
+    # @activeCamera.setFixedYawAxis false
 
     @world.addLight new Jax.Light.Directional
       position: [3, 3, 3]

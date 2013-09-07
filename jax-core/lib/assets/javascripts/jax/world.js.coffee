@@ -364,6 +364,7 @@ class Jax.World
   ###
   update: (timechange) ->
     for object in @getObjects()
+      object.camera?.update? timechange # FIXME belongs in Jax.Model
       object.update?(timechange)
     
   ###
