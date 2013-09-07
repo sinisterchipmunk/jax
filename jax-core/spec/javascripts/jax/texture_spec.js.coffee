@@ -38,8 +38,6 @@ describe 'Jax.Texture', ->
 
   describe 'by default', ->
     it 'should set defaults to prefer power-of-two texture sizes', ->
-      expect(@tex.get 'min_filter').toEqual GL_NEAREST
-      expect(@tex.get 'mag_filter').toEqual GL_NEAREST
       expect(@tex.get 'wrap_s').toEqual GL_REPEAT
       expect(@tex.get 'wrap_t').toEqual GL_REPEAT
       expect(@tex.get 'generate_mipmap').toEqual true
