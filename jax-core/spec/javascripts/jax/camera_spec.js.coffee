@@ -3,6 +3,17 @@ describe 'Jax.Camera', ->
     @out = vec3.create()
     @camera = new Jax.Camera
 
+  describe 'given position and direction options during construction', ->
+    beforeEach -> @camera = new Jax.Camera
+      position: [1, 2, 3]
+      direction: [-1, 0, 0]
+
+    it 'should set position', ->
+      expect(@camera.get('position')).toEqualVector [1, 2, 3]
+
+    it 'should set direction', ->
+      expect(@camera.get('direction')).toEqualVector [-1, 0, 0]
+
   describe 'with a perspective projection', ->
     beforeEach ->
       @camera.perspective

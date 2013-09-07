@@ -113,6 +113,10 @@ class Jax.Camera
     @on 'animation:update', @animationUpdated
     @reset()
 
+    # TODO just `set` each option?
+    if opts.position  then @setPosition  opts.position
+    if opts.direction then @setDirection opts.direction
+
   ###
   Event listener that is called whenever an animation is updated. This may
   be called many times per frame, depending on how many animations are active
