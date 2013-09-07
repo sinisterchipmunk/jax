@@ -19,6 +19,10 @@ describe 'Jax.Camera', ->
       @camera.unprojectPoint @out, 1, 1, 1
       expect(@out).toEqualVector [0, 0, -199.995422]
 
+    it 'should invert Y values since window coordinates are inverted', ->
+      @camera.unprojectPoint @out, 1, 2, 1
+      expect(@out[1]).toBeLessThan 0
+
   describe 'by default', ->
     it 'transformWorld3', ->
       expect(@camera.transformWorld3 @out, [0, 0, 0]).toEqualVector [0, 0, 0]

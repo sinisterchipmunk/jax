@@ -455,8 +455,8 @@ class Jax.Camera
     m = @get 'inverseConcatenatedMatrices'
 
     # Transformation of normalized coordinates between -1 and 1
-    inf[0] = (winx - viewport[0]) / viewport[2] * 2 - 1
-    inf[1] = (winy - viewport[1]) / viewport[3] * 2 - 1
+    inf[0] =  ( winx - viewport[0]) / viewport[2] * 2 - 1
+    inf[1] = -((winy - viewport[1]) / viewport[3] * 2 - 1)
     inf[2] = 2 * winz - 1
     inf[3] = 1
     
