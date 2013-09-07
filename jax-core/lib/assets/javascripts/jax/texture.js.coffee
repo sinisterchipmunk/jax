@@ -26,23 +26,6 @@ class Jax.Texture
   @include Jax.Mixins.Attributes
   @include Jax.Mixins.EventEmitter
 
-  # Texture params flags, for tracking params needing refreshed
-  FLAGS =
-    texture_validity:      0x0001
-    min_filter:            0x0002
-    mag_filter:            0x0004
-    generate_mipmap:       0x0008
-    mipmap_hint:           0x0010
-    format:                0x0020
-    target:                0x0040
-    data_type:             0x0080
-    wrap_s:                0x0100
-    wrap_t:                0x0200
-    flip_y:                0x0400
-    premultiply_alpha:     0x0800
-    colorspace_conversion: 0x1000
-    data:                  0x2000
-
   constructor: (options) ->
     @initializeAttributes()
     @upload = options.upload if options?.upload
@@ -80,8 +63,7 @@ class Jax.Texture
   invalid, and also makes a note as to which parameters must be refreshed.
   ###
   texParamChanged: (self, evtName) =>
-    param = evtName.substring(evtName.indexOf('change:')+7, evtName.length)
-    @invalidate param
+    @invalidate()
 
   ###
   Finds or creates and then returns the texture handle for the given context.
@@ -105,8 +87,7 @@ class Jax.Texture
   updated.
   ###
   invalidate: (param) ->
-    flags = @get('changedTexParams') || 0
-    @set 'changedTexParams', flags | FLAGS.texture_validity | FLAGS[param]
+    @set 'valid', false
 
   ###
   Returns true if this texture is valid for rendering, false otherwise.
@@ -114,13 +95,13 @@ class Jax.Texture
   will cause it to be invalid. Textures are invalid by default. They become
   valid automatically when they are bound to a graphics driver.
   ###
-  isValid: -> @get 'changedTexParams' & FLAGS.texture_validity
+  isValid: -> @get 'valid'
 
   ###
   Forces this texture to become valid, even if the latest changes have not
   been reflected within the graphics driver.
   ###
-  forceValid: -> @set 'flags', 0
+  forceValid: -> @set 'valid', true
 
   ###
   Subclasses must implement this method. It is called during validation,
@@ -152,8 +133,7 @@ class Jax.Texture
     return false unless @isReady()
     attrs = @attributes
     handle = @getHandle context
-    flags = attrs.changedTexParams
-    return handle unless flags & FLAGS.texture_validity
+    return handle if @get('valid')
     # texture is not valid, make it so!
     target = attrs.target
     gl = context.renderer
@@ -174,7 +154,7 @@ class Jax.Texture
       @generateMipmap gl, target, attrs.mipmap_hint
 
     # done!
-    @set 'changedTexParams', 0
+    @forceValid()
     return handle
 
   generateMipmap: (renderer, target, hint) ->
