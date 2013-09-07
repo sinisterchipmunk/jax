@@ -96,11 +96,6 @@ Jax.Framebuffer = (function() {
           texture_options = Jax.Util.merge(format, texture_options);
         }
         else { texture_options.format = format; }
-        texture_options.upload = function(context, handle, textureData) {
-          context.renderer.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                                      GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-        };
-        texture_options.data = new Uint8Array(width*height*Jax.Util.sizeofFormat(texture_options.format));
         handle.textures[i] = new Jax.Texture(texture_options);
       }
       

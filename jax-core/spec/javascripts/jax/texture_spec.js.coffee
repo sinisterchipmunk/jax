@@ -26,7 +26,6 @@ describe 'Jax.Texture', ->
 
   describe 'validating with a context', ->
     beforeEach ->
-      @tex.upload = -> # throws by default, we'll use a no-op here
       spyOn(@context.renderer, 'createTexture').andReturn 1
       spyOn @context.renderer, 'texParameteri'
       @result = @tex.validate @context
@@ -36,11 +35,6 @@ describe 'Jax.Texture', ->
 
     it 'should return the texture handle', ->
       expect(@result).toEqual 1
-  # if handle = value.validate context
-  #   gl.activeTexture GL_TEXTURE0 + @__textureIndex
-  #   gl.bindTexture value.get('target'), handle
-  #   gl.uniform1i variable.location[id], value = @__textureIndex++
-
 
   describe 'by default', ->
     it 'should set defaults to prefer power-of-two texture sizes', ->

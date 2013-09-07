@@ -12,23 +12,18 @@ The base class can be useful if you have a special one-off use case, but it
 is probably a better idea to go ahead and subclass `Jax.Texture` anyway.
 
 If you are sure you need to instantiate `Jax.Texture` directly, then you
-will need to provide an `upload` option. This should be a function, which
-will replace the default `upload` method defined by this class.
-
-Note that providing an `upload` method is required if you instantiate
-`Jax.Texture` directly, because the default implementation will simply
-throw an error.
-
-See the documentation for the `upload` method for implementation details.
+may want to provide an `upload` option. This should be a function, which
+will replace the default `upload` method defined by this class. See the
+documentation for the `upload` method for more details.
 
 ###
 class Jax.Texture
   @include Jax.Mixins.Attributes
   @include Jax.Mixins.EventEmitter
 
-  constructor: (options) ->
+  constructor: (options = {}) ->
     @initializeAttributes()
-    @upload = options.upload if options?.upload
+    @upload = options.upload if options.upload isnt undefined
     @on 'change:width change:height', @sizeChanged
     @on 'change:min_filter              change:mag_filter
          change:generate_mipmap         change:mipmap_hint
@@ -52,7 +47,6 @@ class Jax.Texture
     @set 'colorspace_conversion', true
     @set 'width',                 1
     @set 'height',                1
-    @set 'data',                  null
     for option, value of options
       @set option, value
     true
@@ -104,13 +98,21 @@ class Jax.Texture
   forceValid: -> @set 'valid', true
 
   ###
-  Subclasses must implement this method. It is called during validation,
-  whenever the `data` attribute changes. It receives the context and the
-  texture handle. Subclasses should use this method to upload texture data
-  to the renderer.
+  Subclasses _should_ implement this method. It is called during validation,
+  whenever the image data needs to be uploaded to the graphics driver. It
+  receives the context and the texture handle. Subclasses should use this
+  method to upload texture data to the renderer.
+
+  Note: by default, this method will upload a blank texture with dimensions
+  equal to the `width` and `height` properties, which both default to `1`.
+  This default implementation is probably fine for use as framebuffers
+  rendering targets, assuming you set `width` and `height` appropriately.
   ###
   upload: (context, handle, textureData) ->
-    throw new Error "Do not use Jax.Texture directly, use a subclass instead"
+    context.renderer.texImage2D @get('target'), 0, @get('format'),
+                                @get('width'),     @get('height'), 0,
+                                @get('format'),    @get('data_type'),
+                                textureData
 
   ###
   Subclasses should implement this method. Its function is to check whether
@@ -167,10 +169,14 @@ class Jax.Texture
   If either is a non-power-of-two value, this texture's other attributes will
   be set to compatibility values in order to make the texture renderable.
   Otherwise, they are left unchanged.
+
+  This method will automatically resize the `data` array as needed, if it is
+  indeed an array.
   ###
   sizeChanged: =>
-    if Jax.Util.isPowerOfTwo(@get 'width') and
-       Jax.Util.isPowerOfTwo(@get 'height')
+    width = @get 'width'
+    height = @get 'height'
+    if Jax.Util.isPowerOfTwo(width) and Jax.Util.isPowerOfTwo(height)
       @isPoT = true
     else
       if @isPoT
@@ -180,3 +186,29 @@ class Jax.Texture
         @set 'wrap_t', GL_CLAMP_TO_EDGE
         @set 'generate_mipmap', false
       @isPoT = false
+    data = @get 'data'
+    if data is undefined or data instanceof Uint8Array
+      @resizeData width * height * Jax.Util.sizeofFormat @get "format"
+
+  ###
+  The `data` array will be resized
+  to the given length and as much as possible of its contents will be copied
+  into the new array. If the current length is the same as the given length,
+  the existing data is not changed. If the data is not an array, it is left
+  unchanged.
+
+  This method is called when the `width` or `height` is explicitly changed,
+  so that the image data to be uploaded to the graphics driver matches the
+  specified dimensions. It is _not_ called if the `data` is not an array.
+  ###
+  resizeData: (newLength) ->
+    data = @get 'data'
+    if data?.length is newLength
+      newData = data
+    else
+      newData = new Uint8Array newLength
+      if data
+        for i in [0...newData.length]
+          break if i >= data.length
+          newData[i] = data[i]
+    @set 'data', newData
