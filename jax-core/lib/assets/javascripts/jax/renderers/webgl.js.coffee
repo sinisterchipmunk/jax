@@ -7,9 +7,11 @@ Jax.Renderer.register class Jax.Renderer.WebGL
       vec4.copy @_clearColor, v
       @context.clearColor @_clearColor...
     
-  constructor: (canvas, options) ->
-    throw new Error "WebGL not supported!" unless canvas.getContext
-    @context = canvas.getContext 'experimental-webgl', options
+  constructor: (@canvas, @options) ->
+
+  initialize: ->
+    throw new Error "WebGL not supported!" unless @canvas.getContext
+    @context = @canvas.getContext 'experimental-webgl', @options
     throw new Error "WebGL not supported!" unless @context
     
     @state = {}
@@ -59,3 +61,26 @@ Jax.Renderer.register class Jax.Renderer.WebGL
   generateMipmap: (target) -> @context.generateMipmap target
 
   deleteTexture: (texture) -> @context.deleteTexture texture
+
+  checkFramebufferStatus: (glEnum) -> @context.checkFramebufferStatus glEnum
+
+  framebufferTexture2D: (glEnum, attachment, target, handle, num) ->
+    @context.framebufferTexture2D glEnum, attachment, target, handle, num
+
+  framebufferRenderbuffer: (glEnum, attachment, target, handle) ->
+    @context.framebufferRenderbuffer glEnum, attachment, target, handle
+
+  renderbufferStorage: (glEnum, target, w, h) ->
+    @context.renderbufferStorage glEnum, target, w, h
+
+  bindRenderbuffer: (target, handle) ->
+    @context.bindRenderbuffer target, handle
+
+  createRenderbuffer: -> @context.createRenderbuffer()
+
+  createFramebuffer: -> @context.createFramebuffer()
+
+  bindFramebuffer: (target, handle) ->
+    @context.bindFramebuffer target, handle
+
+  

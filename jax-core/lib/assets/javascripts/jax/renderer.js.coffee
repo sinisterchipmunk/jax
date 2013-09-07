@@ -16,7 +16,9 @@ class Jax.Renderer
           name = Renderer
           Renderer = Jax.Renderer[Renderer]
         if Renderer
-          return new Renderer canvas, contextOptions
+          renderer = new Renderer canvas, contextOptions
+          renderer.initialize()
+          return renderer
         else
           console.log "Warning: renderer '#{name}' not found!"
       catch e

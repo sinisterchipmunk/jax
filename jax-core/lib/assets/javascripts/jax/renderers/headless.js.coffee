@@ -10,6 +10,8 @@ surface at this time, though perhaps one day it will be extended to do so.
 Jax.Renderer.register class Jax.Renderer.Headless
 
   constructor: (canvas, options) ->
+
+  initialize: ->
     
   clear: ->
     
@@ -36,4 +38,18 @@ Jax.Renderer.register class Jax.Renderer.Headless
 
   texImage2D: ->
 
-  getState: -> null
+  createFramebuffer: -> {}
+
+  bindFramebuffer: ->
+
+  checkFramebufferStatus: -> GL_FRAMEBUFFER_COMPLETE
+
+  framebufferTexture2D: ->
+
+  framebufferRenderbuffer: ->
+
+  renderbufferStorage: ->
+
+  bindRenderbuffer: ->
+
+  createRenderbuffer: ->

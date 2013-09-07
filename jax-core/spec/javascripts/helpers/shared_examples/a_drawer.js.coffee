@@ -1,5 +1,3 @@
-#= require helpers/shared_examples
-
 sharedExamplesFor "a drawer", ->
   beforeEach ->
     @cloneSubject = =>

@@ -1,7 +1,7 @@
 globalSharedExampleGroups = {}
 
 window.sharedExamplesFor = (name, fn) ->
-  if jasmine.getEnv().currentSuite
+  if jasmine?.getEnv()?.currentSuite
     jasmine.getEnv().currentSuite.sharedExamplesFor name, fn
   else
     globalSharedExampleGroups[name] = fn
