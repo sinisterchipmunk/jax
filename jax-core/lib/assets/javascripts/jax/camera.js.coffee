@@ -30,6 +30,9 @@ The following **read-only** attributes are available:
 
   - `mat4 matrix`
   - `mat4 inverseMatrix`
+  - `mat4 inverseConcatenatedMatrices`
+  - `mat3 normalMatrix`
+  - `mat3 inverseNormalMatrix`
   - `vec3 position`
   - `vec3 up`
   - `vec3 right`
@@ -78,30 +81,32 @@ class Jax.Camera
   # flags used to track stale data, so that we aren't recalculating values
   # unnecessarily
   FLAGS =
-    matrix:              0x001
-    inverseMatrix:       0x002
-    position:            0x004
-    up:                  0x008
-    right:               0x010
-    direction:           0x020
-    rotation:            0x040
-    normalMatrix:        0x080
-    inverseNormalMatrix: 0x100
+    matrix                     : 0x001
+    inverseMatrix              : 0x002
+    position                   : 0x004
+    up                         : 0x008
+    right                      : 0x010
+    direction                  : 0x020
+    rotation                   : 0x040
+    normalMatrix               : 0x080
+    inverseNormalMatrix        : 0x100
+    inverseConcatenatedMatrices: 0x200
 
   constructor: (opts = {}) ->
     @initializeAttributes()
     @activeAnimations = {}
     @animationQueues = {}
     @_time = 0
-    @set 'matrix',              mat4.identity mat4.create()
-    @set 'inverseMatrix',       mat4.identity mat4.create()
-    @set 'normalMatrix',        mat3.identity mat3.create()
-    @set 'inverseNormalMatrix', mat3.identity mat3.create()
-    @set 'position',            vec3.create()
-    @set 'up',                  vec3.clone [0, 1,  0]
-    @set 'right',               vec3.clone [1, 0,  0]
-    @set 'direction',           vec3.clone [0, 0, -1]
-    @set 'rotation',            quat.identity quat.create()
+    @set 'matrix',                      mat4.identity mat4.create()
+    @set 'inverseMatrix',               mat4.identity mat4.create()
+    @set 'normalMatrix',                mat3.identity mat3.create()
+    @set 'inverseNormalMatrix',         mat3.identity mat3.create()
+    @set 'inverseConcatenatedMatrices', mat4.identity mat4.create()
+    @set 'position',                    vec3.create()
+    @set 'up',                          vec3.clone [0, 1,  0]
+    @set 'right',                       vec3.clone [1, 0,  0]
+    @set 'direction',                   vec3.clone [0, 0, -1]
+    @set 'rotation',                    quat.identity quat.create()
     @set 'projection',
       type: 'identity'
       matrix: mat4.identity mat4.create()
@@ -138,7 +143,7 @@ class Jax.Camera
       @set 'rotation', currentRotation
       @stale |= FLAGS.inverseMatrix | FLAGS.up | FLAGS.direction |
                 FLAGS.right | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix |
-                FLAGS.position
+                FLAGS.position | FLAGS.inverseConcatenatedMatrices
       @_frustum?.invalidate()
     else if newPosition
       @setPosition newPosition
@@ -377,7 +382,7 @@ class Jax.Camera
       value
 
   SET_ROTATION_FLAGS = FLAGS.inverseMatrix | FLAGS.up | FLAGS.right | FLAGS.direction |
-                       FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+                       FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   setRotation: (newRotation) ->
     rotation = @attributes.rotation
     quat.copy rotation, newRotation
@@ -420,17 +425,34 @@ class Jax.Camera
         @set 'normalMatrix',        mat3.normalFromMat4 value, @get 'matrix'
       when 'inverseNormalMatrix'
         @set 'inverseNormalMatrix', mat3.normalFromMat4 value, @get 'inverseMatrix'
+      when 'inverseConcatenatedMatrices'
+        mm = @get 'inverseMatrix'
+        pm = @get('projection').matrix
+        mat4.multiply value, pm, mm
+        unless mat4.invert value, value
+          throw new Error("Can't calculate inverse of concatenated matrices")
+
     value
 
+  ###
+  Unprojects a point from screen coordinates to a position in world space.
+  The `winz` value should be a number within 0..1, where 0 is on the near
+  plane and 1 is on the far plane.
+  ###
   unprojectPoint: (out, winx, winy, winz) ->
     inf = _unprojectInf
     projection = @get 'projection'
-    mm = @get 'inverseMatrix'
-    pm = projection.matrix
     viewport = _viewport
-    [viewport[2], viewport[3]] = [projection.width, projection.height]
-    m = mat4.multiply _unprojmat, pm, m
-    return null unless mat4.invert m, m
+
+    switch projection.type
+      when 'orthographic'
+        [ viewport[0], viewport[1], viewport[2], viewport[3] ] =
+          [ projection.left, projection.bottom, projection.right, projection.top ]
+      when 'perspective'
+        [ viewport[0], viewport[1], viewport[2], viewport[3] ] =
+          [ 0, 0, projection.width, projection.height ]
+
+    m = @get 'inverseConcatenatedMatrices'
 
     # Transformation of normalized coordinates between -1 and 1
     inf[0] = (winx - viewport[0]) / viewport[2] * 2 - 1
@@ -448,6 +470,12 @@ class Jax.Camera
     out[2] = inf[2] * inf[3]
     return out
 
+  ###
+  Unprojects two points from screen coordinates to produce a ray in world
+  space. The ray's first element is the unprojected point with `winzNear`,
+  and the second element is the unprojected point with `winzFar`. By default
+  these are points on the near and far planes, respectively.
+  ###
   unprojectLineSegment: (out, winx, winy, winzNear = 0, winzFar = 1) ->
     @unproject out[0], winx, winy, winzNear
     @unproject out[1], winx, winy, winzFar
@@ -460,7 +488,7 @@ class Jax.Camera
   reset: ->
     @stale = FLAGS.inverseMatrix | FLAGS.position | FLAGS.up | FLAGS.right |
              FLAGS.direction | FLAGS.rotation | FLAGS.normalMatrix |
-             FLAGS.inverseNormalMatrix
+             FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
     @_frustum?.invalidate()
     @set 'matrix', mat4.identity @get('matrix')
     this
@@ -482,14 +510,16 @@ class Jax.Camera
       - matrix
 
   ###
+  orthoDefaults = 
+      left  :  -1
+      right :   1
+      top   :   1
+      bottom:  -1
+      near  : 0.1
+      far   : 200
   ortho: (options) ->
     proj = @get('projection')
-    proj.left   = options.left   || -1
-    proj.right  = options.right  || 1
-    proj.top    = options.top    || 1
-    proj.bottom = options.bottom || -1
-    proj.near   = options.near   || 0.1
-    proj.far    = options.far    || 200
+    $.extend proj, orthoDefaults, proj, options
     proj.width  = proj.right - proj.left
     proj.height = proj.top - proj.bottom
     proj.depth  = proj.far - proj.near
@@ -514,15 +544,17 @@ class Jax.Camera
       - matrix
 
   ###
+  perspectiveDefaults =
+    near: 0.1
+    far: 200
+    fov: 0.765398 # 45 degrees in radians
   perspective: (options) ->
     throw new Error "Expected a screen width in Jax.Camera#perspective" unless options?.width
     throw new Error "Expected a screen height in Jax.Camera#perspective" unless options?.height
     proj = @get 'projection'
+    $.extend proj, perspectiveDefaults, proj, options
     proj.width       = options.width
     proj.height      = options.height
-    proj.near        = options.near || 0.1
-    proj.far         = options.far  || 200
-    proj.fov         = options.fov  || 0.785398 # 45 degrees in radians
     proj.depth       = proj.far - proj.near
     proj.aspectRatio = proj.width / proj.height
     proj.type        = 'perspective'
@@ -550,7 +582,7 @@ class Jax.Camera
   the world-space position of `point`.
   ###
   LOOK_AT_FLAGS = FLAGS.matrix | FLAGS.up | FLAGS.right | FLAGS.direction |
-                  FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+                  FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   lookAt: (eye, point, up) ->
     m = @get 'inverseMatrix'
     @set 'inverseMatrix', mat4.lookAt m, eye, point, up
@@ -570,7 +602,7 @@ class Jax.Camera
   To prevent camera drift, specify a constant up vector (e.g. `[0, 1, 0]`).
   ###
   SET_DIRECTION_FLAGS = FLAGS.inverseMatrix | FLAGS.normalMatrix |
-                        FLAGS.inverseNormalMatrix
+                        FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   setDirection: (newDir, up) ->
     view = @attributes.direction
     magSq = vec3.dot(newDir, newDir)
@@ -610,7 +642,7 @@ class Jax.Camera
   space.
   ###
   SET_POSITION_FLAGS = FLAGS.inverseMatrix | FLAGS.position | FLAGS.normalMatrix |
-                       FLAGS.inverseNormalMatrix
+                       FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   setPosition: (newPos) ->
     m = @get 'matrix'
     m[12] = newPos[0]
@@ -626,7 +658,7 @@ class Jax.Camera
   Rotates the camera by the specified quaternion rotation.
   ###
   ROTATE_QUAT_FLAGS = FLAGS.inverseMatrix | FLAGS.up | FLAGS.right | FLAGS.direction |
-                      FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+                      FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   rotateQuat: (newRotation) ->
     rotMat = mat4.fromRotationTranslation _rotMat, newRotation, _origin
     matrix = @get 'matrix'
@@ -641,7 +673,7 @@ class Jax.Camera
   Rotates about an arbitrary axis, which is a `vec3` given in eye space.
   ###
   ROTATE_FLAGS = FLAGS.inverseMatrix | FLAGS.up | FLAGS.right | FLAGS.direction |
-                 FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+                 FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   rotate: (n, axis) ->
     m = @get 'matrix'
     @set 'matrix', mat4.rotate m, m, n, axis
@@ -662,7 +694,7 @@ class Jax.Camera
   backward. Returns this camera.
   ###
   MOVE_FLAGS = FLAGS.inverseMatrix | FLAGS.position | FLAGS.normalMatrix |
-               FLAGS.inverseNormalMatrix
+               FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   move: (n) ->
     n = -n
     m = @get 'matrix'
@@ -682,7 +714,7 @@ class Jax.Camera
   vector. A negative `n` moves left. Returns this camera.
   ###
   STRAFE_FLAGS = FLAGS.inverseMatrix | FLAGS.position | FLAGS.normalMatrix |
-                 FLAGS.inverseNormalMatrix
+                 FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   strafe: (n) ->
     m = @get 'matrix'
     [x, y, z, w] = [m[0] * n, m[1] * n, m[2] * n, m[3] * n]
@@ -699,7 +731,7 @@ class Jax.Camera
   Translates this camera by the specified `vec3` in eye space.
   ###
   TRANSLATE_FLAGS = FLAGS.inverseMatrix | FLAGS.position | FLAGS.normalMatrix |
-                    FLAGS.inverseNormalMatrix
+                    FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   translate: (vec) ->
     m = @get 'matrix'
     @set 'matrix', mat4.translate m, m, vec
@@ -717,7 +749,7 @@ class Jax.Camera
   about an arbitrary axis, and specify a constant axis such as `[0, 1, 0]`.
   ###
   YAW_FLAGS = FLAGS.inverseMatrix | FLAGS.right | FLAGS.direction |
-              FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+              FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   yaw: (n) ->
     m = @get 'matrix'
     @set 'matrix', mat4.rotateY m, m, n
@@ -729,7 +761,7 @@ class Jax.Camera
   Rolls the camera by the specified number of radians.
   ###
   ROLL_FLAGS = FLAGS.inverseMatrix | FLAGS.right | FLAGS.up | FLAGS.rotation |
-               FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+               FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   roll: (n) ->
     m = @get 'matrix'
     @set 'matrix', mat4.rotateZ m, m, n
@@ -741,7 +773,7 @@ class Jax.Camera
   Pitches the camera up (positive) or down (negative).
   ###
   PITCH_FLAGS = FLAGS.inverseMatrix | FLAGS.up | FLAGS.direction |
-                FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix
+                FLAGS.rotation | FLAGS.normalMatrix | FLAGS.inverseNormalMatrix | FLAGS.inverseConcatenatedMatrices
   pitch: (n) ->
     m = @get 'matrix'
     @set 'matrix', mat4.rotateX m, m, n

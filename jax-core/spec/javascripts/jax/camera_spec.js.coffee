@@ -3,6 +3,22 @@ describe 'Jax.Camera', ->
     @out = vec3.create()
     @camera = new Jax.Camera
 
+  describe 'with a perspective projection', ->
+    beforeEach ->
+      @camera.perspective
+        width: 2
+        height: 2
+        near: 0.1
+        far: 200
+
+    it 'unprojectPoint from the origin at z = 0', ->
+      @camera.unprojectPoint @out, 1, 1, 0
+      expect(@out).toEqualVector [0, 0, -0.1]
+
+    it 'unprojectPoint from the origin at z = 1', ->
+      @camera.unprojectPoint @out, 1, 1, 1
+      expect(@out).toEqualVector [0, 0, -199.995422]
+
   describe 'by default', ->
     it 'transformWorld3', ->
       expect(@camera.transformWorld3 @out, [0, 0, 0]).toEqualVector [0, 0, 0]
