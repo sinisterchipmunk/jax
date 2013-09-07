@@ -57,14 +57,10 @@ Jax.Controller.create "oz3d-normal",
         specular:[1, 0.9, 0.9, 1]
       # textures:  [ {
       #   path: '/textures/oz3d_color_map.jpg'
-      #   min_filter: GL_NEAREST
-      #   mag_filter: GL_NEAREST
       #   scale: 4
       # } ]
       normalMaps: [ {
         path: '/textures/oz3d_normal_and_specular_map.png'
-        min_filter: GL_NEAREST
-        mag_filter: GL_NEAREST
         specularChannel: true
         scale: 4
       } ]
