@@ -65,3 +65,6 @@
 })());
 
 Jax.deprecate.level = 1;
+
+Jax.deprecate(Jax.Util, 'normalizeOptions', 'jQuery.extend',
+    'Jax.Util.normalizeOptions has been deprecated in favor of jQuery.extend.');

@@ -267,21 +267,6 @@ Jax.Util = {
   },
   
   /**
-   * Jax.Util.normalizeOptions(incoming, defaults) -> Object
-   * Receives incoming and formats it into a generic Object with a structure representing the given defaults.
-   * The returned object is always a brand-new object, to avoid polluting original incoming object.
-   * If the object contains a Jax.Class instance, that actual object is copied over. All other objects
-   * are cloned into brand-new objects.
-   **/
-  normalizeOptions: function(incoming, defaults) {
-    // throw new Error("Jax.Util.normalizeOptions is being phased out of core (with "+JSON.stringify(incoming)+" and "+JSON.stringify(defaults)+")");
-    var result = new (function NormalizedObject() { })();
-    Jax.Util.merge(defaults, result);
-    Jax.Util.merge(incoming, result);
-    return result;
-  },
-
-  /**
    * Jax.Util.sizeofFormat(glEnum) -> Number
    * 
    * Returns the byte size of an array consisting of this type of element.

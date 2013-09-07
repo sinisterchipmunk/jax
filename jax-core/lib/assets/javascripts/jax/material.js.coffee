@@ -19,7 +19,7 @@ class Jax.Material
       _layers.splice 0, _layers.length, layers...
       
     @assigns = {}
-    options = Jax.Util.normalizeOptions options, {}
+    options = jQuery.extend true, {}, options
     for key, value of options
       switch key
         when 'layers'  then @addLayer layer for layer in value
@@ -84,7 +84,7 @@ class Jax.Material
       @layers.splice index, 0, options
       return options
     
-    options = Jax.Util.normalizeOptions options, {}
+    options = jQuery.extend true, {}, options
     Klass = Jax.Material.Layer[options.type]
     unless Klass
       if Jax.Material[options.type]
