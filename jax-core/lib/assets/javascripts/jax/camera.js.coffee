@@ -175,7 +175,7 @@ class Jax.Camera
 
   - `rotation` : a rotation quaternion representing the final state of this
                  camera. This can be combined with the `position` option, but
-                 not with the `direction`, `toward`, `right` or `up` options.
+                 not with the `direction`, `facing`, `right` or `up` options.
 
   - `facing`   : animates the view direction of this camera such that it is
                  always facing in the direction of the specified point, given
@@ -225,10 +225,10 @@ class Jax.Camera
   ###
   animate: (opts) ->
     if opts.rotation
-      if opts.direction || opts.toward || opts.right || opts.up
+      if opts.direction || opts.facing || opts.right || opts.up
         throw new Error "Can't animate toward directional vectors AND a rotation quaternion -- choose one or the other"
     else
-      if opts.direction && opts.toward
+      if opts.direction && opts.facing
         throw new Error "Can't animate toward view vector AND reference point -- choose one or the other"
 
     queue = @animationQueues[opts.queue or 'default'] or= []
