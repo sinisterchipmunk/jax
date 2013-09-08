@@ -99,7 +99,7 @@ class Jax.Context
   ###
   isViewportStale: ->
     camera = @activeCamera
-    return true unless camera.projection
+    return true if camera.get('projection').type is 'identity'
     return true if @_realViewportWidth  isnt @canvas.clientWidth
     return true if @_realViewportHeight isnt @canvas.clientHeight
     false
@@ -249,6 +249,8 @@ class Jax.Context
     delete @_player # TODO remove this line when deprecated `player` is removed!
     
   setupCamera: ->
+    @_realViewportWidth  = @canvas.clientWidth
+    @_realViewportHeight = @canvas.clientHeight
     if @world and @canvas
       @activeCamera.perspective
         width:  @canvas.clientWidth  || @canvas.width  || 320

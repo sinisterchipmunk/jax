@@ -4,33 +4,35 @@ describe 'Jax.Context', ->
     jasmine.Clock.useMock()
   afterEach -> Jax.useRequestAnimFrame = true
 
-  describe 'after pixel width changes', ->
-    beforeEach ->
-      @context.canvas.width = 1
+  # not sure this actually should be the case
 
-    describe 'rendering', ->
-      beforeEach ->
-        spyOn @context, 'setupCamera'
-        @context.render()
+  # describe 'after pixel width changes', ->
+  #   beforeEach ->
+  #     @context.canvas.width = 1
 
-      it 'should set up the camera again', ->
-        expect(@context.setupCamera).toHaveBeenCalled()
+  #   describe 'rendering', ->
+  #     beforeEach ->
+  #       spyOn @context, 'setupCamera'
+  #       @context.render()
 
-  describe 'after pixel height changes', ->
-    beforeEach ->
-      @context.canvas.height = 1
+  #     it 'should set up the camera again', ->
+  #       expect(@context.setupCamera).toHaveBeenCalled()
 
-    describe 'rendering', ->
-      beforeEach ->
-        spyOn @context, 'setupCamera'
-        @context.render()
+  # describe 'after pixel height changes', ->
+  #   beforeEach ->
+  #     @context.canvas.height = 1
 
-      it 'should set up the camera again', ->
-        expect(@context.setupCamera).toHaveBeenCalled()
+  #   describe 'rendering', ->
+  #     beforeEach ->
+  #       spyOn @context, 'setupCamera'
+  #       @context.render()
+
+  #     it 'should set up the camera again', ->
+  #       expect(@context.setupCamera).toHaveBeenCalled()
 
   describe 'after clientWidth changes', ->
     beforeEach ->
-      @context.canvas.clientWidth = 1
+      $(@context.canvas).css('width', '1px')
 
     describe 'rendering', ->
       beforeEach ->
@@ -42,7 +44,7 @@ describe 'Jax.Context', ->
 
   describe 'after clientHeight changes', ->
     beforeEach ->
-      @context.canvas.clientHeight = 1
+      $(@context.canvas).css('height', '1px')
 
     describe 'rendering', ->
       beforeEach ->
@@ -113,7 +115,19 @@ describe 'Jax.Context', ->
     @context.render() # control
     @context.activeCamera = new Jax.Camera
     @context.render() # should setup projection
-    expect(@context.activeCamera.projection).toBeDefined()
+    expect(@context.activeCamera.get('projection').type).toEqual 'perspective'
+  
+  it "should not apply projection to new cameras if they already have one", ->
+    @context.redirectTo new Jax.Controller() # controller required
+    @context.render() # control
+    @context.activeCamera = new Jax.Camera
+    @context.activeCamera.ortho
+      left: -1
+      right: 1
+      bottom: -1
+      top: 1
+    @context.render() # should setup projection
+    expect(@context.activeCamera.get('projection').type).toEqual 'orthographic'
   
   it 'should find canvas by id', ->
     c = new Jax.Context @context.canvas.getAttribute 'id'
