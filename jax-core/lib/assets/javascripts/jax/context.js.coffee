@@ -249,9 +249,9 @@ class Jax.Context
     delete @_player # TODO remove this line when deprecated `player` is removed!
     
   setupCamera: ->
-    @_realViewportWidth  = @canvas.clientWidth
-    @_realViewportHeight = @canvas.clientHeight
     if @world and @canvas
+      @_realViewportWidth  = @canvas.clientWidth
+      @_realViewportHeight = @canvas.clientHeight
       @activeCamera.perspective
         width:  @canvas.clientWidth  || @canvas.width  || 320
         height: @canvas.clientHeight || @canvas.height || 200

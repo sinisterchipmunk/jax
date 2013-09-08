@@ -133,12 +133,10 @@ describe 'Jax.Context', ->
     c = new Jax.Context @context.canvas.getAttribute 'id'
     expect(c.canvas).toBe @context.canvas
   
-  it 'should pass webgl options into the webgl canvas', ->
+  it 'should pass webgl options into the renderer', ->
     c = new Jax.Context document.createElement('canvas'),
       preserveDrawingBuffer: true
-    expect(c.renderer.context.getContextAttributes().preserveDrawingBuffer) \
-      .toBe true
-    c.dispose()
+    expect(c.renderer.options.preserveDrawingBuffer).toBe true
   
   describe "handling errors", ->
     context = error = null
@@ -192,9 +190,9 @@ describe 'Jax.Context', ->
     describe 'scene unloading', ->
       it 'should reset the camera', ->
         @context.redirectTo 'two'
-        @context.activeCamera.position = [1,1,1]
+        @context.activeCamera.setPosition [1,1,1]
         @context.unloadScene()
-        expect(@context.activeCamera.position).toEqualVector [0,0,0]
+        expect(@context.activeCamera.get('position')).toEqualVector [0,0,0]
 
     describe 'to the index action in the same controller', ->
       it "should reload the scene as a special case", ->
@@ -336,13 +334,13 @@ describe 'Jax.Context', ->
       expect(@context.controller).toBeInstanceOf TestController
   
   describe "with a canvas and no options", ->
-    it "should initialize a WebGL renderer", ->
+    it "should initialize a renderer", ->
       context = new Jax.Context @context.canvas
-      expect(context.renderer).toBeInstanceOf Jax.Renderer.WebGL
+      expect(context.renderer).toBeDefined()
       
     it "should set perspective mode on the camera", ->
       context = new Jax.Context @context.canvas
-      expect(context.activeCamera.projection.type).toEqual 'perspective'
+      expect(context.activeCamera.get('projection').type).toEqual 'perspective'
     
   describe "with no arguments", ->
     it "should not initialize a renderer", ->
