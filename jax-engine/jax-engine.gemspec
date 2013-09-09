@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'jquery-rails'
   s.add_dependency 'jasmine-rails'
   s.add_dependency 'jax-core'
+  s.add_dependency 'ejs'
     
   s.rubyforge_project = "jax-engine"
 
