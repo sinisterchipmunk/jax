@@ -9,6 +9,10 @@ testbeds do
     chdir name
     run 'rails', 'g', 'jax:install', '--force'
 
+    File.open('app/assets/javascripts/application.js', 'a') do |f|
+      f.puts "//= require jax-demos"
+    end
+
     cp "../../fixtures/jasmine.yml", "./spec/javascripts/support"
     Dir['../../fixtures/public/*'].each do |dir|
       cp_r dir, './public/'
