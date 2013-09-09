@@ -48,8 +48,12 @@ Jax.Input.Leap = class _Leap extends Jax.Input
 
   startLooping: ->
     return if @looping
-    # TODO don't enable gestures if they are not being used
-    Leap.loop {enableGestures: true}, (data) => @loop data
+    if typeof(Leap) is 'undefined'
+      console.log 'Your controller is listening for Leap Motion actions, but Leap could not be found.'
+      console.log '  Did you include leap.js?'
+    else
+      # TODO don't enable gestures if they are not being used
+      Leap.loop {enableGestures: true}, (data) => @loop data
     @looping = true
 
   stopListening: ->
@@ -57,11 +61,6 @@ Jax.Input.Leap = class _Leap extends Jax.Input
     @_reset()
 
   register: (controller) ->
-    if typeof(Leap) is 'undefined'
-      console.log 'Your controller is listening for Leap Motion actions, but Leap could not be found.'
-      console.log '  Did you include leap.js?'
-      return
-    
     @registerLeapFrame           controller
     @registerFrameRotated        controller
     @registerFrameScaled         controller
