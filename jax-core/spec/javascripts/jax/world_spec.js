@@ -195,6 +195,10 @@ describe("Jax.World", function() {
       obj.render = function(context, options) { objNested.render(context, options); };
       world.context.canvas.width = 1;
       world.context.canvas.height = 1;
+      spyOn(world, 'pickRegionalIndices').andCallFake(function() {
+        obj.render(world.context);
+        return [objNested.__unique_id];
+      });
       expect(world.pickRegion(0, 0, 1, 1)[0] === objNested).toBeTruthy();
     });
   });

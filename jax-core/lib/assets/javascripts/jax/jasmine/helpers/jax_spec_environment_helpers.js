@@ -39,8 +39,8 @@ function setupJaxSpecContext() {
   canvas.width = 600;
   canvas.height = 400;
   canvas.setAttribute("id", "spec-canvas");
-  if (canvas.style)
-    canvas.style.display = "none";
+  // if (canvas.style)
+  //   canvas.style.display = "none";
   document.body.appendChild(canvas);
   
   beforeEach(function() {
@@ -50,7 +50,7 @@ function setupJaxSpecContext() {
   
   afterEach(function() {
     Jax.getGlobal().SPEC_CONTEXT.dispose();
-  })
+  });
 }
 
 if (typeof(global) != 'undefined') {

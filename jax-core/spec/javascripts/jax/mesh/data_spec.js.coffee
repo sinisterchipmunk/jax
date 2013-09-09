@@ -14,10 +14,10 @@ describe "Jax.Mesh.Data", ->
     data = new Jax.Mesh.Data [1, 2, 3]
     data.context = @context
     data.bind()
-    spyOn @context.gl, 'bufferData'
+    spyOn @context.renderer, 'bufferData'
     data.color = '#f00'
     data.bind()
-    expect(@context.gl.bufferData).toHaveBeenCalled()
+    expect(@context.renderer.bufferData).toHaveBeenCalled()
     
   it "should alter color buffer when color is changed", ->
     # I know, "duh", right?

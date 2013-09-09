@@ -38,10 +38,19 @@ class Jax.ShadowMap
     if context and not @_isValid
       unless @_initialized
         # try to use a 1024x1024 framebuffer, but degrade gracefully if it's too big
-        maxSize = context.gl.getParameter context.gl.MAX_RENDERBUFFER_SIZE
+        maxSize = context.renderer.getParameter GL_MAX_RENDERBUFFER_SIZE
         maxSize = 1024 if maxSize > 1024
         @width = @height = maxSize
-        @shadowmapFBO = new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
+        @shadowmapFBO = new Jax.Framebuffer
+          width: @width
+          height: @height
+          depth: true
+          color:
+            format: GL_RGBA
+            min_filter: GL_NEAREST
+            mag_filter: GL_NEAREST
+            generate_mipmap: false
+            flip_y: false
         @_initialized = true
 
       @setupProjection @_projectionMatrix, context
@@ -78,7 +87,7 @@ class Jax.ShadowMap
   example, rendering more than one pass).
   ###
   illuminate: (context, material = 'depthmap', fbo = @shadowmapFBO, capture = false) ->
-    gl = context.gl
+    gl = context.renderer
     clearColor = context.renderer.clearColor
     fbo.bind context, =>
       fbo.viewport context

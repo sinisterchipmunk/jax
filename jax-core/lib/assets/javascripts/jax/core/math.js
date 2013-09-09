@@ -48,6 +48,25 @@ Math.degToRad = Math.degToRad || function(deg) {
  **/
 Math.deg2rad = Math.deg2rad || Math.degToRad;
 
+Math.hcf = function(text1,text2){
+  var gcd=1;
+  if (text1>text2) {text1=text1+text2; text2=text1-text2; text1=text1-text2;}
+  if ((text2==(Math.round(text2/text1))*text1)) {gcd=text1}else {
+   for (var i = Math.round(text1/2) ; i > 1; i=i-1) {
+    if ((text1==(Math.round(text1/i))*i))
+     if ((text2==(Math.round(text2/i))*i)) {gcd=i; i=-1;}
+   }
+  }
+  return gcd;
+}
+
+Math.lcm = function(t1,t2){
+  var cm=1;
+  var f=Math.hcf(t1,t2);
+  cm=t1*t2/f;
+  return cm;
+}
+
 /**
  * Math.equalish(a, b) -> Boolean
  * Arguments can be either scalar or vector, but must be of the same type.

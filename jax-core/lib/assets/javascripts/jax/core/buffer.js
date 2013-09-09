@@ -64,8 +64,8 @@ Jax.Buffer = (function() {
       if (!self.gl) return;
 
       each_gl_buffer(self, function(context, buffer) {
-        context.gl.bindBuffer(self.bufferType, buffer);
-        context.gl.bufferData(self.bufferType, instance, self.drawType);
+        context.renderer.bindBuffer(self.bufferType, buffer);
+        context.renderer.bufferData(self.bufferType, instance, self.drawType);
       });
       
       return this;
@@ -110,7 +110,7 @@ Jax.Buffer = (function() {
     dispose: function() {
       var self = this;
       each_gl_buffer(this, function(context, buffer) {
-        context.gl.deleteBuffer(buffer);
+        context.renderer.deleteBuffer(buffer);
         self.gl[context.id] = null;
       });
       self.gl = {};
@@ -132,7 +132,7 @@ Jax.Buffer = (function() {
      * If this buffer is in an uninitialized or disposed state, it will be
      * built (or rebuilt) prior to binding.
      **/
-    bind: function(context) { context.gl.bindBuffer(this.bufferType, this.getGLBuffer(context)); return this; },
+    bind: function(context) { context.renderer.bindBuffer(this.bufferType, this.getGLBuffer(context)); return this; },
 
     /**
      * Jax.Buffer#getGLBuffer(context) -> WebGLBuffer
@@ -149,7 +149,7 @@ Jax.Buffer = (function() {
 
       if (!this.gl[context.id])
       {
-        var buffer = context.gl.createBuffer();
+        var buffer = context.renderer.createBuffer();
         buffer.itemSize = this.itemSize;
         this.gl[context.id] = {context:context,buffer:buffer};
         this.refresh();

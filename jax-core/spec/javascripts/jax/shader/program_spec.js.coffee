@@ -13,26 +13,26 @@ describe "Jax.Shader.Program", ->
   
   describe 'binding', ->
     beforeEach ->
-      spyOn @context.gl, 'useProgram'
+      spyOn @context.renderer, 'useProgram'
       program.bind @context
 
     it 'should validate', ->
       expect(program).toBeValid @context
 
     it 'should use the program', ->
-      expect(@context.gl.useProgram).toHaveBeenCalled()
+      expect(@context.renderer.useProgram).toHaveBeenCalled()
 
     it 'should not dispatch the same command twice in a row', ->
-      @context.gl.useProgram.reset()
+      @context.renderer.useProgram.reset()
       program.bind @context
-      expect(@context.gl.useProgram).not.toHaveBeenCalled()
+      expect(@context.renderer.useProgram).not.toHaveBeenCalled()
 
     it 'should dispatch the command if the last bound program was a different program', ->
       prog2 = new Jax.Shader.Program
       prog2.bind @context
-      @context.gl.useProgram.reset()
+      @context.renderer.useProgram.reset()
       program.bind @context
-      expect(@context.gl.useProgram).toHaveBeenCalled()
+      expect(@context.renderer.useProgram).toHaveBeenCalled()
 
   describe 'assigning attribute variables', ->
     beforeEach ->
@@ -45,27 +45,14 @@ describe "Jax.Shader.Program", ->
       expect(@attr.bind).toHaveBeenCalledWith @context
 
     it 'should set the vertex pointer', ->
-      spyOn @context.gl, 'vertexAttribPointer'
+      spyOn @context.renderer, 'vertexAttribPointer'
       program.set @context, f: @attr
-      expect(@context.gl.vertexAttribPointer).toHaveBeenCalledWith 0, 1, GL_FLOAT, false, 0, 0
+      expect(@context.renderer.vertexAttribPointer).toHaveBeenCalledWith 0, 1, GL_FLOAT, false, 0, 0
 
     it 'should disable unused attributes', ->
-      spyOn @context.gl, 'disableVertexAttribArray'
+      spyOn @context.renderer, 'disableVertexAttribArray'
       program.set @context, {}
-      expect(@context.gl.disableVertexAttribArray).toHaveBeenCalledWith 0
-
-  describe 'assigning a texture that has not finished loading', ->
-    beforeEach ->
-      program.vertex.append 'shared uniform sampler2D tex;'
-      program.fragment.append 'shared uniform sampler2D tex; void main(void) { gl_FragColor = texture2D(tex, vec2(1.0, 0.0)); }'
-      program.bind @context
-      @tex = new Jax.Texture
-      spyOn(@context.gl, 'uniform1i')
-      spyOn(@tex, 'ready').andReturn false
-      program.set @context, tex: @tex
-
-    it 'should not bind the uniform', ->
-      expect(@context.gl.uniform1i).not.toHaveBeenCalled()
+      expect(@context.renderer.disableVertexAttribArray).toHaveBeenCalledWith 0
 
   describe 'assigning uniform variables', ->
     beforeEach ->
@@ -88,7 +75,7 @@ describe "Jax.Shader.Program", ->
       shared uniform mat3 m3;
       shared uniform mat4 m4;
       '''
-      spyOn(@context.gl, 'getUniformLocation').andCallFake (p, name) ->
+      spyOn(@context.renderer, 'getUniformLocation').andCallFake (p, name) ->
         switch name
           when 'f' then 0
           when 'b' then 1
@@ -109,17 +96,17 @@ describe "Jax.Shader.Program", ->
           when 'm4' then 16
           else throw new Error "Unexpected getUniformLocation: #{name}"
       program.bind @context
-      spyOn @context.gl, 'uniform1f'
-      spyOn @context.gl, 'uniform1i'
-      spyOn @context.gl, 'uniform2fv'
-      spyOn @context.gl, 'uniform3fv'
-      spyOn @context.gl, 'uniform4fv'
-      spyOn @context.gl, 'uniform2iv'
-      spyOn @context.gl, 'uniform3iv'
-      spyOn @context.gl, 'uniform4iv'
-      spyOn @context.gl, 'uniformMatrix2fv'
-      spyOn @context.gl, 'uniformMatrix3fv'
-      spyOn @context.gl, 'uniformMatrix4fv'
+      spyOn @context.renderer, 'uniform1f'
+      spyOn @context.renderer, 'uniform1i'
+      spyOn @context.renderer, 'uniform2fv'
+      spyOn @context.renderer, 'uniform3fv'
+      spyOn @context.renderer, 'uniform4fv'
+      spyOn @context.renderer, 'uniform2iv'
+      spyOn @context.renderer, 'uniform3iv'
+      spyOn @context.renderer, 'uniform4iv'
+      spyOn @context.renderer, 'uniformMatrix2fv'
+      spyOn @context.renderer, 'uniformMatrix3fv'
+      spyOn @context.renderer, 'uniformMatrix4fv'
       program.set @context,
         f: 1.5
         b: true
@@ -140,23 +127,23 @@ describe "Jax.Shader.Program", ->
         m4: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
     it 'should set the uniform variables as appropriate', ->
-      expect(@context.gl.uniform1f).toHaveBeenCalledWith 0, 1.5 # f
-      expect(@context.gl.uniform1i).toHaveBeenCalledWith 1, true # b
-      expect(@context.gl.uniform1i).toHaveBeenCalledWith 2, 1 # i
-      expect(@context.gl.uniform2fv).toHaveBeenCalledWith 3, [1, 2] # v2
-      expect(@context.gl.uniform3fv).toHaveBeenCalledWith 4, [1, 2, 3] # v3
-      expect(@context.gl.uniform4fv).toHaveBeenCalledWith 5, [1, 2, 3, 4] # v4
-      expect(@context.gl.uniform2iv).toHaveBeenCalledWith 6, [true, false] # bv2
-      expect(@context.gl.uniform3iv).toHaveBeenCalledWith 7, [true, false, true] # bv3
-      expect(@context.gl.uniform4iv).toHaveBeenCalledWith 8, [true, false, true, false] # bv4
-      expect(@context.gl.uniform2iv).toHaveBeenCalledWith 9, [1, 2] # iv2
-      expect(@context.gl.uniform3iv).toHaveBeenCalledWith 10, [1, 2, 3] # iv3
-      expect(@context.gl.uniform4iv).toHaveBeenCalledWith 11, [1, 2, 3, 4] # iv4
-      expect(@context.gl.uniform1i).toHaveBeenCalledWith 12, 0 # s2d
-      expect(@context.gl.uniform1i).toHaveBeenCalledWith 13, 1 # scube
-      expect(@context.gl.uniformMatrix2fv).toHaveBeenCalledWith 14, false, [1, 2, 3, 4] # m2
-      expect(@context.gl.uniformMatrix3fv).toHaveBeenCalledWith 15, false, [1, 2, 3, 4, 5, 6, 7, 8, 9] # m3
-      expect(@context.gl.uniformMatrix4fv).toHaveBeenCalledWith 16, false, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] # m4
+      expect(@context.renderer.uniform1f).toHaveBeenCalledWith 0, 1.5 # f
+      expect(@context.renderer.uniform1i).toHaveBeenCalledWith 1, true # b
+      expect(@context.renderer.uniform1i).toHaveBeenCalledWith 2, 1 # i
+      expect(@context.renderer.uniform2fv).toHaveBeenCalledWith 3, [1, 2] # v2
+      expect(@context.renderer.uniform3fv).toHaveBeenCalledWith 4, [1, 2, 3] # v3
+      expect(@context.renderer.uniform4fv).toHaveBeenCalledWith 5, [1, 2, 3, 4] # v4
+      expect(@context.renderer.uniform2iv).toHaveBeenCalledWith 6, [true, false] # bv2
+      expect(@context.renderer.uniform3iv).toHaveBeenCalledWith 7, [true, false, true] # bv3
+      expect(@context.renderer.uniform4iv).toHaveBeenCalledWith 8, [true, false, true, false] # bv4
+      expect(@context.renderer.uniform2iv).toHaveBeenCalledWith 9, [1, 2] # iv2
+      expect(@context.renderer.uniform3iv).toHaveBeenCalledWith 10, [1, 2, 3] # iv3
+      expect(@context.renderer.uniform4iv).toHaveBeenCalledWith 11, [1, 2, 3, 4] # iv4
+      expect(@context.renderer.uniform1i).toHaveBeenCalledWith 12, 0 # s2d
+      expect(@context.renderer.uniform1i).toHaveBeenCalledWith 13, 1 # scube
+      expect(@context.renderer.uniformMatrix2fv).toHaveBeenCalledWith 14, false, [1, 2, 3, 4] # m2
+      expect(@context.renderer.uniformMatrix3fv).toHaveBeenCalledWith 15, false, [1, 2, 3, 4, 5, 6, 7, 8, 9] # m3
+      expect(@context.renderer.uniformMatrix4fv).toHaveBeenCalledWith 16, false, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] # m4
 
   describe 'when there are multiple instances using similar variable names', ->
     beforeEach ->
@@ -167,29 +154,29 @@ describe "Jax.Shader.Program", ->
 
     describe 'binding', ->
       beforeEach ->
-        spyOn @context.gl, 'bindAttribLocation'
-        spyOn @context.gl, 'enableVertexAttribArray'
+        spyOn @context.renderer, 'bindAttribLocation'
+        spyOn @context.renderer, 'enableVertexAttribArray'
         program.bind @context
 
       describe 'and then disabling the common attribute', ->
         beforeEach -> program.set @context, { a: undefined, b: @attr }
 
         it 'should reevaluate bindings so that the less common but enabled attribute uses slot 0', ->
-          expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'a'
-          expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'b'
+          expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'a'
+          expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'b'
 
       it 'should bind the most popular variable name to slot 0', ->
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'a'
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 0, 'a'
 
       it 'should bind the less popular variable name to slot 1', ->
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'b'
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith program.getGLProgram(@context), 1, 'b'
 
       it 'setting both with a value should enable both attribute locations', ->
         program.set @context,
           a: @attr
           b: @attr
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 0
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 1
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 0
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 1
 
   describe "when variables are matrices", ->
     beforeEach ->
@@ -200,8 +187,8 @@ describe "Jax.Shader.Program", ->
 
     describe 'binding and setting each with a value', ->
       beforeEach ->
-        spyOn @context.gl, 'bindAttribLocation'
-        spyOn @context.gl, 'enableVertexAttribArray'
+        spyOn @context.renderer, 'bindAttribLocation'
+        spyOn @context.renderer, 'enableVertexAttribArray'
         program.bind @context
         program.set @context,
           m2: @attr
@@ -211,14 +198,14 @@ describe "Jax.Shader.Program", ->
 
       it 'should pad attribute locations depending on matrix type', ->
         p = program.getGLProgram @context
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,0,'m2'
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,2,'m3'
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,5,'m4'
-        expect(@context.gl.bindAttribLocation).toHaveBeenCalledWith p,9,'z'
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 0
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 2
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 5
-        expect(@context.gl.enableVertexAttribArray).toHaveBeenCalledWith 9
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith p,0,'m2'
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith p,2,'m3'
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith p,5,'m4'
+        expect(@context.renderer.bindAttribLocation).toHaveBeenCalledWith p,9,'z'
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 0
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 2
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 5
+        expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 9
 
   describe "given a name", ->
     beforeEach -> program = new Jax.Shader.Program "new name"

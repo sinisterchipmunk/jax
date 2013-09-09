@@ -19,7 +19,8 @@ class Jax.Material
       _layers.splice 0, _layers.length, layers...
       
     @assigns = {}
-    options = jQuery.extend true, {}, options
+    # options = jQuery.extend true, {}, options
+    options = Jax.Util.merge options, {}
     for key, value of options
       switch key
         when 'layers'  then @addLayer layer for layer in value
@@ -84,7 +85,8 @@ class Jax.Material
       @layers.splice index, 0, options
       return options
     
-    options = jQuery.extend true, {}, options
+    # options = jQuery.extend true, {}, options
+    options = Jax.Util.merge options, {}
     Klass = Jax.Material.Layer[options.type]
     unless Klass
       if Jax.Material[options.type]
@@ -105,7 +107,7 @@ class Jax.Material
     layer.attachTo this, index
     @layers.splice index, 0, layer
     layer
-  
+
   addLayer: (options, localize = true) ->
     @insertLayer @layers.length, options, localize
     
@@ -132,7 +134,7 @@ class Jax.Material
     @clearAssigns() # don't taint assigns from one mesh to the next
     mesh.data.context = context # in case it changed - FIXME make this not necessary
     @shader.bind context
-    gl = context.gl
+    gl = context.renderer
     for pass in [0...numPassesRequested]
       continue unless @preparePass context, mesh, model, pass, numPassesRendered
       numPassesRendered++
@@ -153,7 +155,7 @@ class Jax.Material
           if map[k] then k = map[k]
           @assigns[k] = v unless v is undefined
     if numPassesRendered is 1
-      gl = context.gl
+      gl = context.renderer
       gl.blendFunc GL_ONE, GL_ONE
       gl.depthFunc GL_EQUAL
     @shader.set context, @assigns
@@ -162,9 +164,9 @@ class Jax.Material
   drawBuffers: (context, mesh, pass = 0) ->
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context if pass is 0
-      context.gl.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
+      context.renderer.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
     else if length = mesh.data.vertexBuffer?.length
-      context.gl.drawArrays mesh.draw_mode, 0, length
+      context.renderer.drawArrays mesh.draw_mode, 0, length
     
   ###
   Renders the given mesh and its sub-mesh, if any, and then returns

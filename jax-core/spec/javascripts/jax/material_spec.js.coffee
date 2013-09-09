@@ -45,13 +45,17 @@ describe "Jax.Material", ->
     describe "after localization", ->
       mat = null
       beforeEach ->
+        class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
+          @shaderSource:
+            fragment: "void main(void) { }"
+
         mat = new TestMat()
         mat.localizeShader()
       
       it 'should allow layers to be added', ->
         str = mat.shader.fragment.toString()
-        mat.addLayer type: 'VertexColor'
-        mat.addLayer type: 'VertexColor'
+        mat.addLayer type: 'TestLayer'
+        mat.addLayer type: 'TestLayer'
         expect(mat.shader.fragment.toString()).not.toEqual str
   
   it "should not reuse attribute arrays from different objects", ->
@@ -204,6 +208,9 @@ describe "Jax.Material", ->
 
   describe "class method", ->
     describe "find", ->
+      # silence warnings
+      beforeEach -> spyOn console, 'log'
+
       afterEach ->
         # Jax.Material.clearResources()
         delete Jax.Material.T

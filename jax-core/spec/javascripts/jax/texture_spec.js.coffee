@@ -28,6 +28,7 @@ describe 'Jax.Texture', ->
     beforeEach ->
       spyOn(@context.renderer, 'createTexture').andReturn 1
       spyOn @context.renderer, 'texParameteri'
+      spyOn @context.renderer, 'bindTexture'
       @result = @tex.validate @context
 
     it 'should apply texture params', ->

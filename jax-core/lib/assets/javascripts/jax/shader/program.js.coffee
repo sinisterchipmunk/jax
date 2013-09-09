@@ -42,7 +42,7 @@ class Jax.Shader.Program
   activated, an error is raised.
   ###
   set: (context, assigns) ->
-    {gl} = context
+    gl = context.renderer
     mustRebind = false
     for name, attribute of @variables.attributes
       if (value = assigns[name]) isnt undefined
@@ -80,10 +80,10 @@ class Jax.Shader.Program
     unless @isAttributeEnabled context, variable.location[id]
       @enableAttribute context, variable.location[id], variable.name
     value.bind context
-    context.gl.vertexAttribPointer variable.location[id], value.itemSize, value.dataType || GL_FLOAT, false, 0, value.offset || 0
+    context.renderer.vertexAttribPointer variable.location[id], value.itemSize, value.dataType || GL_FLOAT, false, 0, value.offset || 0
 
   setUniform: (context, variable, value) ->
-    {gl} = context
+    gl = context.renderer
     id = context.id
     switch variable.type
       when 'float'          then gl.uniform1f  variable.location[id], value
@@ -116,7 +116,7 @@ class Jax.Shader.Program
     map
 
   bindAttributeLocations: (descriptor) ->
-    {gl} = descriptor.context
+    gl = descriptor.context.renderer
     # sort variables used by this shader, in descending order of popularity
     # and secondarily alphabetically, so that they have a very predictable
     # order of appearance. This will help reduce attribute switching.
@@ -155,17 +155,17 @@ class Jax.Shader.Program
 
   enableAttribute: (context, location, name) ->
     context._enabledAttributes[location] = 1
-    context.gl.enableVertexAttribArray location
+    context.renderer.enableVertexAttribArray location
 
   disableAttribute: (context, location, name) ->
     context._enabledAttributes[location] = 0
-    context.gl.disableVertexAttribArray location
+    context.renderer.disableVertexAttribArray location
 
   isAttributeEnabled: (context, location) ->
     context._enabledAttributes[location] is 1
 
   getUniformLocations: (descriptor) ->
-    {gl} = descriptor.context
+    gl = descriptor.context.renderer
     program = @getGLProgram descriptor.context
     id = descriptor.context.id
     for name, variable of @variables.uniforms
@@ -178,7 +178,7 @@ class Jax.Shader.Program
     true
 
   relink: (descriptor) ->
-    {gl} = descriptor.context
+    gl = descriptor.context.renderer
     # console.log 'relink'
     @bindAttributeLocations descriptor
     gl.linkProgram  descriptor.glProgram
@@ -186,7 +186,7 @@ class Jax.Shader.Program
     @getUniformLocations descriptor
 
   compileShader: (descriptor, type, jaxShader, glShader) ->
-    {gl} = descriptor.context
+    gl = descriptor.context.renderer
     info = @getShaderContext descriptor, type
     source = new EJS(text: jaxShader.toString()).render info
     gl.shaderSource glShader, source
@@ -198,14 +198,14 @@ class Jax.Shader.Program
 
   compileShaders: (descriptor) ->
     {context, glVertex, glFragment} = descriptor
-    {gl} = context
+    gl = context.renderer
     @compileShader descriptor, 'vertex',   @vertex,   glVertex
     @compileShader descriptor, 'fragment', @fragment, glFragment
     gl.attachShader descriptor.glProgram, descriptor.glVertex
     gl.attachShader descriptor.glProgram, descriptor.glFragment
 
   compileProgram: (descriptor) ->
-    gl = descriptor.context.gl
+    gl = descriptor.context.renderer
     descriptor.glProgram  or= gl.createProgram()
     descriptor.glVertex   or= gl.createShader GL_VERTEX_SHADER
     descriptor.glFragment or= gl.createShader GL_FRAGMENT_SHADER
@@ -220,7 +220,7 @@ class Jax.Shader.Program
     @validate context unless descriptor.valid
     {context, glProgram} = descriptor
     unless context._currentProgram is glProgram
-      context.gl.useProgram glProgram
+      context.renderer.useProgram glProgram
       context._currentProgram = glProgram
 
   getGLProgram: (context) ->
@@ -291,16 +291,16 @@ class Jax.Shader.Program
     # that are actually in use, and then made available the difference, so
     # that a shader could alter its source code depending on the number
     # of uniforms/varyings/etc available to be used.
-    {gl} = descriptor.context
+    gl = descriptor.context.renderer
     shaderType                  : shaderType
-    maxVertexAttribs            : gl.getParameter gl.MAX_VERTEX_ATTRIBS
-    maxVertexUniformVectors     : gl.getParameter gl.MAX_VERTEX_UNIFORM_VECTORS
-    maxVaryingVectors           : gl.getParameter gl.MAX_VARYING_VECTORS
-    maxCombinedTextureImageUnits: gl.getParameter gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS
-    maxVertexTextureImageUnits  : gl.getParameter gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS
-    maxFragmentTextureImageUnits: gl.getParameter gl.MAX_TEXTURE_IMAGE_UNITS
-    maxFragmentUniformVectors   : gl.getParameter gl.MAX_FRAGMENT_UNIFORM_VECTORS
-    shadingLanguageVersion      : gl.getParameter gl.SHADING_LANGUAGE_VERSION
+    maxVertexAttribs            : gl.getParameter GL_MAX_VERTEX_ATTRIBS
+    maxVertexUniformVectors     : gl.getParameter GL_MAX_VERTEX_UNIFORM_VECTORS
+    maxVaryingVectors           : gl.getParameter GL_MAX_VARYING_VECTORS
+    maxCombinedTextureImageUnits: gl.getParameter GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+    maxVertexTextureImageUnits  : gl.getParameter GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
+    maxFragmentTextureImageUnits: gl.getParameter GL_MAX_TEXTURE_IMAGE_UNITS
+    maxFragmentUniformVectors   : gl.getParameter GL_MAX_FRAGMENT_UNIFORM_VECTORS
+    shadingLanguageVersion      : gl.getParameter GL_SHADING_LANGUAGE_VERSION
     gl                          : gl
 
   buildBacktrace: (gl, shader, source) ->

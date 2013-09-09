@@ -168,6 +168,9 @@ Jax.Util = {
     if (data) {
       var res = vec4.create();
 
+      if (data instanceof Jax.Color) {
+        return vec4.copy(res, data.toVec4());
+      }
       if (typeof(data) == "string") {
         var components = data.split(/[,\s]+/);
         if (components.length >= 3) {

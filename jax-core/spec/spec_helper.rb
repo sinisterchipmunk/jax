@@ -7,6 +7,7 @@ require 'rails/generators'
 ::Rails::Generators.options[:rails][:orm] = :active_record
 
 class App < ::Rails::Application
+  config.eager_load = false
 	config.active_support.deprecation = :log
   config.assets.enabled = true
   config.assets.version = '1.0'

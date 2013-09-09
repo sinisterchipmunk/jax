@@ -42,14 +42,26 @@ class Jax.Mesh.Data
   # Returns the calculated length of the ArrayBuffer in bytes for the specified
   # number of vertices and its vertex index buffer.
   calcByteLength = (numVerts, numIndices, indexFormat) ->
+    # Hack around a bug in qt by setting BYTES_PER_ELEMENT to the lowest
+    # common multiple of all array types to be used, and ensure that allocated
+    # data is a multiple of that number.
+    multiple = 1
+    for name, size of Jax.Mesh.Data.endpoints
+      multiple = Math.lcm multiple, size
+    multiple = Math.lcm multiple, Float32Array.BYTES_PER_ELEMENT
+    multiple = Math.lcm multiple, indexFormat.BYTES_PER_ELEMENT
+
     sizePerVertex = 0
     for name, size of Jax.Mesh.Data.endpoints
       sizePerVertex += size
-    sizePerVertex * numVerts * Float32Array.BYTES_PER_ELEMENT + \
-    numVerts * 9 * Float32Array.BYTES_PER_ELEMENT + \ # vertices, normals, bitangents
-    numVerts * 2 * Float32Array.BYTES_PER_ELEMENT + \ # textures
-    numVerts * 8 * Float32Array.BYTES_PER_ELEMENT + \ # colors, tangents
-    numIndices * indexFormat.BYTES_PER_ELEMENT        # indices
+    length = sizePerVertex * numVerts * Float32Array.BYTES_PER_ELEMENT + \
+              numVerts * 9 * Float32Array.BYTES_PER_ELEMENT + \ # vertices, normals, bitangents
+              numVerts * 2 * Float32Array.BYTES_PER_ELEMENT + \ # textures
+              numVerts * 8 * Float32Array.BYTES_PER_ELEMENT + \ # colors, tangents
+              numIndices * indexFormat.BYTES_PER_ELEMENT        # indices
+    if length % multiple != 0
+      length += multiple - (length % multiple)
+    length
   
   constructor: (vertices = [], colors = [], textures = [], normals = [], \
                 indices = [], tangents = [], bitangents = []) ->
@@ -135,7 +147,7 @@ class Jax.Mesh.Data
   bind: (context) ->
     @context = context if context
     id = @_context.id
-    gl = @_context.gl
+    gl = @_context.renderer
     unless buffer = @_glBuffers[id]?.buffer
       @_glBuffers[id] =
         gl: gl
