@@ -17,39 +17,40 @@ Jax.Buffer = (function() {
       func(self.gl[id].context, self.gl[id].buffer);
   }
 
-  return Jax.Class.create({
-    /**
-     * new Jax.Buffer(bufferType, classType, drawType, jsarr, itemSize)
-     * - bufferType (GLenum): A WebGL enumeration specifying what type
-     *                        of buffer this represents, such as GL_ELEMENT_ARRAY_BUFFER or
-     *                        GL_ARRAY_BUFFER.
-     * - classType (TypedArray): a typed array to implement this buffer
-     * with, such as +Uint6Array+ or +Float32Array+.
-     * - drawType (GLenum): GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW.
-     * - jsarr (Array): a JavaScript Array containing the actual raw
-     * data. This should be a flat array (that is, no nested arrays).
-     * - itemSize (Number): the number of items in a single element
-     * of the buffer. The length of the buffer must be divisible by
-     * this number.
-     *
-     **/
-    initialize: function(bufferType, deprecated, drawType, jsarr, itemSize, dataType) {
-      // if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
-      if (!itemSize) throw new Error("Expected an itemSize - how many JS array elements represent a single buffered element?");
-      this.itemSize = itemSize;
-      this.js = jsarr;
-      this.gl = {};
-      this.numItems = this.length = jsarr.length / itemSize;
-      this.bufferType = bufferType;
-      this.drawType = drawType;
-      if (dataType) this.dataType = dataType;
-      else
-        if (jsarr instanceof Float32Array) this.dataType = GL_FLOAT;
-        if (jsarr instanceof Uint8Array)   this.dataType = GL_UNSIGNED_BYTE;
-        if (jsarr instanceof Uint16Array)  this.dataType = GL_UNSIGNED_SHORT;
-        if (jsarr instanceof Uint32Array)  this.dataType = GL_UNSIGNED_INT;
-      if (!this.dataType) throw new Error("Couldn't detect dataType");
-    },
+  /**
+   * new Jax.Buffer(bufferType, classType, drawType, jsarr, itemSize)
+   * - bufferType (GLenum): A WebGL enumeration specifying what type
+   *                        of buffer this represents, such as GL_ELEMENT_ARRAY_BUFFER or
+   *                        GL_ARRAY_BUFFER.
+   * - classType (TypedArray): a typed array to implement this buffer
+   * with, such as +Uint6Array+ or +Float32Array+.
+   * - drawType (GLenum): GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW.
+   * - jsarr (Array): a JavaScript Array containing the actual raw
+   * data. This should be a flat array (that is, no nested arrays).
+   * - itemSize (Number): the number of items in a single element
+   * of the buffer. The length of the buffer must be divisible by
+   * this number.
+   *
+   **/
+  function Buffer(bufferType, deprecated, drawType, jsarr, itemSize, dataType) {
+    // if (jsarr.length == 0) throw new Error("No elements in array to be buffered!");
+    if (!itemSize) throw new Error("Expected an itemSize - how many JS array elements represent a single buffered element?");
+    this.itemSize = itemSize;
+    this.js = jsarr;
+    this.gl = {};
+    this.numItems = this.length = jsarr.length / itemSize;
+    this.bufferType = bufferType;
+    this.drawType = drawType;
+    if (dataType) this.dataType = dataType;
+    else
+      if (jsarr instanceof Float32Array) this.dataType = GL_FLOAT;
+      if (jsarr instanceof Uint8Array)   this.dataType = GL_UNSIGNED_BYTE;
+      if (jsarr instanceof Uint16Array)  this.dataType = GL_UNSIGNED_SHORT;
+      if (jsarr instanceof Uint32Array)  this.dataType = GL_UNSIGNED_INT;
+    if (!this.dataType) throw new Error("Couldn't detect dataType");
+  }
+
+  jQuery.extend(Buffer.prototype, {
 
     /**
      * Jax.Buffer#refresh() -> Jax.Buffer
@@ -157,4 +158,6 @@ Jax.Buffer = (function() {
       return this.gl[context.id].buffer;
     }
   });
+
+  return Buffer;
 })();

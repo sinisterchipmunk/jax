@@ -47,7 +47,7 @@ describe("Jax.Model", function() {
   
     it("should fire after_initialize", function() {
       model.addResources({ "name": { fired: false } });
-      model.addMethods({ after_initialize: function() { this.fired = true; } });
+      jQuery.extend(model.prototype, { after_initialize: function() { this.fired = true; } });
       expect(model.find("name").fired).toBeTrue();
     });
     

@@ -75,37 +75,38 @@
   }
   
   Jax.Model = (function() {
-    return Jax.Class.create({
-      /**
-       * new Jax.Model(data)
-       * - data: a set of attributes to be assigned to this instance of the model.
-       *
-       * Anything can be in the data, or you may supply no data at all to instantiate
-       * a model with its default attributes.
-       *
-       * The following attributes have special meanings:
-       *
-       * * +position+ : sets the position of this model in world coordinates.
-       * * +direction+ : sets the direction this model is facing, in world coordinates.
-       * * +mesh+: an instance of +Jax.Mesh+
-       * * +shadow_caster+ : true or false; specifies whether this model can cast shadows.
-       * * +lit+ : true or false; specifies whether this model is affected by nearby lights.
-       *
-       **/
-      initialize: function(data) {
-        var self = this;
-        this.__unique_id = Jax.guid();
-        this.camera = new Jax.Camera();
-        this.camera.on('change', function() { self.trigger('transformed'); });
-        
-        initProperties(this, Jax.Model.default_properties);
-        if (this._klass && this._klass.resources)
-          initProperties(this, this._klass.resources['default']);
-        initProperties(this, data);
-        
-        if (this.after_initialize) this.after_initialize();
-      },
+
+    /**
+     * new Jax.Model(data)
+     * - data: a set of attributes to be assigned to this instance of the model.
+     *
+     * Anything can be in the data, or you may supply no data at all to instantiate
+     * a model with its default attributes.
+     *
+     * The following attributes have special meanings:
+     *
+     * * +position+ : sets the position of this model in world coordinates.
+     * * +direction+ : sets the direction this model is facing, in world coordinates.
+     * * +mesh+: an instance of +Jax.Mesh+
+     * * +shadow_caster+ : true or false; specifies whether this model can cast shadows.
+     * * +lit+ : true or false; specifies whether this model is affected by nearby lights.
+     *
+     **/
+    function Model(data) {
+      var self = this;
+      this.__unique_id = Jax.guid();
+      this.camera = new Jax.Camera();
+      this.camera.on('change', function() { self.trigger('transformed'); });
       
+      initProperties(this, Jax.Model.default_properties);
+      if (this._klass && this._klass.resources)
+        initProperties(this, this._klass.resources['default']);
+      initProperties(this, data);
+      
+      if (this.after_initialize) this.after_initialize();
+    }
+
+    jQuery.extend(Model.prototype, {
       /**
        * Jax.Model#isShadowCaster() -> Boolean
        *
@@ -264,6 +265,8 @@
         return JSON.stringify(result);
       }
     });
+
+    return Model;
   })();
   
   var model_class_methods = {
@@ -359,22 +362,28 @@
    * the model will inherit from the given superclass instead. The superclass is,
    * in turn, expected to be a subclass of Jax.Model.
    *
-   * Examples:
-   *
-   *     var Person = Jax.Class.create({ ... });
-   *     var Colin = Jax.Class.create(Person, { ... });
-   *
    **/
   Jax.Model.create = function(superclass, inner) {
     var klass;
-    if (inner) klass = Jax.Class.create(superclass, inner);
-    else       klass = Jax.Class.create(Jax.Model, superclass);
+    if (!inner) {
+      inner = superclass;
+      superclass = Jax.Model;
+    }
     
-    klass.addMethods({_klass:klass});
+    var klass = function() {
+      superclass.apply(this, arguments);
+      if (this.initialize)
+        this.initialize.apply(this, arguments);
+    };
+    klass.prototype = new superclass();
+    jQuery.extend(klass.prototype, {_klass: klass });
+    jQuery.extend(klass.prototype, inner);
+    jQuery.extend(klass, model_class_methods);
+
     return klass;
   };
   
-  Jax.Model.addMethods(Jax.Mixins.EventEmitter);
+  jQuery.extend(Jax.Model.prototype, Jax.Mixins.EventEmitter);
   
   /*
   This is touchy. Jax.World needs to be able to look up models
@@ -387,5 +396,5 @@
   */
   Jax.Model.__instances = {};
   
-  Object.extend(Jax.Model, model_class_methods);
+  jQuery.extend(Jax.Model, model_class_methods);
 })();

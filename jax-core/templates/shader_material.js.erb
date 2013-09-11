@@ -1,7 +1,16 @@
-Jax.Material.<%=class_name%> = Jax.Class.create(Jax.Material.Layer, {
-  numPasses: function() { return 1; },
-  
-  setVariables: function(context, mesh, options, vars, pass) {
-    // vars.VariableName = value;
+Jax.Material.Layer.<%= class_name %> = (function() {
+
+  function <%= class_name %>() {
+    Jax.Material.Layer.prototype.apply(this, arguments);
   }
+
+  jQuery.extend(<%= class_name %>.prototype, {
+    numPasses: function() { return 1; },
+
+    setVariables: function(context, mesh, options, vars, pass) {
+      // vars.VariableName = value;
+    }
+  });
+
+  return <%= class_name %>;
 });

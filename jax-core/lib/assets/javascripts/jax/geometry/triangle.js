@@ -35,34 +35,35 @@ Jax.Geometry.Triangle = (function() {
     }
     else return false;
   }
+
+  /**
+   * new Jax.Geometry.Triangle(v1, v2, v3)
+   * - v1 (vec3): the first vertex. Optional.
+   * - v2 (vec3): the second vertex. Optional.
+   * - v3 (vec3): the third vertex. Optional.
+   *
+   * Constructs a new triangle. Note that the vertices should
+   * be wound in a counter-clockwise direction to produce proper
+   * normals.
+   *
+   * Note: all arguments are optional for reasons of flexibility,
+   * but constructing a triangle with no vertices will be effectively
+   * useless (and its behavior undefined) until you subsequently call 
+   * +set(v1, v2, v3)+.
+   **/
+  function Triangle(a, b, c) {
+    this.a = vec3.create();
+    this.b = vec3.create();
+    this.c = vec3.create();
+    this.center = vec3.create();
+    this.normal = vec3.create();
   
-  var Triangle = Jax.Class.create({
-    /**
-     * new Jax.Geometry.Triangle(v1, v2, v3)
-     * - v1 (vec3): the first vertex. Optional.
-     * - v2 (vec3): the second vertex. Optional.
-     * - v3 (vec3): the third vertex. Optional.
-     *
-     * Constructs a new triangle. Note that the vertices should
-     * be wound in a counter-clockwise direction to produce proper
-     * normals.
-     *
-     * Note: all arguments are optional for reasons of flexibility,
-     * but constructing a triangle with no vertices will be effectively
-     * useless (and its behavior undefined) until you subsequently call 
-     * +set(v1, v2, v3)+.
-     **/
-    initialize: function(a, b, c) {
-      this.a = vec3.create();
-      this.b = vec3.create();
-      this.c = vec3.create();
-      this.center = vec3.create();
-      this.normal = vec3.create();
+    if (arguments.length > 0)
+      this.set.apply(this, arguments);
     
-      if (arguments.length > 0)
-        this.set.apply(this, arguments);
-      
-    },
+  }
+  
+  jQuery.extend(Triangle.prototype, {
   
     /**
      * Jax.Geometry.Triangle#set(v1, v2, v3) -> Jax.Geometry.Triangle

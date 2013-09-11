@@ -151,8 +151,64 @@ Jax.Framebuffer = (function() {
         throw new Error("Jax.Framebuffer: an unknown error occurred. ("+status+")");
     }
   }
-  
-  return Jax.Class.create({
+
+  /**
+   * new Jax.Framebuffer([options])
+   * - options (Object): a generic object containing the following optional properties:
+   * 
+   *   * colors: an array of color formats such as GL_RGBA, GL_RGB, etc. The _colors_ array may
+   *             be empty if no color attachments are needed. Defaults to [GL_RGBA] unless _color_
+   *             is specified.
+   *             
+   *             Alternatively, an options object can be used. This object will be passed into
+   *             Jax.Texture(). Or, the object may be an actual instance of Jax.Texture, which
+   *             will be used directly.
+   *             
+   *   * color: optionally, in place of a colors array, a single color format as above. If both
+   *            _color_ and _colors_ are specified, _color_ is simply added to the _colors_ array.
+   *   * depth: true if a depth attachment is required, false otherwise. Defaults to false.
+   *   * stencil: true if a stencil attachment is required, false otherwise. Defaults to false.
+   *   * width: the width of the render and color buffers. All render and color buffers for a given
+   *            framebuffer must have the same width. Defaults to 512.
+   *   * height: the height of the render and color buffers. All render and color buffers for a given
+   *             framebuffer must have the same height. Defaults to 512.
+   *
+   * The following options may also be present. If they are, they will be passed into Jax.Texture:
+   * 
+   *   * data_type: defaults to GL_UNSIGNED_BYTE
+   *   * min_filter: defaults to GL_LINEAR
+   *   * mag_filter: defaults to GL_LINEAR
+   *   * wrap_s: defaults to GL_CLAMP_TO_EDGE
+   *   * wrap_t: defaults to GL_CLAMP_TO_EDGE
+   *   * generate_mipmap: defaults to false
+   *     
+   **/
+  function Framebuffer(options) {
+    var defaults = {
+      depth: false,
+      stencil: false,
+      width:512,
+      height:512,
+      data_type: GL_UNSIGNED_BYTE,
+      min_filter: GL_LINEAR,
+      mag_filter: GL_LINEAR,
+      wrap_s: GL_CLAMP_TO_EDGE,
+      wrap_t: GL_CLAMP_TO_EDGE,
+      generate_mipmap: false
+    };
+    if (!(options && (options.color || options.colors))) defaults.colors = [GL_RGBA];
+    
+    this.handles = {};
+    this.options = options = Jax.Util.merge(options, defaults);
+    if (options.color != undefined) {
+      if (options.colors != undefined) options.colors.push(options.color);
+      else options.colors = [options.color];
+      delete options.color;
+    }
+  }
+
+
+  jQuery.extend(Framebuffer.prototype, {
     dispose: function(context) {
       if (!this.handles) return;
       
@@ -187,61 +243,6 @@ Jax.Framebuffer = (function() {
       this.setHandle(context, null);
     },
     
-    /**
-     * new Jax.Framebuffer([options])
-     * - options (Object): a generic object containing the following optional properties:
-     * 
-     *   * colors: an array of color formats such as GL_RGBA, GL_RGB, etc. The _colors_ array may
-     *             be empty if no color attachments are needed. Defaults to [GL_RGBA] unless _color_
-     *             is specified.
-     *             
-     *             Alternatively, an options object can be used. This object will be passed into
-     *             Jax.Texture(). Or, the object may be an actual instance of Jax.Texture, which
-     *             will be used directly.
-     *             
-     *   * color: optionally, in place of a colors array, a single color format as above. If both
-     *            _color_ and _colors_ are specified, _color_ is simply added to the _colors_ array.
-     *   * depth: true if a depth attachment is required, false otherwise. Defaults to false.
-     *   * stencil: true if a stencil attachment is required, false otherwise. Defaults to false.
-     *   * width: the width of the render and color buffers. All render and color buffers for a given
-     *            framebuffer must have the same width. Defaults to 512.
-     *   * height: the height of the render and color buffers. All render and color buffers for a given
-     *             framebuffer must have the same height. Defaults to 512.
-     *
-     * The following options may also be present. If they are, they will be passed into Jax.Texture:
-     * 
-     *   * data_type: defaults to GL_UNSIGNED_BYTE
-     *   * min_filter: defaults to GL_LINEAR
-     *   * mag_filter: defaults to GL_LINEAR
-     *   * wrap_s: defaults to GL_CLAMP_TO_EDGE
-     *   * wrap_t: defaults to GL_CLAMP_TO_EDGE
-     *   * generate_mipmap: defaults to false
-     *     
-     **/
-    initialize: function(options) {
-      var defaults = {
-        depth: false,
-        stencil: false,
-        width:512,
-        height:512,
-        data_type: GL_UNSIGNED_BYTE,
-        min_filter: GL_LINEAR,
-        mag_filter: GL_LINEAR,
-        wrap_s: GL_CLAMP_TO_EDGE,
-        wrap_t: GL_CLAMP_TO_EDGE,
-        generate_mipmap: false
-      };
-      if (!(options && (options.color || options.colors))) defaults.colors = [GL_RGBA];
-      
-      this.handles = {};
-      this.options = options = Jax.Util.merge(options, defaults);
-      if (options.color != undefined) {
-        if (options.colors != undefined) options.colors.push(options.color);
-        else options.colors = [options.color];
-        delete options.color;
-      }
-    },
-
     /**
      * Jax.Framebuffer#bindCubeFace(context, texIndex, faceEnum[, callback]) -> Jax.Framebuffer
      * - context (Jax.Context): a Jax context
@@ -432,4 +433,6 @@ Jax.Framebuffer = (function() {
       return this;
     }
   });
+
+  return Framebuffer;
 })();

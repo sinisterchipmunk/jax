@@ -2,8 +2,6 @@
 //= require "jax/vendor"
 //= require_self
 //= require "jax/env"
-//= require "jax/prototype/class"
-//= require "jax/prototype/extensions"
 //= require_tree './core'
 //= require 'jax/mvc'
 //= require "jax/mesh"

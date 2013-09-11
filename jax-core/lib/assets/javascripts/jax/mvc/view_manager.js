@@ -4,10 +4,11 @@
  * Maintains a registry of all Jax views and the paths to them.
  **/
 Jax.ViewManager = (function() {
-  return Jax.Class.create({
-    initialize: function() {
-      this.views = {};
-    },
+  function ViewManager() {
+    this.views = {};
+  }
+
+  jQuery.extend(ViewManager.prototype, {
 
     /**
      * Jax.ViewManager#push(path, view) -> undefined
@@ -56,4 +57,6 @@ Jax.ViewManager = (function() {
       return !!this.views[Jax.Util.underscore(path)];
     }
   });
+
+  return ViewManager;
 })();

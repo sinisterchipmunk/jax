@@ -17,7 +17,57 @@ Jax.Geometry.Plane = (function() {
     return (a[0]*x + a[1]*y + a[2]*z);
   }
 
-  var Plane = Jax.Class.create({
+  /**
+   * new Jax.Geometry.Plane(v1, v2, v3)
+   * new Jax.Geometry.Plane(position, normal)
+   * new Jax.Geometry.Plane(array_of_vertices)
+   * new Jax.Geometry.Plane()
+   * - v1 (vec3): first vertex
+   * - v2 (vec3): second vertex
+   * - v3 (vec3): third vertex
+   * - array_of_vertices (Array): array of vertices in the form +[[x,y,z], [x,y,z], [x,y,z]]+
+   * - position (vec3): the position of a point known to be in the plane
+   * - normal (vec3): the vector normal to the surface of the plane
+   *
+   * If initialized with no arguments, the result is undefined until
+   * the +set+ method is called. See +Jax.Geometry.Plane#set+
+   **/
+  function Plane(points) {
+    /**
+     * Jax.Geometry.Plane#point -> vec3
+     *
+     * A point in world space known to coincide with this plane.
+     *
+     * You can construct a duplicate of this plane with the following code:
+     *
+     *     var copy = new Plane(plane.point, plane.normal);
+     *
+     **/
+    this.point = vec3.create();
+    
+    /**
+     * Jax.Geometry.Plane#normal -> vec3
+     *
+     * The normal pointing perpendicular to this plane, assuming the front face is produced
+     * by winding the vertices counter-clockwise.
+     *
+     * If the plane is constructed with no arguments, the normal defaults to the world up
+     * direction [0,1,0].
+     **/
+    this.normal = vec3.clone([0,1,0]);
+    
+    /**
+     * Jax.Geometry.Plane#d -> Number
+     *
+     * The fourth component in the plane equation.
+     **/
+    this.d = 0.0;
+    
+    if (arguments.length)
+      this.set.apply(this, arguments);
+  };
+
+  jQuery.extend(Plane.prototype, {
     toString: function() {
       return "[Plane normal:"+vec3.str(this.normal)+"; D:"+this.d+"]";
     },
@@ -195,56 +245,6 @@ Jax.Geometry.Plane = (function() {
       }
       
       return Jax.Geometry.INTERSECT;
-    },
-    
-    /**
-     * new Jax.Geometry.Plane(v1, v2, v3)
-     * new Jax.Geometry.Plane(position, normal)
-     * new Jax.Geometry.Plane(array_of_vertices)
-     * new Jax.Geometry.Plane()
-     * - v1 (vec3): first vertex
-     * - v2 (vec3): second vertex
-     * - v3 (vec3): third vertex
-     * - array_of_vertices (Array): array of vertices in the form +[[x,y,z], [x,y,z], [x,y,z]]+
-     * - position (vec3): the position of a point known to be in the plane
-     * - normal (vec3): the vector normal to the surface of the plane
-     *
-     * If initialized with no arguments, the result is undefined until
-     * the +set+ method is called. See +Jax.Geometry.Plane#set+
-     **/
-    initialize: function(points) {
-      /**
-       * Jax.Geometry.Plane#point -> vec3
-       *
-       * A point in world space known to coincide with this plane.
-       *
-       * You can construct a duplicate of this plane with the following code:
-       *
-       *     var copy = new Plane(plane.point, plane.normal);
-       *
-       **/
-      this.point = vec3.create();
-      
-      /**
-       * Jax.Geometry.Plane#normal -> vec3
-       *
-       * The normal pointing perpendicular to this plane, assuming the front face is produced
-       * by winding the vertices counter-clockwise.
-       *
-       * If the plane is constructed with no arguments, the normal defaults to the world up
-       * direction [0,1,0].
-       **/
-      this.normal = vec3.clone([0,1,0]);
-      
-      /**
-       * Jax.Geometry.Plane#d -> Number
-       *
-       * The fourth component in the plane equation.
-       **/
-      this.d = 0.0;
-      
-      if (arguments.length)
-        this.set.apply(this, arguments);
     },
     
     /**

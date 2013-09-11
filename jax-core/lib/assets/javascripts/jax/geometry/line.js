@@ -5,49 +5,49 @@
 Jax.Geometry.Line = (function() {
   var bufs = {};
   
-  var Line = Jax.Class.create({
+  /**
+   * new Jax.Geometry.Line([a[, b]])
+   * - a (vec3): point A (optional)
+   * - b (vec3): point B (optional)
+   *
+   * Creates a new line. If point A and B are given, they are
+   * passed into #set to initialize the line. If they are not
+   * given, all values default to 0.
+   **/
+  function Line(a, b) {
     /**
-     * new Jax.Geometry.Line([a[, b]])
-     * - a (vec3): point A (optional)
-     * - b (vec3): point B (optional)
+     * Jax.Geometry.Line#a -> vec3
      *
-     * Creates a new line. If point A and B are given, they are
-     * passed into #set to initialize the line. If they are not
-     * given, all values default to 0.
+     * the starting point of this line
      **/
-    initialize: function(a, b) {
-      /**
-       * Jax.Geometry.Line#a -> vec3
-       *
-       * the starting point of this line
-       **/
 
-      this.a = vec3.create();
+    this.a = vec3.create();
 
-      /**
-       * Jax.Geometry.Line#b -> vec3
-       *
-       * the ending point of this line
-       **/
-      this.b = vec3.create();
+    /**
+     * Jax.Geometry.Line#b -> vec3
+     *
+     * the ending point of this line
+     **/
+    this.b = vec3.create();
 
-      /**
-       * Jax.Geometry.Line#normal -> vec3
-       *
-       * the normal for this line, pointing from A towards B.
-       **/
-      this.normal = vec3.create();
+    /**
+     * Jax.Geometry.Line#normal -> vec3
+     *
+     * the normal for this line, pointing from A towards B.
+     **/
+    this.normal = vec3.create();
 
-      /**
-       * Jax.Geometry.Line#length -> Number
-       *
-       * the length of this line
-       **/
-      this.length = 0;
-      
-      if (arguments.length) this.set(a, b);
-    },
+    /**
+     * Jax.Geometry.Line#length -> Number
+     *
+     * the length of this line
+     **/
+    this.length = 0;
     
+    if (arguments.length) this.set(a, b);
+  }
+   
+  jQuery.extend(Line.prototype, { 
     /**
      * Jax.Geometry.Line#set(a, b) -> Jax.Geometry.Line
      * - a (vec3): point A
@@ -224,6 +224,6 @@ Jax.Geometry.Line = (function() {
     enumerable: false,
     configurable: false
   });
-  
+
   return Line;
 })();
