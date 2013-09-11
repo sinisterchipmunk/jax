@@ -1,4 +1,10 @@
 describe("Jax.Util", function() {
+  describe("crc", function() {
+    it("should work", function() {
+      expect(Jax.Util.crc("test")).toEqual(0xd87f7e0c);
+    });
+  });
+
   describe("underscore", function() {
     it("should work", function() {
       expect(Jax.Util.underscore("Product")).toEqual("product");
