@@ -68,22 +68,12 @@ class Jax.Material
     @layers or= []
     crc = ""
     crc += ";" + layer.crc() for layer in @layers
-    if @shader = Jax.Shader.instances[crc]
-      # use the variable map already established in @shader so that we don't
-      # have to rebuild the maps ourselves. The latter option might not even
-      # be possible or robust.
-      for layer, i in @layers
-        layer.variableMap = @shader.layers[i].variableMap
-    else
-      @shader = Jax.Shader.instances[crc] = do =>
-        shader = new Jax.Shader.Program(@name)
-        # shader.layers must be a distinct array from @layers, in case more
-        # layers are added to this material
-        shader.layers = []
-        for layer, index in @layers
-          shader.layers.push layer
-          layer.attachTo shader, index
-        shader
+    @shader = Jax.Shader.instances[crc] or= do =>
+      shader = new Jax.Shader.Program(@name)
+      shader.variableMaps = []
+      for layer, index in @layers
+        shader.variableMaps.push layer.attachTo shader, index
+      shader
     @_shaderReady = true
   
   ###
@@ -116,11 +106,12 @@ class Jax.Material
     
   preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
     assigns = mesh.assigns
-    for layer in @layers
+    variableMaps = @shader.variableMaps
+    for layer, i in @layers
       if (result = layer.setup context, mesh, model, pass) is false
         return false
       else
-        map = layer.variableMap
+        map = variableMaps[i]
         for k, v of result
           if map[k] then k = map[k]
           assigns[k] = v unless v is undefined

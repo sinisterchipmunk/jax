@@ -38,18 +38,6 @@ describe 'Jax.Texture', ->
       expect(@result).toEqual 1
 
   describe 'by default', ->
-    it 'should set defaults to prefer power-of-two texture sizes', ->
-      expect(@tex.get 'wrap_s').toEqual GL_REPEAT
-      expect(@tex.get 'wrap_t').toEqual GL_REPEAT
-      expect(@tex.get 'generate_mipmap').toEqual true
-      expect(@tex.get 'mipmap_hint').toEqual GL_DONT_CARE
-      expect(@tex.get 'format').toEqual GL_RGBA
-      expect(@tex.get 'target').toEqual GL_TEXTURE_2D
-      expect(@tex.get 'data_type').toEqual GL_UNSIGNED_BYTE
-      expect(@tex.get 'flip_y').toEqual true
-      expect(@tex.get 'premultiply_alpha').toEqual false
-      expect(@tex.get 'colorspace_conversion').toEqual true
-
     sharedExamplesFor 'non-power-of-two texture', ->
       it 'should set pot rendering options', ->
         expect(@tex.get 'min_filter').toEqual GL_LINEAR

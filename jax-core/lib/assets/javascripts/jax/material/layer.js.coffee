@@ -30,7 +30,7 @@ class Jax.Material.Layer
       vertex = shaderSource @_shaderSource, 'vertex'
       fragment = shaderSource @_shaderSource, 'fragment'
       map = shader.insert vertex, fragment, insertionIndex
-    @variableMap = map
+    map
 
   numPasses: (context) -> 1
 

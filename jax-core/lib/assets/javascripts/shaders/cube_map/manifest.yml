@@ -1,0 +1,15 @@
+description: |
+  Write a brief description for your shader.
+
+
+# Add an 'options' attribute if your shader's Material can accept
+# multiple configurations. Usually, you'll have an option for each
+# corresponding uniform or attribute variable.
+
+# Example:
+
+#options:
+#  path: "/path/to/texture.png"
+#  flip_y: false
+#  scale_x: 1.0
+#  scale_y: 1.0
