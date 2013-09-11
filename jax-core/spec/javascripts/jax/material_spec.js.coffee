@@ -6,7 +6,7 @@ describe "Jax.Material", ->
     Jax.guid = guid
     delete Jax.Material.Layer.TestLayer
   
-  describe "with an instance layer with un-shared properties", ->
+  describe "with a layer with un-shared properties", ->
     TestMat = null
     beforeEach ->
       spyOn(Jax, 'guid').andReturn 0
@@ -21,42 +21,8 @@ describe "Jax.Material", ->
         
     it 'should set the property appropriately', ->
       mat = new TestMat()
-      mat.render(@context, new Jax.Mesh.Quad, new Jax.Model)
-      expect(mat.assigns["time0"]).toEqual 1.5
-  
-  describe "with class-wide layers", ->
-    TestMat = null
-    beforeEach ->
-      fakeGUID = 0
-      spyOn(Jax, 'guid').andCallFake -> fakeGUID++
-      TestMat = class TestMat extends Jax.Material
-        @addLayer type: "Position"
-    
-    it "should share shaders between instances", ->
-      expect(new TestMat().shader).toBe new TestMat().shader
-      
-    it "should not taint Jax.Material", ->
-      expect(Jax.Material.getLayers()).toBeEmpty()
-      
-    it "should not add layers more than once", ->
-      expect(new TestMat().layers.length).toEqual 1
-      expect(new TestMat().layers.length).toEqual 1
-      
-    describe "after localization", ->
-      mat = null
-      beforeEach ->
-        class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-          @shaderSource:
-            fragment: "void main(void) { }"
-
-        mat = new TestMat()
-        mat.localizeShader()
-      
-      it 'should allow layers to be added', ->
-        str = mat.shader.fragment.toString()
-        mat.addLayer type: 'TestLayer'
-        mat.addLayer type: 'TestLayer'
-        expect(mat.shader.fragment.toString()).not.toEqual str
+      mat.render(@context, mesh = new Jax.Mesh.Quad, new Jax.Model)
+      expect(mesh.assigns["time0"]).toEqual 1.5
   
   it "should not reuse attribute arrays from different objects", ->
     # when for example obj A binds its normals, but obj B does not,
@@ -71,8 +37,9 @@ describe "Jax.Material", ->
       setVariables: (context, mesh, model, vars, pass) ->
         if model is obj1 then mesh.data.set vars, normals: 'NORMAL'
         mesh.data.set vars, vertices: 'VERT'
-    }, matr
+    }
 
+    matr.prepareShader()
     normalVariable = matr.shader.variables.attributes['NORMAL']
 
     obj1.render SPEC_CONTEXT, matr
@@ -91,8 +58,8 @@ describe "Jax.Material", ->
       class Jax.Material.Layer.TestLayer2 extends Jax.Material.Layer
         numPasses: -> 4
       matr = new Jax.Material
-      matr.addLayer layer1 = new Jax.Material.Layer.TestLayer1 {}, matr
-      matr.addLayer layer2 = new Jax.Material.Layer.TestLayer2 {}, matr
+      matr.addLayer layer1 = new Jax.Material.Layer.TestLayer1 {}
+      matr.addLayer layer2 = new Jax.Material.Layer.TestLayer2 {}
       
     it "should render in the expected order", ->
       layer1.setVariables = (context, mesh, model, vars, pass) -> layer1_order.push pass
@@ -105,7 +72,7 @@ describe "Jax.Material", ->
     class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return false
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.Layer.TestLayer {}, matr
+    matr.addLayer new Jax.Material.Layer.TestLayer {}
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).not.toHaveBeenCalled()
@@ -114,7 +81,7 @@ describe "Jax.Material", ->
     class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return undefined
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.Layer.TestLayer {}, matr
+    matr.addLayer new Jax.Material.Layer.TestLayer {}
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
@@ -123,7 +90,7 @@ describe "Jax.Material", ->
     class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
       setVariables: (context, mesh, model, vars, pass) -> return null
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.Layer.TestLayer {}, matr
+    matr.addLayer new Jax.Material.Layer.TestLayer {}
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
@@ -131,7 +98,7 @@ describe "Jax.Material", ->
   it "should not skip passes where setVariables is not defined", ->
     class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
     matr = new Jax.Material
-    matr.addLayer new Jax.Material.Layer.TestLayer {}, matr
+    matr.addLayer new Jax.Material.Layer.TestLayer {}
     spyOn matr, 'drawBuffers'
     matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles, new Jax.Model
     expect(matr.drawBuffers).toHaveBeenCalled()
@@ -201,6 +168,7 @@ describe "Jax.Material", ->
         expect(Jax.Material.Layer.TestLayer.prototype.setup).toHaveBeenCalled()
       
       it "should bind the shader", ->
+        matr.prepareShader()
         spyOn matr.shader, 'bind'
         matr.render SPEC_CONTEXT, new Jax.Mesh.Triangles(), new Jax.Model()
         expect(matr.shader.bind).toHaveBeenCalled()

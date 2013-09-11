@@ -186,6 +186,8 @@ class Parser
 class Jax.Shader
   @include Jax.Mixins.EventEmitter
   
+  @instances: {}
+
   constructor: (@name = "generic") ->
     @id = Jax.guid()
     @variables = {}

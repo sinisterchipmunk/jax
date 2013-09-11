@@ -3,22 +3,6 @@
 
 class Jax.Material
   constructor: (options, @name = "generic") ->
-    # @shader = new Jax.Shader.Program @name
-    @_localizedShader = false
-    @layers = []
-    if @__proto__.constructor.__shader
-      @shader = @__proto__.constructor.__shader
-      for layer in @__proto__.constructor.getLayers()
-        @layers.push new (layer.__proto__.constructor)(layer)
-    else
-      @shader = @__proto__.constructor.__shader = new Jax.Shader.Program @name
-      layers = []
-      _layers = @__proto__.constructor.getLayers()
-      for layer in _layers
-        layers.push @addLayer layer, false
-      _layers.splice 0, _layers.length, layers...
-      
-    @assigns = {}
     # options = jQuery.extend true, {}, options
     options = Jax.Util.merge options, {}
     for key, value of options
@@ -26,26 +10,13 @@ class Jax.Material
         when 'layers'  then @addLayer layer for layer in value
         else @[key] = value
         
-  # @__layers: {}
-  @__shader: null # these will be instantiated dynamically in order not to taint subclasses
-  
-  @getLayers: ->
-    parent = @__super__
-    if @__layers
-      # make sure it's not inherited
-      if parent
-        return @__layers unless @__layers is parent.constructor.getLayers()
-      else return @__layers
-    array = []
-    if parent
-      parentLayers = parent.constructor.getLayers()
-      array.push layer for layer in parentLayers
-    @__layers = array
-    array
-  @addLayer: (options) -> @getLayers().push options
+  @define 'vertex', get: ->
+    @prepareShader() unless @_shaderReady
+    @shader.vertex
 
-  @define 'vertex', get: -> @shader.vertex
-  @define 'fragment', get: -> @shader.fragment
+  @define 'fragment', get: ->
+    @prepareShader() unless @_shaderReady
+    @shader.fragment
   
   ###
   Returns the first layer that is an instance of the given class, or null
@@ -57,35 +28,16 @@ class Jax.Material
         return layer
     null
   
-  
-  ###
-  Causes this material instance to split its shader apart from the shared
-  shader which is used by default for all instances of a given material.
-  This is slower, but allows for greater customization of a material.
-  
-  For example, a material which normally has diffuse lighting but no
-  specular lighting can localize its shader so that a specific instance
-  of the material can have specular lighting added to it without tainting
-  the shader of any other instance.
-  ###
-  localizeShader: ->
-    return if @_localizedShader
-    @_localizedShader = true
-    @shader = new Jax.Shader.Program @shader.name+"-localized-"+Jax.guid()
-    [layers, @layers] = [@layers, []]
-    for layer in layers
-      @addLayer layer
-    true
-    
-  insertLayer: (index, options, localize = true) ->
-    @localizeShader() if localize
+  insertLayer: (index, options) ->
+    @_shaderReady = false
+    @layers or= []
+
     if typeof options is 'string' then options = { type: options }
     if options instanceof Jax.Material.Layer
-      options.attachTo this, index
+      @_shaderReady = false
       @layers.splice index, 0, options
       return options
     
-    # options = jQuery.extend true, {}, options
     options = Jax.Util.merge options, {}
     Klass = Jax.Material.Layer[options.type]
     unless Klass
@@ -104,24 +56,42 @@ class Jax.Material
       throw new Error """
         #{@name}: Custom material layers now inherit from Jax.Material.Layer instead of Jax.Material.
       """
-    layer.attachTo this, index
+    @_shaderReady = false
     @layers.splice index, 0, layer
     layer
 
-  addLayer: (options, localize = true) ->
-    @insertLayer @layers.length, options, localize
+  addLayer: (options) ->
+    @layers or= []
+    @insertLayer @layers.length, options
     
-  clearAssigns: ->
-    assigns = @assigns
-    for k of assigns
-      assigns[k] = undefined
-    true
+  prepareShader: ->
+    @layers or= []
+    crc = ""
+    crc += ";" + layer.crc() for layer in @layers
+    if @shader = Jax.Shader.instances[crc]
+      # use the variable map already established in @shader so that we don't
+      # have to rebuild the maps ourselves. The latter option might not even
+      # be possible or robust.
+      for layer, i in @layers
+        layer.variableMap = @shader.layers[i].variableMap
+    else
+      @shader = Jax.Shader.instances[crc] = do =>
+        shader = new Jax.Shader.Program(@name)
+        # shader.layers must be a distinct array from @layers, in case more
+        # layers are added to this material
+        shader.layers = []
+        for layer, index in @layers
+          shader.layers.push layer
+          layer.attachTo shader, index
+        shader
+    @_shaderReady = true
   
   ###
   Renders a single mesh, taking as many passes as the material's layers indicate
   are needed, and then returns the number of passes it actually took.
   ###
   renderMesh: (context, mesh, model) ->
+    @prepareShader() unless @_shaderReady
     numPassesRendered = 0
     numPassesRequested = 0
     mesh.data.context = context
@@ -131,7 +101,6 @@ class Jax.Material
       passes = layer.numPasses context, mesh, model
       numPassesRequested = passes if passes > numPassesRequested
 
-    @clearAssigns() # don't taint assigns from one mesh to the next
     mesh.data.context = context # in case it changed - FIXME make this not necessary
     @shader.bind context
     gl = context.renderer
@@ -146,6 +115,7 @@ class Jax.Material
     numPassesRendered
     
   preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
+    assigns = mesh.assigns
     for layer in @layers
       if (result = layer.setup context, mesh, model, pass) is false
         return false
@@ -153,12 +123,12 @@ class Jax.Material
         map = layer.variableMap
         for k, v of result
           if map[k] then k = map[k]
-          @assigns[k] = v unless v is undefined
+          assigns[k] = v unless v is undefined
     if numPassesRendered is 1
       gl = context.renderer
       gl.blendFunc GL_ONE, GL_ONE
       gl.depthFunc GL_EQUAL
-    @shader.set context, @assigns
+    @shader.set context, assigns
     return true
     
   drawBuffers: (context, mesh, pass = 0) ->

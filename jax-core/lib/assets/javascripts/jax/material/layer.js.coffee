@@ -5,7 +5,7 @@ class Jax.Material.Layer
       SHADER_TYPE: which
     new EJS(text:source).render(options)
   
-  constructor: (options, material) ->
+  constructor: (options) ->
     @setVariables = options?.setVariables if options?.setVariables
     @assigns = new Jax.Material.ShaderVariableMap
     if options
@@ -23,18 +23,23 @@ class Jax.Material.Layer
       else if (src = Jax.shader_data Jax.Util.underscore @__proto__.constructor.name) and \
               (src.fragment || src.vertex)
         @_shaderSource = src
-        
-    @attachTo material if material
   
-  attachTo: (material, insertionIndex) ->
+  attachTo: (shader, insertionIndex) ->
     map = {}
     if @_shaderSource
       vertex = shaderSource @_shaderSource, 'vertex'
       fragment = shaderSource @_shaderSource, 'fragment'
-      map = material.shader.insert vertex, fragment, insertionIndex
+      map = shader.insert vertex, fragment, insertionIndex
     @variableMap = map
 
   numPasses: (context) -> 1
+
+  crc: ->
+    if @_shaderSource
+      Jax.Util.crc shaderSource(@_shaderSource, 'vertex') +
+                   shaderSource(@_shaderSource, 'fragment')
+    else
+      Jax.Util.crc ""
   
   clearAssigns: ->
     map = @assigns

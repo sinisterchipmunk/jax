@@ -1,7 +1,4 @@
 class Jax.Material.Legacy extends Jax.Material.Custom
-  @addLayer 'Position'
-  @addLayer 'VertexColor'
-
   @define 'ambient',
     get: -> @_ambient
     set: (c) ->
@@ -27,6 +24,9 @@ class Jax.Material.Legacy extends Jax.Material.Custom
       @findLayer(Jax.Material.Layer.PhongSpecular)?.shininess = @_shininess
 
   constructor: (options, name) ->
+    @addLayer 'Position'
+    @addLayer 'VertexColor'
+
     # don't allow layers to be passed to super. We need to
     # interpolate them here so that we can parse out deprecated
     # layer types (e.g. Lighting).

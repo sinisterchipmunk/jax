@@ -1,16 +1,4 @@
 class Jax.Material.Surface extends Jax.Material.Custom
-  @addLayer 'Position'
-  @addLayer 'VertexColor'
-  @addLayer 'WorldAmbient'
-  @addLayer 'LambertDiffuse'
-  @addLayer 'PhongSpecular'
-  @addLayer 'ShadowMap'
-  # Important: light ambient comes after shadow map so that ambient values
-  # are not reduced by "shadows"!
-  @addLayer 'LightAmbient'
-  @addLayer 'Attenuation'
-  @addLayer 'ClampColor'
-  
   @define 'intensity',
     get: -> @_intensity
     set: (obj) ->
@@ -89,7 +77,18 @@ class Jax.Material.Surface extends Jax.Material.Custom
         mat.findLayer(Jax.Material.Layer.PhongSpecular)?.color = Jax.Color.parse c
         @_specular = c
 
-    
+    @addLayer 'Position'
+    @addLayer 'VertexColor'
+    @addLayer 'WorldAmbient'
+    @addLayer 'LambertDiffuse'
+    @addLayer 'PhongSpecular'
+    @addLayer 'ShadowMap'
+    # Important: light ambient comes after shadow map so that ambient values
+    # are not reduced by "shadows"!
+    @addLayer 'LightAmbient'
+    @addLayer 'Attenuation'
+    @addLayer 'ClampColor'
+        
     options or= {}
     options.intensity = 1      if options.intensity is undefined
     options.color     = '#fff' if options.color     is undefined

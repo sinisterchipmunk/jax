@@ -8,7 +8,7 @@ describe "Jax.Material.Layer", ->
     class Jax.Material.TestLayer extends Jax.Material.Layer
       setVariables: (ctx, mesh, model, vars) -> 
     varmap = {}
-    layer = new Jax.Material.TestLayer {name: "one"}, { assigns: varmap }
+    layer = new Jax.Material.TestLayer {name: "one"}
     mesh = new Jax.Mesh.Triangles()
     model = new Jax.Model()
     shader = new Jax.Shader.Program()
