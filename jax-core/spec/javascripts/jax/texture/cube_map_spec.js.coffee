@@ -9,15 +9,9 @@ describe 'Jax.Texture.CubeMap', ->
       far:    @far    = new Jax.Texture
 
   it 'should bind each texture to the specified axes', ->
-    for tex in [@left, @right, @top, @bottom, @near, @far]
-      spyOn tex, 'upload'
+    spyOn @context.renderer, 'texImage2D'
     @cubeTex.validate @context
-    expect(@left.upload).toHaveBeenCalled()
-    expect(@right.upload).toHaveBeenCalled()
-    expect(@top.upload).toHaveBeenCalled()
-    expect(@bottom.upload).toHaveBeenCalled()
-    expect(@near.upload).toHaveBeenCalled()
-    expect(@far.upload).toHaveBeenCalled()
+    expect(@context.renderer.texImage2D.calls.length).toEqual 6
 
   it 'should set each textures bind target', ->
     expect(@left.get   'target').toEqual GL_TEXTURE_CUBE_MAP_NEGATIVE_X

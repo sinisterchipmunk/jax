@@ -42,7 +42,7 @@ class Jax.Texture
     @set 'data_type',             GL_UNSIGNED_BYTE
     @set 'wrap_s',                GL_REPEAT
     @set 'wrap_t',                GL_REPEAT
-    @set 'flip_y',                true
+    @set 'flip_y',                false
     @set 'premultiply_alpha',     false
     @set 'colorspace_conversion', true
     @set 'width',                 1
@@ -174,8 +174,8 @@ class Jax.Texture
   indeed an array.
   ###
   sizeChanged: =>
-    width = @get 'width'
-    height = @get 'height'
+    width = @get('width') || 1
+    height = @get('height') || 1
     if Jax.Util.isPowerOfTwo(width) and Jax.Util.isPowerOfTwo(height)
       @isPoT = true
     else
