@@ -1,4 +1,8 @@
-Jax.Controller.create "<%=class_name%>", ApplicationController,
+#= require controllers/application_controller
+
+class <%= Rails.application.class.name %>.<%= class_name %> extends ApplicationController
+  Jax.controllers.add @name, this
+  
   <%- actions.each do |action| -%>
   <%= action %>: ->
     # Action body here

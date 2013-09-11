@@ -3,7 +3,9 @@ pos = vec3.fromValues 4, 4, 7
 up  = vec3.fromValues 0, 1, 0
 speed = 0.25
 
-Jax.Controller.create 'jax', 
+class Idle extends Jax.Controller
+  Jax.controllers.add 'jax', this
+
   update: (tc) ->
     @timer -= tc * speed
     sin = Math.sin @timer

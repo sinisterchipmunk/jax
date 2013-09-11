@@ -1,8 +1,9 @@
-describe("<%= class_name %>Controller", function() {
+describe("<%= Rails.application.class.name %>.<%= class_name %>", function() {
   var controller;
   
   beforeEach(function() {
-    this.context.redirectTo("<%= file_name %>");
+    controller = new <%= Rails.application.class.name %>.<%= class_name %>();
+    this.context.redirect(controller);
   });
   
   it("should do something", function() {

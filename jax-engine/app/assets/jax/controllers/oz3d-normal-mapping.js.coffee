@@ -1,4 +1,6 @@
-Jax.Controller.create "oz3d-normal",
+class OZ3DNormal extends Jax.Controller
+  Jax.controllers.add @name, this
+
   update: (tc) ->
     @rot = (@rot or= 0) + tc
     @obj.camera.yaw tc * 0.1

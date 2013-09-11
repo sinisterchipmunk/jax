@@ -9,7 +9,8 @@ class Jax.Dev.Views.WebGLCanvas extends Backbone.View
   focus: => @$el.focus()
 
   startController: (name) ->
-    @jax.redirectTo name
+    klass = Jax.controllers.get name
+    @jax.redirect new klass()
 
   initialize: ->
     @render()

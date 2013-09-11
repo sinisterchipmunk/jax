@@ -8,7 +8,10 @@ _vec = vec3.create()
 _handID = null
 _pauseNotifier = null
 
-Jax.Controller.create "leap",
+local = {} # don't clash with Leap namespace if it exists
+class local.Leap extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     style = "border:1px solid rgb(239,140,8);border-radius:8px;"+
             "position:absolute;left:40%;right:40%;top:40%;bottom:40%;"+

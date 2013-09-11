@@ -1,10 +1,19 @@
-(function() {
-  Jax.Controller.create("<%=class_name%>", ApplicationController, {
-    <%- actions.each do |action| -%>
-    <%=action%>: function() {
-      
-    },
+//= require controllers/application_controller
 
-    <%- end -%>
-  });
+(function() {
+  function <%= class_name %>() {
+    <%= Rails.application.class.name %>.ApplicationController.call(this);
+  };
+
+  Jax.controllers.add("<%= class_name %>", <%= class_name %>);
+  <%= Rails.application.class.name %>.<%= class_name %> = <%= class_name %>;
+
+  <%= class_name %>.prototype = new ApplicationController();
+
+  <%- actions.each do |action| -%>
+  <%= class_name %>.prototype.<%= action%> = function() {
+    // Action body here
+  };
+
+  <%- end -%>
 })();

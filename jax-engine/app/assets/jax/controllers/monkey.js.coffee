@@ -1,4 +1,6 @@
-Jax.Controller.create "monkey",
+class Monkey extends Jax.Controller
+  Jax.controllers.add @name, this
+
   update: (tc) ->
     objs = @world.getObjects()
     for obj in objs

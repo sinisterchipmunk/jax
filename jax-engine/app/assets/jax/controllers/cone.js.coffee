@@ -1,4 +1,6 @@
-Jax.Controller.create "cones",
+class Cones extends Jax.Controller
+  Jax.controllers.add @name, this
+
   update: (tc) ->
     objs = @world.getObjects()
     for obj in objs

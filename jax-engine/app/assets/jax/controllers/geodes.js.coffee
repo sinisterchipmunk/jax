@@ -2,7 +2,9 @@
 # Access demo by cloning and running jax repo in localhost
 ROTATE_AXIS = [1, 0.75, 0.5]
 
-Jax.Controller.create "geodes",
+class Geodes extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
 
     @sun = @world.addLight new Jax.Light.Point

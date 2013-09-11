@@ -8,14 +8,14 @@ describe("Jax.Helper", function() {
   });
 
   describe("with an array", function() {
-    it("should define the helper in requesting controllers", function() {
+    xit("should define the helper in requesting controllers", function() {
       var controller = Jax.Controller.create({
         helpers: [helper]
       });
       expect(new controller().test_method).toEqual(helper.test_method);
     });
 
-    it("should not define the helper in non-requesting controllers", function() {
+    xit("should not define the helper in non-requesting controllers", function() {
       var controller = Jax.Controller.create({});
       expect(new controller().test_method).toBeUndefined();
     });
@@ -34,14 +34,14 @@ describe("Jax.Helper", function() {
   });
   
   describe("with a function", function() {
-    it("should define the helper in requesting controllers", function() {
+    xit("should define the helper in requesting controllers", function() {
       var controller = Jax.Controller.create({
         helpers: function() { return [helper]; }
       });
       expect(new controller().test_method).toEqual(helper.test_method);
     });
 
-    it("should not define the helper in non-requesting controllers", function() {
+    xit("should not define the helper in non-requesting controllers", function() {
       var controller = Jax.Controller.create({});
       expect(new controller().test_method).toBeUndefined();
     });

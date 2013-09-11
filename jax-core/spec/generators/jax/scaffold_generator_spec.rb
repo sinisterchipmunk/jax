@@ -16,8 +16,7 @@ describe 'jax:scaffold' do
     
     it "should camelize names in controller spec" do
       subject.should generate("spec/javascripts/jax/controllers/test_breaker_controller_spec.js.coffee") { |f|
-        f.should =~ /describe "TestBreakerController"/
-        f.should =~ /redirectTo "test_breaker/
+        f.should =~ /describe "App.TestBreaker"/
       }
     end
   end

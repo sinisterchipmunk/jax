@@ -1,7 +1,9 @@
 movement = { forward: 0, backward: 0, left: 0, right: 0 }
 
 SQ2_2 = Math.sqrt(2) / 2
-Jax.Controller.create "lighting",
+class Lighting extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     @world.addObject new Jax.Framerate
     @teapot = @world.addObject new Jax.Model

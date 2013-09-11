@@ -3,7 +3,9 @@
 MAX = 5
 
 log = null
-Jax.Controller.create "benchmark",
+class Benchmark extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     log = document.getElementById('benchmark-log') || (->
       _log = document.createElement 'div'

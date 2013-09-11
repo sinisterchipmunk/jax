@@ -1,4 +1,6 @@
-Jax.Controller.create "picking",
+class Picking extends Jax.Controller
+  Jax.controllers.add @name, this
+
   update: (tc) ->
     objs = @world.getObjects()
     @clock or= 0

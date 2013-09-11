@@ -1,7 +1,9 @@
 movement = { forward: 0, backward: 0, left: 0, right: 0 }
 radius = Math.sqrt 15*15 + 25*25
 
-Jax.Controller.create "oz3d",
+class OZ3D extends Jax.Controller
+  Jax.controllers.add @name, this
+
   update: (timechange) ->
     speed = 0.15 * timechange;
     @_rotation = (@_rotation or 0) - speed

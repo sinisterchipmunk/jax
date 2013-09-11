@@ -56,7 +56,7 @@ class Jax.Context
     @setupCamera()
     @setupInputDevices options.focus
     @startUpdating()
-    @redirectTo options.root if options.root
+    @redirect options.root if options.root
     
   @getter 'player', ->
     console.log new Error("Jax.Context#player is deprecated; it only contained `camera`, " + \
@@ -217,24 +217,19 @@ class Jax.Context
         @[device.alias] = device if device.alias
         @inputDevices.push device
     
-  redirectTo: (path) ->
+  redirect: (controller, action = 'index') ->
     @unregisterListeners()
     @stopUpdating()
     @stopRendering()
-    
-    if path instanceof Jax.Controller
+
+    if typeof controller is 'string'
+      [controller, action] = [@controller, controller]
+
+    if controller isnt @controller or action is 'index'
       @unloadScene()
-      @controller = path
-      @controller.fireAction 'index', this
-    else
-      descriptor = Jax.routes.recognizeRoute path
-      if descriptor.action != 'index' && @controller && @controller instanceof descriptor.controller
-        # already within the routed controller, just redirect to a different
-        # view, or fire an action and stay with the same view
-        @controller.fireAction descriptor.action, this
-      else
-        @unloadScene()
-        @controller = Jax.routes.dispatch path, this
+
+    @controller = controller
+    controller.fireAction action, this
     
     @registerListeners()
     @startRendering()

@@ -1,7 +1,9 @@
 # Demo of a 20-sided dice
 # Access demo by cloning and running jax repo in localhost
 
-Jax.Controller.create "d20",
+class D20 extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
 
     @sun1 = @world.addLight new Jax.Light.Point

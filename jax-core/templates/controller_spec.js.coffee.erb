@@ -1,8 +1,9 @@
-describe "<%= class_name %>Controller", ->
+describe "<%= Rails.application.class.name %>.<%= class_name %>", ->
   controller = null
   
   beforeEach ->
-    @context.redirectTo "<%= file_name %>"
+    @controller = new <%= Rails.application.class.name %>.<%= class_name %>()
+    @context.redirect @controller
 
   it "should do something", ->
     expect(@context.controller).toBeInstanceOf(Jax.Controller)

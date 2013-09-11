@@ -1,4 +1,6 @@
-Jax.Controller.create "octree",
+class Octree extends Jax.Controller
+  Jax.controllers.add @name, this
+
   mouse_dragged: (e) ->
     # x = @o.position
     # x[0] += e.diffx * 0.1

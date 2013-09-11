@@ -1,6 +1,10 @@
 (function() {
-  Jax.getGlobal()['ApplicationController'] = Jax.Controller.create("Application", {
-    // you can list helpers to be mixed in here, if you like
-    helpers: []
-  });
+  if (!window.<%= Rails.application.class.name %>)
+    window.<%= Rails.application.class.name %> = {};
+
+  function <%= Rails.application.class.name %>.ApplicationController() {
+    Jax.Controller.call(this);
+  }
+
+  <%= Rails.application.class.name %>.ApplicationController.prototype = new Jax.Controller();
 })();

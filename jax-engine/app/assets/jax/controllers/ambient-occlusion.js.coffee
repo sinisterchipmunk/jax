@@ -1,5 +1,7 @@
 # Screen space ambient occlusion test
-Jax.Controller.create "ssao",
+class SSAO extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     @world.ambientColor = '#fff'
     

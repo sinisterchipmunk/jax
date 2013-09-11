@@ -4,7 +4,9 @@ movement =
   left: 0
   right: 0
 
-Jax.Controller.create "mouselook",
+class MouseLook extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     @world.addLight new Jax.Light.Directional
       direction: [1, -0.1, -1]

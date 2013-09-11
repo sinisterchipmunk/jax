@@ -1,4 +1,6 @@
-Jax.Controller.create "keyboard",
+class Keyboard extends Jax.Controller
+  Jax.controllers.add @name, this
+
   index: ->
     @toggle = 7
     @world.ambientColor = '#fff'
