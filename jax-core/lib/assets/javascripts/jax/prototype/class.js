@@ -70,7 +70,6 @@ Jax.Class = (function() {
           __extends(Klass, _super);
         
         function Klass() {
-          Jax.Util.addRequestedHelpers(this);
           if (this.initialize)
             this.initialize.apply(this, arguments);
         }

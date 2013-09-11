@@ -353,44 +353,5 @@ Jax.Util = {
         return i;
     }
     return "(unrecognized enum: "+glEnum+" [0x"+parseInt(glEnum).toString(16)+"])";
-  },
-
-  /**
-   * Jax.Util.addRequestedHelpers(obj) -> Array
-   * - obj (Jax.Class): An instance of a class into which to mix the helpers.
-   *
-   * First, if +ApplicationHelper+ is defined, it is automatically mixed into the specified class.
-   *
-   * Then, the object is searched for a #helpers method; if it exists, it is expected to return an array of
-   * Helpers (created with +Jax.Helper.create({...})+ ). Each element in the array returned by #helpers is
-   * then mixed into the class.
-   *
-   * An array of all helpers that were just mixed into the target class is returned.
-   *
-   * As of Jax v1.1.0, you may also set the array of helpers directly on the +helpers+ property
-   * of a class, instead of defining a function.
-   **/
-  addRequestedHelpers: function(obj) {
-    var helpers = [], prop;
-    if (typeof(ApplicationHelper) != "undefined") {
-      helpers.push(ApplicationHelper);
-      for (prop in ApplicationHelper)
-        if (!obj.hasOwnProperty(prop))
-          obj[prop] = ApplicationHelper[prop];
-    }
-    if (obj.helpers) {
-      var helper_array;
-      if (typeof(obj.helpers) == "function")
-        helper_array = obj.helpers();
-      else helper_array = obj.helpers;
-      
-      for (var i = 0; i < helper_array.length; i++) {
-        helpers.push(helper_array[i]);
-        for (prop in helper_array[i])
-          if (!obj.hasOwnProperty(prop))
-            obj[prop] = helper_array[i][prop];
-      }
-    }
-    return helpers;
   }
 };

@@ -26,11 +26,6 @@ module Jax
           File.join(file_name, 'app/assets/jax/controllers/application_controller.js')
       end
 
-      def create_jax_application_helper
-        coffee_template_with_fallback "application_helper.js",
-          File.join(file_name, 'app/assets/jax/helpers/application_helper.js')
-      end
-      
       def run_bundle
         inside file_name do
           bundle_command('install') unless options[:skip_bundle]
