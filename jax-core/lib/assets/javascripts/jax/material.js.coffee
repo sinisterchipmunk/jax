@@ -70,9 +70,8 @@ class Jax.Material
     crc += ";" + layer.crc() for layer in @layers
     @shader = Jax.Shader.instances[crc] or= do =>
       shader = new Jax.Shader.Program(@name)
-      shader.variableMaps = []
       for layer, index in @layers
-        shader.variableMaps.push layer.attachTo shader, index
+        shader.addLayer layer
       shader
     @_shaderReady = true
   

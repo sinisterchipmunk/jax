@@ -1,4 +1,5 @@
 #= require jax/texture
+#= require_tree .
 
 class Jax.Material.Layer.CubeMap extends Jax.Material.Layer
   center = vec3.create()
@@ -20,6 +21,11 @@ class Jax.Material.Layer.CubeMap extends Jax.Material.Layer
     to remove the hack as soon as possible.
   ###
   HAX = new Jax.Texture()
+
+  shaders:
+    common:   Jax.shaderTemplates['shaders/cube_map/common']
+    vertex:   Jax.shaderTemplates['shaders/cube_map/vertex']
+    fragment: Jax.shaderTemplates['shaders/cube_map/fragment']
 
   constructor: (options, material) ->
     unless @cubeMap = options.cubeMap

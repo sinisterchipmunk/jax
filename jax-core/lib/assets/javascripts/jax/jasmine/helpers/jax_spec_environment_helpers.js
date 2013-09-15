@@ -10,7 +10,7 @@
     if (obj instanceof Jax.Context) {
       this.append("[Jax.Context with ID ");
       jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.id);
-      this.append(" (" + obj.gl.canvas.id + ")]");
+      this.append(" (" + (obj.gl ? obj.gl.canvas.id : "no renderer") + ")]");
       return;
     }
     if (obj instanceof Jax.Mesh.Base) {

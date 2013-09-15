@@ -1,4 +1,9 @@
+#= require_tree .
+
 class Jax.Material.Layer.Attenuation extends Jax.Material.Layer
+  shaders:
+    fragment: Jax.shaderTemplates['shaders/attenuation/fragment']
+
   constructor: (options) ->
     super options
     

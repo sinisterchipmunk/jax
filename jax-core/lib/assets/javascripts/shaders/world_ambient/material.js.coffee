@@ -1,4 +1,11 @@
+#= require_tree .
+
 class Jax.Material.Layer.WorldAmbient extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/world_ambient/common']
+    vertex:   Jax.shaderTemplates['shaders/world_ambient/vertex']
+    fragment: Jax.shaderTemplates['shaders/world_ambient/fragment']
+
   constructor: (options) ->
     @intensity = 1
     # refers to the material's ambient component, so

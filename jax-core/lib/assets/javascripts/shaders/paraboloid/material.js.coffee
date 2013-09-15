@@ -1,4 +1,11 @@
+#= require_tree .
+
 class Jax.Material.Layer.Paraboloid extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/paraboloid/common']
+    vertex:   Jax.shaderTemplates['shaders/paraboloid/vertex']
+    fragment: Jax.shaderTemplates['shaders/paraboloid/fragment']
+
   constructor: (options) ->
     super options
     @_meshMap =

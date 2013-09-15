@@ -1,9 +1,15 @@
+#= require_tree .
 #= require 'jax/mesh/data'
 
 ###
 Single-pass wire frame implementation - see http://cgg-journal.com/2008-2/06/index.html
 ###
 class Jax.Material.Layer.Wire extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/wire/common']
+    vertex:   Jax.shaderTemplates['shaders/wire/vertex']
+    fragment: Jax.shaderTemplates['shaders/wire/fragment']
+
   # p2verts and p3verts will store the (xyz) of P2 and P3 for every
   # vertex P1. The (w) of P2 will store the vertex ID (0,1,2).
   Jax.Mesh.Data.endpoints.p2verts = 4

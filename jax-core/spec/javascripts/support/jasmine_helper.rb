@@ -9,9 +9,7 @@ Jasmine.configure do |config|
     sprockets = Sprockets::Environment.new root
 
     # HACK this should only be done by railtie
-    sprockets.register_engine '.glsl', Jax::Core::Shader
-    sprockets.unregister_preprocessor 'application/javascript', Sprockets::DirectiveProcessor
-    sprockets.register_preprocessor   'application/javascript', Jax::Core::DirectiveProcessor
+    sprockets.register_engine '.glsl', Jax::Core::ShaderProcessor
 
     sprockets.append_path 'lib/assets/javascripts'
     sprockets.append_path 'spec/javascripts'

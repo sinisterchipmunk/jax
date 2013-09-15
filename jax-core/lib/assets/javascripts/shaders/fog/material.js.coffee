@@ -1,8 +1,15 @@
+#= require_tree .
+
 Jax.LINEAR = 1
 Jax.EXPONENTIAL = 2
 Jax.EXP2 = 3
 
 class Jax.Material.Layer.Fog extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/fog/common']
+    vertex:   Jax.shaderTemplates['shaders/fog/vertex']
+    fragment: Jax.shaderTemplates['shaders/fog/fragment']
+
   @define 'color',
     get: -> @_color
     set: (c) -> @_color = Jax.Color.parse c

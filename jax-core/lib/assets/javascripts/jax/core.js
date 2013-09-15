@@ -16,6 +16,8 @@ var Jax = {
   webgl_not_supported_path: null,
 
   Mixins: {},
+
+  shaderTemplates: {},
   
   /**
    * Global

@@ -1,4 +1,11 @@
+#= require_tree .
+
 class Jax.Material.Layer.GammaCorrection extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/gamma_correction/common']
+    vertex:   Jax.shaderTemplates['shaders/gamma_correction/vertex']
+    fragment: Jax.shaderTemplates['shaders/gamma_correction/fragment']
+
   constructor: (options) ->
     super options
     

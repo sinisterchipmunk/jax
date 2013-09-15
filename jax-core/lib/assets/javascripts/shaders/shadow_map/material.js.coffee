@@ -1,4 +1,11 @@
+#= require_tree .
+
 class Jax.Material.Layer.ShadowMap extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/shadow_map/common']
+    vertex:   Jax.shaderTemplates['shaders/shadow_map/vertex']
+    fragment: Jax.shaderTemplates['shaders/shadow_map/fragment']
+
   constructor: (options) ->
     @pcf = true
     @meshMap = vertices: 'VERTEX_POSITION'

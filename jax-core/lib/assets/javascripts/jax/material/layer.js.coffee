@@ -1,45 +1,46 @@
 class Jax.Material.Layer
-  shaderSource = (data, which) ->
-    source = (data.common || "") + (data[which] || "")
-    options =
-      SHADER_TYPE: which
-    new EJS(text:source).render(options)
-  
+  class Jax.Material.SourceHelper
+    constructor: (descriptor) ->
+      $.extend this, descriptor
+
+    require: (path) ->
+      if Jax.shaderTemplates?[path]
+        Jax.shaderTemplates[path] this
+      else
+        throw new Error "Shader source template #{path} does not exist"
+
+  getShaderSource: (sourceHelper, type = null) ->
+    if type
+      sourceHelper.shaderType = type
+      (@shaders.common?(sourceHelper) || "") +
+      (@shaders[type]?(sourceHelper)  || "")
+    else
+      if @shaders
+        vertex   = @getShaderSource sourceHelper, 'vertex'
+        fragment = @getShaderSource sourceHelper, 'fragment'
+        vertex  : vertex
+        fragment: fragment
+      else
+        vertex  : ""
+        fragment: ""
+
   constructor: (options) ->
     @setVariables = options?.setVariables if options?.setVariables
     @assigns = new Jax.Material.ShaderVariableMap
-    if options
-      if options.shader and (src = Jax.shader_data options.shader) and (src.fragment || src.vertex)
-        @_shaderSource = src
-      else if (src = options) and (src.fragment || src.vertex)
-        @_shaderSource = src
-      # handle other options
-      for k, v of options
-        @[k] = v
-        
-    unless @_shaderSource
-      if (src = this.__proto__.constructor.shaderSource) isnt undefined
-        @_shaderSource = src
-      else if (src = Jax.shader_data Jax.Util.underscore @__proto__.constructor.name) and \
-              (src.fragment || src.vertex)
-        @_shaderSource = src
-  
-  attachTo: (shader, insertionIndex) ->
-    map = {}
-    if @_shaderSource
-      vertex = shaderSource @_shaderSource, 'vertex'
-      fragment = shaderSource @_shaderSource, 'fragment'
-      map = shader.insert vertex, fragment, insertionIndex
-    map
 
   numPasses: (context) -> 1
 
+  ###
+  Calculates and returns a CRC value for the shader source code. The CRC value
+  is not guaranteed to match the exact shader source that will be sent to the
+  renderer, but it _is_ guaranteed to be unique to this material layer
+  (assuming no other material layer uses exactly the same shader).
+  ###
   crc: ->
-    if @_shaderSource
-      Jax.Util.crc shaderSource(@_shaderSource, 'vertex') +
-                   shaderSource(@_shaderSource, 'fragment')
-    else
-      Jax.Util.crc ""
+    descriptor = Jax.Shader.Program.getGenericDescriptor()
+    helper = new Jax.Material.SourceHelper descriptor
+    source = @getShaderSource helper
+    Jax.Util.crc source.vertex + source.fragment
   
   clearAssigns: ->
     map = @assigns

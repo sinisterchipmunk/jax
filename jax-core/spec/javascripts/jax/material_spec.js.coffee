@@ -11,7 +11,9 @@ describe "Jax.Material", ->
     beforeEach ->
       spyOn(Jax, 'guid').andReturn 0
       class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-        @shaderSource: { fragment: 'uniform float time; void main(void) { float x = time; }' }
+        getShaderSource: ->
+          fragment: 'uniform float time; void main(void) { float x = time; }'
+          vertex: ''
         setVariables: (c, m, o, v, p) -> v.time = 1.5
       TestMat = class TestMat extends Jax.Material
         constructor: -> super(); @addLayer type: 'TestLayer'
@@ -136,15 +138,17 @@ describe "Jax.Material", ->
     describe "adding a layer", ->
       beforeEach ->
         class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-          @shaderSource:
-            common: "// common"
+          getShaderSource: ->
             vertex: "// vertex"
             fragment: "// fragment"
         matr.addLayer type: "TestLayer"
+        # shader is not built until something is rendered
+        matr.renderMesh @context, new Jax.Mesh.Quad(), new Jax.Model()
       afterEach -> delete Jax.Material.Layer.TestLayer
         
-      it "should add the common code to the vertex shader", ->
-        expect(matr.vertex.toString()).toMatch /common/
+      # common code is now prepended calculated by getShaderSource() itself
+      # it "should add the common code to the vertex shader", ->
+      #   expect(matr.vertex.toString()).toMatch /common/
 
       it "should add the vertex code to the vertex shader", ->
         expect(matr.vertex.toString()).toMatch /vertex/
@@ -152,8 +156,8 @@ describe "Jax.Material", ->
       it "should not add the fragment code to the vertex shader", ->
         expect(matr.vertex.toString()).not.toMatch /fragment/
 
-      it "should add the common code to the fragment shader", ->
-        expect(matr.fragment.toString()).toMatch /common/
+      # it "should add the common code to the fragment shader", ->
+      #   expect(matr.fragment.toString()).toMatch /common/
 
       it "should not add the vertex code to the fragment shader", ->
         expect(matr.fragment.toString()).not.toMatch /vertex/

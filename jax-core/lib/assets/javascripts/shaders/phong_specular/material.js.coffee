@@ -1,6 +1,12 @@
+#= require_tree .
 #= require "jax/material/illumination_layer"
 
 class Jax.Material.Layer.PhongSpecular extends Jax.Material.IlluminationLayer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/phong_specular/common']
+    vertex:   Jax.shaderTemplates['shaders/phong_specular/vertex']
+    fragment: Jax.shaderTemplates['shaders/phong_specular/fragment']
+
   constructor: (options) ->
     @intensity = 1
     super options

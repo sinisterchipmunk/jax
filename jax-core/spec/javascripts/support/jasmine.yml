@@ -11,7 +11,6 @@
 #   - dist/**/*.js
 #
 src_files:
-    - /assets/_manifest.js
     - /assets/_spec.js
 
 # stylesheets

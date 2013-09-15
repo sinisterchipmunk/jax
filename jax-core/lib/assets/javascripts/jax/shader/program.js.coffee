@@ -8,6 +8,31 @@ class Jax.Shader.Program
   @resetPopularities: -> popularity = {}
   @getPopularities: -> popularity
 
+  ###
+  Returns a static, generic descriptor. Descriptors normally contain
+  information about the capabilities of the underlying renderer. The result
+  of this method a descriptor containing _fake_ capabilities. This way,
+  shader templates that produce different source depending on a renderer's
+  capabilities can be generated even if the real capabilities are not yet
+  known.
+
+  Because the descriptor does not contain real information, you should not
+  assume anything produced using the descriptor values is actually valid.
+
+  The actual values returned by the generic descriptor are set to the smallest
+  and least-capable values that still abide by the WebGL standard.
+  ###
+  @getGenericDescriptor: ->
+    maxVertexTextureImageUnits  : 0
+    maxFragmentTextureImageUnits: 8
+    maxCombinedTextureImageUnits: 8
+    maxVertexAttribs            : 8
+    maxVertexUniformVectors     : 128
+    maxVaryingVectors           : 8
+    maxFragmentUniformVectors   : 16
+    maxDrawBuffers              : 1
+    shadingLanguageVersion      : 1
+
   shallowClone = (obj) ->
     clone = {}
     clone[k] = v for k, v of obj
@@ -21,6 +46,9 @@ class Jax.Shader.Program
     # any point during rendering and thus are not ideal candidates for index 
     # 0
     @_dislikedAttributes = []
+
+    @layers = []
+    @variableMaps = []
 
     @variables =
       attributes: {}
@@ -115,6 +143,19 @@ class Jax.Shader.Program
     map[k] = v for k, v of vmap
     map
 
+  append: (vsrc, fsrc, index) ->
+    mangler = Jax.guid()
+    map = {}
+    vmap = @vertex.append vsrc, mangler
+    fmap = @fragment.append fsrc, mangler
+    map[k] = v for k, v of fmap
+    map[k] = v for k, v of vmap
+    map
+
+  clear: ->
+    @vertex.clear()
+    @fragment.clear()
+
   bindAttributeLocations: (descriptor) ->
     gl = descriptor.context.renderer
     # sort variables used by this shader, in descending order of popularity
@@ -187,8 +228,7 @@ class Jax.Shader.Program
 
   compileShader: (descriptor, type, jaxShader, glShader) ->
     gl = descriptor.context.renderer
-    info = @getShaderContext descriptor, type
-    source = new EJS(text: jaxShader.toString()).render info
+    source = jaxShader.toString()
     gl.shaderSource glShader, source
     gl.compileShader glShader
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
@@ -198,6 +238,14 @@ class Jax.Shader.Program
 
   compileShaders: (descriptor) ->
     {context, glVertex, glFragment} = descriptor
+
+    @clear()
+    info = @getShaderContext descriptor, 'vertex'
+    helper = new Jax.Material.SourceHelper info
+    for layer in @layers
+      {vertex, fragment} = layer.getShaderSource helper
+      @variableMaps.push @append vertex, fragment
+
     gl = context.renderer
     @compileShader descriptor, 'vertex',   @vertex,   glVertex
     @compileShader descriptor, 'fragment', @fragment, glFragment
@@ -234,6 +282,10 @@ class Jax.Shader.Program
     @invalidate()
     @mergeVariables @fragment
 
+  addLayer: (layer) ->
+    @invalidate()
+    @layers.push layer
+
   popularize: ->
     # decrease popularity of any variables previously used by this shader
     for name, ary of popularity
@@ -269,39 +321,35 @@ class Jax.Shader.Program
         valid: false
         context: context
       # console.log @variables
-      maxAttrs = @getShaderContext(descriptor, 'vertex').maxVertexAttribs
+      maxAttrs = @getShaderContext(descriptor).maxVertexAttribs
       context._enabledAttributes or= new Uint8Array maxAttrs
     descriptor
 
   isValid: (context) ->
-    @_contexts[context.id]?.valid
+    @getDescriptor(context).valid
 
   invalidate: (context = null) =>
     if context
-      @_contexts[context.id]?.valid = false
+      @getDescriptor(context).valid = false
     else
       @invalidate descriptor.context for id, descriptor of @_contexts
 
-  getShaderContext: (descriptor, shaderType) ->
-    descriptor.shaderContexts or= {}
-    descriptor.shaderContexts[shaderType] or= @newShaderContext descriptor, shaderType
-
-  newShaderContext: (descriptor, shaderType) ->
+  getShaderContext: (descriptor) ->
     # TODO it'd be really cool if this tracked the number of each
     # that are actually in use, and then made available the difference, so
     # that a shader could alter its source code depending on the number
     # of uniforms/varyings/etc available to be used.
     gl = descriptor.context.renderer
-    shaderType                  : shaderType
-    maxVertexAttribs            : gl.getParameter GL_MAX_VERTEX_ATTRIBS
-    maxVertexUniformVectors     : gl.getParameter GL_MAX_VERTEX_UNIFORM_VECTORS
-    maxVaryingVectors           : gl.getParameter GL_MAX_VARYING_VECTORS
-    maxCombinedTextureImageUnits: gl.getParameter GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
-    maxVertexTextureImageUnits  : gl.getParameter GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
-    maxFragmentTextureImageUnits: gl.getParameter GL_MAX_TEXTURE_IMAGE_UNITS
-    maxFragmentUniformVectors   : gl.getParameter GL_MAX_FRAGMENT_UNIFORM_VECTORS
-    shadingLanguageVersion      : gl.getParameter GL_SHADING_LANGUAGE_VERSION
-    gl                          : gl
+    descriptor.shaderContext or=
+      maxVertexAttribs            : gl.getParameter GL_MAX_VERTEX_ATTRIBS
+      maxVertexUniformVectors     : gl.getParameter GL_MAX_VERTEX_UNIFORM_VECTORS
+      maxVaryingVectors           : gl.getParameter GL_MAX_VARYING_VECTORS
+      maxCombinedTextureImageUnits: gl.getParameter GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+      maxVertexTextureImageUnits  : gl.getParameter GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
+      maxFragmentTextureImageUnits: gl.getParameter GL_MAX_TEXTURE_IMAGE_UNITS
+      maxFragmentUniformVectors   : gl.getParameter GL_MAX_FRAGMENT_UNIFORM_VECTORS
+      shadingLanguageVersion      : gl.getParameter GL_SHADING_LANGUAGE_VERSION
+      gl                          : gl
 
   buildBacktrace: (gl, shader, source) ->
     log = gl.getShaderInfoLog(shader)?.split(/\n/) || []

@@ -1,6 +1,12 @@
+#= require_tree .
 #= require "jax/material/illumination_layer"
 
 class Jax.Material.Layer.LambertDiffuse extends Jax.Material.IlluminationLayer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/lambert_diffuse/common']
+    vertex:   Jax.shaderTemplates['shaders/lambert_diffuse/vertex']
+    fragment: Jax.shaderTemplates['shaders/lambert_diffuse/fragment']
+
   constructor: (options) ->
     @intensity = 1
     super options

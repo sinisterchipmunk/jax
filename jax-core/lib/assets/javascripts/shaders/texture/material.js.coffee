@@ -1,4 +1,11 @@
+#= require_tree .
+
 class Jax.Material.Layer.Texture extends Jax.Material.Layer
+  shaders:
+    common:   Jax.shaderTemplates['shaders/texture/common']
+    vertex:   Jax.shaderTemplates['shaders/texture/vertex']
+    fragment: Jax.shaderTemplates['shaders/texture/fragment']
+
   constructor: (options) ->
     if options and options.instance then texture = options.instance
     else if options and options.texture then texture = options.texture
