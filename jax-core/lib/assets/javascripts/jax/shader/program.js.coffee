@@ -261,7 +261,9 @@ class Jax.Shader.Program
     @relink descriptor
     unless gl.getProgramParameter descriptor.glProgram, GL_LINK_STATUS
       throw new Error "Could not initialize shader!\n\n"+ \
-                        gl.getProgramInfoLog descriptor.glProgram
+                        gl.getProgramInfoLog(descriptor.glProgram) + "\n\n" + \
+                        @vertex.toString() + "\n\n" + \
+                        @fragment.toString()
 
   bind: (context) ->
     descriptor = @getDescriptor context
