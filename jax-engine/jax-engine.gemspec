@@ -2,6 +2,7 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
+  s.licenses    = [ 'MIT' ]
   s.name        = "jax-engine"
   s.version     = "3.0.0.rc3"
   s.platform    = Gem::Platform::RUBY

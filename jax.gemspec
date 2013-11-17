@@ -3,6 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "jax/version"
 
 Gem::Specification.new do |s|
+  s.licenses    = [ 'MIT' ]
   s.name        = "jax"
   s.version     = Jax::VERSION
   s.platform    = Gem::Platform::RUBY

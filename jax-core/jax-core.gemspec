@@ -3,6 +3,7 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
+  spec.licenses      = [ 'MIT' ]
   spec.name          = "jax-core"
   spec.version       = "3.0.0.rc3"
   spec.authors       = ["Colin MacKenzie IV"]
