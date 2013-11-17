@@ -120,7 +120,7 @@ class Jax.Shader
       body = definitions + body
 
     if body.indexOf('precision') is -1
-      "precision mediump float;\n\n" + body
+      "precision mediump float;\nprecision mediump int;\n\n" + body
     else body
 
   mergeVariables: (parser, map) ->
