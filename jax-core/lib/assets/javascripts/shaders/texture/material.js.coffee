@@ -19,5 +19,7 @@ class Jax.Material.Layer.Texture extends Jax.Material.Layer
   setVariables: (context, mesh, model, vars, pass) ->
     vars.TextureScaleX = @texture.get('scale_x') || @texture.get('scale') || 1
     vars.TextureScaleY = @texture.get('scale_y') || @texture.get('scale') || 1
+    vars.TextureSkewX = @texture.get('skew_x') || @texture.get('skew') || 0
+    vars.TextureSkewY = @texture.get('skew_y') || @texture.get('skew') || 0
     vars.Texture = @texture
     mesh.data.set vars, @dataMap
