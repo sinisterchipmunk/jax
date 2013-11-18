@@ -689,7 +689,7 @@ class Jax.Camera
   Rotates about an arbitrary axis, which is a `vec3` given in world space.
   ###
   rotateWorld: (n, axis) ->
-    @transformWorld3 _worldAxis, axis
+    @rotateWorld3 _worldAxis, axis
     @rotate n, _worldAxis
 
   ###
