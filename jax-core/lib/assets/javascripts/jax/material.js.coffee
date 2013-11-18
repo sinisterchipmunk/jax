@@ -27,6 +27,12 @@ class Jax.Material
       if layer instanceof klass
         return layer
     null
+
+  removeLayer: (index) ->
+    layer = @layers[index]
+    @layers.splice index, 1
+    @_shaderReady = false
+    layer
   
   insertLayer: (index, options) ->
     @_shaderReady = false
