@@ -14,6 +14,7 @@ class Jax.Mesh.OBJ extends Jax.Mesh.Triangles
           if xhr.status is 200
             @parser = new Jax.Mesh.OBJ.Parser xhr.responseText
             @rebuild()
+            pathOrOpts?.ready?()
           else throw new Error "Request for #{@path} returned status #{xhr.status}"
       xhr.open @method, @path
       xhr.send()
