@@ -10,6 +10,7 @@ void main(void) {
   if (PASS != 0) {
     vTexCoords = VERTEX_TEXCOORDS;
     
+    /*
     vec3 n = VERTEX_NORMAL;
     vec3 t = VERTEX_TANGENT.xyz;
     vec3 b = cross(n, t) * VERTEX_TANGENT.w;
@@ -17,5 +18,14 @@ void main(void) {
     vN = NormalMatrix * n;
     vT = NormalMatrix * t;
     vB = NormalMatrix * b;
+    */
+
+    vec3 n = NormalMatrix * VERTEX_NORMAL;
+    vec3 t = NormalMatrix * VERTEX_TANGENT.xyz;
+    vec3 b = normalize(cross(n, t) * VERTEX_TANGENT.w);
+
+    vN = n;
+    vT = t;
+    vB = b;
   }
 }
