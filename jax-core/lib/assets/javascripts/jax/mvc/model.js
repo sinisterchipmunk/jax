@@ -142,6 +142,7 @@
        * nothing is rendered.
        **/
       render: function(context, material) {
+        if (!this.visible) return;
         if (this.mesh)
         {
           if (!Jax.Model.__instances[this.__unique_id])
@@ -339,6 +340,7 @@
     castShadow: true,     // can this object cast shadows upon others?
     illuminated: true,    // can this object be illuminated by lights?
     cull: true,           // can this object be frustum culled?
+    visible: true,        // should this object be rendered?
   };
   
   Object.defineProperty(Jax.Model.prototype, 'position', {
