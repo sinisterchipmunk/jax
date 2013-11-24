@@ -99,15 +99,16 @@ Jax.Framebuffer = (function() {
         handle.textures[i] = new Jax.Texture(texture_options);
       }
       
+      var handle;
       if (handle.textures[i].get('target') == GL_TEXTURE_2D) {
-        var handle;
         if (handle = handle.textures[i].validate(context))
           context.renderer.framebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D,
                   handle, 0);
       }
-      else
+      else {
         context.renderer.framebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                 handle.textures[i].getHandle(context), 0);
+      }
       
       attachment++;
     }
