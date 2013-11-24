@@ -9,6 +9,7 @@ void main(void) {
     vec3 material = MaterialAmbientIntensity * MaterialAmbientColor.rgb;
     vec4 color = vec4(LightAmbientColor.rgb * LightAmbientColor.a * material, MaterialAmbientColor.a);
     import(VertexColor, color *= VertexColor);
-    gl_FragColor += color;
+    gl_FragColor.rgb += color.rgb;
+    gl_FragColor.a *= color.a;
   }
 }

@@ -48,7 +48,9 @@ void main(void) {
       float specularIntensity = MaterialSpecularIntensity;
       import(SpecularIntensity, specularIntensity *= SpecularIntensity);
       specularIntensity *= SpotAttenuation * pow(clamp(dot(R, E), 0.0, 1.0), MaterialShininess) * LightSpecularColor.a;
-      gl_FragColor += vec4(C * specularIntensity, MaterialSpecularColor.a * specularIntensity);
+      vec4 color = vec4(C * specularIntensity, MaterialSpecularColor.a * specularIntensity);
+      gl_FragColor.rgb += color.rgb;
+      gl_FragColor.a *= color.a;
     }
   }
 }
