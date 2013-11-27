@@ -88,31 +88,9 @@ class Jax.Shader
       result += "\n"
       if mangledMain = src.getMangledMain()
         main.push mangledMain.mangledName + "();"
-    body = @processExportsAndImports result + "void main(void) {\n  #{main.join '\n  '}\n}"
+    body = result + "void main(void) {\n  #{main.join '\n  '}\n}"
 
-    # caches
-    caches = {}
-    while match = /cache[\s\t\n]*\([\s\t\n]*([^,]+?)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*\{/.exec body
-      cacheType = match[1].trim()
-      cacheName = match[2].trim()
-      offsetStart = match.index
-      offsetEnd = offsetStart + match[0].length
-      rest = Jax.Util.scan body[offsetEnd..-1], '}', '{'
-      offsetEnd += rest.length + 1
-      cache = body[offsetStart...offsetEnd]
-      cacheCode = ""
-      if caches[cacheName]
-        if caches[cacheName].type != cacheType
-          throw new Error "Cached variable #{cacheName} has a conflicting type: #{cacheType} (already defined as a #{caches[cacheName].type})"
-      else
-        caches[cacheName] =
-          name: cacheName
-          type: cacheType
-        cacheCode += rest
-      body = body[0...offsetStart] + cacheCode + body[offsetEnd..-1]
     definitions = ""
-    for name, cache of caches
-      definitions += cache.type + " " + cache.name + ";\n"
     if match = /precision.*?\n/.exec body
       ofs = match.index + match[0].length
       body = body[0...ofs] + definitions + body[ofs..-1]

@@ -28,6 +28,9 @@ describe "Jax.Shader", ->
     map = null
     beforeEach ->
       map = shader.append 'uniform float one; shared uniform float two;'
+
+    it 'should be represented in toString()', ->
+      expect(shader.toString()).toInclude 'uniform float one'
     
     it 'should return a name mangling map', ->
       expect(map.one).not.toEqual 'one'
@@ -70,31 +73,11 @@ describe "Jax.Shader", ->
       expect(variable 'two0').not.toBeUndefined()
       expect(variable 'three0').not.toBeUndefined()
 
-  describe "with an appendage that exported a variable", ->
-    beforeEach -> shader.append 'void main() { export(float, x, 1.0); export(float, x, 1.0); }'
-    
-    describe "importing it", ->
-      beforeEach -> shader.append 'float t = 0.0; void main() { import(x, t += x); }'
-      
-      it "should accumulate as many times as it was exported", ->
-        expect(simval 't').toEqual 2
-        
-  describe 'with two cached blocks', ->
-    beforeEach ->
-      shader.append 'float x; void main(void) { cache(float, y) { x = 1.0;} }'
-      shader.append 'float x; void main(void) { cache(float, y) { x = 1.0;} }'
-    
-    it 'should only evaluate the first block', ->
-      expect(simval 'x').toEqual 1
-      
-  describe "with a cache assignment", ->
-    beforeEach -> shader.append 'void main(void) { cache(float, y) { y = 1.0; } }'
-    
-    it 'should define the variable', ->
-      expect(simval 'y').toEqual 1
-  
   describe 'with an appendage with a main', ->
     beforeEach -> shader.append 'float x; void main(void) { x = 1.0; }', 0
+
+    it 'should only generate one main', ->
+      expect(shader.toString()).not.toMatch /void main[.\n]+void main/
     
     it "should mangle the main", ->
       expect(shader.toString()).toMatch /void main0/
