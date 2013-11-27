@@ -16,64 +16,6 @@ class Jax.Shader
     @main = new Array()
     @trigger 'changed'
 
-  processExportsAndImports: (code) ->
-    exports = []
-    rx = /export[\s\t\n]*\(/
-    offset = 0
-    exportID = 0
-    while match = rx.exec code[offset..-1]
-      offsetStart = match.index + offset
-      offsetEnd = offsetStart + match[0].length
-      remainder = Jax.Util.scan code[offsetEnd..-1]
-      offsetEnd += remainder.length + 1
-      exp = /^(.*?)[\s\t\n]*,[\s\t\n]*(.*?)[\s\t\n]*,[\s\t\n]*(.*)$/.exec remainder
-      exports.push
-        fullMatch: code[offsetStart...offsetEnd]
-        type: exp[1]
-        name: exp[2]
-        mangledName: "export_" + exp[2] + exportID++
-        value: exp[3]
-        offsetStart: offsetStart
-        offsetEnd: offsetEnd
-      offset = offsetEnd
-    
-    rx = /import[\s\t\n]*\(/
-    for offset in [(code.length-1)..0]
-      if match = rx.exec code[offset..-1]
-        offsetStart = match.index + offset
-        offsetEnd = offsetStart + match[0].length
-        remainder = Jax.Util.scan code[offsetEnd..-1]
-        offsetEnd += remainder.length + 1
-        # consume terminators to prevent empty statements
-        offsetEnd++ if code[offsetEnd] == ';'
-        imp = /^(.*?)[\s\t\n]*,[\s\t\n]*(.*)$/.exec remainder
-        imp =
-          fullMatch: code[offsetStart...offsetEnd]
-          name: imp[1]
-          value: imp[2]
-          offsetStart: offsetStart
-          offsetEnd: offsetEnd
-        replacement = ""
-        for exp in exports
-          if exp.name == imp.name and exp.offsetStart < imp.offsetStart
-            value = imp.value.replace new RegExp(imp.name, 'g'), exp.mangledName
-            replacement += value + ";\n"
-        code = code.replace imp.fullMatch, replacement
-
-    definitions = ""
-    for exp in exports
-      definitions += "#{exp.type} #{exp.mangledName};\n"
-      expr = exp.mangledName + " = " + exp.value;
-      code = code.replace(exp.fullMatch, expr);
-    
-    if match = /precision.*?\n/.exec code
-      ofs = match.index + match[0].length
-      code = code[0...ofs] + definitions + code[ofs..-1]
-    else
-      code = definitions + code
-      
-    code
-    
   toLines: ->
     @toString().split('\n')
     
