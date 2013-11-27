@@ -97,16 +97,25 @@ class Jax.Shader.Parser
     
   findFunctions: ->
     functions = []
-    rx = /(shared[\s\t\n]+|)(\w+)[\s\t\n]+(\w+)[\s\t\n]*\([\s\t\n]*[\s\t\n]*(.*?)[\s\t\n]*\)[\s\t\n]*{/
+    rx = /(shared[\s\t\n]+|)(\w+)[\s\t\n]+(\w+)[\s\t\n]*\([\s\t\n]*[\s\t\n]*((.|\n)*?)[\s\t\n]*\)[\s\t\n]*([;{])/
     src = @src
     while match = rx.exec src
       offsetStart = match.index
       offsetEnd = match.index + match[0].length
       signature = match[4]
-      offsetEnd += Jax.Util.scan(src[offsetEnd..-1], '}', '{').length + 1
+      if match[6] isnt ';'
+        offsetEnd += Jax.Util.scan(src[offsetEnd..-1], '}', '{').length + 1
       func = src[offsetStart...offsetEnd]
       src = src[0...offsetStart] + src[offsetEnd..-1]
+      args = signature.split /,/
+      args = for arg in args
+        arg = arg.trim().split /\s+/
+        switch arg.length
+          when 2 then qualifier: 'in', type: arg[0], name: arg[1]
+          when 3 then qualifier: arg[0], type: arg[1], name: arg[2]
+          else continue
       functions.push
+        args: args
         shared: !!match[1]
         signature: signature
         full: func
