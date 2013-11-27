@@ -12,7 +12,6 @@ class Jax.Shader
     @clear()
 
   clear: ->
-    @variables = {}
     @sources = []
     @main = new Array()
     @trigger 'changed'
@@ -101,22 +100,9 @@ class Jax.Shader
       "precision mediump float;\nprecision mediump int;\n\n" + body
     else body
 
-  mergeVariables: (parser, map) ->
-    for definition in parser.findVariables()
-      for name in definition.names
-        name = map[name]
-        @variables[name] =
-          name: name
-          qualifier: definition.qualifier
-          type: definition.type
-    @variables
-    
   insert: (src, mangler, index) ->
     @sources.splice index, 0, parser = new Jax.Shader.Parser src, mangler
-    map = parser.map()
-    @mergeVariables parser, map
     @trigger 'changed'
-    map
     
   append: (src, mangler = Jax.guid()) ->
     @insert src, mangler, @sources.length

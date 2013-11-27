@@ -133,17 +133,6 @@ class Jax.Shader.Parser
         return mangle
     null
     
-  map: () ->
-    map = {}
-    mangles = @findVariables()
-    for mangle in mangles
-      for name in mangle.names
-        if mangle.shared
-          map[name] = name
-        else
-          map[name] = name + @mangler
-    map
-    
   mangle: (currentSrc) ->
     src = @src
     # variables

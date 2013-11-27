@@ -25,17 +25,12 @@ describe "Jax.Shader", ->
       expect(shader.toString()).not.toMatch /shared/
   
   describe 'append', ->
-    map = null
     beforeEach ->
-      map = shader.append 'uniform float one; shared uniform float two;'
+      shader.append 'uniform float one; shared uniform float two;'
 
     it 'should be represented in toString()', ->
       expect(shader.toString()).toInclude 'uniform float one'
     
-    it 'should return a name mangling map', ->
-      expect(map.one).not.toEqual 'one'
-      expect(map.two).toEqual 'two'
-  
   describe "an empty addition", ->
     beforeEach -> shader.append ""
     
