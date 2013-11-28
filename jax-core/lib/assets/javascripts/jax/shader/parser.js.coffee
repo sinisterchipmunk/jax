@@ -129,51 +129,51 @@ class Jax.Shader.Parser
     mangles = @findFunctions()
     for mangle in mangles
       if mangle.name == 'main'
-        mangle.mangledName = mangle.name + @mangler
+        mangle.mangledName = mangle.name# + @mangler
         return mangle
     null
     
   mangle: (currentSrc) ->
     src = @src
-    # variables
-    mangles = @findVariables()
-    for mangle in mangles
-      mangledNames = []
-      for name in mangle.names
-        if mangle.shared
-          continue if new RegExp("#{name}(,|;)").test currentSrc
-          mangledNames.push name
-        else
-          mangledNames.push name + @mangler
-      if mangledNames.length > 0
-        mangledNames = mangledNames.join ', '
-        variable = [mangle.qualifier, mangle.type, mangledNames].join ' '
-        variable += ';'
-      else
-        variable = ""
+    # # variables
+    # mangles = @findVariables()
+    # for mangle in mangles
+    #   mangledNames = []
+    #   for name in mangle.names
+    #     if mangle.shared
+    #       continue if new RegExp("#{name}(,|;)").test currentSrc
+    #       mangledNames.push name
+    #     else
+    #       mangledNames.push name + @mangler
+    #   if mangledNames.length > 0
+    #     mangledNames = mangledNames.join ', '
+    #     variable = [mangle.qualifier, mangle.type, mangledNames].join ' '
+    #     variable += ';'
+    #   else
+    #     variable = ""
 
-      src = src.replace mangle.match[0], variable
-      # references
-      continue if mangle.shared
-      for name in mangle.names
-        mangledName = name + @mangler
-        while match = new RegExp("(^|\\W)#{name}(\\W|$)").exec src
-          src = src.replace match[0], match[1] + mangledName + match[2]
+    #   src = src.replace mangle.match[0], variable
+    #   # references
+    #   continue if mangle.shared
+    #   for name in mangle.names
+    #     mangledName = name + @mangler
+    #     while match = new RegExp("(^|\\W)#{name}(\\W|$)").exec src
+    #       src = src.replace match[0], match[1] + mangledName + match[2]
           
-    # functions
-    mangles = @findFunctions()
-    for mangle in mangles
-      if mangle.shared
-        mangledName = mangle.name
-      else
-        mangledName = mangle.name + @mangler
-      mangledSignature = mangle.signature.replace mangle.name, mangledName
-      mangledFunc = mangle.full.replace mangle.signature, mangledSignature
-      mangledFunc = mangledFunc.replace /shared[\s\t\n]+/, ''
-      src = src.replace mangle.full, mangledFunc
-      continue if mangle.shared
-      while match = new RegExp("(^|\\W)#{mangle.name}(\\W|$)").exec src
-        src = src.replace match[0], match[1] + mangledName + match[2]
+    # # functions
+    # mangles = @findFunctions()
+    # for mangle in mangles
+    #   if mangle.shared
+    #     mangledName = mangle.name
+    #   else
+    #     mangledName = mangle.name + @mangler
+    #   mangledSignature = mangle.signature.replace mangle.name, mangledName
+    #   mangledFunc = mangle.full.replace mangle.signature, mangledSignature
+    #   mangledFunc = mangledFunc.replace /shared[\s\t\n]+/, ''
+    #   src = src.replace mangle.full, mangledFunc
+    #   continue if mangle.shared
+    #   while match = new RegExp("(^|\\W)#{mangle.name}(\\W|$)").exec src
+    #     src = src.replace match[0], match[1] + mangledName + match[2]
     
     src
 
