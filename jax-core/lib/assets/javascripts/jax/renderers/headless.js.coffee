@@ -55,7 +55,7 @@ Jax.Renderer.register class Jax.Renderer.Headless
   getProgramParameter: -> 1
   getProgramInfoLog: ->
   useProgram: ->
-  getParameter: -> 10000
+  getParameter: -> 1
   getShaderInfoLog: ->
   drawElements: ->
   drawArrays: ->
@@ -68,7 +68,6 @@ Jax.Renderer.register class Jax.Renderer.Headless
   bufferData: ->
   getUniformLocation: -> 1
   clearColor: ->
-
   disable: ->
   enable: ->
   cullFace: ->
