@@ -28,7 +28,7 @@ class Jax.Material.Layer
   (assuming no other material layer uses exactly the same shader).
   ###
   crc: ->
-    descriptor = Jax.Shader.Program.getGenericDescriptor()
+    descriptor = Jax.Shader.getGenericDescriptor()
     helper = new Jax.Material.SourceHelper descriptor
     source = @getShaderSource helper
     Jax.Util.crc source.vertex + source.fragment

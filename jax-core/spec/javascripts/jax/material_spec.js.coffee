@@ -11,9 +11,8 @@ describe "Jax.Material", ->
     beforeEach ->
       spyOn(Jax, 'guid').andReturn 0
       class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-        getShaderSource: ->
-          fragment: 'uniform float time; void main(void) { float x = time; }'
-          vertex: ''
+        shaders:
+          fragment: -> 'uniform float time; void X(void) { float x = time; }'
         setVariables: (c, m, o, v, p) -> v.time = 1.5
       TestMat = class TestMat extends Jax.Material
         constructor: -> super(); @addLayer type: 'TestLayer'
@@ -24,7 +23,7 @@ describe "Jax.Material", ->
     it 'should set the property appropriately', ->
       mat = new TestMat()
       mat.render(@context, mesh = new Jax.Mesh.Quad, new Jax.Model)
-      expect(mesh.assigns["time0"]).toEqual 1.5
+      expect(mesh.assigns["time"]).toEqual 1.5
   
   it "should not reuse attribute arrays from different objects", ->
     # when for example obj A binds its normals, but obj B does not,
@@ -124,7 +123,7 @@ describe "Jax.Material", ->
     describe "adding a layer with only vertex code", ->
       beforeEach ->
         class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-          @shaderSource: vertex: "// vertex"
+          shaders: vertex: -> "// vertex"
         matr.addLayer type: "TestLayer"
       afterEach -> delete Jax.Material.Layer.TestLayer
         
@@ -138,26 +137,20 @@ describe "Jax.Material", ->
     describe "adding a layer", ->
       beforeEach ->
         class Jax.Material.Layer.TestLayer extends Jax.Material.Layer
-          getShaderSource: ->
-            vertex: "// vertex"
-            fragment: "// fragment"
+          shaders:
+            vertex: -> "// vertex"
+            fragment: -> "// fragment"
         matr.addLayer type: "TestLayer"
+        matr.validate @context
         # shader is not built until something is rendered
         matr.renderMesh @context, new Jax.Mesh.Quad(), new Jax.Model()
       afterEach -> delete Jax.Material.Layer.TestLayer
         
-      # common code is now prepended calculated by getShaderSource() itself
-      # it "should add the common code to the vertex shader", ->
-      #   expect(matr.vertex.toString()).toMatch /common/
-
       it "should add the vertex code to the vertex shader", ->
         expect(matr.vertex.toString()).toMatch /vertex/
 
       it "should not add the fragment code to the vertex shader", ->
         expect(matr.vertex.toString()).not.toMatch /fragment/
-
-      # it "should add the common code to the fragment shader", ->
-      #   expect(matr.fragment.toString()).toMatch /common/
 
       it "should not add the vertex code to the fragment shader", ->
         expect(matr.fragment.toString()).not.toMatch /vertex/

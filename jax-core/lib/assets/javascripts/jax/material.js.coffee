@@ -75,18 +75,25 @@ class Jax.Material
     crc = ""
     crc += ";" + layer.crc() for layer in @layers
     @shader = Jax.Shader.instances[crc] or= do =>
-      shader = new Jax.Shader.Program(@name)
+      shader = new Jax.Shader(@name)
       for layer, index in @layers
         shader.addLayer layer
       shader
     @_shaderReady = true
-  
+
+  ###
+  Ensures its shader is up-to-date and valid for the specified context.
+  ###
+  validate: (context) ->
+    @prepareShader() unless @_shaderReady
+    @shader.validate context
+
   ###
   Renders a single mesh, taking as many passes as the material's layers indicate
   are needed, and then returns the number of passes it actually took.
   ###
   renderMesh: (context, mesh, model) ->
-    @prepareShader() unless @_shaderReady
+    @validate context
     numPassesRendered = 0
     numPassesRequested = 0
     mesh.data.context = context
@@ -111,15 +118,12 @@ class Jax.Material
     
   preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
     assigns = mesh.assigns
-    variableMaps = @shader.variableMaps
     for layer, i in @layers
       if (result = layer.setup context, mesh, model, pass) is false
         return false
-      else
-        map = variableMaps[i]
-        for k, v of result
-          if map[k] then k = map[k]
-          assigns[k] = v unless v is undefined
+      for k, v of result
+        assigns[k] = v
+
     if numPassesRendered is 1
       gl = context.renderer
       gl.blendFunc GL_ONE, GL_ONE

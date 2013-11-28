@@ -35,6 +35,12 @@ class Jax.Shader
     maxDrawBuffers              : 1
     shadingLanguageVersion      : 1
 
+  ###
+  Used by `Jax.Material` to prevent instantiating a specific shader more than
+  once.
+  ###
+  @instances: []
+
   shallowClone = (obj) ->
     clone = {}
     clone[k] = v for k, v of obj
@@ -290,11 +296,15 @@ class Jax.Shader
 
   addLayer: (layer) ->
     @vertex.code 'top', (info) ->
-      layer.shaders.common?(info) +
-      layer.shaders.vertex?(info)
+      if layer.shaders
+        (layer.shaders.common?(info)   || "") +
+        (layer.shaders.vertex?(info)   || "")
+      else ""
     @fragment.code 'top', (info) ->
-      layer.shaders.common?(info) +
-      layer.shaders.fragment?(info)
+      if layer.shaders
+        (layer.shaders.common?(info)   || "") +
+        (layer.shaders.fragment?(info) || "")
+      else ""
 
   mergeVariables: (shader) ->
     for collectionName in [ 'attributes', 'uniforms', 'varyings' ]
