@@ -169,3 +169,10 @@ sharedExamplesFor "a shader", ->
 describe 'Jax.Shader.DSL', ->
   beforeEach -> @shader = new Jax.Shader.DSL.TopLevel
   itShouldBehaveLike 'a shader'
+
+  describe 'when a main() is added', ->
+    beforeEach -> @shader.code 'top', 'void main(void) { return 1; }'
+
+    it 'should not define 2 mains', ->
+      expect(@shader.toString()).not.toMatch /main(.|\n)*main/
+

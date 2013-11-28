@@ -198,6 +198,7 @@ class Jax.Shader.DSL
       collection = new Jax.Shader.DSL.GlobalDefinitions
       collection.fnName = func.name
       collection.returnType = func.type
+      @hasMain = false if func.name is 'main'
       for arg in func.args
         arg.qualifier or= "in"
         arg = collection.add arg.type, arg.name, "", arg.qualifier
