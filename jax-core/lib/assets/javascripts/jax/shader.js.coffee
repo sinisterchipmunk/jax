@@ -5,10 +5,6 @@
 class Jax.Shader
   @include Jax.Mixins.EventEmitter
 
-  popularity = {}
-  @resetPopularities: -> popularity = {}
-  @getPopularities: -> popularity
-
   class Shader.CompileError extends Jax.Error
     constructor: (message) ->
       super()
@@ -45,15 +41,11 @@ class Jax.Shader
     clone
 
   constructor: (@name = "generic") ->
+    @popularityContest = new Jax.Shader.PopularityContest
     @_contexts = {}
     @_guid = Jax.guid()
     @vertex   = new Jax.Shader.DSL.Vertex
     @fragment = new Jax.Shader.DSL.Fragment
-
-    # array of attributes who passed popularity, but then were disabled at
-    # any point during rendering and thus are not ideal candidates for index 
-    # 0
-    @_dislikedAttributes = []
 
     @variables =
       attributes: {}
@@ -111,18 +103,18 @@ class Jax.Shader
         # console.log 'not using', name
         id = context.id
         if @isAttributeEnabled context, attribute.location[id]
-          if attribute.location[id] is 0 and @_dislikedAttributes.indexOf(name) is -1
+          if attribute.location[id] is 0 and not @popularityContest.isDisliked(name)
             # console.log 'disliking', name
             # make a note that this attribute was disabled; finish iterating
             # in case other attributes follow suit; then rebind and retry
-            @_dislikedAttributes.push name
+            @popularityContest.dislike name
             mustRebind = true
           # console.log 'disabling', name
           @disableAttribute context, attribute.location[id], attribute.name
       attribute.value = value
     if mustRebind
       descriptor = @getDescriptor context
-      @popularize()
+      @popularityContest.popularize @vertex.attributes.definitions
       @relink descriptor
       @bind context
       return @set context, assigns
@@ -194,20 +186,7 @@ class Jax.Shader
     # which have never been disabled have the best chance of selection for
     # slot 0.
     variables = (variable for name, variable of @variables.attributes)
-    variables.sort (a, b) =>
-      aName = a.toString()
-      bName = b.toString()
-      da = @_dislikedAttributes.indexOf aName
-      db = @_dislikedAttributes.indexOf bName
-      if da isnt db
-        if da is -1 then return -1
-        else return 1
-      apop = popularity[aName]
-      bpop = popularity[bName]
-      if bpop and apop
-        if (s = bpop.length - apop.length) != 0
-          return s
-      aName.toLowerCase().localeCompare bName.toLowerCase()
+    @popularityContest.sort variables
     nextAvailableLocation = 0
     id = descriptor.context.id
     for variable in variables
@@ -317,18 +296,6 @@ class Jax.Shader
       layer.shaders.common?(info) +
       layer.shaders.fragment?(info)
 
-  popularize: ->
-    # decrease popularity of any variables previously used by this shader
-    for name, ary of popularity
-      if (index = ary.indexOf(@_guid)) isnt -1
-        ary.splice ary.indexOf(@_guid), 1
-    # increase popularity of all variables now used by this shader, which
-    # have not been disabled during rendering
-    for name, variable of @variables.attributes
-      ary = popularity[name] or= []
-      ary.push @_guid if @_dislikedAttributes.indexOf(name) is -1
-    true
-
   mergeVariables: (shader) ->
     for collectionName in [ 'attributes', 'uniforms', 'varyings' ]
       continue unless collection = shader[collectionName]
@@ -336,7 +303,7 @@ class Jax.Shader
         variable = collection[defn]
         clone = shallowClone variable
         @variables[collectionName][variable.toString()] = clone
-    @popularize()
+    @popularityContest.popularize @vertex.attributes.definitions
     @variables
 
   validate: (context) ->

@@ -153,7 +153,7 @@ describe 'Jax.Shader', ->
     program = null
     beforeEach ->
       @attr = new Jax.Buffer GL_ARRAY_BUFFER, Float32Array, GL_STREAM_DRAW, [1,2,3], 1, GL_FLOAT
-      Jax.Shader.resetPopularities()
+      Jax.Shader.PopularityContest.reset()
       program = new Jax.Shader
 
     xit 'should have a default vertex shader output', ->
