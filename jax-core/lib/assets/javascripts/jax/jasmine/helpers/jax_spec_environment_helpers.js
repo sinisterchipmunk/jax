@@ -34,10 +34,10 @@ function setupJaxSpecContext() {
     There's nothing special about this element.
    */
   var canvas = document.createElement("canvas");
-  canvas.setAttribute("width", 600);
-  canvas.setAttribute("height", 400);
-  canvas.width = 600;
-  canvas.height = 400;
+  canvas.setAttribute("width", 150);
+  canvas.setAttribute("height", 100);
+  canvas.width = 150;
+  canvas.height = 100;
   canvas.setAttribute("id", "spec-canvas");
   // if (canvas.style)
   //   canvas.style.display = "none";
