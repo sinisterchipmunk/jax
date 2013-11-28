@@ -11,7 +11,7 @@ describe "Jax.Material.Layer", ->
     layer = new Jax.Material.TestLayer {name: "one"}
     mesh = new Jax.Mesh.Triangles()
     model = new Jax.Model()
-    shader = new Jax.Shader.Program()
+    shader = new Jax.Shader()
     
   afterEach -> delete Jax.Material.TestLayer
   
