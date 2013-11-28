@@ -158,6 +158,12 @@ sharedExamplesFor "a shader", ->
   it 'should have a uniforms object', ->
     expect(@shader.uniforms).not.toBeUndefined()
 
+  it 'should define a default float precision', ->
+    expect(@shader.toString()).toInclude 'precision mediump float;'
+
+  it 'should define a default int precision', ->
+    expect(@shader.toString()).toInclude 'precision mediump int;'
+
   itShouldBehaveLike 'a shader block'
 
 describe 'Jax.Shader.DSL', ->

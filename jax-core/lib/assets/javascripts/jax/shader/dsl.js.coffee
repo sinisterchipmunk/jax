@@ -258,4 +258,10 @@ class Jax.Shader.DSL
     if @hasMain
       main = [ "void main() {", indent(main.join("\n")), "}" ]
     parts = [ top.join("\n"), main... ]
-    parts.join("\n")
+    code = parts.join("\n")
+    @addDefaultPrecision code
+
+  # Adds default precision specifiers if none are found in the given code.
+  addDefaultPrecision: (code) ->
+    return code if code.indexOf('precision ') isnt -1
+    "precision mediump float;\nprecision mediump int;\n#{code}"
