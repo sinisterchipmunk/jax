@@ -19,5 +19,6 @@ class Jax.Shader.Source
 
   toString: (info) ->
     sources = for template in @_templates
-      template info
+      if typeof template is 'string' then template
+      else template info
     sources.join("\n\n")
