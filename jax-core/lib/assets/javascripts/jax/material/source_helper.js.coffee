@@ -4,6 +4,7 @@ class Jax.Material.SourceHelper
     $.extend this, descriptor
 
   require: (path) ->
+    throw new Error "(BUG) no shaderType!" unless @shaderType
     if Jax.shaderTemplates?[path]
       if @_required[@shaderType][path]
         "// already required #{path}\n"
