@@ -133,4 +133,6 @@ Jax.Renderer.register class Jax.Renderer.WebGL
   deleteRenderbuffer: (r) -> @context.deleteRenderbuffer r
   deleteFramebuffer: (f) -> @context.deleteFramebuffer f
   deleteTexture: (t) -> @context.deleteTexture t
+  getActiveAttrib: (p, e) -> @context.getActiveAttrib p, e
+  getActiveUniform: (p, e) -> @context.getActiveUniform p, e
   
