@@ -341,18 +341,6 @@ class Jax.Shader
   getGLProgram: (context) ->
     @getDescriptor(context).glProgram
 
-  addLayer: (layer) ->
-    @vertex.code 'top', (info) ->
-      if layer.shaders
-        (layer.shaders.common?(info)   || "") +
-        (layer.shaders.vertex?(info)   || "")
-      else ""
-    @fragment.code 'top', (info) ->
-      if layer.shaders
-        (layer.shaders.common?(info)   || "") +
-        (layer.shaders.fragment?(info) || "")
-      else ""
-
   validate: (context) ->
     descriptor = @getDescriptor context
     return if descriptor.valid

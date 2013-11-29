@@ -1,5 +1,0 @@
-description: |
-  Renders the scene distorted into a paraboloid. Useful for fast
-    omnidirectional environment mapping.
-
-# no options

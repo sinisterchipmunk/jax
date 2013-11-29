@@ -1,4 +1,0 @@
-description: Performs gamma correction for more realistic lighting.
-
-options:
-  gamma: sRGB

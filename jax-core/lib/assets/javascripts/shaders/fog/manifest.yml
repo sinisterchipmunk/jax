@@ -1,8 +1,0 @@
-description: A fog effect.
-
-options:
-  color: "#ffffff"
-  algorithm: EXP2
-  start: 10.0
-  end: 100.0
-  density: 0.0015

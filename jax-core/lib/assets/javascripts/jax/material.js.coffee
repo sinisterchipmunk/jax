@@ -25,56 +25,6 @@ class Jax.Material
     @prepareShader() unless @_shaderReady
     @shader.fragment
   
-  ###
-  Returns the first layer that is an instance of the given class, or null
-  if it is not found at all.
-  ###
-  findLayer: (klass) ->
-    for layer in @layers
-      if layer instanceof klass
-        return layer
-    null
-
-  removeLayer: (index) ->
-    layer = @layers[index]
-    @layers.splice index, 1
-    @_shaderReady = false
-    layer
-  
-  insertLayer: (index, options) ->
-    @_shaderReady = false
-
-    if typeof options is 'string' then options = { type: options }
-    if options instanceof Jax.Material.Layer
-      @_shaderReady = false
-      @layers.splice index, 0, options
-      return options
-    
-    options = Jax.Util.merge options, {}
-    Klass = Jax.Material.Layer[options.type]
-    unless Klass
-      if Jax.Material[options.type]
-        console.log "#{@name}: Material layer type #{options.type} could not be found "+ \
-                    "within namespace Jax.Material.Layer, but an object of the same name "+ \
-                    "was found within namespace Jax.Material. Please note that this is " + \
-                    "deprecated usage, and material layers should appear within namespace "+ \
-                    "Jax.Material.Layer."
-        Klass = Jax.Material[options.type]
-      else
-        throw new Error "#{@name}: Material layer type #{options.type} could not be found"
-    options.shader or= Klass.shader || Jax.Util.underscore options.type
-    layer = new Klass options
-    if layer instanceof Jax.Material
-      throw new Error """
-        #{@name}: Custom material layers now inherit from Jax.Material.Layer instead of Jax.Material.
-      """
-    @_shaderReady = false
-    @layers.splice index, 0, layer
-    layer
-
-  addLayer: (options) ->
-    @insertLayer @layers.length, options
-    
   prepareShader: ->
     @shader = new Jax.Shader(@name)
     for layer, index in @layers
@@ -100,13 +50,6 @@ class Jax.Material
     numPassesRendered = 0
     numPassesRequested = @numPasses()
     mesh.data.context = context
-    for layer in @layers
-      layer.material = this
-      layer.prepare context, mesh, model if layer.prepare
-      passes = layer.numPasses context, mesh, model
-      numPassesRequested = passes if passes > numPassesRequested
-
-    mesh.data.context = context # in case it changed - FIXME make this not necessary
     @shader.bind context
     gl = context.renderer
     for pass in [0...numPassesRequested]
