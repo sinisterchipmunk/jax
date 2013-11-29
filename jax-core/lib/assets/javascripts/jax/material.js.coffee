@@ -3,12 +3,19 @@
 
 class Jax.Material
   constructor: (options, @name = "generic") ->
+    @layers = []
     # options = jQuery.extend true, {}, options
     options = Jax.Util.merge options, {}
     for key, value of options
       switch key
         when 'layers'  then @addLayer layer for layer in value
         else @[key] = value
+    if @shaders
+      if @shaders.common
+        @vertex.code   @shaders.common
+        @fragment.code @shaders.common
+      if @shaders.vertex   then @vertex.code   @shaders.vertex
+      if @shaders.fragment then @fragment.code @shaders.fragment
         
   @define 'vertex', get: ->
     @prepareShader() unless @_shaderReady
@@ -36,7 +43,6 @@ class Jax.Material
   
   insertLayer: (index, options) ->
     @_shaderReady = false
-    @layers or= []
 
     if typeof options is 'string' then options = { type: options }
     if options instanceof Jax.Material.Layer
@@ -67,25 +73,22 @@ class Jax.Material
     layer
 
   addLayer: (options) ->
-    @layers or= []
     @insertLayer @layers.length, options
     
   prepareShader: ->
-    @layers or= []
-    crc = ""
-    crc += ";" + layer.crc() for layer in @layers
-    @shader = Jax.Shader.instances[crc] or= do =>
-      shader = new Jax.Shader(@name)
-      for layer, index in @layers
-        shader.addLayer layer
-      shader
+    @shader = new Jax.Shader(@name)
+    for layer, index in @layers
+      @shader.addLayer layer
     @_shaderReady = true
 
   ###
   Ensures its shader is up-to-date and valid for the specified context.
   ###
   validate: (context) ->
-    @prepareShader() unless @_shaderReady
+    unless @_shaderReady
+      @prepareShader()
+      @shader.validate context
+      @main? context
     @shader.validate context
 
   ###
@@ -95,7 +98,7 @@ class Jax.Material
   renderMesh: (context, mesh, model) ->
     @validate context
     numPassesRendered = 0
-    numPassesRequested = 0
+    numPassesRequested = @numPasses()
     mesh.data.context = context
     for layer in @layers
       layer.material = this
@@ -115,6 +118,8 @@ class Jax.Material
       gl.depthFunc GL_LESS
       
     numPassesRendered
+
+  numPasses: -> 1
     
   preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
     assigns = mesh.assigns
