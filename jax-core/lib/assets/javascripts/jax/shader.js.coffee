@@ -227,12 +227,12 @@ class Jax.Shader
 
   getUniformLocations: (descriptor) ->
     gl = descriptor.context.renderer
-    program = @getGLProgram descriptor.context
+    program = descriptor.glProgram
     id = descriptor.context.id
     for name, variable of @variables.uniforms
       variable.location or= {}
-      variable.location[id] = gl.getUniformLocation program,
-                                                    variable.toString()
+      variable.location[id] = gl.getUniformLocation program, name
+                                                    # variable.toString()
       if variable.location[id] is null
         # remove variables that were not used in the shader, to prevent
         # uselessly iterating through them later
@@ -240,22 +240,68 @@ class Jax.Shader
     true
 
   relink: (descriptor) ->
+    # link twice: first to get active uniforms and attributes,
+    # then to appliy attribute bindings based on the popularity contest
     gl = descriptor.context.renderer
+    gl.linkProgram descriptor.glProgram
+    @queryShaderVariables descriptor
     @bindAttributeLocations descriptor
-    gl.linkProgram  descriptor.glProgram
+    gl.linkProgram descriptor.glProgram
     @enableAllAttributes descriptor
     @getUniformLocations descriptor
 
+  stringType: (type) ->
+    switch type
+      when GL_FLOAT then 'float'
+      when GL_FLOAT_VEC2 then 'vec2'
+      when GL_FLOAT_VEC3 then 'vec3'
+      when GL_FLOAT_VEC4 then 'vec4'
+      when GL_INT then 'int'
+      when GL_INT_VEC2 then 'ivec2'
+      when GL_INT_VEC3 then 'ivec3'
+      when GL_INT_VEC4 then 'ivec4'
+      when GL_BOOL then 'bool'
+      when GL_BOOL_VEC2 then 'bvec2'
+      when GL_BOOL_VEC3 then 'bvec3'
+      when GL_BOOL_VEC4 then 'bvec4'
+      when GL_FLOAT_MAT2 then 'mat2'
+      when GL_FLOAT_MAT3 then 'mat3'
+      when GL_FLOAT_MAT4 then 'mat4'
+      when GL_SAMPLER_2D then 'sampler2D'
+      when GL_SAMPLER_CUBE then 'samplerCube'
+      else throw new Error "Unexpected enum: #{Jax.Util.enumName type}"
+
+  queryShaderVariables: (descriptor) ->
+    gl = descriptor.context.renderer
+    program = descriptor.glProgram
+    numAttributes = gl.getProgramParameter program, GL_ACTIVE_ATTRIBUTES
+    numUniforms   = gl.getProgramParameter program, GL_ACTIVE_UNIFORMS
+    for i in [0...numAttributes]
+      if attribute = gl.getActiveAttrib program, i
+        @variables.attributes[attribute.name] =
+          name: attribute.name
+          size: attribute.size
+          type: @stringType attribute.type
+    for i in [0...numUniforms]
+      if uniform = gl.getActiveUniform program, i
+        @variables.uniforms[uniform.name] =
+          name: uniform.name
+          size: uniform.size
+          type: @stringType uniform.type
+    true
+
   compileShader: (descriptor, type, jaxShader, glShader, sourceHelper) ->
     gl = descriptor.context.renderer
+    sourceHelper.shaderType = type
     source = jaxShader.toString sourceHelper
     # @currentVertexSource = source
     @["current#{type.charAt(0).toUpperCase()+type[1..-1]}Source"] = source
-    @mergeVariables jaxShader
     gl.shaderSource glShader, source
     gl.compileShader glShader
     unless gl.getShaderParameter glShader, GL_COMPILE_STATUS
       backtrace = @buildBacktrace gl, glShader, source.split(/\n/)
+      if backtrace.length == 1 and backtrace[0].length == 0
+        backtrace = source
       throw new Jax.Shader.CompileError "Shader #{jaxShader.name} failed to compile\n\n#{backtrace.join("\n")}"
     glShader
 
@@ -267,14 +313,15 @@ class Jax.Shader
     gl = context.renderer
     @compileShader descriptor, 'vertex',   @vertex,   glVertex,   helper
     @compileShader descriptor, 'fragment', @fragment, glFragment, helper
-    gl.attachShader descriptor.glProgram, descriptor.glVertex
-    gl.attachShader descriptor.glProgram, descriptor.glFragment
 
   compileProgram: (descriptor) ->
     gl = descriptor.context.renderer
-    descriptor.glProgram  or= gl.createProgram()
-    descriptor.glVertex   or= gl.createShader GL_VERTEX_SHADER
-    descriptor.glFragment or= gl.createShader GL_FRAGMENT_SHADER
+    unless descriptor.glProgram
+      descriptor.glProgram  = gl.createProgram()
+      descriptor.glVertex   = gl.createShader GL_VERTEX_SHADER
+      descriptor.glFragment = gl.createShader GL_FRAGMENT_SHADER
+      gl.attachShader descriptor.glProgram, descriptor.glVertex
+      gl.attachShader descriptor.glProgram, descriptor.glFragment
     @compileShaders descriptor
     @relink descriptor
     unless gl.getProgramParameter descriptor.glProgram, GL_LINK_STATUS
@@ -305,16 +352,6 @@ class Jax.Shader
         (layer.shaders.common?(info)   || "") +
         (layer.shaders.fragment?(info) || "")
       else ""
-
-  mergeVariables: (shader) ->
-    for collectionName in [ 'attributes', 'uniforms', 'varyings' ]
-      continue unless collection = shader[collectionName]
-      for defn in collection.definitions
-        variable = collection[defn]
-        clone = shallowClone variable
-        @variables[collectionName][variable.toString()] = clone
-    @popularityContest.popularize @vertex.attributes.definitions
-    @variables
 
   validate: (context) ->
     descriptor = @getDescriptor context
