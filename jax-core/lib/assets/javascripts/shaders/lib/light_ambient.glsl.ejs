@@ -1,0 +1,7 @@
+void LightAmbient(float materialAmbientIntensity,
+                  vec4 materialAmbientColor,
+                  vec4 lightAmbientColor,
+                  out vec3 ambientColor) {
+  vec3 material = materialAmbientIntensity * materialAmbientColor.rgb;
+  ambientColor = lightAmbientColor.rgb * material * lightAmbientColor.a;
+}

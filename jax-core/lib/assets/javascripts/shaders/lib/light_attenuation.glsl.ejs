@@ -1,0 +1,14 @@
+vec3 LightAttenuation(in float lightDistanceFromSurface,
+                      in float spotAttenuation,
+                      in float constantAttenuation,
+                      in float linearAttenuation,
+                      in float quadraticAttenuation,
+                      inout vec3 color
+                     ) {
+  color *= spotAttenuation / (
+    constantAttenuation +
+    linearAttenuation * lightDistanceFromSurface +
+    quadraticAttenuation * pow(lightDistanceFromSurface, 2.0)
+  );
+  return color;
+}

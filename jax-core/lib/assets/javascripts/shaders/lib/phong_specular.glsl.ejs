@@ -1,0 +1,43 @@
+// Phong formula: Is = Sm x Sl x pow( max(R dot E, 0.0), f )
+//   where Sl is the light specular color, Sm is the material specular color,
+//     E is the view vector, and R is the reflected light vector.
+//
+void PhongSpecular(vec3 eyeSpaceSurfaceNormal,
+                   vec3 eyeSpaceSurfacePosition,
+                   vec3 eyeSpaceLightDirection,
+                   vec3 eyeSpaceLightPosition,
+                   float materialShininess,
+                   float materialSpecularIntensity,
+                   vec4 materialSpecularColor,
+                   int lightType,
+                   float lightSpotInnerCos,
+                   float lightSpotOuterCos,
+                   vec4 lightSpecularColor,
+                   out vec3 result,
+                   out float spotAttenuation) {
+  result = vec3(0.0, 0.0, 0.0);
+  if (materialShininess > 0.0) {
+    vec3 L;
+    if (lightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
+      L = -eyeSpaceLightDirection;
+    } else {
+      L = normalize(eyeSpaceLightPosition - eyeSpaceSurfacePosition);
+    }
+
+    float cosCurAngle = dot(-L, eyeSpaceLightDirection);
+    float cosInnerMinusOuterAngle = lightSpotInnerCos - lightSpotOuterCos;
+    spotAttenuation = clamp((cosCurAngle - lightSpotOuterCos) /
+                            cosInnerMinusOuterAngle, 0.0, 1.0);
+
+    float lambert = dot(eyeSpaceSurfaceNormal, L);
+    if (lambert > 0.0) {
+      vec3 R = reflect(L, eyeSpaceSurfaceNormal);
+      vec3 C = materialSpecularColor.rgb * lightSpecularColor.rgb;
+      vec3 E = normalize(vEyeSpaceSurfacePosition);
+      float sI = materialSpecularIntensity * spotAttenuation *
+                 pow(clamp(dot(R, E), 0.0, 1.0), materialShininess) *
+                 lightSpecularColor.a;
+      result = C * sI;
+    }
+  }
+}

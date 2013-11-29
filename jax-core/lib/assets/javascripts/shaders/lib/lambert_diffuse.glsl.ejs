@@ -1,0 +1,43 @@
+// Lambert formula: L dot N * C * Il,
+//   where L is direction from surface to light, N is normal, C is color, Il is light intensity
+// This shader holds alpha constant at 1.0 and is intended to be blended
+// additively with a prior ambient pass. Light intensity is held constant 
+// at 1.0 and attenuation is calculated in a different layer.
+
+void LambertDiffuse(in  vec3  eyeSpaceSurfaceNormal,
+                    in  vec3  eyeSpaceSurfacePosition,
+                    in  vec3  eyeSpaceLightDirection,
+                    in  vec3  eyeSpaceLightPosition,
+                    in  float materialDiffuseIntensity,
+                    in  vec4  materialDiffuseColor,
+                    in  int   lightType,
+                    in  float lightSpotInnerCos,
+                    in  float lightSpotOuterCos,
+                    in  vec4  lightDiffuseColor,
+                    out vec3  diffuseColor,
+                    out float spotAttenuation,
+                    out float lightDistanceFromSurface) {
+  vec3 L;
+  if (lightType == <%= Jax.DIRECTIONAL_LIGHT %>) {
+    L = -eyeSpaceLightDirection;
+    lightDistanceFromSurface = 1.0;
+  } else {
+    L = eyeSpaceLightPosition - eyeSpaceSurfacePosition;
+    lightDistanceFromSurface = length(L);
+    L /= lightDistanceFromSurface;
+  }
+
+  // calculate spot light boundaries
+  float cosCurAngle = dot(-L, eyeSpaceLightDirection);
+  float cosInnerMinusOuterAngle = lightSpotInnerCos - lightSpotOuterCos;
+  spotAttenuation = clamp((cosCurAngle - lightSpotOuterCos) / cosInnerMinusOuterAngle, 0.0, 1.0);
+
+  // calculate light intensity
+  float intensity = lightDiffuseColor.a * materialDiffuseIntensity;
+  vec3 C = lightDiffuseColor.rgb * materialDiffuseColor.rgb;
+
+  // calculate lambert term and final diffuse color
+  float lambert = max(dot(eyeSpaceSurfaceNormal, L), 0.0);
+  float diffuse = lambert * spotAttenuation * intensity;
+  diffuseColor = C * diffuse;
+}
