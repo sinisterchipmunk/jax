@@ -1,5 +1,7 @@
 #= require 'jax/mixins/event_emitter'
 #= require 'jax/core/coffee_patterns'
+#= require_self
+#= require_tree ./color
 
 alphaHex = "0123456789abcdef"
 
@@ -36,9 +38,15 @@ hexEncode = (flt, precision) ->
 class Jax.Color
   @include Jax.Mixins.EventEmitter
 
-  constructor: (r = 1, g = 1, b = 1, a = 1) ->
+  constructor: (r_or_rgba, g, b, a) ->
     @_vec = vec4.create()
-    @set r, g, b, a
+    if r_or_rgba isnt undefined and g is undefined then @parse r_or_rgba
+    else
+      r_or_rgba = 1 if r_or_rgba is undefined
+      g         = 1 if g         is undefined
+      b         = 1 if b         is undefined
+      a         = 1 if a         is undefined
+      @set r_or_rgba, g, b, a
   
   toVec4: -> @_vec
 
@@ -84,7 +92,7 @@ class Jax.Color
       @trigger 'change'
 
   parse: (value) ->
-    if typeof value is 'string' and value[0] == '#'
+    if typeof value is 'string' and value.charAt(0) == '#'
       parseHexColor value[1..-1], this
     else if typeof value is 'string' and (split = value.split(' ')).length != 0
       @set (parseFloat(c) for c in split)...
@@ -99,4 +107,5 @@ class Jax.Color
     # else @set Jax.Util.colorize(value)...
     
   @parse: (value) ->
+    return value if value instanceof Jax.Color
     new Jax.Color().parse value
