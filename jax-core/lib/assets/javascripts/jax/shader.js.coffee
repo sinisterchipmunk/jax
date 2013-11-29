@@ -50,8 +50,8 @@ class Jax.Shader
     @popularityContest = new Jax.Shader.PopularityContest
     @_contexts = {}
     @_guid = Jax.guid()
-    @vertex   = new Jax.Shader.DSL.Vertex
-    @fragment = new Jax.Shader.DSL.Fragment
+    @vertex   = new Jax.Shader.Source
+    @fragment = new Jax.Shader.Source
 
     @variables =
       attributes: {}
@@ -59,38 +59,6 @@ class Jax.Shader
       varyings:   {}
     @vertex.on   'change', @invalidate
     @fragment.on 'change', @invalidate
-
-  ## Begin DSL methods
-
-  attributes: (attrs) ->
-    @vertexShader().addAttributes attrs
-
-  uniforms: (uniforms) ->
-    @vertexShader().addUniforms uniforms
-    @fragmentShader().addUniforms uniforms
-
-  varyings: (varyings) ->
-    @vertexShader().addVaryings varyings
-    @fragmentShader().addVaryings varyings
-
-  code: (scope, code) ->
-    @vertexShader().code scope, code
-    @fragmentShader().code scope, code
-
-  vertexShader: (callback) ->
-    callback? @vertex
-    @vertex
-
-  fragmentShader: (callback) ->
-    callback? @fragment
-    @fragment
-
-  generate: ->
-    vertex: @vertex
-    fragment: @fragment
-
-
-  ## End DSL methods
 
   ###
   Sets the shader's variables according to the name/value pairs which appear
@@ -149,25 +117,26 @@ class Jax.Shader
     gl = context.renderer
     id = context.id
     switch variable.type
-      when 'float'          then gl.uniform1f  variable.location[id], value
-      when 'bool', 'int'    then gl.uniform1i  variable.location[id], value
-      when 'vec2'           then gl.uniform2fv variable.location[id], value
-      when 'vec3'           then gl.uniform3fv variable.location[id], value
-      when 'vec4'           then gl.uniform4fv variable.location[id], value
-      when 'bvec2', 'ivec2' then gl.uniform2iv variable.location[id], value
-      when 'bvec3', 'ivec3' then gl.uniform3iv variable.location[id], value
-      when 'bvec4', 'ivec4' then gl.uniform4iv variable.location[id], value
-      when 'mat2' then gl.uniformMatrix2fv variable.location[id], false, value
-      when 'mat3' then gl.uniformMatrix3fv variable.location[id], false, value
-      when 'mat4' then gl.uniformMatrix4fv variable.location[id], false, value
-      when 'sampler2D', 'samplerCube'
+      when GL_FLOAT          then gl.uniform1f  variable.location[id], value
+      when GL_BOOL, GL_INT    then gl.uniform1i  variable.location[id], value
+      when GL_FLOAT_VEC2           then gl.uniform2fv variable.location[id], value
+      when GL_FLOAT_VEC3           then gl.uniform3fv variable.location[id], value
+      when GL_FLOAT_VEC4           then gl.uniform4fv variable.location[id], value
+      when GL_BOOL_VEC2, GL_INT_VEC2 then gl.uniform2iv variable.location[id], value
+      when GL_BOOL_VEC3, GL_INT_VEC3 then gl.uniform3iv variable.location[id], value
+      when GL_BOOL_VEC4, GL_INT_VEC4 then gl.uniform4iv variable.location[id], value
+      when GL_FLOAT_MAT2 then gl.uniformMatrix2fv variable.location[id], false, value
+      when GL_FLOAT_MAT3 then gl.uniformMatrix3fv variable.location[id], false, value
+      when GL_FLOAT_MAT4 then gl.uniformMatrix4fv variable.location[id], false, value
+      when GL_SAMPLER_2D, GL_SAMPLER_CUBE
         gl.activeTexture GL_TEXTURE0 + @__textureIndex
         if handle = value.validate context
           gl.bindTexture value.get('target'), handle
         else
           gl.bindTexture value.get('target'), null
         gl.uniform1i variable.location[id], value = @__textureIndex++
-      else throw new Error "Unexpected variable type: #{variable.type}"
+      else
+        throw new Error "Unexpected variable type: #{Jax.Util.enumName variable.type}"
 
   insert: (vsrc, fsrc, index) ->
     @vertex.insert   vsrc, index
@@ -250,27 +219,6 @@ class Jax.Shader
     @enableAllAttributes descriptor
     @getUniformLocations descriptor
 
-  stringType: (type) ->
-    switch type
-      when GL_FLOAT then 'float'
-      when GL_FLOAT_VEC2 then 'vec2'
-      when GL_FLOAT_VEC3 then 'vec3'
-      when GL_FLOAT_VEC4 then 'vec4'
-      when GL_INT then 'int'
-      when GL_INT_VEC2 then 'ivec2'
-      when GL_INT_VEC3 then 'ivec3'
-      when GL_INT_VEC4 then 'ivec4'
-      when GL_BOOL then 'bool'
-      when GL_BOOL_VEC2 then 'bvec2'
-      when GL_BOOL_VEC3 then 'bvec3'
-      when GL_BOOL_VEC4 then 'bvec4'
-      when GL_FLOAT_MAT2 then 'mat2'
-      when GL_FLOAT_MAT3 then 'mat3'
-      when GL_FLOAT_MAT4 then 'mat4'
-      when GL_SAMPLER_2D then 'sampler2D'
-      when GL_SAMPLER_CUBE then 'samplerCube'
-      else throw new Error "Unexpected enum: #{Jax.Util.enumName type}"
-
   queryShaderVariables: (descriptor) ->
     gl = descriptor.context.renderer
     program = descriptor.glProgram
@@ -281,13 +229,13 @@ class Jax.Shader
         @variables.attributes[attribute.name] =
           name: attribute.name
           size: attribute.size
-          type: @stringType attribute.type
+          type: attribute.type
     for i in [0...numUniforms]
       if uniform = gl.getActiveUniform program, i
         @variables.uniforms[uniform.name] =
           name: uniform.name
           size: uniform.size
-          type: @stringType uniform.type
+          type: uniform.type
     true
 
   compileShader: (descriptor, type, jaxShader, glShader, sourceHelper) ->
@@ -325,10 +273,11 @@ class Jax.Shader
     @compileShaders descriptor
     @relink descriptor
     unless gl.getProgramParameter descriptor.glProgram, GL_LINK_STATUS
-      throw new Error "Could not initialize shader!\n\n"+ \
-                        gl.getProgramInfoLog(descriptor.glProgram) + "\n\n" + \
-                        @vertex.toString() + "\n\n" + \
-                        @fragment.toString()
+      throw new Error [ "Could not initialize shader!"
+                        gl.getProgramInfoLog(descriptor.glProgram)
+                        @currentVertexSource
+                        @currentFragmentSource
+                      ].join("\n\n")
 
   bind: (context) ->
     descriptor = @getDescriptor context
