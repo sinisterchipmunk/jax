@@ -1,0 +1,10 @@
+attribute vec4 VertexPosition, VertexColor;
+attribute vec3 VertexNormal;
+
+void main(void) {
+  vVertexColor = VertexColor;
+  gl_Position = ModelViewMatrix * VertexPosition;
+  vEyeSpaceSurfacePosition = gl_Position.xyz;
+  vEyeSpaceSurfaceNormal = NormalMatrix * VertexNormal;
+  gl_Position = ProjectionMatrix * gl_Position;
+}

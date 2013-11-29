@@ -1,0 +1,61 @@
+<%= require("shaders/lib/light_ambient") %>
+<%= require("shaders/lib/lambert_diffuse") %>
+<%= require("shaders/lib/phong_specular") %>
+<%= require("shaders/lib/light_attenuation") %>
+
+void main(void) {
+  gl_FragColor = vVertexColor;
+  gl_FragColor.rgb *= WorldAmbientColor.a   *
+                      WorldAmbientColor.rgb *
+                      MaterialAmbientIntensity;
+  gl_FragColor.a *= MaterialAmbientColor.a + MaterialDiffuseColor.a + MaterialSpecularColor.a;
+  vec3 ambientColor, diffuseColor, specularColor;
+  float spotAttenuation, lightDistanceFromSurface;
+
+  vec3 eyeSpaceSurfaceNormal = vEyeSpaceSurfaceNormal;
+  if (!gl_FrontFacing) eyeSpaceSurfaceNormal = -eyeSpaceSurfaceNormal;
+  eyeSpaceSurfaceNormal = normalize(eyeSpaceSurfaceNormal);
+
+  LightAmbient(MaterialAmbientIntensity,
+               MaterialAmbientColor,
+               LightAmbientColor,
+               ambientColor);
+
+  LambertDiffuse(eyeSpaceSurfaceNormal,
+                 vEyeSpaceSurfacePosition,
+                 EyeSpaceLightDirection,
+                 EyeSpaceLightPosition,
+                 MaterialDiffuseIntensity,
+                 MaterialDiffuseColor,
+                 LightType,
+                 LightSpotInnerCos,
+                 LightSpotOuterCos,
+                 LightDiffuseColor,
+                 diffuseColor,
+                 spotAttenuation,
+                 lightDistanceFromSurface);
+
+  PhongSpecular(eyeSpaceSurfaceNormal,
+                 vEyeSpaceSurfacePosition,
+                 EyeSpaceLightDirection,
+                 EyeSpaceLightPosition,
+                 MaterialShininess,
+                 MaterialSpecularIntensity,
+                 MaterialSpecularColor,
+                 LightType,
+                 LightSpotInnerCos,
+                 LightSpotOuterCos,
+                 LightDiffuseColor,
+                 specularColor,
+                 spotAttenuation);
+
+  vec3 attenuatedColor = diffuseColor + specularColor;
+  LightAttenuation(lightDistanceFromSurface,
+                   spotAttenuation,
+                   LightConstantAttenuation,
+                   LightLinearAttenuation,
+                   LightQuadraticAttenuation,
+                   attenuatedColor);
+  
+  gl_FragColor.rgb += ambientColor + attenuatedColor;
+}

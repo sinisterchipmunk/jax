@@ -1,0 +1,29 @@
+precision mediump float;
+precision mediump int;
+
+uniform float MaterialAmbientIntensity,
+              MaterialDiffuseIntensity,
+              MaterialSpecularIntensity,
+              MaterialShininess,
+              LightSpotInnerCos,
+              LightSpotOuterCos,
+              LightConstantAttenuation,
+              LightLinearAttenuation,
+              LightQuadraticAttenuation;
+uniform mat4  ModelViewMatrix,
+              ProjectionMatrix;
+uniform mat3  NormalMatrix;
+uniform vec4  WorldAmbientColor,
+              MaterialAmbientColor,
+              MaterialDiffuseColor,
+              MaterialSpecularColor,
+              LightAmbientColor,
+              LightDiffuseColor,
+              LightSpecularColor;
+uniform vec3  EyeSpaceLightDirection,
+              EyeSpaceLightPosition;
+uniform int   LightType;
+
+varying vec4  vVertexColor;
+varying vec3  vEyeSpaceSurfacePosition,
+              vEyeSpaceSurfaceNormal;
