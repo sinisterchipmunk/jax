@@ -9,53 +9,58 @@ void main(void) {
                       WorldAmbientColor.rgb *
                       MaterialAmbientIntensity;
   gl_FragColor.a *= MaterialAmbientColor.a + MaterialDiffuseColor.a + MaterialSpecularColor.a;
-  vec3 ambientColor, diffuseColor, specularColor;
+  vec3 ambientLightColor, diffuseLightColor, specularLightColor;
   float spotAttenuation, lightDistanceFromSurface;
 
   vec3 eyeSpaceSurfaceNormal = vEyeSpaceSurfaceNormal;
   if (!gl_FrontFacing) eyeSpaceSurfaceNormal = -eyeSpaceSurfaceNormal;
   eyeSpaceSurfaceNormal = normalize(eyeSpaceSurfaceNormal);
 
-  LightAmbient(MaterialAmbientIntensity,
-               MaterialAmbientColor,
-               LightAmbientColor,
-               ambientColor);
+  vec3 attenuatedLightColor;
+  <% for (var i = 0; i < 8; i++) { %>
+    if (LightEnabled[<%= i %>]) {
+      LightAmbient(MaterialAmbientIntensity,
+                   MaterialAmbientColor,
+                   LightAmbientColor[<%= i %>],
+                   ambientLightColor);
 
-  LambertDiffuse(eyeSpaceSurfaceNormal,
-                 vEyeSpaceSurfacePosition,
-                 EyeSpaceLightDirection,
-                 EyeSpaceLightPosition,
-                 MaterialDiffuseIntensity,
-                 MaterialDiffuseColor,
-                 LightType,
-                 LightSpotInnerCos,
-                 LightSpotOuterCos,
-                 LightDiffuseColor,
-                 diffuseColor,
-                 spotAttenuation,
-                 lightDistanceFromSurface);
+      LambertDiffuse(eyeSpaceSurfaceNormal,
+                     vEyeSpaceSurfacePosition,
+                     EyeSpaceLightDirection[<%= i %>],
+                     EyeSpaceLightPosition[<%= i %>],
+                     MaterialDiffuseIntensity,
+                     MaterialDiffuseColor,
+                     LightType[<%= i %>],
+                     LightSpotInnerCos[<%= i %>],
+                     LightSpotOuterCos[<%= i %>],
+                     LightDiffuseColor[<%= i %>],
+                     diffuseLightColor,
+                     spotAttenuation,
+                     lightDistanceFromSurface);
 
-  PhongSpecular(eyeSpaceSurfaceNormal,
-                 vEyeSpaceSurfacePosition,
-                 EyeSpaceLightDirection,
-                 EyeSpaceLightPosition,
-                 MaterialShininess,
-                 MaterialSpecularIntensity,
-                 MaterialSpecularColor,
-                 LightType,
-                 LightSpotInnerCos,
-                 LightSpotOuterCos,
-                 LightDiffuseColor,
-                 specularColor,
-                 spotAttenuation);
+      PhongSpecular(eyeSpaceSurfaceNormal,
+                     vEyeSpaceSurfacePosition,
+                     EyeSpaceLightDirection[<%= i %>],
+                     EyeSpaceLightPosition[<%= i %>],
+                     MaterialShininess,
+                     MaterialSpecularIntensity,
+                     MaterialSpecularColor,
+                     LightType[<%= i %>],
+                     LightSpotInnerCos[<%= i %>],
+                     LightSpotOuterCos[<%= i %>],
+                     LightDiffuseColor[<%= i %>],
+                     specularLightColor,
+                     spotAttenuation);
 
-  vec3 attenuatedColor = diffuseColor + specularColor;
-  LightAttenuation(lightDistanceFromSurface,
-                   spotAttenuation,
-                   LightConstantAttenuation,
-                   LightLinearAttenuation,
-                   LightQuadraticAttenuation,
-                   attenuatedColor);
-  
-  gl_FragColor.rgb += ambientColor + attenuatedColor;
+      attenuatedLightColor = diffuseLightColor + specularLightColor;
+      LightAttenuation(lightDistanceFromSurface,
+                       spotAttenuation,
+                       LightConstantAttenuation[<%= i %>],
+                       LightLinearAttenuation[<%= i %>],
+                       LightQuadraticAttenuation[<%= i %>],
+                       attenuatedLightColor);
+      
+      gl_FragColor.rgb += ambientLightColor + attenuatedLightColor;
+    }
+  <% } %>
 }

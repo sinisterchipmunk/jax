@@ -229,10 +229,13 @@ class Jax.Shader
           type: attribute.type
     for i in [0...numUniforms]
       if uniform = gl.getActiveUniform program, i
-        @variables.uniforms[uniform.name] =
-          name: uniform.name
-          size: uniform.size
-          type: uniform.type
+        name = uniform.name
+        for n in [0...(uniform.size || 1)]
+          name = uniform.name.replace(/\[0\]$/, "[#{n}]")
+          @variables.uniforms[name] =
+            name: name
+            size: uniform.size
+            type: uniform.type
     true
 
   compileShader: (descriptor, type, jaxShader, glShader, sourceHelper) ->

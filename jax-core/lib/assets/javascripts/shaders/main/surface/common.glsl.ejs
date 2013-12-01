@@ -5,11 +5,11 @@ uniform float MaterialAmbientIntensity,
               MaterialDiffuseIntensity,
               MaterialSpecularIntensity,
               MaterialShininess,
-              LightSpotInnerCos,
-              LightSpotOuterCos,
-              LightConstantAttenuation,
-              LightLinearAttenuation,
-              LightQuadraticAttenuation;
+              LightSpotInnerCos[8],
+              LightSpotOuterCos[8],
+              LightConstantAttenuation[8],
+              LightLinearAttenuation[8],
+              LightQuadraticAttenuation[8];
 uniform mat4  ModelViewMatrix,
               ProjectionMatrix;
 uniform mat3  NormalMatrix;
@@ -17,12 +17,13 @@ uniform vec4  WorldAmbientColor,
               MaterialAmbientColor,
               MaterialDiffuseColor,
               MaterialSpecularColor,
-              LightAmbientColor,
-              LightDiffuseColor,
-              LightSpecularColor;
-uniform vec3  EyeSpaceLightDirection,
-              EyeSpaceLightPosition;
-uniform int   LightType;
+              LightAmbientColor[8],
+              LightDiffuseColor[8],
+              LightSpecularColor[8];
+uniform vec3  EyeSpaceLightDirection[8],
+              EyeSpaceLightPosition[8];
+uniform int   LightType[8];
+uniform bool  LightEnabled[8];
 
 varying vec4  vVertexColor;
 varying vec3  vEyeSpaceSurfacePosition,

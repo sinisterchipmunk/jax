@@ -107,25 +107,28 @@ class Jax.Material.Surface extends Jax.Material.Custom
     binding.listen context.world, 'lightAdded lightRemoved', @allLightsChanged
 
   allLightsChanged: (binding) =>
-    # TODO: handle more than 1 light :)
-    if light = binding.context.world.lights[0]
-      binding.listen light.camera, 'change', @lightMatricesChanged
-      binding.listen light, 'change:spot:innerAngle', ->
-        binding.set 'LightSpotInnerCos', light.innerSpotAngleCos
-      binding.listen light, 'change:spot:outerAngle', ->
-        binding.set 'LightSpotOuterCos', light.outerSpotAngleCos
-      binding.listen light, 'change:type', ->
-        binding.set 'LightType', light.type
-      binding.listen light.attenuation, 'change:constant', ->
-        binding.set 'LightConstantAttenuation', light.attenuation.constant
-      binding.listen light.attenuation, 'change:linear', ->
-        binding.set 'LightLinearAttenuation', light.attenuation.linear
-      binding.listen light.attenuation, 'change:quadratic', ->
-        binding.set 'LightQuadraticAttenuation', light.attenuation.quadratic
-      assigns = binding.get()
-      assigns['LightAmbientColor']         = light.color.ambient
-      assigns['LightSpecularColor']        = light.color.specular
-      assigns['LightDiffuseColor']         = light.color.diffuse
+    for light, index in binding.context.world.lights
+      do (light, index) =>
+        binding.listen light, 'change:enabled', ->
+          binding.set "LightEnabled[#{index}]", light.enabled
+        binding.listen light.camera, 'change', @lightMatricesChanged
+        binding.listen light, 'change:spot:innerAngle', ->
+          binding.set "LightSpotInnerCos[#{index}]", light.innerSpotAngleCos
+        binding.listen light, 'change:spot:outerAngle', ->
+          binding.set "LightSpotOuterCos[#{index}]", light.outerSpotAngleCos
+        binding.listen light, 'change:type', ->
+          binding.set "LightType[#{index}]", light.type
+        binding.listen light.attenuation, 'change:constant', ->
+          binding.set "LightConstantAttenuation[#{index}]", light.attenuation.constant
+        binding.listen light.attenuation, 'change:linear', ->
+          binding.set "LightLinearAttenuation[#{index}]", light.attenuation.linear
+        binding.listen light.attenuation, 'change:quadratic', ->
+          binding.set "LightQuadraticAttenuation[#{index}]", light.attenuation.quadratic
+        assigns = binding.get()
+        assigns["LightAmbientColor[#{index}]"]         = light.color.ambient
+        assigns["LightSpecularColor[#{index}]"]        = light.color.specular
+        assigns["LightDiffuseColor[#{index}]"]         = light.color.diffuse
+    this
 
   matricesChanged: (binding) =>
     {context, model, mesh} = binding
@@ -136,10 +139,12 @@ class Jax.Material.Surface extends Jax.Material.Custom
 
   lightMatricesChanged: (binding) =>
     {context} = binding
-    if light = context.world.lights[0]
-      @eyeDir or= vec3.create()
-      @eyePos or= vec3.create()
-      light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-      light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
-      binding.set 'EyeSpaceLightDirection', @eyeDir
-      binding.set 'EyeSpaceLightPosition',  @eyePos
+    for light, index in context.world.lights
+      do (light, index) =>
+        @eyeDir or= vec3.create()
+        @eyePos or= vec3.create()
+        light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
+        light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
+        binding.set "EyeSpaceLightDirection[#{index}]", @eyeDir
+        binding.set "EyeSpaceLightPosition[#{index}]",  @eyePos
+    this

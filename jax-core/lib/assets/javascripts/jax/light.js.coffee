@@ -20,7 +20,7 @@ class Jax.Light extends Jax.Model
         if Jax.Light[options.type] then return new Jax.Light[options.type](options)
     
     @shadows = false
-    @enabled = true
+    @_enabled = true
     @_color = new Jax.Light.Color
     @_attenuation = new Jax.Light.Attenuation
     @innerSpotAngle = Math.PI / 4.375
@@ -31,6 +31,12 @@ class Jax.Light extends Jax.Model
     @attenuation.on 'quadraticChanged', => @_maxEffectiveRangeCache = null
     
     super options
+
+  @define 'enabled',
+    get: -> @_enabled
+    set: (e) ->
+      @_enabled = e
+      @trigger 'change:enabled'
     
   @define 'color',
     get: -> @_color
