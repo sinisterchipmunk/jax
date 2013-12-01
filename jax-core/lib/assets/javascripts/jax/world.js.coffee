@@ -59,7 +59,7 @@ class Jax.World
     console.log new Error().stack
     result = {}
     for obj in @getObjects()
-      result[obj.__unique_id] = obj
+      result[obj.id] = obj
     result
   
   @define 'cameras',
@@ -232,7 +232,7 @@ class Jax.World
       object.on 'transformed', @updateOctree
       @trigger 'objectAddedToOctree'
     else
-      @_objects[object.__unique_id] = object
+      @_objects[object.id] = object
     @getObjects().push object
     @trigger 'objectAdded'
     if object.castShadow isnt false
@@ -249,7 +249,7 @@ class Jax.World
   getObject: (id) ->
     return object if object = @_objects[id]
     for object in @getObjects()
-      return object if object.__unique_id == id
+      return object if object.id is id
     null
   
   ###
@@ -259,7 +259,7 @@ class Jax.World
   The object itself is returned.
   ###
   removeObject: (obj) ->
-    delete @_objects[obj.__unique_id]
+    delete @_objects[obj.id]
     objectArray = @getObjects()
     objectArray.splice objectArray.indexOf(obj), 1
     # invalidate shadow maps if necessary so that the object's shadow gets

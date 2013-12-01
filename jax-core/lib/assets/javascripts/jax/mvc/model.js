@@ -94,7 +94,7 @@
      **/
     function Model(data) {
       var self = this;
-      this.__unique_id = this.id = Jax.guid();
+      this.id = Jax.guid();
       this.camera = new Jax.Camera();
       this.camera.on('change', function() { self.trigger('transformed'); });
       
@@ -145,8 +145,8 @@
         if (!this.visible) return;
         if (this.mesh)
         {
-          if (!Jax.Model.__instances[this.__unique_id])
-            Jax.Model.__instances[this.__unique_id] = this;
+          if (!Jax.Model.__instances[this.id])
+            Jax.Model.__instances[this.id] = this;
           this.pushMatrices(context);
           this.mesh.render(context, this, material);
           this.popMatrices(context);
@@ -218,8 +218,8 @@
       dispose: function() {
         if (this.mesh)
           this.mesh.dispose();
-        if (Jax.Model.__instances[this.__unique_id])
-          delete Jax.Model.__instances[this.__unique_id];
+        if (Jax.Model.__instances[this.id])
+          delete Jax.Model.__instances[this.id];
       },
       
       /**

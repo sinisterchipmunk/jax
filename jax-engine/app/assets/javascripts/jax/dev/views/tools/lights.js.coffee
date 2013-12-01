@@ -18,7 +18,7 @@ class Jax.Dev.Views.Tools.Lights extends Backbone.View
     @$el.append view.$el
 
   remove: (light) =>
-    @$("*[data-id=#{light.__unique_id}]").remove()
+    @$("*[data-id=#{light.id}]").remove()
 
   render: =>
     @$el.empty()

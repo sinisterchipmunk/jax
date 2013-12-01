@@ -11,7 +11,7 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
     "change #shadows, #enabled": "booleanChanged"
 
   initialize: ->
-    @stateKey = "light_#{@model.__unique_id}"
+    @stateKey = "light_#{@model.id}"
     @render()
     @restoreState()
 
@@ -35,8 +35,8 @@ class Jax.Dev.Views.Tools.Lights.Item extends Jax.Dev.Views.Drawer
   render: =>
     @$el.html @template
       klass: @model.__proto__.constructor.name
-      id: @model.__unique_id
-    @$el.attr 'data-id', @model.__unique_id
+      id: @model.id
+    @$el.attr 'data-id', @model.id
     @addColorPicker "Ambient", @model.color.ambient
     @addColorPicker "Diffuse", @model.color.diffuse
     @addColorPicker "Specular", @model.color.specular

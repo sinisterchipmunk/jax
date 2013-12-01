@@ -21,7 +21,7 @@ describe "Jax.ShadowMap.Directional", ->
     model = new Jax.Model position: [0, 0, -1], mesh: new Jax.Mesh.Quad
     @world.addObject model
     spyOn(@context.world, 'parsePickData').andCallFake (data, out) ->
-      out.push model.__unique_id
+      out.push model.id
     expect(shadowmap.isIlluminated model, @context).toBeTrue()
     
   # it "should not illuminate objects entirely obstructed by other objects", ->

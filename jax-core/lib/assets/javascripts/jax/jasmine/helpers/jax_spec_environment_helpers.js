@@ -3,7 +3,7 @@
   jasmine.StringPrettyPrinter.prototype.emitObject = function(obj) {
     if (obj instanceof Jax.Model) {
       this.append("[" + (obj.__proto__ ? obj.__proto__.constructor.name : "Jax.Model") + " with ID ");
-      jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.__unique_id);
+      jasmine.StringPrettyPrinter.prototype.emitScalar.call(this, obj.id);
       this.append("]");
       return;
     }

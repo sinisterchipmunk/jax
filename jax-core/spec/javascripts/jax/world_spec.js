@@ -162,10 +162,10 @@ describe("Jax.World", function() {
   it("should render objects added to the world", function() {
     var mat = new Jax.Material();
     rendered_ids = [];
-    mat.render = function(context, mesh, model) { rendered_ids.push(model.__unique_id); };
+    mat.render = function(context, mesh, model) { rendered_ids.push(model.id); };
     var o1 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [-2, 0, -5]});
     var o2 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [2, 0, -5]});
-    var o1id = o1.__unique_id, o2id = o2.__unique_id;
+    var o1id = o1.id, o2id = o2.id;
     world.addObject(o1);
     world.addObject(o2);
     world.render(mat);
@@ -197,7 +197,7 @@ describe("Jax.World", function() {
       world.context.canvas.height = 1;
       spyOn(world, 'pickRegionalIndices').andCallFake(function() {
         obj.render(world.context);
-        return [objNested.__unique_id];
+        return [objNested.id];
       });
       expect(world.pickRegion(0, 0, 1, 1)[0] === objNested).toBeTruthy();
     });

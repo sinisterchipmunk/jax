@@ -156,8 +156,8 @@ class Jax.Octree
   Returns the object.
   ###
   trackNestedObject: (obj) ->
-    unless @nestedObjects[obj.__unique_id]
-      @nestedObjects[obj.__unique_id] = obj
+    unless @nestedObjects[obj.id]
+      @nestedObjects[obj.id] = obj
       @nestedObjectCount++
     @parent.trackNestedObject obj if @parent
     obj
@@ -169,8 +169,8 @@ class Jax.Octree
   nested objects meets the @mergeThreshold.
   ###
   untrackNestedObject: (obj) ->
-    if @nestedObjects[obj.__unique_id]
-      delete @nestedObjects[obj.__unique_id]
+    if @nestedObjects[obj.id]
+      delete @nestedObjects[obj.id]
       @nestedObjectCount--
       @merge() if @nestedObjectCount <= @mergeThreshold
     @parent.untrackNestedObject obj if @parent
@@ -182,8 +182,8 @@ class Jax.Octree
   @splitThreshold.
   ###
   addToSelf: (obj) ->
-    unless @objects[obj.__unique_id]
-      @objects[obj.__unique_id] = obj
+    unless @objects[obj.id]
+      @objects[obj.id] = obj
       @objectCount++
       if @objectCount >= @splitThreshold
         @split()
@@ -220,8 +220,8 @@ class Jax.Octree
   Removes the object from the octree, potentially triggering a merge.
   ###
   remove: (obj) ->
-    if @objects[obj.__unique_id]
-      delete @objects[obj.__unique_id]
+    if @objects[obj.id]
+      delete @objects[obj.id]
       @objectCount--
     @untrackNestedObject obj
     
@@ -283,8 +283,8 @@ class Jax.Octree
   addToChild: (obj) ->
     child = @getChildInQuadrant obj.position
     if child.canContain obj
-      if @objects[obj.__unique_id]
-        delete @objects[obj.__unique_id]
+      if @objects[obj.id]
+        delete @objects[obj.id]
         @objectCount--
       @_isParent = true
       child.add obj
@@ -324,11 +324,11 @@ class Jax.Octree
   be found.
   ###
   find: (obj) ->
-    if @objects[obj.__unique_id]
+    if @objects[obj.id]
       return this
     else
       for child in @children
-        if child and child.nestedObjects[obj.__unique_id]
+        if child and child.nestedObjects[obj.id]
           if result = child.find obj
             return result
     return null
@@ -343,7 +343,7 @@ class Jax.Octree
     
     while (node && !node.canContain obj)
       replace = true
-      id = obj.__unique_id
+      id = obj.id
       if node.nestedObjects[id]
         delete node.nestedObjects[id]
         node.nestedObjectCount--

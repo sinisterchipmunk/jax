@@ -50,7 +50,7 @@ describe "Jax.Octree", ->
           # object.
           found = false
           octree.traverse [0,0,0], (node) ->
-            found = true if node.objects[obj1.__unique_id]
+            found = true if node.objects[obj1.id]
             true
           expect(found).toBeTrue()
     
@@ -261,12 +261,12 @@ describe "Jax.Octree", ->
           expect(octree.objectCount).toEqual 0
         
         it "should not keep the object references", ->
-          expect(octree.objects[obj1.__unique_id]).toBeUndefined()
-          expect(octree.objects[obj2.__unique_id]).toBeUndefined()
+          expect(octree.objects[obj1.id]).toBeUndefined()
+          expect(octree.objects[obj2.id]).toBeUndefined()
         
         it "should keep nested object references", ->
-          expect(octree.nestedObjects[obj1.__unique_id]).toBeDefined()
-          expect(octree.nestedObjects[obj2.__unique_id]).toBeDefined()
+          expect(octree.nestedObjects[obj1.id]).toBeDefined()
+          expect(octree.nestedObjects[obj2.id]).toBeDefined()
           
         it "should return a node other than root for both objects via #find", ->
           expect(octree.find obj1).not.toBe octree
@@ -288,7 +288,7 @@ describe "Jax.Octree", ->
             expect(octree.isParent()).toBeFalse
           
           it "should remove the object from parent's nested objects", ->
-            expect(octree.nestedObjects[obj2.__unique_id]).toBeUndefined()
+            expect(octree.nestedObjects[obj2.id]).toBeUndefined()
             expect(octree.nestedObjectCount).toEqual 1
             
           it "should still be a parent", ->

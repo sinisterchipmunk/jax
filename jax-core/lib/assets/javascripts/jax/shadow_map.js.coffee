@@ -124,5 +124,5 @@ class Jax.ShadowMap
     @illuminate context, 'picking', @illuminationFBO, true
     @cullFace = cullFace
     context.world.parsePickData @illuminationData, illuminationArray
-    return illuminationArray.indexOf(model.__unique_id) != -1
+    return illuminationArray.indexOf(model.id) != -1
     
