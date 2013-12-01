@@ -71,24 +71,25 @@ class Jax.Shader
     gl = context.renderer
     mustRebind = false
     for name, attribute of @variables.attributes
+      continue if name is 'definitions'
       if (value = assigns[name]) isnt undefined
         @setAttribute context, attribute, value
       else
         # console.log 'not using', name
         id = context.id
-        if @isAttributeEnabled context, attribute.location[id]
-          if attribute.location[id] is 0 and not @popularityContest.isDisliked(name)
+        if @isAttributeEnabled context, attribute.location
+          if attribute.location is 0 and not @popularityContest.isDisliked(name)
             # console.log 'disliking', name
             # make a note that this attribute was disabled; finish iterating
             # in case other attributes follow suit; then rebind and retry
             @popularityContest.dislike name
             mustRebind = true
           # console.log 'disabling', name
-          @disableAttribute context, attribute.location[id], attribute.name
+          @disableAttribute context, attribute.location, attribute.name
       attribute.value = value
     if mustRebind
       descriptor = @getDescriptor context
-      @popularityContest.popularize @vertex.attributes.definitions
+      @popularityContest.popularize @variables.attributes.definitions
       @relink descriptor
       @bind context
       return @set context, assigns
@@ -103,10 +104,10 @@ class Jax.Shader
 
   setAttribute: (context, variable, value) ->
     id = context.id
-    unless @isAttributeEnabled context, variable.location[id]
-      @enableAttribute context, variable.location[id], variable.name
+    unless @isAttributeEnabled context, variable.location
+      @enableAttribute context, variable.location, variable.name
     value.bind context
-    context.renderer.vertexAttribPointer variable.location[id],
+    context.renderer.vertexAttribPointer variable.location,
                                          value.itemSize,
                                          value.dataType || GL_FLOAT,
                                          false,
@@ -117,24 +118,24 @@ class Jax.Shader
     gl = context.renderer
     id = context.id
     switch variable.type
-      when GL_FLOAT          then gl.uniform1f  variable.location[id], value
-      when GL_BOOL, GL_INT    then gl.uniform1i  variable.location[id], value
-      when GL_FLOAT_VEC2           then gl.uniform2fv variable.location[id], value
-      when GL_FLOAT_VEC3           then gl.uniform3fv variable.location[id], value
-      when GL_FLOAT_VEC4           then gl.uniform4fv variable.location[id], value
-      when GL_BOOL_VEC2, GL_INT_VEC2 then gl.uniform2iv variable.location[id], value
-      when GL_BOOL_VEC3, GL_INT_VEC3 then gl.uniform3iv variable.location[id], value
-      when GL_BOOL_VEC4, GL_INT_VEC4 then gl.uniform4iv variable.location[id], value
-      when GL_FLOAT_MAT2 then gl.uniformMatrix2fv variable.location[id], false, value
-      when GL_FLOAT_MAT3 then gl.uniformMatrix3fv variable.location[id], false, value
-      when GL_FLOAT_MAT4 then gl.uniformMatrix4fv variable.location[id], false, value
+      when GL_FLOAT          then gl.uniform1f  variable.location, value
+      when GL_BOOL, GL_INT    then gl.uniform1i  variable.location, value
+      when GL_FLOAT_VEC2           then gl.uniform2fv variable.location, value
+      when GL_FLOAT_VEC3           then gl.uniform3fv variable.location, value
+      when GL_FLOAT_VEC4           then gl.uniform4fv variable.location, value
+      when GL_BOOL_VEC2, GL_INT_VEC2 then gl.uniform2iv variable.location, value
+      when GL_BOOL_VEC3, GL_INT_VEC3 then gl.uniform3iv variable.location, value
+      when GL_BOOL_VEC4, GL_INT_VEC4 then gl.uniform4iv variable.location, value
+      when GL_FLOAT_MAT2 then gl.uniformMatrix2fv variable.location, false, value
+      when GL_FLOAT_MAT3 then gl.uniformMatrix3fv variable.location, false, value
+      when GL_FLOAT_MAT4 then gl.uniformMatrix4fv variable.location, false, value
       when GL_SAMPLER_2D, GL_SAMPLER_CUBE
         gl.activeTexture GL_TEXTURE0 + @__textureIndex
         if handle = value.validate context
           gl.bindTexture value.get('target'), handle
         else
           gl.bindTexture value.get('target'), null
-        gl.uniform1i variable.location[id], value = @__textureIndex++
+        gl.uniform1i variable.location, value = @__textureIndex++
       else
         throw new Error "Unexpected variable type: #{Jax.Util.enumName variable.type}"
 
@@ -160,16 +161,16 @@ class Jax.Shader
     # downward. This doesn't mean they can't be chosen, but that attributes
     # which have never been disabled have the best chance of selection for
     # slot 0.
-    variables = (variable for name, variable of @variables.attributes)
-    @popularityContest.sort variables
+    variableNames = @variables.attributes.definitions
+    @popularityContest.sort variableNames
     nextAvailableLocation = 0
     id = descriptor.context.id
-    for variable in variables
-      variable.location or= {}
-      variable.location[id] = nextAvailableLocation
+    for name in variableNames
+      variable = @variables.attributes[name]
+      variable.location = nextAvailableLocation
       gl.bindAttribLocation descriptor.glProgram,
                             nextAvailableLocation,
-                            variable.toString()
+                            variable.name
       nextAvailableLocation += switch variable.type
         when 'mat2' then 2
         when 'mat3' then 3
@@ -180,7 +181,7 @@ class Jax.Shader
   enableAllAttributes: (descriptor) ->
     id = descriptor.context.id
     for name, variable of @variables.attributes
-      @enableAttribute descriptor.context, variable.location[id], name
+      @enableAttribute descriptor.context, variable.location, name
     true
 
   enableAttribute: (context, location, name) ->
@@ -199,13 +200,7 @@ class Jax.Shader
     program = descriptor.glProgram
     id = descriptor.context.id
     for name, variable of @variables.uniforms
-      variable.location or= {}
-      variable.location[id] = gl.getUniformLocation program, name
-                                                    # variable.toString()
-      if variable.location[id] is null
-        # remove variables that were not used in the shader, to prevent
-        # uselessly iterating through them later
-        delete @variables.uniforms[name]
+      variable.location = gl.getUniformLocation program, name
     true
 
   relink: (descriptor) ->
@@ -224,8 +219,10 @@ class Jax.Shader
     program = descriptor.glProgram
     numAttributes = gl.getProgramParameter program, GL_ACTIVE_ATTRIBUTES
     numUniforms   = gl.getProgramParameter program, GL_ACTIVE_UNIFORMS
+    @variables.attributes.definitions = []
     for i in [0...numAttributes]
       if attribute = gl.getActiveAttrib program, i
+        @variables.attributes.definitions.push attribute.name
         @variables.attributes[attribute.name] =
           name: attribute.name
           size: attribute.size

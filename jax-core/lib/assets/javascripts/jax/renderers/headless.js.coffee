@@ -76,4 +76,5 @@ Jax.Renderer.register class Jax.Renderer.Headless
   deleteRenderbuffer: ->
   deleteFramebuffer: ->
   deleteTexture: ->
-  
+  getActiveAttrib: -> null
+  getActiveUniform: -> null

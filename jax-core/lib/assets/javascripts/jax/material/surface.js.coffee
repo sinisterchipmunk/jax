@@ -1,4 +1,8 @@
+#= require jax/mixins/event_emitter
+
 class Jax.Material.Surface extends Jax.Material.Custom
+  @include Jax.Mixins.EventEmitter
+
   $ -> Jax.Material.Surface.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/surface/common']
     vertex:   Jax.shaderTemplates['shaders/main/surface/vertex']
@@ -23,10 +27,13 @@ class Jax.Material.Surface extends Jax.Material.Custom
     get: -> @_shininess
     set: (s) ->
       @_shininess = s
+      @trigger 'change:shininess'
 
   @define 'pcf',
     get: -> @_pcf
-    set: (s) -> @_pcf = s
+    set: (s) ->
+      @_pcf = s
+      @trigger 'change:pcf'
 
   constructor: (options, name) ->
     @_color = new Jax.Color.Group 'diffuse', 'ambient', 'specular'
@@ -36,13 +43,19 @@ class Jax.Material.Surface extends Jax.Material.Custom
     mat = this
     Object.defineProperty @_intensity, 'ambient',
       get:     -> @_ambient
-      set: (i) -> @_ambient = i
+      set: (i) =>
+        @_intensity._ambient = i
+        @trigger 'change:intensity:ambient'
     Object.defineProperty @_intensity, 'diffuse',
       get:     -> @_diffuse
-      set: (i) -> @_diffuse = i
+      set: (i) =>
+        @_intensity._diffuse = i
+        @trigger 'change:intensity:diffuse'
     Object.defineProperty @_intensity, 'specular',
       get:     -> @_specular
-      set: (i) -> @_specular = i
+      set: (i) =>
+        @_intensity._specular = i
+        @trigger 'change:intensity:specular'
 
     options or= {}
     options.intensity = 1      if options.intensity is undefined
@@ -67,37 +80,66 @@ class Jax.Material.Surface extends Jax.Material.Custom
     #       # can perturb the normal before it's used to generate colors.
     #       @insertLayer 0, type: 'NormalMap', texture: map
 
-  preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
-    {assigns} = mesh
-    mesh.data.set assigns,
-      vertices: 'VertexPosition'
-      colors:   'VertexColor'
-      normals:  'VertexNormal'
+  registerBinding: (binding) ->
+    {context, model, mesh} = binding
+    binding.set 'WorldAmbientColor', context.world.ambientColor
+    binding.set 'MaterialAmbientColor', @color.ambient
+    binding.set 'MaterialDiffuseColor', @color.diffuse
+    binding.set 'MaterialSpecularColor', @color.specular
+    binding.set 'WorldAmbientColor', context.world.ambientColor
+    binding.set 'MaterialDiffuseColor', @color.diffuse
+    binding.set 'MaterialSpecularColor', @color.specular
+    binding.listen mesh.data, 'change', ->
+      mesh.data.set binding,
+        vertices: 'VertexPosition'
+        colors:   'VertexColor'
+        normals:  'VertexNormal'
+    binding.listen model.camera, 'change', @matricesChanged
+    binding.listen context.world.cameras[0], 'change', @matricesChanged
+    binding.listen this, 'change:intensity:ambient', =>
+      binding.set 'MaterialAmbientIntensity', @intensity.ambient
+    binding.listen this, 'change:intensity:diffuse', =>
+      binding.set 'MaterialDiffuseIntensity', @intensity.diffuse
+    binding.listen this, 'change:intensity:specular', =>
+      binding.set 'MaterialSpecularIntensity', @intensity.specular
+    binding.listen this, 'change:shininess', =>
+      binding.set 'MaterialShininess', @shininess
+    binding.listen context.world, 'lightAdded lightRemoved', @allLightsChanged
+
+  allLightsChanged: (binding) =>
+    # TODO: handle more than 1 light :)
+    if light = binding.context.world.lights[0]
+      binding.listen light.camera, 'change', @lightMatricesChanged
+      binding.listen light, 'change:spot:innerAngle', ->
+        binding.set 'LightSpotInnerCos', light.innerSpotAngleCos
+      binding.listen light, 'change:spot:outerAngle', ->
+        binding.set 'LightSpotOuterCos', light.outerSpotAngleCos
+      binding.listen light, 'change:type', ->
+        binding.set 'LightType', light.type
+      binding.listen light.attenuation, 'change:constant', ->
+        binding.set 'LightConstantAttenuation', light.attenuation.constant
+      binding.listen light.attenuation, 'change:linear', ->
+        binding.set 'LightLinearAttenuation', light.attenuation.linear
+      binding.listen light.attenuation, 'change:quadratic', ->
+        binding.set 'LightQuadraticAttenuation', light.attenuation.quadratic
+      assigns = binding.get()
+      assigns['LightAmbientColor']         = light.color.ambient
+      assigns['LightSpecularColor']        = light.color.specular
+      assigns['LightDiffuseColor']         = light.color.diffuse
+
+  matricesChanged: (binding) =>
+    {context, model, mesh} = binding
+    assigns = binding.get()
     assigns.ModelViewMatrix          = context.matrix_stack.getModelViewMatrix()
     assigns.ProjectionMatrix         = context.matrix_stack.getProjectionMatrix()
     assigns.NormalMatrix             = context.matrix_stack.getNormalMatrix()
-    assigns.MaterialAmbientIntensity = @intensity.ambient
-    assigns.MaterialAmbientColor     = @color.ambient
-    assigns.WorldAmbientColor        = context.world.ambientColor
-    assigns.MaterialDiffuseIntensity = @intensity.diffuse
-    assigns.MaterialDiffuseColor     = @color.diffuse
-    assigns.MaterialSpecularIntensity= @intensity.specular
-    assigns.MaterialSpecularColor    = @color.specular
-    assigns.MaterialShininess        = @shininess
 
+  lightMatricesChanged: (binding) =>
+    {context} = binding
     if light = context.world.lights[0]
       @eyeDir or= vec3.create()
       @eyePos or= vec3.create()
-      assigns['LightConstantAttenuation']  = light.attenuation.constant
-      assigns['LightLinearAttenuation']    = light.attenuation.linear
-      assigns['LightQuadraticAttenuation'] = light.attenuation.quadratic
-      assigns['LightAmbientColor']      = light.color.ambient
-      assigns['LightSpecularColor']     = light.color.specular
-      assigns['LightDiffuseColor']      = light.color.diffuse
-      assigns['LightSpotInnerCos']      = light.innerSpotAngleCos
-      assigns['LightSpotOuterCos']      = light.outerSpotAngleCos
-      assigns['LightType']              = light.type
-      assigns['EyeSpaceLightDirection'] = light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-      assigns['EyeSpaceLightPosition']  = light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
-
-    super context, mesh, model, pass, numPassesRendered
+      light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
+      light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
+      binding.set 'EyeSpaceLightDirection', @eyeDir
+      binding.set 'EyeSpaceLightPosition',  @eyePos

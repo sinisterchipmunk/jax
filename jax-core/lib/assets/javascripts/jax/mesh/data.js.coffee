@@ -94,11 +94,6 @@ class Jax.Mesh.Data
         @colorBuffer[i+2] = @originalColors[i+2] * @_color.blue
         @colorBuffer[i+3] = @originalColors[i+3] * @_color.alpha
         
-  @define 'context',
-    set: (context) ->
-      @_bound = false
-      @_context = context
-      
   @getter 'tangentBuffer', ->
     @recalculateTangents() if @shouldRecalculateTangents()
     @_tangentBuffer
@@ -129,6 +124,7 @@ class Jax.Mesh.Data
   invalidate: ->
     for id of @_valid
       @_valid[id] = false
+    @trigger 'change'
     true
       
   ###
@@ -145,9 +141,8 @@ class Jax.Mesh.Data
   Bind the data to the current GL context, or to the specified one if given.
   ###
   bind: (context) ->
-    @context = context if context
-    id = @_context.id
-    gl = @_context.renderer
+    id = context.id
+    gl = context.renderer
     unless buffer = @_glBuffers[id]?.buffer
       @_glBuffers[id] =
         gl: gl
@@ -159,17 +154,13 @@ class Jax.Mesh.Data
       unless @_valid[id]
         gl.bufferData GL_ARRAY_BUFFER, @_array_buffer, GL_STATIC_DRAW
     @_valid[id] = true
-    @_bound = true
     
   ###
   Sets shader variables to refer to data from this mesh, depending on the
-  mapping you give it. The `vars` parameter should be the variable set
-  as seen in `Jax.Material.Layer#setVariables`.
+  mapping you give it.
   
   Example:
   
-  class Jax.Material.SomethingCool extends Jax.Material.Layer
-    setVariables: (context, mesh, model, vars, pass) ->
       mesh.data.set vars,
         vertices: 'ShaderVertexAttribute'
         colors:   'ShaderColorAttribute'
@@ -199,11 +190,10 @@ class Jax.Mesh.Data
   of the corresponding tangent, N is the vertex normal, and T is the first 3
   components of the tangent.
   ###
-  set: (vars, mapping) ->
-    throw new Error "Jax context for this pass is not set" unless @_context
-    throw new Error "Expected two arguments, mapping is undefined" unless mapping isnt undefined
-    @bind @_context unless @_bound
-
+  set: (binding, mapping) ->
+    unless mapping isnt undefined
+      throw new Error "Expected two arguments, binding and mapping"
+    vars = binding.get()
     for key, target of mapping
       switch key
         when 'vertices' then vars[target] = @vertexWrapper

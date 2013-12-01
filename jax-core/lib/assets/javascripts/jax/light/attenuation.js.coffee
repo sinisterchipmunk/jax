@@ -7,17 +7,17 @@ class Jax.Light.Attenuation
     get: -> @_constant
     set: (v) ->
       @_constant = v
-      @trigger 'constantChanged', v
+      @trigger 'change:constant', v
   @define 'linear',
     get: -> @_linear
     set: (v) ->
       @_linear = v
-      @trigger 'linearChanged', v
+      @trigger 'change:linear', v
   @define 'quadratic',
     get: -> @_quadratic
     set: (v) ->
       @_quadratic = v
-      @trigger 'quadraticChanged', v
+      @trigger 'change:quadratic', v
 
   constructor: (defaults) ->
     @constant  = 0

@@ -58,7 +58,7 @@ class Jax.Light extends Jax.Model
       # for both negative and positive angles (where 0 is the center of
       # the cone).
       @_innerSpotAngleCos = Math.cos c / 2
-      @trigger 'innerSpotAngleChanged', c
+      @trigger 'change:spot:innerAngle', c
       if @_outerSpotAngle < c
         @outerSpotAngle = c
     
@@ -67,7 +67,7 @@ class Jax.Light extends Jax.Model
     set: (c) ->
       @_outerSpotAngle = c
       @_outerSpotAngleCos = Math.cos c / 2
-      @trigger 'outerSpotAngleChanged', c
+      @trigger 'change:spot:outerAngle', c
       if @_innerSpotAngle > c
         @innerSpotAngle = c
 

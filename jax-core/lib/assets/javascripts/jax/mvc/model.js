@@ -94,7 +94,7 @@
      **/
     function Model(data) {
       var self = this;
-      this.__unique_id = Jax.guid();
+      this.__unique_id = this.id = Jax.guid();
       this.camera = new Jax.Camera();
       this.camera.on('change', function() { self.trigger('transformed'); });
       

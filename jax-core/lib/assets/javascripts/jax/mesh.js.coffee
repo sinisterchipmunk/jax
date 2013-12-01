@@ -9,7 +9,7 @@ class Mesh
   @include Jax.Mixins.EventEmitter
   
   constructor: (options) ->
-    @assigns = {}
+    @id = Jax.guid()
     @_valid = false
     @data = new Jax.Mesh.Data
     @_bounds = new Jax.Mesh.Bounds
@@ -138,7 +138,7 @@ class Mesh
     if material
       material = Jax.Material.find(material) unless material instanceof Jax.Material
     else material = @_material
-    material.render context, this, model
+    material.render context, model, this
 
   ###
   Returns true if this mesh is ready to be rendered, false otherwise. Note that the simple act of

@@ -5,6 +5,7 @@ class Jax.Material
   constructor: (options, @name = "generic") ->
     @[key] = value for key, value of options
     @shader = new Jax.Shader @name
+    @_bindings = {}
     if @shaders
       if @shaders.common
         @vertex.append   @shaders.common
@@ -16,26 +17,18 @@ class Jax.Material
   @define 'fragment', get: -> @shader.fragment
 
   ###
-  Ensures its shader is up-to-date and valid for the specified context.
-  ###
-  validate: (context) ->
-    @shader.validate context
-
-  ###
   Renders a single mesh, taking as many passes as the material indicates
   is needed, and then returns the number of passes it actually took.
   ###
-  renderMesh: (context, mesh, model) ->
-    @validate context
+  renderMesh: (binding) ->
     numPassesRendered = 0
-    numPassesRequested = @numPasses()
-    mesh.data.context = context
+    {context} = binding
     @shader.bind context
     gl = context.renderer
-    for pass in [0...numPassesRequested]
-      continue unless @preparePass context, mesh, model, pass, numPassesRendered
+    for pass in [0...@numPasses()]
+      continue unless @preparePass binding, pass, numPassesRendered
       numPassesRendered++
-      @drawBuffers context, mesh, pass
+      @drawBuffers binding, pass
     if numPassesRendered > 1
       gl.blendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
       gl.depthFunc GL_LESS
@@ -43,16 +36,18 @@ class Jax.Material
 
   numPasses: -> 1
     
-  preparePass: (context, mesh, model, pass, numPassesRendered = 0) ->
-    assigns = mesh.assigns
+  preparePass: (binding, pass, numPassesRendered = 0) ->
+    binding.prepare()
+    context = binding.context
     if numPassesRendered is 1
       gl = context.renderer
       gl.blendFunc GL_ONE, GL_ONE
       gl.depthFunc GL_EQUAL
-    @shader.set context, assigns
+    @shader.set context, binding.get()
     return true
     
-  drawBuffers: (context, mesh, pass = 0) ->
+  drawBuffers: (binding, pass = 0) ->
+    {context, mesh} = binding
     if (buffer = mesh.getIndexBuffer()) && buffer.length
       buffer.bind context if pass is 0
       context.renderer.drawElements mesh.draw_mode, buffer.length, buffer.dataType, 0
@@ -63,12 +58,26 @@ class Jax.Material
   Renders the given mesh and its sub-mesh, if any, and then returns
   the total number of render passes that were required.
   ###
-  render: (context, mesh, model) ->
+  render: (context, model, mesh) ->
     numPassesRendered = 0
     while mesh
-      numPassesRendered += @renderMesh context, mesh, model
+      guid = Jax.Material.Binding.guid context, model, mesh
+      unless binding = @_bindings[guid]
+        binding = @_bindings[guid] = @createBinding context, model, mesh
+      numPassesRendered += @renderMesh binding
       mesh = mesh.submesh
     numPassesRendered
+
+  createBinding: (context, model, mesh) ->
+    binding = new Jax.Material.Binding context, model, mesh
+    @registerBinding binding
+    binding
+
+  ###
+  Subclasses should override this method and begin listening for and reacting
+  to events.
+  ###
+  registerBinding: (binding) ->
   
   @instances: {}
   @resources: {}
