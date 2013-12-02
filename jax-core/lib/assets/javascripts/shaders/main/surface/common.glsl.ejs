@@ -1,15 +1,17 @@
 precision mediump float;
 precision mediump int;
 
+#define MAX_LIGHTS <%= Jax.Material.Surface.MAX_LIGHTS_PER_PASS %>
+
 uniform float MaterialAmbientIntensity,
               MaterialDiffuseIntensity,
               MaterialSpecularIntensity,
               MaterialShininess,
-              LightSpotInnerCos[8],
-              LightSpotOuterCos[8],
-              LightConstantAttenuation[8],
-              LightLinearAttenuation[8],
-              LightQuadraticAttenuation[8];
+              LightSpotInnerCos[MAX_LIGHTS],
+              LightSpotOuterCos[MAX_LIGHTS],
+              LightConstantAttenuation[MAX_LIGHTS],
+              LightLinearAttenuation[MAX_LIGHTS],
+              LightQuadraticAttenuation[MAX_LIGHTS];
 uniform mat4  ModelViewMatrix,
               ProjectionMatrix;
 uniform mat3  NormalMatrix;
@@ -17,13 +19,14 @@ uniform vec4  WorldAmbientColor,
               MaterialAmbientColor,
               MaterialDiffuseColor,
               MaterialSpecularColor,
-              LightAmbientColor[8],
-              LightDiffuseColor[8],
-              LightSpecularColor[8];
-uniform vec3  EyeSpaceLightDirection[8],
-              EyeSpaceLightPosition[8];
-uniform int   LightType[8];
-uniform bool  LightEnabled[8];
+              LightAmbientColor[MAX_LIGHTS],
+              LightDiffuseColor[MAX_LIGHTS],
+              LightSpecularColor[MAX_LIGHTS];
+uniform vec3  EyeSpaceLightDirection[MAX_LIGHTS],
+              EyeSpaceLightPosition[MAX_LIGHTS];
+uniform int   LightType[MAX_LIGHTS];
+uniform bool  LightEnabled[MAX_LIGHTS],
+              WorldAmbientEnabled;
 
 varying vec4  vVertexColor;
 varying vec3  vEyeSpaceSurfacePosition,

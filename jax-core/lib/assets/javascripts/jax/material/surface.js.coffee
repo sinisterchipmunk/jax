@@ -3,6 +3,9 @@
 class Jax.Material.Surface extends Jax.Material.Custom
   @include Jax.Mixins.EventEmitter
 
+  # the number of lights the shader can handle in a single pass
+  Surface.MAX_LIGHTS_PER_PASS = 8
+
   $ -> Jax.Material.Surface.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/surface/common']
     vertex:   Jax.shaderTemplates['shaders/main/surface/vertex']
@@ -67,8 +70,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
     # @addLayer 'ShadowMap'
     # # Important: light ambient comes after shadow map so that ambient values
     # # are not reduced by "shadows"!
-    # @addLayer 'Attenuation'
-    # @addLayer 'ClampColor'
 
     # if options
     #   if options.textures
@@ -76,8 +77,8 @@ class Jax.Material.Surface extends Jax.Material.Custom
     #       @addLayer type: 'Texture', texture: texture
     #   if options.normalMaps
     #     for map in options.normalMaps
-    #       # Normal maps must come before diffuse or specular shaders so that they
-    #       # can perturb the normal before it's used to generate colors.
+    #       # Normal maps must come before diffuse or specular shaders so that
+    #       # they can perturb the normal before it's used to generate colors.
     #       @insertLayer 0, type: 'NormalMap', texture: map
 
   registerBinding: (binding) ->
@@ -104,30 +105,88 @@ class Jax.Material.Surface extends Jax.Material.Custom
       binding.set 'MaterialSpecularIntensity', @intensity.specular
     binding.listen this, 'change:shininess', =>
       binding.set 'MaterialShininess', @shininess
-    binding.listen context.world, 'lightAdded lightRemoved', @allLightsChanged
+    binding.listen context.world, 'lightAdded', @lightAdded
+    binding.on 'prepare', @prepareLightingPass
 
-  allLightsChanged: (binding) =>
-    for light, index in binding.context.world.lights
-      do (light, index) =>
+  ###
+  1 pass is required for every `Surface.MAX_LIGHTS_PER_PASS` lights.
+  ###
+  numPasses: (binding) ->
+    count = binding.context.world.lights.length
+    Math.ceil count / Surface.MAX_LIGHTS_PER_PASS
+
+  ###
+  We must assign the computed light uniforms to real variable names, allowing
+  for multiple passes if the number of lights in the scene exceeds the number
+  of lights supported by the shader. This is a lightweight operation that
+  simply assigns all relevant values by reference. It runs on every pass.
+  ###
+  prepareLightingPass: (event) =>
+    {binding, pass} = event
+    assigns = binding.get()
+    # only do world ambient lighting on first pass
+    if pass is 0 then assigns["WorldAmbientEnabled"] = true
+    else assigns["WorldAmbientEnabled"] = false
+
+    start = pass * Surface.MAX_LIGHTS_PER_PASS
+    for index in [start...(start + Surface.MAX_LIGHTS_PER_PASS)]
+      unless light = binding.context.world.lights[index]
+        assigns["LightEnabled[#{index}]"] = false
+        return
+      ns = "light.#{light.id}"
+      assigns["LightEnabled[#{index}]"]              = assigns["#{ns}.enabled"]
+      assigns["EyeSpaceLightDirection[#{index}]"]    = assigns["#{ns}.eyeSpaceDirection"]
+      assigns["EyeSpaceLightPosition[#{index}]"]     = assigns["#{ns}.eyeSpacePosition"]
+      assigns["LightType[#{index}]"]                 = assigns["#{ns}.type"]
+      assigns["LightAmbientColor[#{index}]"]         = assigns["#{ns}.color.ambient"]
+      assigns["LightDiffuseColor[#{index}]"]         = assigns["#{ns}.color.diffuse"]
+      assigns["LightSpecularColor[#{index}]"]        = assigns["#{ns}.color.specular"]
+      assigns["LightSpotInnerCos[#{index}]"]         = assigns["#{ns}.cos.inner"]
+      assigns["LightSpotOuterCos[#{index}]"]         = assigns["#{ns}.cos.outer"]
+      assigns["LightConstantAttenuation[#{index}]"]  = assigns["#{ns}.atten.constant"]
+      assigns["LightLinearAttenuation[#{index}]"]    = assigns["#{ns}.atten.linear"]
+      assigns["LightQuadraticAttenuation[#{index}]"] = assigns["#{ns}.atten.quadratic"]
+    this
+
+  lightAdded: (binding) =>
+    # we can pretty much store anything we want in the bindings without any
+    # performance penalty. Only fields that actually are used in the shaders
+    # will be iterated over and assigned to the GPU.
+    assigns = binding.get()
+    for light in binding.context.world.lights
+      ns = "light.#{light.id}"
+      continue if assigns["#{ns}.registered"]
+      do (light, ns) =>
+        assigns["#{ns}.registered"] = true
+        binding.listen light.camera, 'change', =>
+          @lightMatricesChanged binding, light
         binding.listen light, 'change:enabled', ->
-          binding.set "LightEnabled[#{index}]", light.enabled
-        binding.listen light.camera, 'change', @lightMatricesChanged
+          binding.set "#{ns}.enabled", light.enabled
         binding.listen light, 'change:spot:innerAngle', ->
-          binding.set "LightSpotInnerCos[#{index}]", light.innerSpotAngleCos
+          binding.set "#{ns}.cos.inner", light.innerSpotAngleCos
         binding.listen light, 'change:spot:outerAngle', ->
-          binding.set "LightSpotOuterCos[#{index}]", light.outerSpotAngleCos
+          binding.set "#{ns}.cos.outer", light.outerSpotAngleCos
         binding.listen light, 'change:type', ->
-          binding.set "LightType[#{index}]", light.type
+          binding.set "#{ns}.type", light.type
         binding.listen light.attenuation, 'change:constant', ->
-          binding.set "LightConstantAttenuation[#{index}]", light.attenuation.constant
+          binding.set "#{ns}.atten.constant", light.attenuation.constant
         binding.listen light.attenuation, 'change:linear', ->
-          binding.set "LightLinearAttenuation[#{index}]", light.attenuation.linear
+          binding.set "#{ns}.atten.linear", light.attenuation.linear
         binding.listen light.attenuation, 'change:quadratic', ->
-          binding.set "LightQuadraticAttenuation[#{index}]", light.attenuation.quadratic
-        assigns = binding.get()
-        assigns["LightAmbientColor[#{index}]"]         = light.color.ambient
-        assigns["LightSpecularColor[#{index}]"]        = light.color.specular
-        assigns["LightDiffuseColor[#{index}]"]         = light.color.diffuse
+          binding.set "#{ns}.atten.quadratic", light.attenuation.quadratic
+        assigns["#{ns}.color.ambient"]  = light.color.ambient
+        assigns["#{ns}.color.specular"] = light.color.specular
+        assigns["#{ns}.color.diffuse"]  = light.color.diffuse
+    this
+
+  lightMatricesChanged: (binding, light) =>
+    {context} = binding
+    @eyeDir or= vec3.create()
+    @eyePos or= vec3.create()
+    light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
+    light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
+    binding.set "light.#{light.id}.eyeSpaceDirection", @eyeDir
+    binding.set "light.#{light.id}.eyeSpacePosition",  @eyePos
     this
 
   matricesChanged: (binding) =>
@@ -136,15 +195,3 @@ class Jax.Material.Surface extends Jax.Material.Custom
     assigns.ModelViewMatrix          = context.matrix_stack.getModelViewMatrix()
     assigns.ProjectionMatrix         = context.matrix_stack.getProjectionMatrix()
     assigns.NormalMatrix             = context.matrix_stack.getNormalMatrix()
-
-  lightMatricesChanged: (binding) =>
-    {context} = binding
-    for light, index in context.world.lights
-      do (light, index) =>
-        @eyeDir or= vec3.create()
-        @eyePos or= vec3.create()
-        light.eyeDirection context.matrix_stack.getViewNormalMatrix(), @eyeDir
-        light.eyePosition  context.matrix_stack.getViewMatrix(),       @eyePos
-        binding.set "EyeSpaceLightDirection[#{index}]", @eyeDir
-        binding.set "EyeSpaceLightPosition[#{index}]",  @eyePos
-    this
