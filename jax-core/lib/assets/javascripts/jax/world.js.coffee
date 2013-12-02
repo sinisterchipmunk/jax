@@ -52,15 +52,7 @@ class Jax.World
       (@_ambientColor or= new Jax.Color).parse c
       @trigger 'ambientChanged'
     
-  @getter 'objects', ->
-    console.log """The getter `objects` is deprecated; please use `getObjects()` instead.
-    Note that the latter returns an array, where the former used to be a
-    generic object."""
-    console.log new Error().stack
-    result = {}
-    for obj in @getObjects()
-      result[obj.id] = obj
-    result
+  @getter 'objects', -> @_objectsArray
   
   @define 'cameras',
     get: -> @_cameras
@@ -233,7 +225,7 @@ class Jax.World
       @trigger 'objectAddedToOctree'
     else
       @_objects[object.id] = object
-    @getObjects().push object
+    @objects.push object
     @trigger 'objectAdded'
     if object.castShadow isnt false
       # immediately invalidate shadow maps so that this object doesn't
@@ -248,7 +240,7 @@ class Jax.World
   ###
   getObject: (id) ->
     return object if object = @_objects[id]
-    for object in @getObjects()
+    for object in @objects
       return object if object.id is id
     null
   
@@ -260,7 +252,7 @@ class Jax.World
   ###
   removeObject: (obj) ->
     delete @_objects[obj.id]
-    objectArray = @getObjects()
+    objectArray = @objects
     objectArray.splice objectArray.indexOf(obj), 1
     # invalidate shadow maps if necessary so that the object's shadow gets
     # removed
@@ -349,21 +341,14 @@ class Jax.World
   ###
   Returns the number of objects currently registered with this World.
   ###
-  countObjects: -> @getObjects().length
-  
-  ###
-  Returns an array of all of the objects that have been added to this World.
-  Note that the returned array should not be altered in-place; duplicate it
-  if you need to make changes to it.
-  ###
-  getObjects: -> @_objectsArray
+  countObjects: -> @objects.length
   
   ###
   Updates each object in the world, passing the `timechange` argument into
   the objects' respective `update` functions (if they have one).
   ###
   update: (timechange) ->
-    for object in @getObjects()
+    for object in @objects
       object.camera?.update? timechange # FIXME belongs in Jax.Model
       object.update?(timechange)
     
@@ -381,7 +366,7 @@ class Jax.World
   dispose: (includeObjects = true) ->
     if includeObjects
       # dup the array to prevent iteration errors
-      for obj in @getObjects().slice(0)
+      for obj in @objects.slice(0)
         @removeObject obj
         obj.dispose @context
     for light in @lights.splice(0)
