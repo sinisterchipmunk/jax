@@ -6,6 +6,9 @@ Jax.Mixins.Attributes =
   initializeAttributes: ->
     @attributes = {}
     @previousAttributes = {}
+    for name, value of @defaultAttributes?()
+      @set name, value
+    this
 
   # Sets an attribute with the given name, to the given value.
   # Before setting the new value, the old value is copied into

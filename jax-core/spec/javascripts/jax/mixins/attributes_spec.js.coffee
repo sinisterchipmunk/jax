@@ -1,8 +1,10 @@
 #= require jax/mixins/attributes
 
 describe 'Jax.Mixins.Attributes', ->
+  Mock = null
+
   beforeEach ->
-    class Mock
+    Mock = class Mock
       @include Jax.Mixins.Attributes
       constructor: -> @initializeAttributes()
     @mock = new Mock()
@@ -12,6 +14,14 @@ describe 'Jax.Mixins.Attributes', ->
 
   it 'should return undefined for an unassigned previous attribute', ->
     expect(@mock.getPrevious 'wtf').toBeUndefined()
+
+  describe 'when defaults exist', ->
+    beforeEach ->
+      Mock.prototype.defaultAttributes = -> wtf: 1
+      @mock = new Mock()
+
+    it 'should set defaults', ->
+      expect(@mock.get 'wtf').toEqual 1
 
   describe 'attribute assignment with a listener', ->
     beforeEach ->
