@@ -1,8 +1,4 @@
-#= require jax/mixins/event_emitter
-
 class Jax.Material.Surface extends Jax.Material.Custom
-  @include Jax.Mixins.EventEmitter
-
   # the number of lights the shader can handle in a single pass
   Surface.MAX_LIGHTS_PER_PASS = 8
 
@@ -191,7 +187,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
 
   matricesChanged: (binding) =>
     {context, model, mesh} = binding
-    assigns = binding.get()
-    assigns.ModelViewMatrix          = context.matrix_stack.getModelViewMatrix()
-    assigns.ProjectionMatrix         = context.matrix_stack.getProjectionMatrix()
-    assigns.NormalMatrix             = context.matrix_stack.getNormalMatrix()
+    binding.set 'ModelViewMatrix',  context.matrix_stack.getModelViewMatrix()
+    binding.set 'ProjectionMatrix', context.matrix_stack.getProjectionMatrix()
+    binding.set 'NormalMatrix',     context.matrix_stack.getNormalMatrix()
