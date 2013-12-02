@@ -1,4 +1,4 @@
-<%= require("shaders/functions/depth_map") %>
+<%= require("shaders/lib/depth_map") %>
 
 void main(void) {
   gl_FragColor = pack_depth(gl_FragCoord.z);
