@@ -10,16 +10,15 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
       @backFBO = new Jax.Framebuffer width: @width, height: @height, depth: true, color: GL_RGBA
     
     material = Jax.Material.find material
-    layer = material.findLayer Jax.Material.Layer.Paraboloid
-    layer.paraboloidNear = @paraboloidNear
-    layer.paraboloidFar  = @paraboloidFar
+    material.set 'near', @paraboloidNear
+    material.set 'far',  @paraboloidFar
     
     @cullFace = GL_FRONT
-    layer.direction = 1
+    material.set 'direction', 1
     super context, material, fbo
     
     @cullFace = GL_BACK
-    layer.direction = -1
+    material.set 'direction', -1
     super context, material, @backFBO
     
   dispose: (context) ->

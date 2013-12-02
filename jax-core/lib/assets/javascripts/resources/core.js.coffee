@@ -18,30 +18,16 @@ Jax.Material.addResources
 		  specular: "#ffffff"
 
 	depthmap:
-		type: 'Custom'
-		layers: [
-		  { type: 'Position' }
-		  { type: 'Depthmap' }
-		]
+		type: 'Depthmap'
 
 	"paraboloid-depthmap":
-		type: "Custom"
-		layers: [
-		  { type: "Paraboloid" }
-		  { type: "Depthmap" }
-		]
+		type: "ParaboloidDepthmap"
 
 	picking:
 		type: "Custom"
 		layers: [
 		  { type: 'Position' }
 		  { type: 'Picking'  }
-		]
-
-	ssao:
-		type: "Custom"
-		layers: [
-		  { type: "SSAO" }
 		]
 
 	wire:

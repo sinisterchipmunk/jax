@@ -1,9 +1,9 @@
-//= require "shaders/functions/paraboloid"
+<%= require("shaders/functions/paraboloid") %>
 
-shared attribute vec4 VERTEX_POSITION;
+attribute vec4 VertexPosition;
                 
 void main(void) {
-  vec4 position = ModelView * VERTEX_POSITION;
+  vec4 position = ModelViewMatrix * VertexPosition;
   position /= position.w;
   position.z *= Direction;
   mapToParaboloid(position, Near, Far);

@@ -1,0 +1,5 @@
+attribute vec4 VertexPosition;
+
+void main(void) {
+  gl_Position = ModelViewProjectionMatrix * VertexPosition;
+}
