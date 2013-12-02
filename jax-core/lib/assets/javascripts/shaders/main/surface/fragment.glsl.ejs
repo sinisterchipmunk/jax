@@ -24,7 +24,7 @@ void main(void) {
   if (!gl_FrontFacing) eyeSpaceSurfaceNormal = -eyeSpaceSurfaceNormal;
   eyeSpaceSurfaceNormal = normalize(eyeSpaceSurfaceNormal);
 
-  vec3 attenuatedLightColor;
+  vec3 attenuatedLightColor, directLightColor;
   <% for (var i = 0; i < Jax.Material.Surface.MAX_LIGHTS_PER_PASS; i++) { %>
     if (LightEnabled[<%= i %>]) {
       LightAmbient(MaterialAmbientIntensity,
@@ -60,7 +60,10 @@ void main(void) {
                      specularLightColor,
                      spotAttenuation);
 
-      attenuatedLightColor = diffuseLightColor + specularLightColor;
+      directLightColor = diffuseLightColor + specularLightColor;
+      /* TODO: affect directLightColor with shadow maps */
+
+      attenuatedLightColor = ambientLightColor + directLightColor;
       LightAttenuation(lightDistanceFromSurface,
                        spotAttenuation,
                        LightConstantAttenuation[<%= i %>],
@@ -68,7 +71,7 @@ void main(void) {
                        LightQuadraticAttenuation[<%= i %>],
                        attenuatedLightColor);
       
-      gl_FragColor.rgb += ambientLightColor + attenuatedLightColor;
+      gl_FragColor.rgb += attenuatedLightColor;
     }
   <% } %>
 }
