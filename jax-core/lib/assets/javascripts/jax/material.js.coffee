@@ -1,8 +1,16 @@
+#= require jax/mixins/event_emitter
+#= require jax/mixins/attributes
 #= require_self
 #= require_tree "./material"
 
 class Jax.Material
+  @include Jax.Mixins.EventEmitter
+  @include Jax.Mixins.Attributes
+
   constructor: (options, @name = "generic") ->
+    @initializeAttributes()
+    # FIXME: this should be `set(key, value)` but most shaders aren't ready
+    # for that yet
     @[key] = value for key, value of options
     @shader = new Jax.Shader @name
     @_bindings = {}
@@ -15,6 +23,8 @@ class Jax.Material
         
   @define 'vertex', get: -> @shader.vertex
   @define 'fragment', get: -> @shader.fragment
+
+  defaultAttributes: -> {}
 
   ###
   Renders a single mesh, taking as many passes as the material indicates
