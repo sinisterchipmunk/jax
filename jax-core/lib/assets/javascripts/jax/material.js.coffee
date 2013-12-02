@@ -25,7 +25,8 @@ class Jax.Material
     {context} = binding
     @shader.bind context
     gl = context.renderer
-    for pass in [0...@numPasses()]
+    binding.bindMesh()
+    for pass in [0...@numPasses(binding)]
       continue unless @preparePass binding, pass, numPassesRendered
       numPassesRendered++
       @drawBuffers binding, pass
@@ -37,7 +38,7 @@ class Jax.Material
   numPasses: -> 1
     
   preparePass: (binding, pass, numPassesRendered = 0) ->
-    binding.prepare()
+    binding.prepare pass
     context = binding.context
     if numPassesRendered is 1
       gl = context.renderer

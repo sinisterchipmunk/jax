@@ -1,3 +1,5 @@
+#= require jax/mixins/event_emitter
+
 ###
 When a mesh is rendered by a particular material, attribute and uniform
 variables must be sent to the graphics processor. Many of these values are
@@ -39,6 +41,8 @@ callbacks will not be called. This should remove redundant processing from
 the system.
 ###
 class Jax.Material.Binding
+  @include Jax.Mixins.EventEmitter
+
   ###
   A unique ID constructed from the context, model and mesh IDs. Used to
   identify bindings in a repeatable way.
@@ -53,6 +57,8 @@ class Jax.Material.Binding
 
     @_pending = {}
     @_assigns = {}
+    @_prepareEvent =
+      binding: this
 
   ###
   Listens for the specified event to be emitted from the specified object.
@@ -70,12 +76,21 @@ class Jax.Material.Binding
   Prepares for the next rendering pass by firing callbacks attached to any
   events that have occurred since the last time `prepare` was called.
   ###
-  prepare: =>
-    @mesh.data.bind @context
+  prepare: (pass) =>
     for guid, callback of @_pending
       delete @_pending[guid]
-      callback this
+      callback this, pass
+    @_prepareEvent.pass = pass
+    @trigger 'prepare', @_prepareEvent
     true
+
+  ###
+  Binds the mesh data. This should be called immediately prior to one or more
+  `prepare` calls, which themselves should immediately precede `drawBuffers`
+  or `drawArrays`.
+  ###
+  bindMesh: =>
+    @mesh.data.bind @context
 
   ###
   Sets a named variable to a particular value. The assignment will persist
