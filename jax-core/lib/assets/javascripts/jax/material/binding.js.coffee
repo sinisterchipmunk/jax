@@ -47,7 +47,7 @@ class Jax.Material.Binding
   A unique ID constructed from the context, model and mesh IDs. Used to
   identify bindings in a repeatable way.
   ###
-  @guid: (context, model, mesh) -> "#{context.id}:#{model.id}:#{mesh.id}"
+  @guid: (context, model, mesh) -> "#{context.id}:#{model.id}:#{mesh?.id}"
 
   constructor: (@context, @model, @mesh) ->
     ###

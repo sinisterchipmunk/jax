@@ -6,6 +6,14 @@ describe 'Jax.Material.Binding', ->
 
   it 'should set a guid', -> expect(@binding.guid).toBeDefined()
 
+  it 'should handle null meshes', ->
+    # it's quite frequent to add a model to the world which has no mesh,
+    # so bindings need to be able to handle this scenario. In reality null
+    # meshes don't get rendered, but bindings may still occasionally be
+    # created for them.
+    expect(=> @binding = new Jax.Material.Binding @context, @model, null).
+      not.toThrow()
+
   describe 'setting a numeric value', ->
     beforeEach -> @binding.set 'a', 1
 
