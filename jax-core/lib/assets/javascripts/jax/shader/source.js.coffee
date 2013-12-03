@@ -5,6 +5,7 @@ class Jax.Shader.Source
 
   constructor: ->
     @_templates = []
+    @_default = "void main(void) { }"
 
   insert: (index, templates...) ->
     @_templates.splice index, 0, templates...
@@ -18,7 +19,13 @@ class Jax.Shader.Source
     @trigger 'change'
 
   toString: (info) ->
-    sources = for template in @_templates
-      if typeof template is 'string' then template
-      else template info
+    sources = (@runTemplate template, info for template in @_templates)
+    sources.push @runTemplate @_default, info unless sources.length
     sources.join("\n\n")
+
+  default: (source) ->
+    @_default = source
+
+  runTemplate: (template, info) ->
+    if typeof template is 'string' then template
+    else template info

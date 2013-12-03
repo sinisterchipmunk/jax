@@ -1,6 +1,12 @@
 describe 'Jax.Shader.Source', ->
   beforeEach -> @source = new Jax.Shader.Source
 
+  describe 'with a default', ->
+    beforeEach -> @source.default 'default'
+
+    it 'should produce the default', ->
+      expect(@source.toString()).toEqual 'default'
+
   describe 'appending a string', ->
     beforeEach ->
       @source.on 'change', => @changed = true
@@ -12,7 +18,7 @@ describe 'Jax.Shader.Source', ->
     it 'should produce a string', ->
       expect(@source.toString()).toEqual 'string'
 
-    describe 'removing it', ->
+    describe 'then removing it', ->
       beforeEach ->
         @changed = false
         @source.remove 0
@@ -21,7 +27,7 @@ describe 'Jax.Shader.Source', ->
         expect(@changed).toBe true
 
       it 'should remove it', ->
-        expect(@source.toString()).toEqual ''
+        expect(@source.toString()).not.toInclude 'string'
 
   describe 'appending a function', ->
     beforeEach -> @source.append (obj) => obj.x
