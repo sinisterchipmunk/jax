@@ -1,7 +1,7 @@
 class Jax.Material.SourceHelper
-  constructor: (descriptor) ->
+  constructor: (descriptors...) ->
     @_required = { vertex: {}, fragment: {} }
-    $.extend this, descriptor
+    $.extend this, descriptors...
 
   require: (path) ->
     throw new Error "(BUG) no shaderType!" unless @shaderType

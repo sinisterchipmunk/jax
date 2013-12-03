@@ -12,7 +12,7 @@ class Jax.Material
     # FIXME: this should be `set(key, value)` but most shaders aren't ready
     # for that yet
     @[key] = value for key, value of options
-    @shader = new Jax.Shader @name
+    @shader = new Jax.Shader @attributes
     @_bindings = {}
     if @shaders
       if @shaders.common
@@ -106,8 +106,9 @@ class Jax.Material
       when 'HALO'    then Klass = Jax.Material.Halo
       when 'WIRE'    then Klass = Jax.Material.Wire
       else
-        throw new Error "Material type '#{data.type}' is invalid. It must " +
-                        "be one of 'Custom', 'Surface', 'Halo', or 'Wire'."
+        unless Klass = Jax.Material[data.type]
+          throw new Error "Material type '#{data.type}' is invalid. It must " +
+                          "be one of 'Custom', 'Surface', 'Halo', or 'Wire'."
     throw new Error "#{name}: Material type #{data.type} is not yet implemented." unless Klass
     Jax.Material.instances[name] = new Klass data, name
     

@@ -46,7 +46,7 @@ class Jax.Shader
     clone[k] = v for k, v of obj
     clone
 
-  constructor: (@name = "generic") ->
+  constructor: (@sourceHelperAssigns = {}) ->
     @popularityContest = new Jax.Shader.PopularityContest
     @_contexts = {}
     @_guid = Jax.guid()
@@ -256,7 +256,7 @@ class Jax.Shader
   compileShaders: (descriptor) ->
     {context, glVertex, glFragment} = descriptor
     info = @getShaderContext descriptor, 'vertex'
-    helper = new Jax.Material.SourceHelper info
+    helper = new Jax.Material.SourceHelper info, @sourceHelperAssigns
 
     gl = context.renderer
     @compileShader descriptor, 'vertex',   @vertex,   glVertex,   helper
