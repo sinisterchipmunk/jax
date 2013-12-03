@@ -105,6 +105,7 @@ class Jax.ShadowMap
       gl.polygonOffset 2, 2
       context.matrix_stack.push()
       @setupMatrices context.matrix_stack
+      # HACK: the `illuminating` variable should not be necessary.
       context.world.illuminating = true
       context.world.render material, false, true
       context.world.illuminating = false

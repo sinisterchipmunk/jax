@@ -222,7 +222,7 @@ describe 'Jax.Context', ->
           @context.redirect @two, 'second'
           
         it 'should not unload the world', ->
-          expect(@context.world.getObjects()).not.toBeEmpty()
+          expect(@context.world.objects).not.toBeEmpty()
           
         it 'should not change the view', ->
           expect(@context.controller.view).toBe originalView
@@ -237,7 +237,7 @@ describe 'Jax.Context', ->
           expect(@context.controller.view).not.toBe originalView
           
         it "should not unload the world", ->
-          expect(@context.world.getObjects()).not.toBeEmpty()
+          expect(@context.world.objects).not.toBeEmpty()
           
     describe "to a different controller", ->
       originalView = null

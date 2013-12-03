@@ -2,7 +2,7 @@ class Picking extends Jax.Controller
   Jax.controllers.add @name, this
 
   update: (tc) ->
-    objs = @world.getObjects()
+    objs = @world.objects
     @clock or= 0
     @clock += tc
     pos = [0,0,0]
@@ -26,10 +26,10 @@ class Picking extends Jax.Controller
     @mat or= 0
     @mat++
     if @mat % 2 == 1
-      for obj in @world.getObjects()
+      for obj in @world.objects
         obj.mesh.material = "picking"
     else
-      for obj in @world.getObjects()
+      for obj in @world.objects
         obj.mesh.material = "default"
     null
 

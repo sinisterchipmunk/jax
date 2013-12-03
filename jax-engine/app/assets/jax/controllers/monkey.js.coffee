@@ -2,7 +2,7 @@ class Monkey extends Jax.Controller
   Jax.controllers.add @name, this
 
   update: (tc) ->
-    objs = @world.getObjects()
+    objs = @world.objects
     for obj in objs
       continue if obj instanceof Jax.Framerate
       obj.camera.yaw tc * 0.4

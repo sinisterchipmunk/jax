@@ -37,7 +37,7 @@ describe "Jax.Mesh.Triangles", ->
 
   it "should be rendered as GL_TRIANGLES", ->
     mat = new Jax.Material
-    mat.render = (context, _mesh, options) ->
+    mat.render = (context, model, _mesh) ->
       # after all that setup, here's the real test...
       expect(_mesh.draw_mode).toEqual GL_TRIANGLES
     spyOn(mat, 'render').andCallThrough()

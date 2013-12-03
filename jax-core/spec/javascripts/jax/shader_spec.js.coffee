@@ -227,12 +227,6 @@ describe 'Jax.Shader', ->
   #       expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 5
   #       expect(@context.renderer.enableVertexAttribArray).toHaveBeenCalledWith 9
 
-  describe "given a name", ->
-    beforeEach -> program = new Jax.Shader "new name"
-
-    it 'should use the name', ->
-      expect(program.name).toEqual 'new name'
-
   it 'should be given a default name', ->
     expect(program.name).not.toBeBlank()
 

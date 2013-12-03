@@ -73,7 +73,7 @@ describe("Jax.World", function() {
       world.addObject(new Jax.Model({mesh: new Jax.Mesh.Quad()}));
       world.render();
       world.dispose();
-      expect(world.getObjects()).toEqual([]);
+      expect(world.objects).toEqual([]);
     });
   });
   
@@ -162,7 +162,7 @@ describe("Jax.World", function() {
   it("should render objects added to the world", function() {
     var mat = new Jax.Material();
     rendered_ids = [];
-    mat.render = function(context, mesh, model) { rendered_ids.push(model.id); };
+    mat.render = function(context, model, mesh) { rendered_ids.push(model.id); };
     var o1 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [-2, 0, -5]});
     var o2 = new Jax.Model({mesh: new Jax.Mesh.Quad(), position: [2, 0, -5]});
     var o1id = o1.id, o2id = o2.id;

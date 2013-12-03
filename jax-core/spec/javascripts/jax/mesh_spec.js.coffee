@@ -183,8 +183,8 @@ describe "Jax.Mesh", ->
         
         it "should result in a call to the material's render method", ->
           expect(Jax.Material.find("default").render).toHaveBeenCalledWith "context", 
-            mesh,
-            "model"        
+            "model",
+            mesh
       
       it "should have width  2",         -> expect(mesh.bounds.width).toEqual  2
       it "should have height 2",         -> expect(mesh.bounds.height).toEqual 2

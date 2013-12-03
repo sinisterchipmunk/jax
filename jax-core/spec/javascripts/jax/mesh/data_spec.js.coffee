@@ -1,5 +1,8 @@
 describe "Jax.Mesh.Data", ->
   data = null
+
+  beforeEach ->
+    @binding = new Jax.Material.Binding @context, new Jax.Model
   
   describe "with 4 vertices", ->
     beforeEach ->
@@ -12,11 +15,10 @@ describe "Jax.Mesh.Data", ->
       
   it "should refresh GL buffers when color is changed", ->
     data = new Jax.Mesh.Data [1, 2, 3]
-    data.context = @context
-    data.bind()
+    data.bind @context
     spyOn @context.renderer, 'bufferData'
     data.color = '#f00'
-    data.bind()
+    data.bind @context
     expect(@context.renderer.bufferData).toHaveBeenCalled()
     
   it "should alter color buffer when color is changed", ->
@@ -65,15 +67,15 @@ describe "Jax.Mesh.Data", ->
       it "should fire a shouldRecalculateNormals event", ->
         fired = false
         data.on 'shouldRecalculateNormals', -> fired = true
-        data.set {}, normals: 'NORMS'
+        data.set @binding, normals: 'NORMS'
         expect(fired).toBeTrue()
         
       it "should not fire a shouldRecalculateNormals event for subsequent bindings", ->
         count = 0
         data.on 'shouldRecalculateNormals', -> count++
-        data.set {}, normals: 'NORMS'
-        data.set {}, normals: 'NORMS'
-        data.set {}, normals: 'NORMS'
+        data.set @binding, normals: 'NORMS'
+        data.set @binding, normals: 'NORMS'
+        data.set @binding, normals: 'NORMS'
         expect(count).toEqual 1
         
     describe "when normals are not bound", ->
@@ -82,7 +84,7 @@ describe "Jax.Mesh.Data", ->
       it "should not fire a shouldRecalculateNormals event", ->
         fired = false
         data.on 'shouldRecalculateNormals', -> fired = true
-        data.set {}, vertices: 'VERTS'
+        data.set @binding, vertices: 'VERTS'
         expect(fired).toBeFalse()
       
     it "should default textures to 0", ->
