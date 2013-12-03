@@ -2,6 +2,7 @@
 <%= require("shaders/lib/lambert_diffuse") %>
 <%= require("shaders/lib/phong_specular") %>
 <%= require("shaders/lib/light_attenuation") %>
+<%= require("shaders/lib/shadow_map_lookup") %>
 
 void main(void) {
   if (WorldAmbientEnabled) {
@@ -61,7 +62,15 @@ void main(void) {
                      spotAttenuation);
 
       directLightColor = diffuseLightColor + specularLightColor;
-      /* TODO: affect directLightColor with shadow maps */
+      if (SHADOWMAP_ENABLED[<%= i %>])
+        directLightColor *= ShadowMapLookup(vShadowCoord[<%= i %>],
+                                            SHADOWMAP_WIDTH[<%= i %>],
+                                            SHADOWMAP_HEIGHT[<%= i %>],
+                                            IsDualParaboloid[<%= i %>],
+                                            SHADOWMAP0[<%= i %>],
+                                            SHADOWMAP1[<%= i %>],
+                                            ParaboloidNear[<%= i %>],
+                                            ParaboloidFar[<%= i %>]);
 
       attenuatedLightColor = ambientLightColor + directLightColor;
       LightAttenuation(lightDistanceFromSurface,

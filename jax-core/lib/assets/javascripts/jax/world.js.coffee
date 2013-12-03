@@ -99,7 +99,10 @@ class Jax.World
       are in no particular order.
       ###
       queue = queue.sort @_queueSorter
-      queue.pop().render context, material while queue.length
+      while queue.length
+        model = queue.pop()
+        continue unless model.castShadow or !@illuminating
+        model.render context, material
     queue.length
     
   renderOrEnqueue: (material, models) ->
@@ -111,6 +114,7 @@ class Jax.World
       if model.transparent or (model.mesh and model.mesh.transparent)
         queue.push model
       else
+        continue unless model.castShadow or !@illuminating
         model.render context, material
         num++
     num

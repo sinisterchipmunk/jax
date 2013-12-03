@@ -1,7 +1,10 @@
+#= require jax/mixins/event_emitter
 #= require_self
 #= require_tree './shadow_map'
 
 class Jax.ShadowMap
+  @include Jax.Mixins.EventEmitter
+
   constructor: (@light) ->
     @_shadowMatrix = mat4.create()
     @_projectionMatrix = mat4.create()
@@ -21,8 +24,8 @@ class Jax.ShadowMap
     @validate() unless @isValid()
     @_projectionMatrix
     
-  bindTextures: (context, vars, texture1) ->
-    vars[texture1] = @shadowmapFBO?.getTexture context, 0
+  bindTextures: (binding, texture1) ->
+    binding.set texture1, @shadowmapFBO?.getTexture binding.context, 0
     
   ###
   Sets up the projection matrix used to render to the framebuffer object from the
@@ -61,8 +64,9 @@ class Jax.ShadowMap
       @illuminate context
       # apply bias matrix only after illumination, so that it doesn't skew the illumination
       mat4.multiply @_shadowMatrix, @biasMatrix, @_shadowMatrix
+      @trigger 'validate'
     
-  invalidate: -> @_isValid = @_isUpToDate = false
+  invalidate: -> @_isValid = false
   
   dispose: (context) ->
     @shadowmapFBO?.dispose context
@@ -101,7 +105,9 @@ class Jax.ShadowMap
       gl.polygonOffset 2, 2
       context.matrix_stack.push()
       @setupMatrices context.matrix_stack
-      context.world.render material, false
+      context.world.illuminating = true
+      context.world.render material, false, true
+      context.world.illuminating = false
       context.matrix_stack.pop()
       if capture
         gl.readPixels 0, 0, @width, @height, GL_RGBA, GL_UNSIGNED_BYTE, @illuminationData
@@ -113,6 +119,7 @@ class Jax.ShadowMap
     gl.disable GL_POLYGON_OFFSET_FILL
     gl.cullFace GL_BACK
     gl.enable GL_BLEND
+    @trigger 'illuminate'
     
   illuminationArray = []
   isIlluminated: (model, context) ->

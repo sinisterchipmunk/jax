@@ -19,7 +19,7 @@ class Jax.Light extends Jax.Model
           when "DIRECTIONAL_LIGHT", Jax.DIRECITONAL_LIGHT then options.type = "Directional"
         if Jax.Light[options.type] then return new Jax.Light[options.type](options)
     
-    @shadows = false
+    @_shadows = false
     @_enabled = true
     @_color = new Jax.Light.Color
     @_attenuation = new Jax.Light.Attenuation
@@ -37,6 +37,12 @@ class Jax.Light extends Jax.Model
     set: (e) ->
       @_enabled = e
       @trigger 'change:enabled'
+
+  @define 'shadows',
+    get: -> @_shadows
+    set: (s) ->
+      @_shadows = s
+      @trigger 'change:shadows'
     
   @define 'color',
     get: -> @_color

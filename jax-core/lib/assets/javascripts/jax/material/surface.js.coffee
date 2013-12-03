@@ -29,10 +29,8 @@ class Jax.Material.Surface extends Jax.Material.Custom
       @trigger 'change:shininess'
 
   @define 'pcf',
-    get: -> @_pcf
-    set: (s) ->
-      @_pcf = s
-      @trigger 'change:pcf'
+    get: -> @get 'pcf'
+    set: (s) -> @set 'pcf', s
 
   constructor: (options, name) ->
     @_color = new Jax.Color.Group 'diffuse', 'ambient', 'specular'
@@ -63,10 +61,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
     options.pcf       = true   if options.pcf       is undefined
     super options, name
 
-    # @addLayer 'ShadowMap'
-    # # Important: light ambient comes after shadow map so that ambient values
-    # # are not reduced by "shadows"!
-
     # if options
     #   if options.textures
     #     for texture in options.textures
@@ -76,6 +70,11 @@ class Jax.Material.Surface extends Jax.Material.Custom
     #       # Normal maps must come before diffuse or specular shaders so that
     #       # they can perturb the normal before it's used to generate colors.
     #       @insertLayer 0, type: 'NormalMap', texture: map
+
+  render: (context, model, mesh) ->
+    for light in context.world.lights
+      light.shadowmap.validate context if light.shadows and light.shadowmap
+    super context, model, mesh
 
   registerBinding: (binding) ->
     {context, model, mesh} = binding
@@ -102,6 +101,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
     binding.listen this, 'change:shininess', =>
       binding.set 'MaterialShininess', @shininess
     binding.listen context.world, 'lightAdded', @lightAdded
+    binding.listen this, 'change:pcf', => @shader.invalidate()
     binding.on 'prepare', @prepareLightingPass
 
   ###
@@ -123,6 +123,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
     # only do world ambient lighting on first pass
     if pass is 0 then assigns["WorldAmbientEnabled"] = true
     else assigns["WorldAmbientEnabled"] = false
+    @_i or= 0
 
     start = pass * Surface.MAX_LIGHTS_PER_PASS
     for index in [start...(start + Surface.MAX_LIGHTS_PER_PASS)]
@@ -142,6 +143,15 @@ class Jax.Material.Surface extends Jax.Material.Custom
       assigns["LightConstantAttenuation[#{index}]"]  = assigns["#{ns}.atten.constant"]
       assigns["LightLinearAttenuation[#{index}]"]    = assigns["#{ns}.atten.linear"]
       assigns["LightQuadraticAttenuation[#{index}]"] = assigns["#{ns}.atten.quadratic"]
+      assigns["SHADOWMAP_ENABLED[#{index}]"] = assigns["#{ns}.shadow.enabled"]
+      assigns["IsDualParaboloid[#{index}]"]  = assigns["#{ns}.shadow.isDP"]
+      assigns["SHADOWMAP_WIDTH[#{index}]"]   = assigns["#{ns}.shadow.width"]
+      assigns["SHADOWMAP_HEIGHT[#{index}]"]  = assigns["#{ns}.shadow.height"]
+      assigns["SHADOWMAP_MATRIX[#{index}]"]  = assigns["#{ns}.shadow.matrix"]
+      assigns["ParaboloidNear[#{index}]"]    = assigns["#{ns}.shadow.dpNear"]
+      assigns["ParaboloidFar[#{index}]"]     = assigns["#{ns}.shadow.dpFar"]
+      assigns["SHADOWMAP0[#{index}]"]        = assigns["#{ns}.shadow.map0"]
+      assigns["SHADOWMAP1[#{index}]"]        = assigns["#{ns}.shadow.map1"]
     this
 
   lightAdded: (binding) =>
@@ -149,6 +159,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
     # performance penalty. Only fields that actually are used in the shaders
     # will be iterated over and assigned to the GPU.
     assigns = binding.get()
+    {model, context} = binding
     for light in binding.context.world.lights
       ns = "light.#{light.id}"
       continue if assigns["#{ns}.registered"]
@@ -173,6 +184,16 @@ class Jax.Material.Surface extends Jax.Material.Custom
         assigns["#{ns}.color.ambient"]  = light.color.ambient
         assigns["#{ns}.color.specular"] = light.color.specular
         assigns["#{ns}.color.diffuse"]  = light.color.diffuse
+        binding.listen light, 'change:shadows', ->
+          assigns["#{ns}.shadow.enabled"] = light.shadows && light.shadowmap && model.receiveShadow
+        binding.listen light.shadowmap, 'validate', ->
+          assigns["#{ns}.shadow.isDP"]   = light.shadowmap.isDualParaboloid()
+          assigns["#{ns}.shadow.width"]  = light.shadowmap.width
+          assigns["#{ns}.shadow.height"] = light.shadowmap.height
+          assigns["#{ns}.shadow.matrix"] = light.shadowmap.shadowMatrix
+          assigns["#{ns}.shadow.dpNear"] = light.shadowmap.paraboloidNear || 1
+          assigns["#{ns}.shadow.dpFar"]  = light.shadowmap.paraboloidFar  || 1
+          light.shadowmap.bindTextures binding, "#{ns}.shadow.map0", "#{ns}.shadow.map1"
     this
 
   lightMatricesChanged: (binding, light) =>
@@ -187,6 +208,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
 
   matricesChanged: (binding) =>
     {context, model, mesh} = binding
-    binding.set 'ModelViewMatrix',  context.matrix_stack.getModelViewMatrix()
+    binding.set 'ModelMatrix',      context.matrix_stack.getModelMatrix()
+    binding.set 'ViewMatrix',       context.matrix_stack.getViewMatrix()
     binding.set 'ProjectionMatrix', context.matrix_stack.getProjectionMatrix()
     binding.set 'NormalMatrix',     context.matrix_stack.getNormalMatrix()

@@ -12,7 +12,7 @@ uniform float MaterialAmbientIntensity,
               LightConstantAttenuation[MAX_LIGHTS],
               LightLinearAttenuation[MAX_LIGHTS],
               LightQuadraticAttenuation[MAX_LIGHTS];
-uniform mat4  ModelViewMatrix,
+uniform mat4  ModelMatrix, ViewMatrix,
               ProjectionMatrix;
 uniform mat3  NormalMatrix;
 uniform vec4  WorldAmbientColor,
@@ -31,3 +31,13 @@ uniform bool  LightEnabled[MAX_LIGHTS],
 varying vec4  vVertexColor;
 varying vec3  vEyeSpaceSurfacePosition,
               vEyeSpaceSurfaceNormal;
+
+
+  uniform bool IsDualParaboloid[MAX_LIGHTS];
+  uniform bool SHADOWMAP_ENABLED[MAX_LIGHTS];
+  uniform sampler2D SHADOWMAP0[MAX_LIGHTS], SHADOWMAP1[MAX_LIGHTS];
+  uniform mat4 SHADOWMAP_MATRIX[MAX_LIGHTS];
+  uniform float ParaboloidNear[MAX_LIGHTS], ParaboloidFar[MAX_LIGHTS];
+  uniform float SHADOWMAP_WIDTH[MAX_LIGHTS], SHADOWMAP_HEIGHT[MAX_LIGHTS];
+
+  varying vec4 vShadowCoord[MAX_LIGHTS];
