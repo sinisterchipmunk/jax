@@ -73,7 +73,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
 
   render: (context, model, mesh) ->
     for light in context.world.lights
-      light.shadowmap.validate context if light.shadows and light.shadowmap
+      light.validate context
     super context, model, mesh
 
   registerBinding: (binding) ->
@@ -190,7 +190,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
           assigns["#{ns}.shadow.isDP"]   = light.shadowmap.isDualParaboloid()
           assigns["#{ns}.shadow.width"]  = light.shadowmap.width
           assigns["#{ns}.shadow.height"] = light.shadowmap.height
-          assigns["#{ns}.shadow.matrix"] = light.shadowmap.shadowMatrix
+          binding.set "#{ns}.shadow.matrix", light.shadowmap.shadowMatrix
           assigns["#{ns}.shadow.dpNear"] = light.shadowmap.paraboloidNear || 1
           assigns["#{ns}.shadow.dpFar"]  = light.shadowmap.paraboloidFar  || 1
           light.shadowmap.bindTextures binding, "#{ns}.shadow.map0", "#{ns}.shadow.map1"

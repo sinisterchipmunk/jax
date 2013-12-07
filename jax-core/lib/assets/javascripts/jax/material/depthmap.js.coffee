@@ -10,10 +10,13 @@ class Jax.Material.Depthmap extends Jax.Material.Custom
     {context, model, mesh} = binding
     binding.listen mesh.data, 'change', ->
       mesh.data.set binding, vertices: 'VertexPosition'
-    binding.listen model.camera, 'change', @matricesChanged
-    binding.listen context.world.cameras[0], 'change', @matricesChanged
+    # NOTE: matrices have to be recalculated every pass because we can't know
+    # what other matrices might be in the stack behind them at render time --
+    # this issue is demonstrated by shadow maps where the light is in motion.
+    binding.on 'prepare', @matricesChanged
 
-  matricesChanged: (binding) =>
+  matricesChanged: (event) =>
+    {binding} = event
     {context, model, mesh} = binding
     binding.set 'ModelViewProjectionMatrix',
                 context.matrix_stack.getModelViewProjectionMatrix()

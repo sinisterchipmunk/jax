@@ -26,6 +26,7 @@ class Jax.ShadowMap.Spot extends Jax.ShadowMap
     fov = angle
     near = 0.1
     aspect_ratio = @width / @height
+    far = near + 1 if far < near
 
     mat4.perspective projection, fov, aspect_ratio, near, far
     

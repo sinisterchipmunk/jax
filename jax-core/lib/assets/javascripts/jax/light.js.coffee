@@ -25,12 +25,8 @@ class Jax.Light extends Jax.Model
     @_attenuation = new Jax.Light.Attenuation
     @innerSpotAngle = Math.PI / 4.375
     @outerSpotAngle = Math.PI / 4
-    # FIXME should be easy to bind one function to many events
-    @attenuation.on 'constantChanged',  => @_maxEffectiveRangeCache = null
-    @attenuation.on 'linearChanged',    => @_maxEffectiveRangeCache = null
-    @attenuation.on 'quadraticChanged', => @_maxEffectiveRangeCache = null
-    
     super options
+    @attenuation.on 'change',  => @_maxEffectiveRangeCache = null
 
   @define 'enabled',
     get: -> @_enabled
@@ -85,6 +81,16 @@ class Jax.Light extends Jax.Model
 
   @define 'outerSpotAngleCos', get: -> @_outerSpotAngleCos
   @define 'innerSpotAngleCos', get: -> @_innerSpotAngleCos
+
+  validate: (context) ->
+    @shadowmap?.validate context if @shadows
+
+  invalidate: (context) ->
+    @shadowmap?.invalidate context if @shadows
+
+  isValid: (context) ->
+    if @shadows && @shadowmap then @shadowmap.isValid context
+    else true
   
   ###
   Returns true if the specified model is close enough to this light

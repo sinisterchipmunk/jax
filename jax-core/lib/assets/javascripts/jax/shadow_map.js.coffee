@@ -6,8 +6,8 @@ class Jax.ShadowMap
   @include Jax.Mixins.EventEmitter
 
   constructor: (@light) ->
-    @_shadowMatrix = mat4.create()
-    @_projectionMatrix = mat4.create()
+    @shadowMatrix = mat4.create()
+    @projectionMatrix = mat4.create()
     @_isValid = false
     @light.camera.on 'change', => @invalidate()
     @biasMatrix = mat4.identity mat4.create()
@@ -15,14 +15,6 @@ class Jax.ShadowMap
     @cullFace = GL_FRONT
     mat4.translate @biasMatrix, @biasMatrix, [0.5, 0.5, 0.5]
     mat4.scale     @biasMatrix, @biasMatrix, [0.5, 0.5, 0.5]
-    
-  @getter 'shadowMatrix', ->
-    @validate() unless @isValid()
-    @_shadowMatrix
-    
-  @getter 'projectionMatrix', ->
-    @validate() unless @isValid()
-    @_projectionMatrix
     
   bindTextures: (binding, texture1) ->
     binding.set texture1, @shadowmapFBO?.getTexture binding.context, 0
@@ -38,7 +30,7 @@ class Jax.ShadowMap
     throw new Error "ShadowMap type #{@__proto__.constructor.name} did not initialize its projection matrix!"
     
   validate: (context) ->
-    if context and not @_isValid
+    unless @_isValid
       unless @_initialized
         # try to use a 1024x1024 framebuffer, but degrade gracefully if it's too big
         maxSize = context.renderer.getParameter GL_MAX_RENDERBUFFER_SIZE
@@ -56,14 +48,14 @@ class Jax.ShadowMap
             flip_y: false
         @_initialized = true
 
-      @setupProjection @_projectionMatrix, context
+      @setupProjection @projectionMatrix, context
       # shadowMatrix = bias * projection * modelview
-      mat4.copy @_shadowMatrix, @light.camera.get('inverseMatrix')
-      mat4.multiply @_shadowMatrix, @_projectionMatrix, @_shadowMatrix
+      mat4.multiply @shadowMatrix, @projectionMatrix,
+                                   @light.camera.get('inverseMatrix')
       @_isValid = true
       @illuminate context
       # apply bias matrix only after illumination, so that it doesn't skew the illumination
-      mat4.multiply @_shadowMatrix, @biasMatrix, @_shadowMatrix
+      mat4.multiply @shadowMatrix, @biasMatrix, @shadowMatrix
       @trigger 'validate'
     
   invalidate: -> @_isValid = false

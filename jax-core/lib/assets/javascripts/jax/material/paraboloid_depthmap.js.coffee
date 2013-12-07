@@ -15,15 +15,18 @@ class Jax.Material.ParaboloidDepthmap extends Jax.Material.Custom
     {context, model, mesh} = binding
     binding.listen mesh.data, 'change', ->
       mesh.data.set binding, vertices: 'VertexPosition'
-    binding.listen model.camera, 'change', @matricesChanged
-    binding.listen context.world.cameras[0], 'change', @matricesChanged
     binding.listen this, 'change:direction', =>
       binding.set 'Direction', @get 'direction'
     binding.listen this, 'change:near', =>
       binding.set 'Near', @get 'near'
     binding.listen this, 'change:far', =>
       binding.set 'Far', @get 'far'
+    # NOTE: matrices have to be recalculated every pass because we can't know
+    # what other matrices might be in the stack behind them at render time --
+    # this issue is demonstrated by shadow maps where the light is in motion.
+    binding.on 'prepare', @matricesChanged
 
-  matricesChanged: (binding) =>
+  matricesChanged: (event) =>
+    {binding} = event
     {context, model, mesh} = binding
     binding.set 'ModelViewMatrix', context.matrix_stack.getModelViewMatrix()
