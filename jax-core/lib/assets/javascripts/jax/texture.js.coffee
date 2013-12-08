@@ -160,7 +160,7 @@ class Jax.Texture
     return handle
 
   generateMipmap: (renderer, target, hint) ->
-    # FIXME why does this raise 1280 invalid enum?
+    # FIXME: why does this raise 1280 invalid enum?
     # renderer.hint GL_GENERATE_MIPMAP_HINT, hint
     renderer.generateMipmap target
 
