@@ -9,7 +9,7 @@ class Mesh
   @include Jax.Mixins.EventEmitter
   
   constructor: (options) ->
-    @id = Jax.guid()
+    @guid = @id = Jax.guid()
     @_valid = false
     @data = new Jax.Mesh.Data
     @_bounds = new Jax.Mesh.Bounds
