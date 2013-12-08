@@ -91,6 +91,8 @@ Jax.Renderer.register class Jax.Renderer.WebGL
   blendFuncSeparate: (a, b, c, d) -> @context.blendFuncSeparate a, b, c, d
   uniform1f: (l, v) -> @context.uniform1f l, v
   uniform1i: (l, v) -> @context.uniform1i l, v
+  uniform1fv: (l, v) -> @context.uniform1fv l, v
+  uniform1iv: (l, v) -> @context.uniform1iv l, v
   uniform2fv: (l, v) -> @context.uniform2fv l, v
   uniform3fv: (l, v) -> @context.uniform3fv l, v
   uniform4fv: (l, v) -> @context.uniform4fv l, v

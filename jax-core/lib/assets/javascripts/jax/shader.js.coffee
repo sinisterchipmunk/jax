@@ -118,8 +118,12 @@ class Jax.Shader
     gl = context.renderer
     id = context.id
     switch variable.type
-      when GL_FLOAT          then gl.uniform1f  variable.location, value
-      when GL_BOOL, GL_INT    then gl.uniform1i  variable.location, value
+      when GL_FLOAT
+        if value.length then gl.uniform1fv  variable.location, value
+        else gl.uniform1f variable.location, value
+      when GL_BOOL, GL_INT
+        if value.length then gl.uniform1iv  variable.location, value
+        else gl.uniform1i variable.location, value
       when GL_FLOAT_VEC2           then gl.uniform2fv variable.location, value
       when GL_FLOAT_VEC3           then gl.uniform3fv variable.location, value
       when GL_FLOAT_VEC4           then gl.uniform4fv variable.location, value
@@ -236,6 +240,12 @@ class Jax.Shader
             name: name
             size: uniform.size
             type: uniform.type
+          if n is 0 and uniform.size > 1
+            # alias xxx[0] to just xxx
+            @variables.uniforms[name.replace /\[0\]$/, ''] =
+              name: name
+              size: uniform.size
+              type: uniform.type
     true
 
   compileShader: (descriptor, type, jaxShader, glShader, sourceHelper) ->

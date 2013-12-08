@@ -78,6 +78,25 @@ class Jax.Material.Surface extends Jax.Material.Custom
 
   registerBinding: (binding) ->
     {context, model, mesh} = binding
+
+    assigns = binding.get()
+    assigns["LightType"]                 = new Int32Array   Surface.MAX_LIGHTS_PER_PASS
+    assigns["LightSpotInnerCos"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["LightSpotOuterCos"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["LightConstantAttenuation"]  = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["LightLinearAttenuation"]    = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["LightQuadraticAttenuation"] = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["SHADOWMAP_WIDTH"]           = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["SHADOWMAP_HEIGHT"]          = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["ParaboloidNear"]            = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["ParaboloidFar"]             = new Float32Array Surface.MAX_LIGHTS_PER_PASS
+    assigns["EyeSpaceLightDirection"]    = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 3
+    assigns["EyeSpaceLightPosition"]     = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 3
+    assigns["LightAmbientColor"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 4
+    assigns["LightDiffuseColor"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 4
+    assigns["LightSpecularColor"]        = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 4
+    assigns["SHADOWMAP_MATRIX"]          = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 16
+
     binding.set 'WorldAmbientColor', context.world.ambientColor
     binding.set 'MaterialAmbientColor', @color.ambient
     binding.set 'MaterialDiffuseColor', @color.diffuse
@@ -123,7 +142,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
     # only do world ambient lighting on first pass
     if pass is 0 then assigns["WorldAmbientEnabled"] = true
     else assigns["WorldAmbientEnabled"] = false
-    @_i or= 0
 
     start = pass * Surface.MAX_LIGHTS_PER_PASS
     for index in [start...(start + Surface.MAX_LIGHTS_PER_PASS)]
@@ -131,25 +149,37 @@ class Jax.Material.Surface extends Jax.Material.Custom
         assigns["LightEnabled[#{index}]"] = false
         return
       ns = "light.#{light.id}"
-      assigns["LightEnabled[#{index}]"]              = assigns["#{ns}.enabled"]
-      assigns["EyeSpaceLightDirection[#{index}]"]    = assigns["#{ns}.eyeSpaceDirection"]
-      assigns["EyeSpaceLightPosition[#{index}]"]     = assigns["#{ns}.eyeSpacePosition"]
-      assigns["LightType[#{index}]"]                 = assigns["#{ns}.type"]
-      assigns["LightAmbientColor[#{index}]"]         = assigns["#{ns}.color.ambient"]
-      assigns["LightDiffuseColor[#{index}]"]         = assigns["#{ns}.color.diffuse"]
-      assigns["LightSpecularColor[#{index}]"]        = assigns["#{ns}.color.specular"]
-      assigns["LightSpotInnerCos[#{index}]"]         = assigns["#{ns}.cos.inner"]
-      assigns["LightSpotOuterCos[#{index}]"]         = assigns["#{ns}.cos.outer"]
-      assigns["LightConstantAttenuation[#{index}]"]  = assigns["#{ns}.atten.constant"]
-      assigns["LightLinearAttenuation[#{index}]"]    = assigns["#{ns}.atten.linear"]
-      assigns["LightQuadraticAttenuation[#{index}]"] = assigns["#{ns}.atten.quadratic"]
+
+      # FIXME: setting an array of booleans is still a bit buggy
+      # so we have to set them individually
+      assigns["LightEnabled[#{index}]"]      = assigns["#{ns}.enabled"]
       assigns["SHADOWMAP_ENABLED[#{index}]"] = assigns["#{ns}.shadow.enabled"]
       assigns["IsDualParaboloid[#{index}]"]  = assigns["#{ns}.shadow.isDP"]
-      assigns["SHADOWMAP_WIDTH[#{index}]"]   = assigns["#{ns}.shadow.width"]
-      assigns["SHADOWMAP_HEIGHT[#{index}]"]  = assigns["#{ns}.shadow.height"]
-      assigns["SHADOWMAP_MATRIX[#{index}]"]  = assigns["#{ns}.shadow.matrix"]
-      assigns["ParaboloidNear[#{index}]"]    = assigns["#{ns}.shadow.dpNear"]
-      assigns["ParaboloidFar[#{index}]"]     = assigns["#{ns}.shadow.dpFar"]
+
+      assigns["LightType"][index] = assigns["#{ns}.type"]
+      assigns["LightSpotInnerCos"][index]         = assigns["#{ns}.cos.inner"]
+      assigns["LightSpotOuterCos"][index]         = assigns["#{ns}.cos.outer"]
+      assigns["LightConstantAttenuation"][index]  = assigns["#{ns}.atten.constant"]
+      assigns["LightLinearAttenuation"][index]    = assigns["#{ns}.atten.linear"]
+      assigns["LightQuadraticAttenuation"][index] = assigns["#{ns}.atten.quadratic"]
+      assigns["SHADOWMAP_WIDTH"][index]   = assigns["#{ns}.shadow.width"]
+      assigns["SHADOWMAP_HEIGHT"][index]  = assigns["#{ns}.shadow.height"]
+      assigns["ParaboloidNear"][index]    = assigns["#{ns}.shadow.dpNear"]
+      assigns["ParaboloidFar"][index]     = assigns["#{ns}.shadow.dpFar"]
+
+      for i in [0..2]
+        offset = index * 3 + i
+        assigns["EyeSpaceLightDirection"][offset] = assigns["#{ns}.eyeSpaceDirection"]?[i]
+        assigns["EyeSpaceLightPosition"][offset]  = assigns["#{ns}.eyeSpacePosition"]?[i]
+      for i in [0..3]
+        offset = index * 4 + i
+        assigns["LightAmbientColor"][offset]  = assigns["#{ns}.color.ambient"]?.toVec4()[i]
+        assigns["LightDiffuseColor"][offset]  = assigns["#{ns}.color.diffuse"]?.toVec4()[i]
+        assigns["LightSpecularColor"][offset] = assigns["#{ns}.color.specular"]?.toVec4()[i]
+      for i in [0..15]
+        offset = index * 16 + i
+        assigns["SHADOWMAP_MATRIX"][offset]  = assigns["#{ns}.shadow.matrix"]?[i]
+
       assigns["SHADOWMAP0[#{index}]"]        = assigns["#{ns}.shadow.map0"]
       assigns["SHADOWMAP1[#{index}]"]        = assigns["#{ns}.shadow.map1"]
     this
