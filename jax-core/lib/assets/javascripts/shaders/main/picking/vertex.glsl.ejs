@@ -1,3 +1,5 @@
+attribute vec4 VertexPosition;
+
 void main(void) {
   /*
     Note that the agorithm here must be followed exactly on the JS side in order
@@ -9,10 +11,12 @@ void main(void) {
   */
   
   
-  // equivalent to [ int(INDEX/256), INDEX % 256 ] / 255. The last division
+  // equivalent to [ int(guid/256), guid % 256 ] / 255. The last division
   // is necessary to scale to the [0..1] range.
   
   float d = 1.0 / 255.0;
-  float f = floor(INDEX / 256.0);
-  vPickingColor = vec4(f * d, (INDEX - 256.0 * f) * d, 1.0, 1.0);
+  float f = floor(guid / 256.0);
+  vPickingColor = vec4(f * d, (guid - 256.0 * f) * d, 1.0, 1.0);
+
+  gl_Position = ModelViewProjectionMatrix * VertexPosition;
 }

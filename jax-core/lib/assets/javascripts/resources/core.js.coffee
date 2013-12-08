@@ -24,11 +24,7 @@ Jax.Material.addResources
 		type: "ParaboloidDepthmap"
 
 	picking:
-		type: "Custom"
-		layers: [
-		  { type: 'Position' }
-		  { type: 'Picking'  }
-		]
+		type: "Picking"
 
 	wire:
 		type: 'Wire'
