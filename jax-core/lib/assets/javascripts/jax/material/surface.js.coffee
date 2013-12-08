@@ -195,8 +195,10 @@ class Jax.Material.Surface extends Jax.Material.Custom
       continue if assigns["#{ns}.registered"]
       do (light, ns) =>
         assigns["#{ns}.registered"] = true
-        binding.listen light.camera, 'change', =>
+        # binding.listen light.camera, 'change', =>
+        binding.on 'prepare', =>
           @lightMatricesChanged binding, light
+          
         binding.listen light, 'change:enabled', ->
           binding.set "#{ns}.enabled", light.enabled
         binding.listen light, 'change:spot:innerAngle', ->

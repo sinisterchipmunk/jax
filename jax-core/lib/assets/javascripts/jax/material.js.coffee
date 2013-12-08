@@ -16,6 +16,7 @@ class Jax.Material
     @initializeAttributes()
     # FIXME: this should be `set(key, value)` but most shaders aren't ready
     # for that yet
+    @set key, value for key, value of options
     @[key] = value for key, value of options
     @shader = new Jax.Shader @attributes
     @_bindings = {}

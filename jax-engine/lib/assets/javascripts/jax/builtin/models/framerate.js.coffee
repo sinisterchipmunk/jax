@@ -101,12 +101,7 @@ class Jax.Framerate extends Jax.Model
       height: @height
       color: [1, 1, 1, 1]
       transparent: true
-      material: new Jax.Material.Custom
-        layers: [
-          { type: 'Position' },
-          { type: 'VertexColor' },
-          { type: 'Texture', instance: @glTex }
-        ]
+      material: new Jax.Material.Picture image: @glTex
 
   render: (context, material) ->
     @fps = context.getFramesPerSecond()

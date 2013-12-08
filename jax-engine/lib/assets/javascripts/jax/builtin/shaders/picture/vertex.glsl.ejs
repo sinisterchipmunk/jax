@@ -1,0 +1,7 @@
+attribute vec4 VertexPosition;
+attribute vec2 TextureCoordinates;
+
+void main(void) {
+  gl_Position = ModelViewProjectionMatrix * VertexPosition;
+  vTexCoords = TextureCoordinates;
+}
