@@ -7,6 +7,10 @@ class Jax.Material
   @include Jax.Mixins.EventEmitter
   @include Jax.Mixins.Attributes
 
+  shaders:
+    vertex:   -> throw new Error "Material has no vertex shader source!"
+    fragment: -> throw new Error "Material has no fragment shader source!"
+
   constructor: (options, @name = "generic") ->
     @initializeAttributes()
     # FIXME: this should be `set(key, value)` but most shaders aren't ready
@@ -14,12 +18,11 @@ class Jax.Material
     @[key] = value for key, value of options
     @shader = new Jax.Shader @attributes
     @_bindings = {}
-    if @shaders
-      if @shaders.common
-        @vertex.append   @shaders.common
-        @fragment.append @shaders.common
-      if @shaders.vertex   then @vertex.append   @shaders.vertex
-      if @shaders.fragment then @fragment.append @shaders.fragment
+    if @shaders.common
+      @vertex.append   @shaders.common
+      @fragment.append @shaders.common
+    if @shaders.vertex   then @vertex.append   @shaders.vertex
+    if @shaders.fragment then @fragment.append @shaders.fragment
         
   @define 'vertex',   get: -> @shader.vertex
   @define 'fragment', get: -> @shader.fragment

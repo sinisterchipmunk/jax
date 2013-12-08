@@ -1,4 +1,15 @@
 describe "Jax.Material", ->
+  beforeEach ->
+    @model = new Jax.Model()
+    @mesh  = new Jax.Mesh.Quad()
+
+  describe "without any shader sources", ->
+    beforeEach ->
+      @matr  = new Jax.Material
+
+    it 'should raise an error on render', ->
+      expect(-> @matr.render @context, @model, @mesh).toThrow()
+
   # matr = null
   # guid = Jax.guid
   
