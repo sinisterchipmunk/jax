@@ -2,7 +2,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
   # the number of lights the shader can handle in a single pass
   Surface.MAX_LIGHTS_PER_PASS = 8
 
-  $ -> Jax.Material.Surface.prototype.shaders =
+  Surface.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/surface/common']
     vertex:   Jax.shaderTemplates['shaders/main/surface/vertex']
     fragment: Jax.shaderTemplates['shaders/main/surface/fragment']

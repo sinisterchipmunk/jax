@@ -1,6 +1,7 @@
 #= require jax/mixins/event_emitter
 #= require jax/mixins/attributes
 #= require_self
+#= require shaders/core
 #= require_tree "./material"
 
 class Jax.Material

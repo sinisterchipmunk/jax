@@ -1,7 +1,7 @@
 #= require jax/material/custom
 
 class Jax.Material.ParaboloidDepthmap extends Jax.Material.Custom
-  $ -> Jax.Material.ParaboloidDepthmap.prototype.shaders =
+  ParaboloidDepthmap.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/paraboloid_depthmap/common']
     vertex:   Jax.shaderTemplates['shaders/main/paraboloid_depthmap/vertex']
     fragment: Jax.shaderTemplates['shaders/main/paraboloid_depthmap/fragment']

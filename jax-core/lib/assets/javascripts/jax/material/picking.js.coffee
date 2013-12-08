@@ -1,7 +1,7 @@
 #= require jax/material/custom
 
 class Jax.Material.Picking extends Jax.Material.Custom
-  $ -> Jax.Material.Picking.prototype.shaders =
+  Picking.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/picking/common']
     vertex:   Jax.shaderTemplates['shaders/main/picking/vertex']
     fragment: Jax.shaderTemplates['shaders/main/picking/fragment']

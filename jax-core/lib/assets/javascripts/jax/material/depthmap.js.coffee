@@ -1,7 +1,7 @@
 #= require jax/material/custom
 
 class Jax.Material.Depthmap extends Jax.Material.Custom
-  $ -> Jax.Material.Depthmap.prototype.shaders =
+  Depthmap.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/depthmap/common']
     vertex:   Jax.shaderTemplates['shaders/main/depthmap/vertex']
     fragment: Jax.shaderTemplates['shaders/main/depthmap/fragment']
