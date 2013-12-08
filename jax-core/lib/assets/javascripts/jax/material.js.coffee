@@ -21,7 +21,7 @@ class Jax.Material
       if @shaders.vertex   then @vertex.append   @shaders.vertex
       if @shaders.fragment then @fragment.append @shaders.fragment
         
-  @define 'vertex', get: -> @shader.vertex
+  @define 'vertex',   get: -> @shader.vertex
   @define 'fragment', get: -> @shader.fragment
 
   defaultAttributes: -> {}
