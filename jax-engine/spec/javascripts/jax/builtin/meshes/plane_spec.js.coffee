@@ -4,7 +4,7 @@ describe 'Jax.Mesh.Plane', ->
   describe 'with no options', ->
     beforeEach -> plane = new Jax.Mesh.Plane
 
-    it 'should render', -> plane.render @context
+    it 'should render', -> plane.render @context, new Jax.Model
 
   describe 'with height function', ->
     beforeEach -> plane = new Jax.Mesh.Plane width: 10, depth: 10, segments: 10, fn: (x, y) -> x * 10 + y

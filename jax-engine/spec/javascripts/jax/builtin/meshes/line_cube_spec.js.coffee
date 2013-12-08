@@ -4,7 +4,7 @@ describe "Jax.Mesh.LineCube", ->
   beforeEach -> cube = new Jax.Mesh.Cube()
 
   it "should render", ->
-    cube.render @context
+    cube.render @context, new Jax.Model
 
   describe "initialized with a `size` option", ->
     beforeEach -> cube = new Jax.Mesh.Cube size: 2

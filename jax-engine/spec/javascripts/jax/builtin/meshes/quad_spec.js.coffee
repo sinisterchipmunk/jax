@@ -7,5 +7,5 @@ describe "Jax.Mesh.Quad", ->
       quad.rebuild()
     
   it "should render successfully", ->
-    quad.render SPEC_CONTEXT
+    quad.render @context, new Jax.Model
     

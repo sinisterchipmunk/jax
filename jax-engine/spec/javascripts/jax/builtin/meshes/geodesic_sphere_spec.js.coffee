@@ -28,7 +28,7 @@ describe "Jax.Mesh.GeodesicSphere", ->
           expect(geode.data.vertexBuffer.length).toBeGreaterThan(0)
 
       it "should render successfully", ->
-        geode.render SPEC_CONTEXT # or @context ?
+        geode.render @context, new Jax.Model
 
 
       describe "its faces", ->

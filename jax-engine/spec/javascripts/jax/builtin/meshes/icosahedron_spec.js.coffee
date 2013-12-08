@@ -19,7 +19,7 @@ describe "Jax.Mesh.Icosahedron", ->
       expect(icosa.data.vertexBuffer.length).toBeGreaterThan(0)
 
   it "should render successfully", ->
-    icosa.render SPEC_CONTEXT # or @context ?
+    icosa.render @context, new Jax.Model
 
 
   describe "its faces", ->

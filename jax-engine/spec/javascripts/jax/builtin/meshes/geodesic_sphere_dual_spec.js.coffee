@@ -29,7 +29,7 @@ describe "Jax.Mesh.GeodesicSphereDual", ->
           expect(geode.data.vertexBuffer.length).toBeGreaterThan(0)
 
       it "should render successfully", ->
-        geode.render SPEC_CONTEXT
+        geode.render @context, new Jax.Model
 
 
       describe "its vertices", ->
