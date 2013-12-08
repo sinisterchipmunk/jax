@@ -27,9 +27,6 @@ or if you're handling that yourself.
 Support for Perlin noise within fragment and vertex shaders
 #= require "jax/noise"
 
-Support for built-in models and meshes.
-#= require "jax/builtin/all"
-
 Support for Jax shaders and materials.
 Without these, you'll need to manually pass a `material`
 object into the render sequence.
@@ -49,6 +46,9 @@ shaders.
 Pull in all shaders and resources.
 #= require 'shaders/core'
 #= require 'resources/core'
+
+Support for built-in models and meshes.
+#= require "jax/builtin/all"
 
 Deprecation warnings. These should come _last_ in the load
 order. If your application is **not** giving you any deprecation

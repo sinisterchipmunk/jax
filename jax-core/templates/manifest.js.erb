@@ -19,9 +19,6 @@ or if you're handling that yourself.
 Support for Perlin noise within fragment and vertex shaders
 *= require "jax/noise"
 
-Support for built-in models and meshes.
-*= require "jax/builtin/all"
-
 Support for Jax shaders and materials.
 Without these, you'll need to manually pass a `material`
 object into the render sequence.
@@ -37,6 +34,9 @@ to make use of the default diffuse, specular and shadow map
 shaders.
 *= require "jax/light"
 *= require "jax/shadow_map"
+
+Support for built-in models and meshes.
+*= require "jax/builtin/all"
 
 Your own files. If you remove this line, you'll have Jax
 but no Jax application.
