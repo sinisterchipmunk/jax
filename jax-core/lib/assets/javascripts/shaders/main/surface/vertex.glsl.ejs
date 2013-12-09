@@ -2,17 +2,5 @@ attribute vec4 VertexPosition, VertexColor;
 attribute vec3 VertexNormal;
 
 void main(void) {
-  vec4 modelVertexPosition = ModelMatrix * VertexPosition;
-
-  vVertexColor = VertexColor;
-  gl_Position = ViewMatrix * modelVertexPosition;
-  vEyeSpaceSurfacePosition = gl_Position.xyz;
-  vEyeSpaceSurfaceNormal = NormalMatrix * VertexNormal;
-  gl_Position = ProjectionMatrix * gl_Position;
-
-  <% for (var i = 0; i < Jax.Material.Surface.MAX_LIGHTS_PER_PASS; i++) { %>
-    if (SHADOWMAP_ENABLED[<%= i %>])
-      vShadowCoord[<%= i %>] = SHADOWMAP_MATRIX[<%= i %>] *
-                               modelVertexPosition;
-  <% } %>
+  <%= require("shaders/main/surface/vertex_main") %>
 }
