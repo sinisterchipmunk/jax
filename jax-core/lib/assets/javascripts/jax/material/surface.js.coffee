@@ -128,7 +128,9 @@ class Jax.Material.Surface extends Jax.Material.Custom
   ###
   numPasses: (binding) ->
     count = binding.context.world.lights.length
-    Math.ceil count / Surface.MAX_LIGHTS_PER_PASS
+    count = Math.ceil count / Surface.MAX_LIGHTS_PER_PASS
+    if count is 0 then 1
+    else count
 
   ###
   We must assign the computed light uniforms to real variable names, allowing
