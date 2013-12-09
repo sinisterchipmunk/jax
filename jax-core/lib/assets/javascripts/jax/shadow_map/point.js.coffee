@@ -29,7 +29,8 @@ class Jax.ShadowMap.Point extends Jax.ShadowMap
 
   bindTextures: (binding, front, back) ->
     super binding, front
-    binding.set back, @backFBO.getTexture binding.context, 0
+    if @backFBO
+      binding.set back, @backFBO.getTexture binding.context, 0
 
   relative = vec3.create()
   setupProjection: (projection, context) ->
