@@ -3,23 +3,28 @@
 class Noise extends Jax.Controller
   Jax.controllers.add @name, this
 
-  index: ->
-    class Jax.Material.Layer.T extends Jax.Material.Layer
-      @shaderSource:
-        fragment: """
+  class NoiseMaterial extends Jax.Material.Surface
+    shaders:
+      common: Jax.Material.Surface::shaders.common
+      vertex: Jax.Material.Surface::shaders.vertex
+      fragment: (obj) -> """
+        #{Jax.shaderTemplates['shaders/lib/noise'](obj)}
         uniform float time;
 
         void main(void) {
           float n = snoise(vec4(gl_FragCoord.xyz * 0.025, time)) * 0.5 + 0.5;
           gl_FragColor = vec4(n, n, n, 1.0);
         }
-        """
-        
-      setVariables: (context, mesh, model, vars, pass) ->
-        vars.time = context.uptime
-    
-    noiseMat = new Jax.Material.Surface(layers: [{type: 'Noise'}, {type: 'T'}])
-    tpmesh = new Jax.Mesh.Cube material: noiseMat
+      """
+      
+    registerBinding: (binding) ->
+      super binding
+      Jax.noise.bind binding
+      binding.on 'prepare', ->
+        binding.set 'time', binding.context.uptime
+  
+  index: ->
+    tpmesh = new Jax.Mesh.Cube material: new NoiseMaterial
     
     @world.addObject new Jax.Framerate ema: no
     @world.addObject new Jax.Model 

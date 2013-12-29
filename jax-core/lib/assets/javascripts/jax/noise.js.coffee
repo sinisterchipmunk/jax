@@ -1,16 +1,14 @@
 #= require 'jax/texture'
 
-# class Jax.Noise
-# Constructs several textures to be used in vertex shaders involving Perlin noise.
-# As of v1.1.0, Jax defines a global variable called **Jax.noise** that you can use
-# instead of maintaining your own instance of +Jax.Noise+. This is both more memory
-# efficient and easier to use.
+# Constructs several textures to be used in vertex shaders involving Perlin
+# noise. As of v1.1.0, Jax defines a global variable called **Jax.noise** that
+# you can use instead of maintaining your own instance of +Jax.Noise+. This is 
+# both more memory efficient and easier to use.
 #
 # Example:
 #
-#     setUniforms: (context, mesh, options, uniforms) ->
-#       Jax.noise.bind context, uniforms
-#       # . . .
+#     registerBinding: (binding) ->
+#       Jax.noise.bind binding
 #
 class Jax.Noise
   perm = [151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 
@@ -87,25 +85,18 @@ class Jax.Noise
     tex
   
   constructor: ->
-    # Jax.Noise#grad -> Jax.Texture
     # A 2D texture for a combined index permutation and gradient lookup table.
     # This texture is used for 2D, 3D and 4D noise, both classic and simplex.
     @grad = initGradTexture()
     
-  # Jax.Noise#bind(context, uniforms) -> Jax.Shader.Delegator
-  # - context (Jax.Context): the context to bind the noise textures to
-  # - uniforms (Jax.Shader.Delegator): the shader variables to bind this noise
-  #   to.
-  # 
   # Binds the three noise textures to the given set of shader uniforms. This
-  # is intended to be used from within a shader's +material.js+ file like so:
+  # is intended to be used from within a `Material` like so:
   #
-  #     setUniforms: (context, mesh, options, uniforms) ->
-  #       Jax.noise.bind context, uniforms
+  #     registerBinding: (binding) ->
+  #       Jax.noise.bind binding
   #       # . . .
   #
   # Returns the same uniforms delegator that was specified to begin with.
-  bind: (context, uniforms) ->
-    uniforms.gradTexture = @grad
+  bind: (binding) -> binding.set 'gradTexture', @grad
     
 Jax.noise = new Jax.Noise
