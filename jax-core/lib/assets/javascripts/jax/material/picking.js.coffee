@@ -9,7 +9,7 @@ class Jax.Material.Picking extends Jax.Material.Custom
   registerBinding: (binding) ->
     {context, model, mesh} = binding
     binding.set 'guid', model.guid
-    binding.listen mesh.data, 'change', ->
+    binding.listen mesh, 'change:data', ->
       mesh.data.set binding, vertices: 'VertexPosition'
     # NOTE: matrices have to be recalculated every pass because we can't know
     # what other matrices might be in the stack behind them at render time --

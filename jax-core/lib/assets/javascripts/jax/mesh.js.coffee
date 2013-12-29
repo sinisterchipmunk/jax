@@ -50,12 +50,16 @@ class Mesh
     set: (d) ->
       @invalidate()
       @_initialized = true # keep validation from rebuilding; user can still rebuild explicitly
-      @_data.dispose() if @_data
+      if @_data
+        @_data.off 'change'
+        @_data.dispose()
       @_data = d
       @_data.on 'colorChanged', => @trigger 'colorChanged'
       @_data.on 'shouldRecalculateNormals', => @recalculateNormals()
       @_data.on 'shouldRecalculateTangents', => @recalculateTangents()
       @_data.on 'shouldRecalculateBitangents', => @recalculateBitangents()
+      @_data.on 'change', => @trigger 'change:data', @_data
+      @trigger 'change:data', @_data
       
   @define 'color',
     get: -> @_color

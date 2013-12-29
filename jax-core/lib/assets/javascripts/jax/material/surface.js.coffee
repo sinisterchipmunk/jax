@@ -104,7 +104,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
     binding.set 'WorldAmbientColor', context.world.ambientColor
     binding.set 'MaterialDiffuseColor', @color.diffuse
     binding.set 'MaterialSpecularColor', @color.specular
-    binding.listen mesh.data, 'change', ->
+    binding.listen mesh, 'change:data', ->
       mesh.data.set binding,
         vertices: 'VertexPosition'
         colors:   'VertexColor'

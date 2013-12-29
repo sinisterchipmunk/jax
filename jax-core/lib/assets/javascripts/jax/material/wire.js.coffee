@@ -104,7 +104,7 @@ class Jax.Material.Wire extends Jax.Material.Surface
     super binding
     {context, mesh} = binding
     @wireMesh mesh unless mesh?.data.wired
-    binding.listen mesh.data, 'change', ->
+    binding.listen mesh, 'change:data', ->
       mesh.data.set binding,
         p2verts: 'p1_3d'
         p3verts: 'p2_3d'
