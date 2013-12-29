@@ -3,9 +3,9 @@
 
 class Jax.Material.Wire extends Jax.Material.Surface
   Wire.prototype.shaders =
-    common:   Jax.shaderTemplates['shaders/main/wire/common']
-    vertex:   Jax.shaderTemplates['shaders/main/wire/vertex']
-    fragment: Jax.shaderTemplates['shaders/main/wire/fragment']
+    common:   Jax.shaderTemplates['shaders/wire/common']
+    vertex:   Jax.shaderTemplates['shaders/wire/vertex']
+    fragment: Jax.shaderTemplates['shaders/wire/fragment']
 
   # p2verts and p3verts will store the (xyz) of P2 and P3 for every
   # vertex P1. The (w) of P2 will store the vertex ID (0,1,2).

@@ -2,9 +2,9 @@
 
 class Jax.Material.ParaboloidDepthmap extends Jax.Material.Custom
   ParaboloidDepthmap.prototype.shaders =
-    common:   Jax.shaderTemplates['shaders/main/paraboloid_depthmap/common']
-    vertex:   Jax.shaderTemplates['shaders/main/paraboloid_depthmap/vertex']
-    fragment: Jax.shaderTemplates['shaders/main/paraboloid_depthmap/fragment']
+    common:   Jax.shaderTemplates['shaders/paraboloid_depthmap/common']
+    vertex:   Jax.shaderTemplates['shaders/paraboloid_depthmap/vertex']
+    fragment: Jax.shaderTemplates['shaders/paraboloid_depthmap/fragment']
 
   defaultAttributes: -> $.extend super(),
     direction: -1

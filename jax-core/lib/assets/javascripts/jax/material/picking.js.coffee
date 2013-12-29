@@ -2,9 +2,9 @@
 
 class Jax.Material.Picking extends Jax.Material.Custom
   Picking.prototype.shaders =
-    common:   Jax.shaderTemplates['shaders/main/picking/common']
-    vertex:   Jax.shaderTemplates['shaders/main/picking/vertex']
-    fragment: Jax.shaderTemplates['shaders/main/picking/fragment']
+    common:   Jax.shaderTemplates['shaders/picking/common']
+    vertex:   Jax.shaderTemplates['shaders/picking/vertex']
+    fragment: Jax.shaderTemplates['shaders/picking/fragment']
 
   registerBinding: (binding) ->
     {context, model, mesh} = binding

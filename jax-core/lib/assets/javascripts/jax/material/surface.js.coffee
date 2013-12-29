@@ -3,9 +3,9 @@ class Jax.Material.Surface extends Jax.Material.Custom
   Surface.MAX_LIGHTS_PER_PASS = 6
 
   Surface.prototype.shaders =
-    common:   Jax.shaderTemplates['shaders/main/surface/common']
-    vertex:   Jax.shaderTemplates['shaders/main/surface/vertex']
-    fragment: Jax.shaderTemplates['shaders/main/surface/fragment']
+    common:   Jax.shaderTemplates['shaders/surface/common']
+    vertex:   Jax.shaderTemplates['shaders/surface/vertex']
+    fragment: Jax.shaderTemplates['shaders/surface/fragment']
 
   @define 'intensity',
     get: -> @_intensity

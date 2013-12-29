@@ -10,7 +10,7 @@ attribute vec4 p1_3d;
 attribute vec4 p2_3d;
 
 void main(void) {
-  <%= require("shaders/main/surface/vertex_main") %>
+  <%= require("shaders/surface/vertex_main") %>
 
   mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 

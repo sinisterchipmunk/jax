@@ -2,9 +2,9 @@
 
 class Jax.Material.Depthmap extends Jax.Material.Custom
   Depthmap.prototype.shaders =
-    common:   Jax.shaderTemplates['shaders/main/depthmap/common']
-    vertex:   Jax.shaderTemplates['shaders/main/depthmap/vertex']
-    fragment: Jax.shaderTemplates['shaders/main/depthmap/fragment']
+    common:   Jax.shaderTemplates['shaders/depthmap/common']
+    vertex:   Jax.shaderTemplates['shaders/depthmap/vertex']
+    fragment: Jax.shaderTemplates['shaders/depthmap/fragment']
 
   registerBinding: (binding) ->
     {context, model, mesh} = binding
