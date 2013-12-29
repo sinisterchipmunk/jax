@@ -12,6 +12,9 @@
  **/
 var Jax = {
   PRODUCTION: 1,
+  LINEAR: 1,
+  EXPONENTIAL: 2,
+  EXP2: 3,
   
   webgl_not_supported_path: null,
 

@@ -1,0 +1,132 @@
+const float LOG2 = 1.442695;
+
+/*
+  I used to use gl_FragCoord.z / gl_FragCoord.w but noted that
+  at least on my machine, it didn't interpolate cleanly; I don't
+  know how best to define the issue but it seemed at first similar
+  to a contrast or gamma issue. Switching to my own varying fixes
+  the issue, so that is why `vertexDistance` is a required field for
+  all fog functions.
+*/
+
+/*
+  Calculates the amount of fog based on a linear algorithm, e.g. fog increases
+  linearly with distance from camera.
+*/
+float FogFactorLINEAR(float vertexDistance,
+                      float start,
+                      float end) {
+  return smoothstep(start, end, vertexDistance);
+}
+
+/*
+  Calculates the amount of fog based on an exponential algorithm. This yields
+  good results while still being fast.
+*/
+float FogFactorEXP(float vertexDistance,
+                   float density) {
+  float fog = exp(-density * vertexDistance);
+  return 1.0 - clamp(fog, 0.0, 1.0);
+}
+
+/*
+  Calculates the amount of fog based on the EXP2 logarithmic algorithm. This
+  yields the best results but is the slowest.
+*/
+float FogFactorEXP2(float vertexDistance,
+                    float density) {
+  float fog = exp2(-density * density
+                  * vertexDistance * vertexDistance
+                  * LOG2);
+  return 1.0 - clamp(fog, 0.0, 1.0);
+}
+
+/*
+  Chooses the algorithm with a branching statement. Warning: You should never
+  use branches on dynamic code! This is meant to expose the choice of
+  algorithm to a uniform, and should not be used, for example, based on the
+  pixel color or vertex location.
+
+  The algorithm must be one of the `Jax.LINEAR`, `Jax.EXPONENTIAL`, or
+  `Jax.EXP2` JavaScript values.
+*/
+float CalcFogFactor(float vertexDistance,
+                    float start,
+                    float end,
+                    float density,
+                    int algorithm) {
+  if (algorithm == <%= Jax.LINEAR %>) {
+    return FogFactorLINEAR(vertexDistance, start, end);
+  } else if (algorithm == <%= Jax.EXPONENTIAL %>) {
+    return FogFactorEXP(vertexDistance, density);
+  } else if (algorithm == <%= Jax.EXP2 %>) {
+    return FogFactorEXP2(vertexDistance, density);
+  } else {
+    return 1.0;
+  }
+}
+
+/*
+  Mixes the input color with the fog color based on the linear algorithm.
+  Returns the fog factor. See `FogFactorLINEAR`.
+*/
+float FogColorLINEAR(vec3 fragmentColor,
+                     vec3 fogColor,
+                     out vec3 outputColor,
+                     float vertexDistance,
+                     float start,
+                     float end) {
+  float fog = FogFactorLINEAR(vertexDistance, start, end);
+  outputColor = mix(fragmentColor, fogColor, fog);
+  return fog;
+}
+
+/*
+  Mixes the input color with the fog color based on the exponential algorithm.
+  Returns the fog factor. See `FogFactorEXP`.
+*/
+float FogColorEXP(vec3 fragmentColor,
+                  vec3 fogColor,
+                  out vec3 outputColor,
+                  float vertexDistance,
+                  float density) {
+  float fog = FogFactorEXP(vertexDistance, density);
+  outputColor = mix(fragmentColor, fogColor, fog);
+  return fog;
+}
+
+/*
+  Mixes the input color with the fog color based on the EXP2 algorithm.
+  Returns the fog factor. See `FogFactorEXP2`.
+*/
+float FogColorEXP2(vec3 fragmentColor,
+                   vec3 fogColor,
+                   out vec3 outputColor,
+                   float vertexDistance,
+                   float density) {
+  float fog = FogFactorEXP2(vertexDistance, density);
+  outputColor = mix(fragmentColor, fogColor, fog);
+  return fog;
+}
+
+/*
+  Chooses the algorithm with a branching statement. Warning: You should never
+  use branches on dynamic code! This is meant to expose the choice of
+  algorithm to a uniform, and should not be used, for example, based on the
+  pixel color or vertex location.
+
+  The algorithm must be one of the `Jax.LINEAR`, `Jax.EXPONENTIAL`, or
+  `Jax.EXP2` JavaScript values.
+*/
+float CalcFogColor(vec3 fragmentColor,
+                   vec3 fogColor,
+                   out vec3 outputColor,
+                   float vertexDistance,
+                   float start,
+                   float end,
+                   float density,
+                   int algorithm) {
+  float fog = CalcFogFactor(vertexDistance, start, end, density, algorithm);
+  outputColor = mix(fragmentColor, fogColor, fog);
+  return fog;
+}

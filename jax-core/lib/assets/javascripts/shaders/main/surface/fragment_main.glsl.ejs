@@ -113,3 +113,6 @@ vec3 attenuatedLightColor, directLightColor;
     gl_FragColor.rgb += attenuatedLightColor * BaseColor.rgb;
   }
 <% } %>
+
+FogColorEXP2(gl_FragColor.rgb, FogColor.rgb, gl_FragColor.rgb,
+             vEyeZ, FogDensity);

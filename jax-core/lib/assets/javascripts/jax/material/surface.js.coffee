@@ -21,7 +21,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
   @define 'color',
     get:       -> @_color
     set: (obj) -> @_color.setAll obj
-        
+
   @define 'shininess',
     get: -> @_shininess
     set: (s) ->
@@ -32,8 +32,12 @@ class Jax.Material.Surface extends Jax.Material.Custom
     get: -> @get 'pcf'
     set: (s) -> @set 'pcf', s
 
+  @define 'fogDensity',
+    get: -> @get 'fogDensity'
+    set: (s) -> @set 'fogDensity', s
+
   constructor: (options = {}) ->
-    @_color = new Jax.Color.Group 'diffuse', 'ambient', 'specular'
+    @_color = new Jax.Color.Group 'diffuse', 'ambient', 'specular', 'fog'
 
     # FIXME These should probably become classes.
     @_intensity = {}
@@ -67,16 +71,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
     options.shininess = 60     if options.shininess is undefined
     options.pcf       = true   if options.pcf       is undefined
     super options, name
-
-    # if options
-    #   if options.textures
-    #     for texture in options.textures
-    #       @addLayer type: 'Texture', texture: texture
-    #   if options.normalMaps
-    #     for map in options.normalMaps
-    #       # Normal maps must come before diffuse or specular shaders so that
-    #       # they can perturb the normal before it's used to generate colors.
-    #       @insertLayer 0, type: 'NormalMap', texture: map
 
   render: (context, model, mesh) ->
     for light in context.world.lights
@@ -121,12 +115,11 @@ class Jax.Material.Surface extends Jax.Material.Custom
     assigns["SHADOWMAP_MATRIX"]          = new Float32Array Surface.MAX_LIGHTS_PER_PASS * 16
 
     binding.set 'WorldAmbientColor', context.world.ambientColor
-    binding.set 'MaterialAmbientColor', @color.ambient
-    binding.set 'MaterialDiffuseColor', @color.diffuse
+    binding.set 'MaterialAmbientColor',  @color.ambient
+    binding.set 'MaterialDiffuseColor',  @color.diffuse
     binding.set 'MaterialSpecularColor', @color.specular
+    binding.set 'FogColor',              @color.fog
     binding.set 'WorldAmbientColor', context.world.ambientColor
-    binding.set 'MaterialDiffuseColor', @color.diffuse
-    binding.set 'MaterialSpecularColor', @color.specular
     binding.listen mesh, 'change:data', =>
       mesh.data.set binding,
         vertices: 'VertexPosition'
@@ -144,6 +137,8 @@ class Jax.Material.Surface extends Jax.Material.Custom
       binding.set 'MaterialSpecularIntensity', @intensity.specular
     binding.listen this, 'change:shininess', =>
       binding.set 'MaterialShininess', @shininess
+    binding.listen this, 'change:fogDensity', =>
+      binding.set 'FogDensity', @fogDensity
     binding.listen context.world, 'lightAdded', @lightAdded
     binding.listen this, 'change:pcf', => @shader.invalidate()
 

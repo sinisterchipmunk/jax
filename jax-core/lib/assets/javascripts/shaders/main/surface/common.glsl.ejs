@@ -44,6 +44,9 @@ varying vec3  vEyeSpaceSurfacePosition,
               vEyeSpaceSurfaceNormal;
 varying vec2  vVertexTexCoords;
 
+uniform vec4 FogColor;
+uniform float FogDensity;
+varying float vEyeZ;
 
 uniform bool IsDualParaboloid[MAX_LIGHTS];
 uniform bool SHADOWMAP_ENABLED[MAX_LIGHTS];

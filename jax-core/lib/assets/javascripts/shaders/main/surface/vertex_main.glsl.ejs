@@ -5,6 +5,7 @@ vVertexColor = VertexColor;
 gl_Position = ViewMatrix * modelVertexPosition;
 vEyeSpaceSurfacePosition = gl_Position.xyz;
 gl_Position = ProjectionMatrix * gl_Position;
+vEyeZ = gl_Position.z;
 
 <% for (var i = 0; i < Jax.Material.Surface.MAX_LIGHTS_PER_PASS; i++) { %>
   if (SHADOWMAP_ENABLED[<%= i %>])
