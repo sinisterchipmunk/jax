@@ -10,8 +10,7 @@ class Jax.Dev.Router extends Backbone.Router
     ".*"               : "runtime"
 
   runtime: (controller) =>
-    @_runtime = new Jax.Dev.Views.Runtime
-    @_runtime.startController controller if controller
+    @_runtime = new Jax.Dev.Views.Runtime model: controller
     @workspace.setView @_runtime
 
   unitTests: (name) =>

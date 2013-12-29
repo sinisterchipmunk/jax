@@ -19,7 +19,7 @@ class Jax.Dev.Views.WebGLCanvas extends Backbone.View
     #   background
     window.jax?.dispose()
     window.jax = @jax = new Jax.Context canvas: @el
-    @startController 'jax'
+    @startController @model || 'jax'
 
   render: ->
     @$el.attr 'width', '1024'

@@ -3,7 +3,7 @@ class Jax.Dev.Views.Runtime extends Backbone.View
     @controllers = new Jax.Dev.Views.ControllerList
       collection: new Jax.Dev.Collections.Controllers
     @jasmine = new Jax.Dev.Views.Jasmine
-    @canvas = new Jax.Dev.Views.WebGLCanvas
+    @canvas = new Jax.Dev.Views.WebGLCanvas model: @model
     @tools = new Jax.Dev.Views.Tools context: @canvas.jax
     @render()
 
