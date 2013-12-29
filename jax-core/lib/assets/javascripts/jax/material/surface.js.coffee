@@ -109,8 +109,6 @@ class Jax.Material.Surface extends Jax.Material.Custom
         vertices: 'VertexPosition'
         colors:   'VertexColor'
         normals:  'VertexNormal'
-    binding.listen model.camera, 'change', @matricesChanged
-    binding.listen context.world.cameras[0], 'change', @matricesChanged
     binding.listen this, 'change:intensity:ambient', =>
       binding.set 'MaterialAmbientIntensity', @intensity.ambient
     binding.listen this, 'change:intensity:diffuse', =>
@@ -121,6 +119,13 @@ class Jax.Material.Surface extends Jax.Material.Custom
       binding.set 'MaterialShininess', @shininess
     binding.listen context.world, 'lightAdded', @lightAdded
     binding.listen this, 'change:pcf', => @shader.invalidate()
+
+    # We must reassign matrices every frame until the matrix stack is
+    # made obsolete -- which actually might never happen.
+    # binding.listen model.camera, 'change', @matricesChanged
+    # binding.listen context.world.cameras[0], 'change', @matricesChanged
+    binding.on 'prepare', @matricesChanged
+
     binding.on 'prepare', @prepareLightingPass
 
   ###
@@ -240,7 +245,8 @@ class Jax.Material.Surface extends Jax.Material.Custom
     binding.set "light.#{light.id}.eyeSpacePosition",  @eyePos
     this
 
-  matricesChanged: (binding) =>
+  matricesChanged: (event) =>
+    {binding} = event
     {context, model, mesh} = binding
     binding.set 'ModelMatrix',      context.matrix_stack.getModelMatrix()
     binding.set 'ViewMatrix',       context.matrix_stack.getViewMatrix()
