@@ -1,6 +1,6 @@
 class Jax.Material.Surface extends Jax.Material.Custom
   # the number of lights the shader can handle in a single pass
-  Surface.MAX_LIGHTS_PER_PASS = 8
+  Surface.MAX_LIGHTS_PER_PASS = 6
 
   Surface.prototype.shaders =
     common:   Jax.shaderTemplates['shaders/main/surface/common']
@@ -32,7 +32,7 @@ class Jax.Material.Surface extends Jax.Material.Custom
     get: -> @get 'pcf'
     set: (s) -> @set 'pcf', s
 
-  constructor: (options, name) ->
+  constructor: (options = {}) ->
     @_color = new Jax.Color.Group 'diffuse', 'ambient', 'specular'
 
     # FIXME These should probably become classes.
@@ -54,7 +54,14 @@ class Jax.Material.Surface extends Jax.Material.Custom
         @_intensity._specular = i
         @trigger 'change:intensity:specular'
 
-    options or= {}
+    if options.textures
+      options.textures = for texture in options.textures
+        if texture instanceof Jax.Texture then texture
+        else new Jax.Texture.Bitmap texture
+    if options.normalMaps
+      options.normalMaps = for nmap in options.normalMaps
+        if nmap instanceof Jax.Texture then nmap
+        else new Jax.Texture.Bitmap nmap
     options.intensity = 1      if options.intensity is undefined
     options.color     = '#fff' if options.color     is undefined
     options.shininess = 60     if options.shininess is undefined
@@ -80,6 +87,22 @@ class Jax.Material.Surface extends Jax.Material.Custom
     {context, model, mesh} = binding
 
     assigns = binding.get()
+
+    # assigns['Textures'] = (texture for texture in @get 'textures')
+    # assigns["NormalMap"] = (nmap for nmap in @options.normalMap)
+    for tex, i in @get 'textures'
+      do (tex, i) =>
+        binding.listen tex, 'change', => assigns["Textures[#{i}]"] = tex
+    for nmap, i in @get 'normalMaps'
+      do (nmap, i) =>
+        binding.listen nmap, 'change', =>
+          assigns["NormalMaps[#{i}]"] = nmap
+          assigns["NormalMapSpecular[#{i}]"] = nmap.get('specularChannel')
+          assigns["NormalMapScales[#{i}]"] = [
+            nmap.get('scale') || nmap.get('scaleX') || 1,
+            nmap.get('scale') || nmap.get('scaleY') || 1
+          ]
+
     assigns["LightType"]                 = new Int32Array   Surface.MAX_LIGHTS_PER_PASS
     assigns["LightSpotInnerCos"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS
     assigns["LightSpotOuterCos"]         = new Float32Array Surface.MAX_LIGHTS_PER_PASS
@@ -104,11 +127,15 @@ class Jax.Material.Surface extends Jax.Material.Custom
     binding.set 'WorldAmbientColor', context.world.ambientColor
     binding.set 'MaterialDiffuseColor', @color.diffuse
     binding.set 'MaterialSpecularColor', @color.specular
-    binding.listen mesh, 'change:data', ->
+    binding.listen mesh, 'change:data', =>
       mesh.data.set binding,
         vertices: 'VertexPosition'
         colors:   'VertexColor'
         normals:  'VertexNormal'
+        textures: 'VertexTexCoords'
+      if @get('normalMaps').length
+        mesh.data.set binding,
+          tangents:   'VertexTangent'
     binding.listen this, 'change:intensity:ambient', =>
       binding.set 'MaterialAmbientIntensity', @intensity.ambient
     binding.listen this, 'change:intensity:diffuse', =>

@@ -3,6 +3,17 @@ precision mediump int;
 
 #define MAX_LIGHTS <%= Jax.Material.Surface.MAX_LIGHTS_PER_PASS %>
 
+<% if (textures.length) { %>
+  uniform sampler2D Textures[<%= textures.length %>];
+  uniform vec2 TextureScales[<%= textures.length %>];
+<% } %>
+<% if (normalMaps.length) { %>
+  uniform sampler2D NormalMaps[<%= normalMaps.length %>];
+  uniform vec2 NormalMapScales[<%= normalMaps.length %>];
+  uniform bool NormalMapSpecular[<%= normalMaps.length %>];
+  varying vec3 vEyeSpaceSurfaceTangent, vEyeSpaceSurfaceBitangent;
+<% } %>
+
 uniform float MaterialAmbientIntensity,
               MaterialDiffuseIntensity,
               MaterialSpecularIntensity,
@@ -31,6 +42,7 @@ uniform bool  LightEnabled[MAX_LIGHTS],
 varying vec4  vVertexColor;
 varying vec3  vEyeSpaceSurfacePosition,
               vEyeSpaceSurfaceNormal;
+varying vec2  vVertexTexCoords;
 
 
 uniform bool IsDualParaboloid[MAX_LIGHTS];

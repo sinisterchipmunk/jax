@@ -1,13 +1,24 @@
 vec4 modelVertexPosition = ModelMatrix * VertexPosition;
 
+vVertexTexCoords = VertexTexCoords;
 vVertexColor = VertexColor;
 gl_Position = ViewMatrix * modelVertexPosition;
 vEyeSpaceSurfacePosition = gl_Position.xyz;
-vEyeSpaceSurfaceNormal = NormalMatrix * VertexNormal;
 gl_Position = ProjectionMatrix * gl_Position;
 
 <% for (var i = 0; i < Jax.Material.Surface.MAX_LIGHTS_PER_PASS; i++) { %>
   if (SHADOWMAP_ENABLED[<%= i %>])
     vShadowCoord[<%= i %>] = SHADOWMAP_MATRIX[<%= i %>] *
                              modelVertexPosition;
+<% } %>
+
+
+vEyeSpaceSurfaceNormal = NormalMatrix * VertexNormal;
+
+<% if (normalMaps.length) { %>
+  vec3 tangent   = VertexTangent.xyz;
+  vec3 bitangent = cross(VertexNormal, tangent) * VertexTangent.w;
+
+  vEyeSpaceSurfaceTangent   = NormalMatrix * tangent;
+  vEyeSpaceSurfaceBitangent = NormalMatrix * bitangent;
 <% } %>

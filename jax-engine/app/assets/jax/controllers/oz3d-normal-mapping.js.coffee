@@ -14,16 +14,18 @@ class OZ3DNormal extends Jax.Controller
     
   key_pressed: (e) ->
     @useSpecular = !@useSpecular
-    @obj.mesh.material.findLayer(Jax.Material.Layer.NormalMap).specularChannel = @useSpecular
+    @obj.mesh.material.normalMaps[0].set 'specularChannel', @useSpecular
     
   index: ->
     @useSpecular = true
-    console.log "Normal mapping test:"
-    console.log "  Drag mouse to move light source."
-    console.log ""
-    console.log "  Normal map's alpha channel contains a specular map."
-    console.log "  Specular map is enabled by default. Press any key to toggle."
-    console.log "  When enabled, the mortar between bricks should have 0 specular."
+    console.log """
+      Normal mapping test:
+        Drag mouse to move light source.
+
+        Normal map's alpha channel contains a specular map.
+        Specular map is enabled by default. Press any key to toggle.
+        When enabled, the mortar between bricks should have 0 specular.
+    """
     
     # @activeCamera.position = [0, 0, 100]
     @activeCamera.setPosition [32, -13.52, 55.4]

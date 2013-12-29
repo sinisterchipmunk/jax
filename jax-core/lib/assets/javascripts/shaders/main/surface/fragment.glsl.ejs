@@ -3,6 +3,7 @@
 <%= require("shaders/lib/phong_specular") %>
 <%= require("shaders/lib/light_attenuation") %>
 <%= require("shaders/lib/shadow_map_lookup") %>
+<%= require("shaders/lib/normal_map_lookup") %>
 
 void main(void) {
   <%= require("shaders/main/surface/fragment_main") %>

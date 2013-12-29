@@ -1,0 +1,33 @@
+/*
+  Given a normal map, lookup coordinates for the map, and normal, tangent
+  and bitangent vectors (all of unit length, perpendicular to one another,
+  and given in eye space); returns a single directional vector representing
+  the direction of the surface as perturbed by the normal map. The alpha value
+  of the normal map is not used by this function, but is returned as the 4th
+  component of the return value. Thus, the return value is a `vec4`.
+*/
+vec4 NormalMapLookup(sampler2D nmap,
+                     vec2 coords,
+                     vec3 n,
+                     vec3 t,
+                     vec3 b) {
+  vec4 result;
+
+  vec4 rgba = texture2D(nmap, coords);
+  vec3 bump = normalize(rgba.xyz * 2.0 - 1.0);
+  result.a = rgba.a;
+  
+  // inverse
+  // float r0 = t.x, r1 = b.x, r2 = n.x,
+  //       r3 = t.y, r4 = b.y, r5 = n.y,
+  //       r6 = t.z, r7 = b.z, r8 = b.z;
+  
+  float r0 = t.x, r1 = t.y, r2 = t.z,
+        r3 = b.x, r4 = b.y, r5 = b.z,
+        r6 = n.x, r7 = n.y, r8 = n.z;
+  mat3 tangentMatrix = mat3(r0, r1, r2, r3, r4, r5, r6, r7, r8);
+  
+  bump = normalize(tangentMatrix * bump);
+  result.xyz = bump;
+  return result;
+}

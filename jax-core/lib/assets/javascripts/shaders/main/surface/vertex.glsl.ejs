@@ -1,5 +1,10 @@
 attribute vec4 VertexPosition, VertexColor;
 attribute vec3 VertexNormal;
+attribute vec2 VertexTexCoords;
+
+<% if (normalMaps.length) { %>
+  attribute vec4 VertexTangent, VertexBitangent;
+<% } %>
 
 void main(void) {
   <%= require("shaders/main/surface/vertex_main") %>

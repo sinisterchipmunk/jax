@@ -1,22 +1,58 @@
+vec4 BaseColor = vVertexColor;
+
+<% if (textures.length) { %>
+  <% for (var i = 0; i < textures.length; i++) { %>
+    BaseColor *= texture2D(Textures[<%= i %>], vVertexTexCoords);
+  <% } %>
+<% } %>
+
+// the lighting calculations past this point only apply to RGB, for opacity
+// we're done
+gl_FragColor.a = BaseColor.a
+                 * MaterialAmbientColor.a
+                 + MaterialDiffuseColor.a
+                 + MaterialSpecularColor.a;
+
 if (WorldAmbientEnabled) {
-  gl_FragColor = vVertexColor;
-  gl_FragColor.rgb *= WorldAmbientColor.a   *
-                      WorldAmbientColor.rgb *
-                      MaterialAmbientIntensity;
+  gl_FragColor.rgb = BaseColor.rgb
+                     * WorldAmbientColor.a
+                     * WorldAmbientColor.rgb
+                     * MaterialAmbientIntensity;
 } else {
-  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+  gl_FragColor.rgb = vec3(0.0, 0.0, 0.0);
 }
 
-gl_FragColor.a *= MaterialAmbientColor.a +
-                  MaterialDiffuseColor.a +
-                  MaterialSpecularColor.a;
 
 vec3 ambientLightColor, diffuseLightColor, specularLightColor;
 float spotAttenuation, lightDistanceFromSurface;
+float specularMultiplier = 1.0;;
 
-vec3 eyeSpaceSurfaceNormal = vEyeSpaceSurfaceNormal;
+<% if (normalMaps.length) { %>
+  vec3 eyeSpaceSurfaceNormal    = normalize(vEyeSpaceSurfaceNormal);
+  vec3 eyeSpaceSurfaceTangent   = normalize(vEyeSpaceSurfaceTangent);
+  vec3 eyeSpaceSurfaceBitangent = normalize(vEyeSpaceSurfaceBitangent);
+
+  vec4 temp = vec4(0.0, 0.0, 0.0, 1.0);
+  vec3 finalNormal = vec3(0.0, 0.0, 0.0);
+  <% for (var i = 0; i < normalMaps.length; i++) { %>
+    temp = NormalMapLookup(NormalMaps[<%= i %>],
+                           NormalMapScales[<%= i %>] * vVertexTexCoords,
+                           eyeSpaceSurfaceNormal,
+                           eyeSpaceSurfaceTangent,
+                           eyeSpaceSurfaceBitangent);
+    finalNormal += temp.xyz;
+    if (NormalMapSpecular[<%= i %>]) {
+      specularMultiplier = min(temp.a, specularMultiplier);
+    }
+  <% } %>
+  eyeSpaceSurfaceNormal = normalize(finalNormal);
+<% } else { %>
+  vec3 eyeSpaceSurfaceNormal = normalize(vEyeSpaceSurfaceNormal);
+<% } %>
+
+// Perform lighting calculations properly when rendering a back face with
+// CULL_FACE disabled or set to FRONT
 if (!gl_FrontFacing) eyeSpaceSurfaceNormal = -eyeSpaceSurfaceNormal;
-eyeSpaceSurfaceNormal = normalize(eyeSpaceSurfaceNormal);
 
 vec3 attenuatedLightColor, directLightColor;
 <% for (var i = 0; i < Jax.Material.Surface.MAX_LIGHTS_PER_PASS; i++) { %>
@@ -54,7 +90,8 @@ vec3 attenuatedLightColor, directLightColor;
                    specularLightColor,
                    spotAttenuation);
 
-    directLightColor = diffuseLightColor + specularLightColor;
+    directLightColor = diffuseLightColor + specularLightColor
+                                         * specularMultiplier;
     if (SHADOWMAP_ENABLED[<%= i %>])
       directLightColor *= ShadowMapLookup(vShadowCoord[<%= i %>],
                                           SHADOWMAP_WIDTH[<%= i %>],
@@ -73,6 +110,6 @@ vec3 attenuatedLightColor, directLightColor;
                      LightQuadraticAttenuation[<%= i %>],
                      attenuatedLightColor);
     
-    gl_FragColor.rgb += attenuatedLightColor;
+    gl_FragColor.rgb += attenuatedLightColor * BaseColor.rgb;
   }
 <% } %>

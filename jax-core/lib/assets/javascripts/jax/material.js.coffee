@@ -12,7 +12,9 @@ class Jax.Material
     vertex:   -> throw new Error "Material has no vertex shader source!"
     fragment: -> throw new Error "Material has no fragment shader source!"
 
-  constructor: (options, @name = "generic") ->
+  constructor: (options = {}) ->
+    options.textures   or= []
+    options.normalMaps or= []
     @initializeAttributes()
     # FIXME: this should be `set(key, value)` but most shaders aren't ready
     # for that yet
